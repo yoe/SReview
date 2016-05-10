@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+  <head><title><%= title %></title></head>
+  <body><%= content %>
+  <p><%= link_to 'Log out' => 'logout' %></p>
+  </body>
+</html>

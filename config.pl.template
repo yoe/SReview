@@ -1,0 +1,7 @@
+our $config;
+
+$config->{secrets} = ["_INSECURE_DEFAULT_REPLACE_ME_"];
+$config->{event} = "FOSDEM 2016";
+$config->{dbistring} = "dbi:Pg:dbname=sreview";
+
+1;

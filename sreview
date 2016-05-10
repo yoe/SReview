@@ -1,0 +1,150 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+use Mojolicious::Lite;
+use Mojo::Collection 'c';
+use DBI;
+
+our $config;
+require 'config.pl';
+
+die if $config->{secrets}[0] eq "_INSECURE_DEFAULT_REPLACE_ME_";
+
+my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
+
+sub find_event {
+	my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
+	$st->execute($config->{event}) or die "Could not find event!\n";
+	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
+		die if exists($config->{eventid});
+		$config->{eventid} = $row->{id};
+	}
+}
+
+find_event;
+
+app->secrets($config->{secrets});
+
+helper dbh => sub { return $dbh; };
+
+get '/' => sub {
+	my $c = shift;
+	$c->render;
+} => 'index';
+
+get '/login';
+
+post '/login_post' => sub {
+	my $c = shift;
+
+	my $email = $c->param('email');
+	my $pass = $c->param('pass');
+
+	my $st = $c->dbh->prepare("SELECT id FROM users WHERE email=? AND password=digest(?, 'sha256')");
+	my $rv;
+	if(!($rv = $st->execute($email, $pass))) {
+		die "Could not check password: " . $st->errstr;
+	}
+	if($rv == 0) {
+		die "Not authorized\n";
+	}
+	my $row = $st->fetchrow_arrayref or die "eep?! username query returned nothing\n";
+	$c->session->{id} = $row->[0];
+	$c->session->{email} = $email;
+
+	return $c->redirect_to('/admin');
+};
+
+get '/review/:nonce' => sub {
+	my $c = shift;
+	my $st = $c->dbh->prepare("SELECT * FROM talk_list WHERE nonce=?");
+	my $rv = $st->execute($c->param("nonce"));
+	if($rv == 0) {
+		$c->res->code(404);
+		$c->render(text => "Invalid URL");
+		return undef;
+	}
+	my $row = $st->fetchrow_hashref("NAME_lc");
+	$c->stash(talk_title => $row->{name});
+	$c->stash(talk_speakers => $row->{speakers});
+	$c->stash(talk_start => $row->{starttime});
+	$c->stash(talk_end => $row->{starttime});
+	$c->stash(slug => $row->{slug});
+	$c->stash(event => $config->{event});
+	$c->stash(eventid => $config->{eventid});
+	$c->stash(room => $row->{room});
+} => 'talk';
+
+### ADMINISTRATION ###
+
+under '/admin' => sub {
+	my $c = shift;
+	if(!exists($c->session->{id})) {
+		$c->res->code(403);
+		$c->render(text => 'Not authorized');
+		return 0;
+	}
+	$c->stash(layout => "admin");
+	return 1;
+};
+
+get '/' => sub {
+	my $c = shift;
+	my $st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers FROM talk_list  WHERE event = ? ORDER BY room, starttime');
+	my $talks = ();
+	my $room;
+	my $lastroom = '';
+	$st->execute($config->{eventid});
+	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
+		if ($row->{'room'} ne $lastroom) {
+			if(defined($room)) {
+				push @$talks, c($lastroom => $room);
+			}
+			$room = [];
+		}
+		$lastroom = $row->{'room'};
+		next unless defined($row->{id});
+		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} => $row->{'id'}];
+	}
+	if(defined($room)) {
+		push @$talks, c($lastroom => $room);
+	}
+	$c->stash(email => $c->session->{email});
+	$c->stash(talks => $talks);
+	$c->render;
+} => 'admin/main';
+
+get '/logout' => sub {
+	my $c = shift;
+	delete $c->session->{id};
+	$c->redirect_to('/');
+};
+
+get '/talk' => sub {
+	my $c = shift;
+	my $id = $c->param("talk");
+
+	my $st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
+	$st->execute($id) or die('talk does not exist!\n');
+	my $row = $st->fetchrow_hashref("NAME_lc");
+
+	$c->stash(talk_title => $row->{name});
+	$c->stash(talk_speakers => $row->{speakers});
+	$c->stash(talk_start => $row->{starttime});
+	$c->stash(talk_end => $row->{starttime});
+	$c->stash(slug => $row->{slug});
+	$c->stash(event => $config->{event});
+	$c->stash(eventid => $config->{eventid});
+	$c->stash(room => $row->{room});
+	$c->render;
+} => 'talk';
+
+get '*any' => sub {
+	my $c = shift;
+	$c->redirect_to('/admin');
+};
+
+app->start;
