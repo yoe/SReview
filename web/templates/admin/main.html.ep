@@ -1,6 +1,6 @@
 <h1>Hi <%= $email %>!</h1>
 <p>Please select a talk to work with:</p>
-  %= form_for talk => begin
+  %= form_for admin_talk => begin
     %= select_field talk => $talks, multiple => 1
     <br>
     %= submit_button

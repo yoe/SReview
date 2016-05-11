@@ -1,0 +1,18 @@
+%layout "default";
+<h1><%= $header %></h1>
+<table>
+  % if(defined($titlerow)) {
+    <tr>
+    % foreach my $cell(@$titlerow) {
+    <th><%= $cell %></th>
+    % }
+    </tr>
+  % }
+  % foreach my $row(@$rows) {
+  <tr>
+    % foreach my $cell(@$row) {
+      <td><%= $cell %></td>
+    % }
+  </tr>
+  % }
+</table>

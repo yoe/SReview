@@ -2,6 +2,9 @@
 <p>This video is for the talk entitled '<%= $talk_title %>' by <%= $talk_speakers %> which happened in room <%= $room %> from <%= $talk_start %> to <%= $talk_end %> at <%= $event %></p>
 <p>To be able to see this preview, you must use an HTML5 browser which supports the WebM format.</p>
 <video controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video>
+% if (defined($state)) {
+<p>Current state of this talk is <%= $state %>.</p>
+% }
 %= form_for talk_update => (method => 'POST') => begin
   %= radio_button choice => 'ok', id => 'ok'
   %= label_for ok => 'This preview looks OK, please transcode it in high quality and release it'

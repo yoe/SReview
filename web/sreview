@@ -2,11 +2,12 @@
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use Mojolicious::Lite;
 use Mojo::Collection 'c';
 use DBI;
+
+use experimental "switch";
 
 our $config;
 require 'config.pl';
@@ -68,6 +69,11 @@ get '/review/:nonce' => sub {
 		return undef;
 	}
 	my $row = $st->fetchrow_hashref("NAME_lc");
+	if($row->{state} ne 'preview') {
+		$c->stash(message => "The video <q>" . $row->{name} . "</q> is not currently ready for review. Its state is <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. Please try again later.");
+		$c->render('error');
+		return undef;
+	}
 	$c->stash(talk_title => $row->{name});
 	$c->stash(talk_speakers => $row->{speakers});
 	$c->stash(talk_start => $row->{starttime});
@@ -77,6 +83,16 @@ get '/review/:nonce' => sub {
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
 } => 'talk';
+
+get '/overview' => sub {
+	my $c = shift;
+	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL');
+	$st->execute or die;
+	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
+	$c->stash(rows => $st->fetchall_arrayref);
+	$c->stash(header => 'Video status overview');
+	$c->render;
+} => 'table';
 
 ### ADMINISTRATION ###
 
@@ -139,8 +155,9 @@ get '/talk' => sub {
 	$c->stash(event => $config->{event});
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
-	$c->render;
-} => 'talk';
+	$c->stash(state => $row->{state});
+	$c->render(template => 'talk');
+} => 'admin_talk';
 
 get '*any' => sub {
 	my $c = shift;
