@@ -2,7 +2,7 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    %= stylesheet '/style.css'
   </head>
   <body><%= content %>
   <p>SReview <%= $c->version %>. Code is <a href=''>available</a>. Patches welcome :-)</p>
