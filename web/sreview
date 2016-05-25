@@ -50,7 +50,9 @@ post '/login_post' => sub {
 		die "Could not check password: " . $st->errstr;
 	}
 	if($rv == 0) {
-		die "Not authorized\n";
+		$c->stash(message => "Incorrect username or password.");
+		$c->render('error');
+		return undef;
 	}
 	my $row = $st->fetchrow_arrayref or die "eep?! username query returned nothing\n";
 	$c->session->{id} = $row->[0];
@@ -70,7 +72,7 @@ get '/review/:nonce' => sub {
 	}
 	my $row = $st->fetchrow_hashref("NAME_lc");
 	if($row->{state} ne 'preview') {
-		$c->stash(message => "The video <q>" . $row->{name} . "</q> is not currently ready for review. Its state is <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. Please try again later.");
+		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently ready for review. Its state is <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. Please try again later.");
 		$c->render('error');
 		return undef;
 	}
@@ -86,7 +88,7 @@ get '/review/:nonce' => sub {
 
 get '/overview' => sub {
 	my $c = shift;
-	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL');
+	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL ORDER BY state, room, starttime');
 	$st->execute or die;
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
 	$c->stash(rows => $st->fetchall_arrayref);
@@ -144,8 +146,14 @@ get '/talk' => sub {
 	my $id = $c->param("talk");
 
 	my $st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
-	$st->execute($id) or die('talk does not exist!\n');
+	$st->execute($id);
 	my $row = $st->fetchrow_hashref("NAME_lc");
+
+	if(!defined($row)) {
+		$c->stash(message => "Unknown talk.");
+		$c->render('error');
+		return undef;
+	}
 
 	$c->stash(talk_title => $row->{name});
 	$c->stash(talk_speakers => $row->{speakers});

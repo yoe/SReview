@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+our $config;
+require 'config.pl';
+
+my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 0}) or die "Cannot connect to database!";
+
+while(true) {
+	my $st;
+	if($config->{query_limit} > 0) {
+		$st = $dbh->prepare("SELECT * FROM talks WHERE state IN ('files_missing', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
+		$st->execute($config->{query_limit});
+	} else {
+		$st = $dbh->prepare("SELECT * FROM talks WHERE state IN ('files_missing', 'files_found', 'review_done', 'waiting') FOR UPDATE");
+		$st->execute;
+	}
+	while($row = $st->fetchrow_hashref) {
+		given($row{state}) {
+			when('files_missing') {
+			}
+		}
+	}
+}

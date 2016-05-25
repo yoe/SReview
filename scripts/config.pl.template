@@ -1,0 +1,37 @@
+
+our $config;
+
+$config->{dbistring} = "dbi:Pg:dbname=sreview";
+
+# Example script definitions for using gridengine
+
+# The maximum number of jobs that the job dispatcher will query in one
+# go. Set to negative value to indicate no limit.
+$config->{query_limit} = -1;
+# This job should look for new files in the input directory, and add
+# them to the database.
+$config->{detect_files} = sub { return "qsub -cwd -V -l input -l db detect_files"; };
+# The job which transforms the raw input data into a raw work file that
+# the high-quality jobs transcode to. This should preferably use a
+# "copy" operation for the video codec, if at all possible.
+$config->{cut_film} = sub { my ($inputs, $output) = shift; return "qsub -cwd -V -pe smp 1-2 -l input -l work cut_film $inputs $output"; };
+# This job should transcode the output of the above into a video of the
+# given type. If there is only one type supported, this could be a
+# simple 'cp'.
+$config->{transcode} = sub { my ($input, $output, $type) = shift; return "qsub -cwd -V -pe smp 1-2 -l work -l output dv2$type $input $output"; };
+# This job should do whatever is necessary to release the given video
+# onto the given URL.
+$config->{upload} = sub { my ($input, $url) = shift; return "qsub -cwd -V -pe smp 1-2 -l output -l upload upload $input $url"; };
+
+# Script definitions for running things directly
+
+## We limit the job dispatcher to running one job at a time, so that
+## multiple hosts may perform work
+# $config->{query_limit} = 1
+## We just run everything else directly, without any qsub stuff
+# $config->{detect_files} = sub { return "detect_files"; };
+# $config->{cut_film} = sub { my ($inputs, $output) = shift; return "cut_film $inputs $output"; };
+# $config->{transcode} = sub { my ($input, $output, $type) = shift; return "dv2$type $input $output"; };
+# $config->{upload} = sub { my ($input, $url) = shift; return "upload $input $url"; };
+
+1;
