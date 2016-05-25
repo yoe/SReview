@@ -75,14 +75,14 @@ post '/login_post' => sub {
 
 get '/review/:nonce' => sub {
 	my $c = shift;
-	my $st = $c->dbh->prepare("SELECT * FROM talk_list WHERE nonce=?");
-	my $rv = $st->execute($c->param("nonce"));
+	my $stt = $c->dbh->prepare("SELECT * FROM talk_list WHERE nonce=?");
+	my $rv = $stt->execute($c->param("nonce"));
 	if($rv == 0) {
 		$c->res->code(404);
 		$c->render(text => "Invalid URL");
 		return undef;
 	}
-	my $row = $st->fetchrow_hashref("NAME_lc");
+	my $row = $stt->fetchrow_hashref("NAME_lc");
 	if($row->{state} ne 'preview') {
 		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently ready for review. Its state is <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. Please try again later.");
 		$c->render('error');
@@ -96,6 +96,11 @@ get '/review/:nonce' => sub {
 	$c->stash(event => $config->{event});
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
+	$c->stash(state => $row->{state});
+	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
+	$stp->execute($row->{id});
+	$c->stash(corrections => $stp->fetchall_arrayref());
+	$c->stash(layout => 'default');
 } => 'talk';
 
 get '/overview' => sub {
