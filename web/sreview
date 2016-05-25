@@ -31,6 +31,18 @@ app->secrets($config->{secrets});
 
 helper dbh => sub { return $dbh; };
 
+my $version;
+
+sub get_version {
+	open GIT, "git describe --tags --dirty|";
+	$version = <GIT>;
+	chomp $version;
+}
+
+get_version;
+
+helper version => sub { return $version; };
+
 get '/' => sub {
 	my $c = shift;
 	$c->render;

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head><title><%= title %></title></head>
-  <body><%= content %></body>
+  <body><%= content %>
+  <p>SReview <%= $c->version %>. Code is <a href=''>available</a>. Patches welcome :-)</p>
+  </body>
 </html>
