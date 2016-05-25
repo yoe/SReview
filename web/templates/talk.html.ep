@@ -1,5 +1,5 @@
 <h1>Preview recording</h1>
-<p>This video is for the talk entitled '<%= $talk_title %>' by <%= $talk_speakers %> which happened in room <%= $room %> from <%= $talk_start %> to <%= $talk_end %> at <%= $event %></p>
+<p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
 <p>To be able to see this preview, you must use an HTML5 browser which supports the WebM format (VP8/vorbis).</p>
 <video controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video>
 % my $disabled = "disabled";
@@ -17,17 +17,17 @@
   <br>
   %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled
   %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview.'
-  <table>
+  <table class='offset_left'>
   % foreach my $correction(@$corrections) {
     <tr>
     % my $id = "correction_" . $correction->[0];
     % my $desc = $correction->[1];
     % my $val = $correction->[2];
     <td>
-    %= text_field ${id} => $val
+    %= label_for ${id} => ${desc}
     </td>
     <td>
-    %= label_for ${id} => ${desc}
+    %= text_field ${id} => $val
     </td>
     </tr>
   % }

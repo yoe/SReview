@@ -8,11 +8,26 @@
     % }
     </tr>
   % }
+  % my $rowtype = 0;
   % foreach my $row(@$rows) {
-  <tr>
+  <tr class='brick'>
+    % $rowtype = 1 - $rowtype;
     % foreach my $cell(@$row) {
       <td><%= $cell %></td>
     % }
   </tr>
   % }
+</table>
+% if(defined($totals)) {
+<h2>Totals</h2>
+<table>
+  % foreach my $row(@$totals) {
+  <tr class='brick'>
+    % $rowtype = 1 - $rowtype;
+    % foreach my $cell(@$row) {
+      <td><%= $cell %></td>
+    % }
+  % }
+  </tr>
+% }
 </table>

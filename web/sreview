@@ -37,6 +37,7 @@ sub get_version {
 	open GIT, "git describe --tags --dirty|";
 	$version = <GIT>;
 	chomp $version;
+	close GIT;
 }
 
 get_version;
@@ -106,10 +107,13 @@ get '/review/:nonce' => sub {
 get '/overview' => sub {
 	my $c = shift;
 	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL ORDER BY state, room, starttime');
+	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks GROUP BY state ORDER BY state;');
 	$st->execute or die;
+	$tot->execute or die;
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
 	$c->stash(rows => $st->fetchall_arrayref);
 	$c->stash(header => 'Video status overview');
+	$c->stash(totals => $tot->fetchall_arrayref());
 	$c->render;
 } => 'table';
 
@@ -165,6 +169,8 @@ get '/talk' => sub {
 	my $st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
 	$st->execute($id);
 	my $row = $st->fetchrow_hashref("NAME_lc");
+	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
+	$stp->execute($id);
 
 	if(!defined($row)) {
 		$c->stash(message => "Unknown talk.");
@@ -181,6 +187,7 @@ get '/talk' => sub {
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
 	$c->stash(state => $row->{state});
+	$c->stash(corrections => $stp->fetchall_arrayref);
 	$c->render(template => 'talk');
 } => 'admin_talk';
 

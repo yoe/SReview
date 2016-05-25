@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <head><title><%= title %></title></head>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+  </head>
   <body><%= content %>
   <p><%= link_to 'Log out' => 'logout' %></p>
   </body>

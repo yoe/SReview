@@ -1,0 +1,7 @@
+table.offset_left {
+	margin-left: 1.5em;
+}
+
+tr.brick:nth-child(2n) {
+	background-color: whitesmoke;
+}
