@@ -5,6 +5,6 @@
     %= stylesheet '/style.css'
   </head>
   <body><%= content %>
-  <p>SReview <%= $c->version %>. Code is <a href=''>available</a>. Patches welcome :-)</p>
+  <p>SReview <%= $c->version %>. Code is <a href='https://github.com/yoe/sreview'>available</a> under the <a href='http://www.gnu.org/licenses/agpl-3.0.html'>GNU AGPLv3</a>. Patches welcome :-)</p>
   </body>
 </html>
