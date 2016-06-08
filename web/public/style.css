@@ -5,3 +5,7 @@ table.offset_left {
 tr.brick:nth-child(2n) {
 	background-color: whitesmoke;
 }
+
+.minor {
+	font-size: 80%;
+}

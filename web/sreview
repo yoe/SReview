@@ -42,6 +42,41 @@ sub get_version {
 
 get_version;
 
+helper talk_update => sub {
+	my $c = shift;
+	my $talk = shift;
+	my $choice = $c->param('choice');
+	if($choice eq 'reset') {
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='preview' WHERE id = ?");
+		$sth->execute($talk) or die;
+	} elsif($choice eq 'ok') {
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='review_done' WHERE id = ?");
+		$sth->execute($talk) or die;
+	} elsif($choice eq 'standard') {
+		my $sth = $c->dbh->prepare("SELECT id, name FROM properties");
+		$sth->execute();
+		while(my $row = $sth->fetchrow_hashref("NAME_lc")) {
+			my $name = $row->{name};
+			my $parm = $c->param("correction_${name}");
+			next unless defined($parm);
+			next if (length($parm) == 0);
+			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?) ON CONFLICT ON CONSTRAINT corrections_pkey DO UPDATE SET property_value = ? WHERE talk = ? AND property = ?");
+			$s->execute($parm, $talk, $name, $talk, $talk, $name) or die;
+			$c->log("foo");
+		}
+	} elsif($choice eq 'comments') {
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', comments = ? WHERE id = ?");
+		my $comments = $c->param("comment_text");
+		$sth->execute($comments, $talk) or die;
+	} else {
+		$c->stash(message => "Unknown action.");
+		$c->render("error");
+		return undef;
+	}
+	$c->stash(message => 'Update successful.');
+};
+
+
 helper version => sub { return $version; };
 
 get '/' => sub {
@@ -84,9 +119,10 @@ get '/review/:nonce' => sub {
 		return undef;
 	}
 	my $row = $stt->fetchrow_hashref("NAME_lc");
-	if($row->{state} ne 'preview') {
-		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently ready for review. Its state is <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. Please try again later.");
-		$c->render('error');
+	if($row->{state} ne 'preview' && $row->{state} ne 'broken') {
+		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently available for review. It is in the state <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. For more information, please see <a href=''>the documentation</a>");
+		$c->stash(title => 'Review finished or not yet available.');
+		$c->render('msg');
 		return undef;
 	}
 	$c->stash(talk_title => $row->{name});
@@ -101,6 +137,8 @@ get '/review/:nonce' => sub {
 	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
 	$stp->execute($row->{id});
 	$c->stash(corrections => $stp->fetchall_arrayref());
+	$c->stash(comments => $row->{comments});
+	$c->stash(target => "talk_update");
 	$c->stash(layout => 'default');
 } => 'talk';
 
@@ -114,8 +152,33 @@ get '/overview' => sub {
 	$c->stash(rows => $st->fetchall_arrayref);
 	$c->stash(header => 'Video status overview');
 	$c->stash(totals => $tot->fetchall_arrayref());
+	$c->stash(layout => 'default');
 	$c->render;
 } => 'table';
+
+post '/talk_update' => sub {
+	my $c = shift;
+	my $nonce = $c->param("nonce");
+	if(!defined($nonce)) {
+		$c->stash(message=>"Unauthorized.");
+		$c->res->code(403);
+		$c->render('error');
+		return undef;
+	}
+	my $sth = $c->dbh->prepare("SELECT id FROM talks WHERE nonce = ?");
+	$sth->execute($nonce);
+	my $row = $sth->fetchrow_arrayref;
+	if(scalar($row) == 0) {
+		$c->stash(message=>"Unauthorized.");
+		$c->res->code(403);
+		$c->render('error');
+		return undef;
+	}
+	$c->stash(layout => 'default');
+	$c->stash(template => 'talk');
+	$c->talk_update($row->[0]);
+	$c->redirect_to("/review/$nonce");
+} => 'talk_update';
 
 ### ADMINISTRATION ###
 
@@ -123,7 +186,7 @@ under '/admin' => sub {
 	my $c = shift;
 	if(!exists($c->session->{id})) {
 		$c->res->code(403);
-		$c->render(text => 'Not authorized');
+		$c->render(text => 'Unauthorized');
 		return 0;
 	}
 	$c->stash(layout => "admin");
@@ -187,9 +250,24 @@ get '/talk' => sub {
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
 	$c->stash(state => $row->{state});
+	$c->stash(comments => $row->{comments});
 	$c->stash(corrections => $stp->fetchall_arrayref);
+	$c->stash(target => "talk_update_admin");
 	$c->render(template => 'talk');
 } => 'admin_talk';
+
+post '/talk_update' => sub {
+	my $c = shift;
+	my $talk = $c->param("talk");
+	if(!defined($talk)) {
+		$c->stash(message => "Required parameter talk missing.");
+		$c->render("error");
+		return undef;
+	}
+	$c->stash(template => 'talk');
+	$c->talk_update($talk);
+	$c->redirect_to("/admin/talk?talk=$talk");
+} => 'talk_update_admin';
 
 get '*any' => sub {
 	my $c = shift;

@@ -1,22 +1,40 @@
 <h1>Preview recording</h1>
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
-<p>To be able to see this preview, you must use an HTML5 browser which supports the WebM format (VP8/vorbis).</p>
+<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the WebM format (VP8/vorbis). Alternatively, here is a <a href='/video/<%= $eventid %>/<%= $slug %>.webm'>direct download</a> of the same file.</p>
 <video controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video>
 % my $disabled = "disabled";
 % my $checked = "";
 % if (defined($state)) {
-<p>Current state of this talk is <%= $state %>.</p>
-%   if ($state eq 'preview') {
+<p>The current state of this talk is <em><%= $state %></em>.</p>
+%   if ($state eq 'preview' || $state eq 'broken') {
 %     $disabled = '';
 %     $checked = "checked";
+%   } 
+%   if ($state eq 'broken') {
+%     param choice => 'comments'
 %   }
 % }
-%= form_for talk_update => (method => 'POST') => begin
-  %= radio_button choice => 'ok', id => 'ok', $disabled => $disabled, $checked => $checked
-  %= label_for ok => 'This preview looks OK, please transcode it in high quality and release it'
-  <br>
+%= form_for $target => (method => 'POST') => begin
+  % my $talk = param('talk');
+  % if(defined($talk)) {
+  %= hidden_field talk => param('talk')
+  % }
+  % if(my $nonce = stash 'nonce') {
+  %= hidden_field nonce => $nonce;
+  % }
+  <fieldset>
+  %= radio_button choice => 'reset', id => 'reset', $checked => $checked
+  %= label_for reset => "Do not make changes, do not notify video team; set the state back to \"preview\".", class => "minor"
+  </fieldset>
+  <fieldset>
+  <legend>OK</legend>
+  %= radio_button choice => 'ok', id => 'ok', $disabled => $disabled
+  %= label_for ok => 'This preview looks OK, please transcode it at high quality and release it.'
+  </fieldset>
+  <fieldset>
+  <legend>Common fixes</legend>
   %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled
-  %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview.'
+  %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
   <table class='offset_left'>
   % foreach my $correction(@$corrections) {
     <tr>
@@ -32,11 +50,16 @@
     </tr>
   % }
   </table>
+  </fieldset>
+  <fieldset>
+  <legend>Other brokenness</legend>
   %= radio_button choice => 'comments', id => 'comments', $disabled => $disabled
-  %= label_for comments => 'This preview has issues not covered by the above. Please bring this to the attention of the video team.'
+  %= label_for comments => 'This preview has the following issues not covered by the above:'
   <br>
-  <p>If you have any comments for the video team, please enter them below, or send email to <a href='mailto:video@lists.fosdem.org'>the video mailinglist</a>.</p>
-  %= text_area 'comments', cols => 80, rows => 10
-  <br>
+  %= text_area 'comment_text' => ( cols => 80, rows => 10 ) => begin
+  <%= $comments =%>
+  % end
+  <br>Note: if you choose this option, your video will be marked as <q>broken</q> until the video team has had time to look at it or you set it back to preview by choosing the first option in this form.
+  </fieldset>
   %= submit_button
 % end
