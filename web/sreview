@@ -195,7 +195,7 @@ under '/admin' => sub {
 
 get '/' => sub {
 	my $c = shift;
-	my $st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers FROM talk_list  WHERE event = ? ORDER BY room, starttime');
+	my $st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list  WHERE event = ? ORDER BY room, starttime');
 	my $talks = ();
 	my $room;
 	my $lastroom = '';
@@ -209,7 +209,7 @@ get '/' => sub {
 		}
 		$lastroom = $row->{'room'};
 		next unless defined($row->{id});
-		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} => $row->{'id'}];
+		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'id'}];
 	}
 	if(defined($room)) {
 		push @$talks, c($lastroom => $room);
