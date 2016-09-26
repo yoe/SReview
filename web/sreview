@@ -10,7 +10,7 @@ use DBI;
 use experimental "switch";
 
 our $config;
-require 'config.pl';
+require './config.pl';
 
 die if $config->{secrets}[0] eq "_INSECURE_DEFAULT_REPLACE_ME_";
 
