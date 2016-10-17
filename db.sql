@@ -2,11 +2,12 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.3
--- Dumped by pg_dump version 9.5.3
+-- Dumped from database version 9.6.0
+-- Dumped by pg_dump version 9.6.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -14,28 +15,28 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: 
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
@@ -44,7 +45,7 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 SET search_path = public, pg_catalog;
 
 --
--- Name: talkstate; Type: TYPE; Schema: public; Owner: wouter
+-- Name: talkstate; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE talkstate AS ENUM (
@@ -62,10 +63,8 @@ CREATE TYPE talkstate AS ENUM (
 );
 
 
-ALTER TYPE talkstate OWNER TO wouter;
-
 --
--- Name: speakerlist(integer); Type: FUNCTION; Schema: public; Owner: wouter
+-- Name: speakerlist(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION speakerlist(integer) RETURNS character varying
@@ -94,14 +93,12 @@ CREATE FUNCTION speakerlist(integer) RETURNS character varying
 $_$;
 
 
-ALTER FUNCTION public.speakerlist(integer) OWNER TO wouter;
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: corrections; Type: TABLE; Schema: public; Owner: wouter
+-- Name: corrections; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE corrections (
@@ -111,10 +108,8 @@ CREATE TABLE corrections (
 );
 
 
-ALTER TABLE corrections OWNER TO wouter;
-
 --
--- Name: events; Type: TABLE; Schema: public; Owner: wouter
+-- Name: events; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE events (
@@ -124,10 +119,8 @@ CREATE TABLE events (
 );
 
 
-ALTER TABLE events OWNER TO wouter;
-
 --
--- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE events_id_seq
@@ -138,17 +131,15 @@ CREATE SEQUENCE events_id_seq
     CACHE 1;
 
 
-ALTER TABLE events_id_seq OWNER TO wouter;
-
 --
--- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE events_id_seq OWNED BY events.id;
 
 
 --
--- Name: files; Type: TABLE; Schema: public; Owner: wouter
+-- Name: files; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE files (
@@ -160,10 +151,8 @@ CREATE TABLE files (
 );
 
 
-ALTER TABLE files OWNER TO wouter;
-
 --
--- Name: files_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE files_id_seq
@@ -174,17 +163,15 @@ CREATE SEQUENCE files_id_seq
     CACHE 1;
 
 
-ALTER TABLE files_id_seq OWNER TO wouter;
-
 --
--- Name: files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE files_id_seq OWNED BY files.id;
 
 
 --
--- Name: filetypes; Type: TABLE; Schema: public; Owner: wouter
+-- Name: filetypes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE filetypes (
@@ -196,10 +183,8 @@ CREATE TABLE filetypes (
 );
 
 
-ALTER TABLE filetypes OWNER TO wouter;
-
 --
--- Name: filetypes_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: filetypes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE filetypes_id_seq
@@ -210,17 +195,15 @@ CREATE SEQUENCE filetypes_id_seq
     CACHE 1;
 
 
-ALTER TABLE filetypes_id_seq OWNER TO wouter;
-
 --
--- Name: filetypes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: filetypes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE filetypes_id_seq OWNED BY filetypes.id;
 
 
 --
--- Name: speakers; Type: TABLE; Schema: public; Owner: wouter
+-- Name: speakers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE speakers (
@@ -230,10 +213,8 @@ CREATE TABLE speakers (
 );
 
 
-ALTER TABLE speakers OWNER TO wouter;
-
 --
--- Name: speakers_talks; Type: TABLE; Schema: public; Owner: wouter
+-- Name: speakers_talks; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE speakers_talks (
@@ -242,10 +223,8 @@ CREATE TABLE speakers_talks (
 );
 
 
-ALTER TABLE speakers_talks OWNER TO wouter;
-
 --
--- Name: talks; Type: TABLE; Schema: public; Owner: wouter
+-- Name: talks; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE talks (
@@ -262,10 +241,8 @@ CREATE TABLE talks (
 );
 
 
-ALTER TABLE talks OWNER TO wouter;
-
 --
--- Name: mailers; Type: VIEW; Schema: public; Owner: wouter
+-- Name: mailers; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW mailers AS
@@ -278,10 +255,8 @@ CREATE VIEW mailers AS
   WHERE (speakers.email IS NOT NULL);
 
 
-ALTER TABLE mailers OWNER TO wouter;
-
 --
--- Name: properties; Type: TABLE; Schema: public; Owner: wouter
+-- Name: properties; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE properties (
@@ -291,10 +266,8 @@ CREATE TABLE properties (
 );
 
 
-ALTER TABLE properties OWNER TO wouter;
-
 --
--- Name: properties_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: properties_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE properties_id_seq
@@ -305,10 +278,8 @@ CREATE SEQUENCE properties_id_seq
     CACHE 1;
 
 
-ALTER TABLE properties_id_seq OWNER TO wouter;
-
 --
--- Name: properties_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: properties_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE properties_id_seq OWNED BY properties.id;
@@ -324,10 +295,8 @@ CREATE TABLE rooms (
 );
 
 
-ALTER TABLE rooms OWNER TO wouter;
-
 --
--- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE rooms_id_seq
@@ -338,17 +307,15 @@ CREATE SEQUENCE rooms_id_seq
     CACHE 1;
 
 
-ALTER TABLE rooms_id_seq OWNER TO wouter;
-
 --
--- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE rooms_id_seq OWNED BY rooms.id;
 
 
 --
--- Name: speakers_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: speakers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE speakers_id_seq
@@ -359,17 +326,15 @@ CREATE SEQUENCE speakers_id_seq
     CACHE 1;
 
 
-ALTER TABLE speakers_id_seq OWNER TO wouter;
-
 --
--- Name: speakers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: speakers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE speakers_id_seq OWNED BY speakers.id;
 
 
 --
--- Name: talk_list; Type: VIEW; Schema: public; Owner: wouter
+-- Name: talk_list; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW talk_list AS
@@ -388,10 +353,8 @@ CREATE VIEW talk_list AS
      LEFT JOIN talks ON ((rooms.id = talks.room)));
 
 
-ALTER TABLE talk_list OWNER TO wouter;
-
 --
--- Name: talks_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: talks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE talks_id_seq
@@ -402,17 +365,15 @@ CREATE SEQUENCE talks_id_seq
     CACHE 1;
 
 
-ALTER TABLE talks_id_seq OWNER TO wouter;
-
 --
--- Name: talks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: talks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE talks_id_seq OWNED BY talks.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: wouter
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -422,10 +383,8 @@ CREATE TABLE users (
 );
 
 
-ALTER TABLE users OWNER TO wouter;
-
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: wouter
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE users_id_seq
@@ -436,73 +395,71 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 
 
-ALTER TABLE users_id_seq OWNER TO wouter;
-
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wouter
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: events id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY events ALTER COLUMN id SET DEFAULT nextval('events_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: files id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files ALTER COLUMN id SET DEFAULT nextval('files_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: filetypes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY filetypes ALTER COLUMN id SET DEFAULT nextval('filetypes_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: properties id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY properties ALTER COLUMN id SET DEFAULT nextval('properties_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: rooms id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY rooms ALTER COLUMN id SET DEFAULT nextval('rooms_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: speakers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers ALTER COLUMN id SET DEFAULT nextval('speakers_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: talks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks ALTER COLUMN id SET DEFAULT nextval('talks_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: wouter
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: corrections_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: corrections corrections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -510,7 +467,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: events_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY events
@@ -518,7 +475,7 @@ ALTER TABLE ONLY events
 
 
 --
--- Name: files_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: files files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -526,7 +483,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: filetypes_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: filetypes filetypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY filetypes
@@ -534,7 +491,7 @@ ALTER TABLE ONLY filetypes
 
 
 --
--- Name: properties_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: properties properties_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY properties
@@ -542,7 +499,7 @@ ALTER TABLE ONLY properties
 
 
 --
--- Name: rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: rooms rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY rooms
@@ -550,7 +507,7 @@ ALTER TABLE ONLY rooms
 
 
 --
--- Name: speakers_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: speakers speakers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers
@@ -558,7 +515,7 @@ ALTER TABLE ONLY speakers
 
 
 --
--- Name: speakers_talks_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: speakers_talks speakers_talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -566,7 +523,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: talks_nonce_key; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: talks talks_nonce_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -574,7 +531,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: talks talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -582,7 +539,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks_slug_key; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: talks talks_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -590,7 +547,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: wouter
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -598,7 +555,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: corrections_property_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: corrections corrections_property_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -606,7 +563,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: corrections_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: corrections corrections_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -614,7 +571,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: files_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: files files_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -622,7 +579,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: files_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: files files_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -630,7 +587,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: speakers_talks_speaker_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: speakers_talks speakers_talks_speaker_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -638,7 +595,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: speakers_talks_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: speakers_talks speakers_talks_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -646,7 +603,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: talks_event_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: talks talks_event_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -654,21 +611,11 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wouter
+-- Name: talks talks_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
     ADD CONSTRAINT talks_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
-
-
---
--- Name: public; Type: ACL; Schema: -; Owner: postgres
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
