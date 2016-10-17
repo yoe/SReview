@@ -178,7 +178,6 @@ CREATE TABLE filetypes (
     id integer NOT NULL,
     description character varying NOT NULL,
     name_template character varying,
-    is_source boolean DEFAULT true NOT NULL,
     is_preview boolean DEFAULT false NOT NULL
 );
 
@@ -286,7 +285,58 @@ ALTER SEQUENCE properties_id_seq OWNED BY properties.id;
 
 
 --
--- Name: rooms; Type: TABLE; Schema: public; Owner: wouter
+-- Name: raw_files; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE raw_files (
+    id integer NOT NULL,
+    filename character varying NOT NULL,
+    room integer NOT NULL,
+    starttime timestamp with time zone,
+    endtime timestamp with time zone
+);
+
+
+--
+-- Name: raw_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE raw_files_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: raw_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE raw_files_id_seq OWNED BY raw_files.id;
+
+
+--
+-- Name: raw_talks; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW raw_talks AS
+ SELECT talks.id AS talkid,
+    raw_files.id AS rawid,
+    talks.starttime AS talk_start,
+    talks.endtime AS talk_end,
+    raw_files.starttime AS raw_start,
+    raw_files.endtime AS raw_end,
+    (talks.endtime - talks.starttime) AS talks_interval,
+    (LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime)) AS raw_interval,
+    sum((LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime))) OVER (PARTITION BY talks.id) AS raw_total
+   FROM talks,
+    raw_files
+  WHERE (((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime)) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime)));
+
+
+--
+-- Name: rooms; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE rooms (
@@ -431,6 +481,13 @@ ALTER TABLE ONLY properties ALTER COLUMN id SET DEFAULT nextval('properties_id_s
 
 
 --
+-- Name: raw_files id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY raw_files ALTER COLUMN id SET DEFAULT nextval('raw_files_id_seq'::regclass);
+
+
+--
 -- Name: rooms id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -496,6 +553,14 @@ ALTER TABLE ONLY filetypes
 
 ALTER TABLE ONLY properties
     ADD CONSTRAINT properties_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: raw_files raw_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY raw_files
+    ADD CONSTRAINT raw_files_pkey PRIMARY KEY (id);
 
 
 --
@@ -584,6 +649,14 @@ ALTER TABLE ONLY files
 
 ALTER TABLE ONLY files
     ADD CONSTRAINT files_type_fkey FOREIGN KEY (type) REFERENCES filetypes(id);
+
+
+--
+-- Name: raw_files raw_files_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY raw_files
+    ADD CONSTRAINT raw_files_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
 
 
 --

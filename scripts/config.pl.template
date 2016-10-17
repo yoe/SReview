@@ -34,4 +34,14 @@ $config->{upload} = sub { my ($input, $url) = shift; return "qsub -cwd -V -pe sm
 # $config->{transcode} = sub { my ($input, $output, $type) = shift; return "dv2$type $input $output"; };
 # $config->{upload} = sub { my ($input, $url) = shift; return "upload $input $url"; };
 
+# Definitions for things that don't depend on how jobs are ran.
+
+# Where new, raw, recorded files will appear. Sreview expects a
+# subdirectory structure of "<room>/<date>/<time>.<inputext>" under this
+# location, where <date> and <time> should be in a format that
+# PostgreSQL supports for "timestamptz" fields in the current locale.
+$config->{inputdir} = "/srv/sreview/input";
+# What extension the input files have
+$config->{inputext} = ".mp4";
+
 1;
