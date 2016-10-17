@@ -5,6 +5,7 @@ use warnings;
 
 use DBI;
 
+use Glib;
 use Glib::Object::Introspection;
 
 Glib::Object::Introspection->setup(
@@ -43,7 +44,7 @@ foreach my $file(@files) {
 		my $room = $1;
 		my $start_day = $2;
 		my $start_hour = $3;
-		my $info = $disc->discover_uri("file://" . $file);
+		my $info = $disc->discover_uri(Glib->filename_to_uri($file, undef));
 		my $length = $info->get_duration() / 1_000_000_000;
 		$add->execute($file, $room, "$start_day $start_hour", "$start_day $start_hour", "$length seconds");
 	}
