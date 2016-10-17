@@ -21,7 +21,9 @@ Glib::Object::Introspection->setup(
 our $config;
 require './config.pl';
 
-my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 0}) or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+$dbh->begin_work;
 
 my $exists = $dbh->prepare("SELECT count(*) FROM raw_files WHERE filename = ?");
 my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime) VALUES (?, (SELECT id FROM rooms WHERE name = ?), ?::timestamptz, ?::timestamptz + ?::interval)");
@@ -30,8 +32,6 @@ my @files = glob($config->{inputdir} . "/*/*/*" . $config->{inputext});
 
 Gst::init(\@ARGV);
 my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
-
-$dbh->begin_work;
 
 foreach my $file(@files) {
 	next unless (-f $file);
