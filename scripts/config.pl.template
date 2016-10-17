@@ -6,14 +6,14 @@ $config->{dbistring} = "dbi:Pg:dbname=sreview";
 # Example script definitions for using gridengine
 
 # The maximum number of jobs that the job dispatcher will query in one
-# go. Set to negative value to indicate no limit.
+# go. Set to a negative value to indicate no limit.
 $config->{query_limit} = -1;
 # This job should look for new files in the input directory, and add
 # them to the database.
 $config->{detect_files} = sub { return "qsub -cwd -V -l input -l db detect_files"; };
 # The job which transforms the raw input data into a raw work file that
 # the high-quality jobs transcode to. This should preferably use a
-# "copy" operation for the video codec, if at all possible.
+# "copy" operation for the video and audio codecs, if at all possible.
 $config->{cut_film} = sub { my ($inputs, $output) = shift; return "qsub -cwd -V -pe smp 1-2 -l input -l work cut_film $inputs $output"; };
 # This job should transcode the output of the above into a video of the
 # given type. If there is only one type supported, this could be a
@@ -23,7 +23,7 @@ $config->{transcode} = sub { my ($input, $output, $type) = shift; return "qsub -
 # onto the given URL.
 $config->{upload} = sub { my ($input, $url) = shift; return "qsub -cwd -V -pe smp 1-2 -l output -l upload upload $input $url"; };
 
-# Script definitions for running things directly
+# Script definitions for running things directly (disabled by default)
 
 ## We limit the job dispatcher to running one job at a time, so that
 ## multiple hosts may perform work
