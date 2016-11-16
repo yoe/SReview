@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.0
--- Dumped by pg_dump version 9.6.0
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -236,7 +236,8 @@ CREATE TABLE talks (
     title character varying NOT NULL,
     event integer NOT NULL,
     state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
-    comments text
+    comments text,
+    upstreamid character varying NOT NULL
 );
 
 
@@ -322,14 +323,21 @@ ALTER SEQUENCE raw_files_id_seq OWNED BY raw_files.id;
 
 CREATE VIEW raw_talks AS
  SELECT talks.id AS talkid,
+    talks.slug,
     raw_files.id AS rawid,
+    raw_files.filename AS raw_filename,
     talks.starttime AS talk_start,
     talks.endtime AS talk_end,
     raw_files.starttime AS raw_start,
     raw_files.endtime AS raw_end,
-    (talks.endtime - talks.starttime) AS talks_interval,
-    (LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime)) AS raw_interval,
-    sum((LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime))) OVER (PARTITION BY talks.id) AS raw_total
+    (talks.endtime - talks.starttime) AS talks_length,
+    (raw_files.endtime - raw_files.starttime) AS raw_length,
+    (LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime)) AS raw_length_corrected,
+    sum((LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime))) OVER (PARTITION BY talks.id) AS raw_total,
+        CASE
+            WHEN (raw_files.starttime < talks.starttime) THEN (talks.starttime - raw_files.starttime)
+            ELSE '00:00:00'::interval
+        END AS fragment_start
    FROM talks,
     raw_files
   WHERE (((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime)) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime)));
