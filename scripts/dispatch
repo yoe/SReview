@@ -19,7 +19,14 @@ while(true) {
 	}
 	while($row = $st->fetchrow_hashref) {
 		given($row{state}) {
-			when('files_missing') {
+			when('files_found') {
+				system $config->cut_film($row->{id});
+			}
+			when('review_done') {
+				system $config->transcode($row->{id});
+			}
+			when('waiting') {
+				system $config->upload($row->{id});
 			}
 		}
 	}
