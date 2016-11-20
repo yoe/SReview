@@ -19,7 +19,7 @@ $config->{cut_film} = sub { my ($talkid) = @_; return "qsub -cwd -V -l input -l 
 # formats.
 $config->{transcode} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./transcode $talkid"; };
 # This should generate a low-quality preview version of the cut talk
-$config->{preview} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./previews $talkid";}
+$config->{preview} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./previews $talkid";};
 # This job should do whatever is necessary to release the given video
 # onto the given URL.
 $config->{upload} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -l upload ./upload $input $url"; };
