@@ -10,18 +10,19 @@ $config->{dbistring} = "dbi:Pg:dbname=sreview";
 $config->{query_limit} = -1;
 # This job should look for new files in the input directory, and add
 # them to the database.
-$config->{detect_files} = sub { return "qsub -cwd -V -l input -l db detect_files"; };
+$config->{detect_files} = sub { return "qsub -cwd -V -l input ./detect_files"; };
 # The job which transforms the raw input data into a raw work file that
 # the high-quality jobs transcode to. This should preferably use a
 # "copy" operation for the video and audio codecs, if at all possible.
-$config->{cut_film} = sub { my ($inputs, $output) = shift; return "qsub -cwd -V -pe smp 1-2 -l input -l work cut_film $inputs $output"; };
-# This job should transcode the output of the above into a video of the
-# given type. If there is only one type supported, this could be a
-# simple 'cp'.
-$config->{transcode} = sub { my ($input, $output, $type) = shift; return "qsub -cwd -V -pe smp 1-2 -l work -l output dv2$type $input $output"; };
+$config->{cut_film} = sub { my ($talkid) = @_; return "qsub -cwd -V -l input -l output ./cut_film $talkid"; };
+# This job should transcode the output of the above into all other video
+# formats.
+$config->{transcode} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./transcode $talkid"; };
+# This should generate a low-quality preview version of the cut talk
+$config->{preview} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./previews $talkid";}
 # This job should do whatever is necessary to release the given video
 # onto the given URL.
-$config->{upload} = sub { my ($input, $url) = shift; return "qsub -cwd -V -pe smp 1-2 -l output -l upload upload $input $url"; };
+$config->{upload} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -l upload ./upload $input $url"; };
 
 # Script definitions for running things directly (disabled by default)
 
@@ -43,5 +44,14 @@ $config->{upload} = sub { my ($input, $url) = shift; return "qsub -cwd -V -pe sm
 $config->{inputdir} = "/srv/sreview/input";
 # What extension the input files have
 $config->{inputext} = ".mp4";
+# Where temporary (job-internal) files should be saved. This can safely be a
+# local per-node scratch directory.
+$config->{workdir} = "/tmp/";
+# Where the output files should be stored. It gets the following parameters:
+# - event name
+# - room name
+# - day
+# Note that these are not sanity-checked. You may want to do so yourself.
+$config->{outputdir} = sub($$$) {my ($event, $room, $day) = @_; $event =~ s/\W/_/g; $room =~ s/\W/_/g; return "/home/wouter/code/perl/sreview/output/$event/$room/$day"};
 
 1;
