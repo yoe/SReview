@@ -52,6 +52,7 @@ CREATE TYPE talkstate AS ENUM (
     'files_missing',
     'partial_files_found',
     'files_found',
+    'cut_ready',
     'generating_previews',
     'preview',
     'review_done',
@@ -61,6 +62,105 @@ CREATE TYPE talkstate AS ENUM (
     'done',
     'broken'
 );
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: raw_files; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE raw_files (
+    id integer NOT NULL,
+    filename character varying NOT NULL,
+    room integer NOT NULL,
+    starttime timestamp with time zone,
+    endtime timestamp with time zone
+);
+
+
+--
+-- Name: talks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE talks (
+    id integer NOT NULL,
+    room integer NOT NULL,
+    slug character varying NOT NULL,
+    nonce character varying DEFAULT encode(gen_random_bytes(32), 'hex'::text) NOT NULL,
+    starttime timestamp with time zone NOT NULL,
+    endtime timestamp with time zone NOT NULL,
+    title character varying NOT NULL,
+    event integer NOT NULL,
+    state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
+    comments text,
+    upstreamid character varying NOT NULL
+);
+
+
+--
+-- Name: raw_talks; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW raw_talks AS
+ SELECT talks.id AS talkid,
+    talks.slug,
+    raw_files.id AS rawid,
+    raw_files.filename AS raw_filename,
+    talks.starttime AS talk_start,
+    talks.endtime AS talk_end,
+    raw_files.starttime AS raw_start,
+    raw_files.endtime AS raw_end,
+    (talks.endtime - talks.starttime) AS talks_length,
+    (raw_files.endtime - raw_files.starttime) AS raw_length,
+    (LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime)) AS raw_length_corrected,
+    sum((LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime))) OVER (PARTITION BY talks.id) AS raw_total,
+        CASE
+            WHEN (raw_files.starttime < talks.starttime) THEN (talks.starttime - raw_files.starttime)
+            ELSE '00:00:00'::interval
+        END AS fragment_start
+   FROM talks,
+    raw_files
+  WHERE (((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime)) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime) AND (talks.room = raw_files.room)));
+
+
+--
+-- Name: adjusted_raw_talks(integer, interval, interval); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION adjusted_raw_talks(integer, interval, interval) RETURNS SETOF raw_talks
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  talk_id ALIAS FOR $1;
+  start_off ALIAS FOR $2;
+  end_off ALIAS FOR $3;
+BEGIN
+  RETURN QUERY
+    SELECT talk_id AS talkid,
+           talks.slug,
+	   raw_files.id AS rawid,
+           raw_files.filename AS raw_filename,
+	   talks.starttime + start_off AS talk_start,
+	   talks.endtime + start_off + end_off AS talk_end,
+	   raw_files.starttime AS raw_start,
+	   raw_files.endtime AS raw_end,
+	   (talks.endtime + start_off + end_off) - (talks.starttime + start_off) AS talk_length,
+	   raw_files.endtime - raw_files.starttime AS raw_length,
+	   LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off) AS raw_length_corrected,
+	   SUM(LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off)) OVER (range unbounded preceding),
+	   CASE
+	     WHEN raw_files.starttime < talks.starttime + start_off THEN talks.starttime + start_off - raw_files.starttime
+	     ELSE '00:00:00'::interval
+	   END AS fragment_start
+      FROM raw_files JOIN rooms ON raw_files.room = rooms.id JOIN talks ON rooms.id = talks.room
+      WHERE talks.id = talk_id
+	AND ((talks.starttime + start_off) >= raw_files.starttime AND (talks.starttime + start_off) <= raw_files.endtime
+	    OR (talks.endtime + start_off + end_off) >= raw_files.starttime AND (talks.endtime + start_off + end_off) <= raw_files.endtime
+	    OR (talks.starttime + start_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off) >= raw_files.endtime);
+END $_$;
 
 
 --
@@ -92,10 +192,6 @@ CREATE FUNCTION speakerlist(integer) RETURNS character varying
  END;
 $_$;
 
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
 
 --
 -- Name: corrections; Type: TABLE; Schema: public; Owner: -
@@ -223,25 +319,6 @@ CREATE TABLE speakers_talks (
 
 
 --
--- Name: talks; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE talks (
-    id integer NOT NULL,
-    room integer NOT NULL,
-    slug character varying NOT NULL,
-    nonce character varying DEFAULT encode(gen_random_bytes(32), 'hex'::text) NOT NULL,
-    starttime timestamp with time zone NOT NULL,
-    endtime timestamp with time zone NOT NULL,
-    title character varying NOT NULL,
-    event integer NOT NULL,
-    state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
-    comments text,
-    upstreamid character varying NOT NULL
-);
-
-
---
 -- Name: mailers; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -286,19 +363,6 @@ ALTER SEQUENCE properties_id_seq OWNED BY properties.id;
 
 
 --
--- Name: raw_files; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE raw_files (
-    id integer NOT NULL,
-    filename character varying NOT NULL,
-    room integer NOT NULL,
-    starttime timestamp with time zone,
-    endtime timestamp with time zone
-);
-
-
---
 -- Name: raw_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -315,32 +379,6 @@ CREATE SEQUENCE raw_files_id_seq
 --
 
 ALTER SEQUENCE raw_files_id_seq OWNED BY raw_files.id;
-
-
---
--- Name: raw_talks; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW raw_talks AS
- SELECT talks.id AS talkid,
-    talks.slug,
-    raw_files.id AS rawid,
-    raw_files.filename AS raw_filename,
-    talks.starttime AS talk_start,
-    talks.endtime AS talk_end,
-    raw_files.starttime AS raw_start,
-    raw_files.endtime AS raw_end,
-    (talks.endtime - talks.starttime) AS talks_length,
-    (raw_files.endtime - raw_files.starttime) AS raw_length,
-    (LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime)) AS raw_length_corrected,
-    sum((LEAST(raw_files.endtime, talks.endtime) - GREATEST(raw_files.starttime, talks.starttime))) OVER (PARTITION BY talks.id) AS raw_total,
-        CASE
-            WHEN (raw_files.starttime < talks.starttime) THEN (talks.starttime - raw_files.starttime)
-            ELSE '00:00:00'::interval
-        END AS fragment_start
-   FROM talks,
-    raw_files
-  WHERE (((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime)) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime)));
 
 
 --

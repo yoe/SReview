@@ -1,89 +1,82 @@
 #!/usr/bin/perl -w
 
-# Extract the "interesting" parts of one or more raw mp4 input file(s)
-# into a single "work" file named after the talk ID (rather than the
-# slug).
+# Extract the "interesting" parts of one or more raw mp4 input file(s) into a
+# single "work" file named after the talk slug.
 
 use strict;
 use warnings;
 
 use DBI;
 use Glib;
-use Time::Piece;
+use File::Temp qw/tempdir/;
+use File::Path qw/make_path/;
 
 our $config;
 require './config.pl';
 
-my $dbh = DBI->connect($config{dbistring}, '', '') or die "Cannot connect to database!";
+my $workdir = tempdir( "cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
 $dbh->begin_work;
 
 my $talkid = $ARGV[0];
 
-my $talk_data = $dbh->prepare("SELECT * FROM raw_talks WHERE talkid = ? ORDER BY raw_start");
+my $talk_data = $dbh->prepare("SELECT * FROM adjusted_raw_talks(?, ?::interval, ?::interval) ORDER BY raw_start");
 my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
-my $talk_res = $talk_data->execute($talkid);
-my $corr_res = $corrections_data->execute($talkid);
+$corrections_data->execute($talkid);
 
 my %corrections;
+my @segments;
 
-while(my $row = $corr_res->fetchrow_hashref()) {
+while(my $row = $corrections_data->fetchrow_hashref()) {
 	my $name = $row->{property};
 	my $val = $row->{property_value};
 	$corrections{$name} = $val;
 }
 
-my @segments = ();
+foreach my $prop ("offset_start", "length_adj") {
+	if(!exists($corrections{$prop})) {
+		$corrections{$prop} = '00:00:00';
+	}
+}
 
-while(my $row = $talk_res->fetchrow_hashref()) {
+$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
+
+while(my $row = $talk_data->fetchrow_hashref()) {
 	my $start;
 	my $stop;
-	my $segment = {};
-	if($row->{frament_start} ne '00:00:00') {
-		$segment->{start} = $row->{fragment_start};
+	if($row->{fragment_start} ne '00:00:00') {
+		$start = " -ss " . $row->{fragment_start};
 	}
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
-		$segment->{stop} = $row->{raw_length_corrected};
+		$stop = " -t " . $row->{raw_length_corrected};
 	}
-	$segment->{rawid} = $row->{rawid};
-	$segment->{raw_filename} = $row->{raw_filename};
-	$segment->{segment_filename} = "tmp/$talkid/segment" . $row->{rawid} . ".ts";
-	push @segments, $segment;
+	system("ffmpeg -i " . $row->{raw_filename} . " -c copy -bsf:v h264_mp4toannexb -f mpegts $start $stop $workdir/segment" . $row->{rawid} . ".ts");
+	push @segments, "$workdir/segment" . $row->{rawid} . ".ts";
 }
 
-if(exists($corrections{length_adj})) {
-	my $adj = Time::Piece->strptime(abs($corrections{length_adj}), "%s");
-	my $length = Time::Piece->strptime($row_save->{raw_length_corrected}, "%H:%M:%s");
-	my $newlength;
-	if($corrections{length_adj} < 0) {
-		$newlength = $length - $adj;
-	} else {
-		$newlength = $length + $adj;
-	}
-	if(defined $start_save) {
-		my @itime = split /:/, $row_save->{fragment_start};
-		my $otime = split /:/, $row_save->{raw_length_corrected};
-		$otime[2]-=$itime[2];
-		while($otime[2]<0) {
-			$otime[1]-=1;
-			$otime[2]+=60;
-		}
-		$otime[1] -= $itime[1];
-		while($otime[1]<0) {
-			$otime[0]-=1;
-			$otime[1]+=60;
-		}
-		$otime[0] -= $itime[0];
-		$stop = "-t " . $otime[0] . ":" . $otime[1] . ":" . $otime[2];
-	}
-	system("ffmpeg -i " . $row_save->{raw_filename} . " -c copy -bsf:v h264_mp4toannexb -f mpegts $start_save $stop_save tmp/$talkid/segment" . $row->{rawid} . ".ts");
-}
 # Concat files losslessly
-system("ffmpeg -f mpegts -i \"concat:" . join('|',@segments) . "\" -c:v copy  -y work/${talkid}_preaudio.mp4");
+system("ffmpeg -f mpegts -i \"concat:" . join('|',@segments) . "\" -c:v copy -y $workdir/preaudio.mp4");
 # Do audio normalisation:
-# - Extract audio from stream
-system("ffmpeg -i work/${talkid}_preaudio.mp4 -y work/${talkid}.wav");
+# - Extract audio from stream (the correct channel only, though)
+my $channel = "0";
+if(exists($corrections{audio_channel}) && $corrections{audio_channel} =~ /A/i) {
+	$channel = "1";
+}
+system("ffmpeg -i $workdir/preaudio.mp4 -map 0:a:$channel -y $workdir/audio.wav");
 # - Run bs1770gain (which creates a FLAC file)
-system("bs1770gain -a -o work work/$talkid.wav");
+system("bs1770gain -a -o $workdir $workdir/audio.wav");
 # - Replace original audio stream with normalized one
-system("ffmpeg -i work/${talkid}_preaudio.mp4 -i work/${talkid}.flac -c:v:copy -map 0:v -map 1:a -y work/${talkid}.mp4"
+my $eventname = $dbh->prepare("SELECT events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$eventname->execute($talkid);
+my $row = $eventname->fetchrow_hashref();
+my $outdirsub = $config->{outputdir};
+my $outdir = &$outdirsub($row->{event}, $row->{room}, $row->{starttime});
+make_path($outdir);
+system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:v copy -map 0:v -map 1:a -y $outdir/" . $row->{slug} . ".mp4");
+
+my $update = $dbh->prepare("UPDATE talks SET state = 'cut_ready' WHERE id = ?");
+$update->execute($talkid);
+
+$dbh->commit;
