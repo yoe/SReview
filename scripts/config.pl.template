@@ -52,6 +52,6 @@ $config->{workdir} = "/tmp/";
 # - room name
 # - day
 # Note that these are not sanity-checked. You may want to do so yourself.
-$config->{outputdir} = sub($$$) {my ($event, $room, $day) = @_; $event =~ s/\W/_/g; $room =~ s/\W/_/g; return "/home/wouter/code/perl/sreview/output/$event/$room/$day"};
+$config->{outputdir} = sub($$$) {my ($event, $room, $day) = @_; $event =~ s/\W/_/g; $room =~ s/\W/_/g; return "/srv/sreview/output/$event/$room/$day"};
 
 1;
