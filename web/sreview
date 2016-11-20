@@ -61,7 +61,7 @@ helper talk_update => sub {
 			next unless defined($parm);
 			next if (length($parm) == 0);
 			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?) ON CONFLICT ON CONSTRAINT corrections_pkey DO UPDATE SET property_value = ? WHERE talk = ? AND property = ?");
-			$s->execute($parm, $talk, $name, $talk, $talk, $name) or die;
+			$s->execute($parm, $talk, $name, $parm, $talk, $name) or die;
 			$c->log("foo");
 		}
 	} elsif($choice eq 'comments') {
