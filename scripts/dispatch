@@ -8,27 +8,34 @@ use DBI;
 our $config;
 require './config.pl';
 
-my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 0}) or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
 while(1) {
 	$dbh->begin_work;
+	print("==> Checking for new files...\n");
+	my $detect = $config->{detect_files};
+	system &$detect();
+
+	print("==> Checking for new work...\n");
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
 
 	my $st;
 	if($config->{query_limit} > 0) {
-		$st = $dbh->prepare("SELECT id, state FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
 		$st->execute($config->{query_limit});
 	} else {
-		$st = $dbh->prepare("SELECT id, state FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') FOR UPDATE");
 		$st->execute;
 	}
 	while(my $row = $st->fetchrow_hashref) {
-		if (exists($config->{state}{$row->{state}})) {
+		if(exists($config->{state}{$row->{state}})) {
+			print("Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n");
 			$next->execute($row->{id});
 			my $statetranssub = $config->{state}{$row->{state}};
 			system &$statetranssub($row->{id});
 		}
 	}
+	print("finished, waiting 30 seconds...\n");
 	$dbh->commit;
 
 	sleep 30;
