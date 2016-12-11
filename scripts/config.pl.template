@@ -53,6 +53,8 @@ $config->{inputext} = ".mp4";
 # Where temporary (job-internal) files should be saved. This can safely be a
 # local per-node scratch directory.
 $config->{workdir} = "/tmp/";
+# Where the webapp "public" directory is found
+$config->{pubdir} = "/srv/sreview/web/public";
 # Where the output files should be stored. It gets the following parameters:
 # - event name
 # - room name
