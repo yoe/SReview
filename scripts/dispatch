@@ -3,34 +3,33 @@
 use strict;
 use warnings;
 
+use DBI;
+
 our $config;
 require './config.pl';
 
 my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 0}) or die "Cannot connect to database!";
 
-while(true) {
+while(1) {
+	$dbh->begin_work;
+	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
+
 	my $st;
 	if($config->{query_limit} > 0) {
-		$st = $dbh->prepare("SELECT * FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
 		$st->execute($config->{query_limit});
 	} else {
-		$st = $dbh->prepare("SELECT * FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') FOR UPDATE");
 		$st->execute;
 	}
-	while($row = $st->fetchrow_hashref) {
-		given($row{state}) {
-			when('files_found') {
-				system &$config->{cut_film}($row->{id});
-			}
-			when('cut_ready') {
-				system &$config->{preview}($row->{id});
-			}
-			when('review_done') {
-				system &$config->{transcode}($row->{id});
-			}
-			when('waiting') {
-				system &$config->{upload}($row->{id});
-			}
+	while(my $row = $st->fetchrow_hashref) {
+		if (exists($config->{state}{$row->{state}})) {
+			$next->execute($row->{id});
+			my $statetranssub = $config->{state}{$row->{state}};
+			system &$statetranssub($row->{id});
 		}
 	}
+	$dbh->commit;
+
+	sleep 30;
 }

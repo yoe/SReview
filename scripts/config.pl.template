@@ -3,26 +3,30 @@ our $config;
 
 $config->{dbistring} = "dbi:Pg:dbname=sreview";
 
+# Where the gridengine stdout/stderr files should be stored
+my $output_dir = "/srv/sreview/gridengine-io";
+
+my $state = {};
+
 # Example script definitions for using gridengine
 
 # The maximum number of jobs that the job dispatcher will query in one
 # go. Set to a negative value to indicate no limit.
 $config->{query_limit} = -1;
-# This job should look for new files in the input directory, and add
-# them to the database.
-$config->{detect_files} = sub { return "qsub -cwd -V -l input ./detect_files"; };
+
+
 # The job which transforms the raw input data into a raw work file that
 # the high-quality jobs transcode to. This should preferably use a
 # "copy" operation for the video and audio codecs, if at all possible.
-$config->{cut_film} = sub { my ($talkid) = @_; return "qsub -cwd -V -l input -l output ./cut_film $talkid"; };
+$state->{files_found} = sub { my ($talkid) = @_; return "qsub -cwd -V -l input -l output -b y -pe smp 2 -N cut_talk_$talkid -o $output_dir -e $output_dir /usr/bin/perl cut_talk $talkid"; };
+# This should generate a low-quality preview version of the cut talk
+$state->{cut_ready} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -b y -N previews_$talkid -o $output_dir -e $output_dir /usr/bin/perl previews $talkid";};
 # This job should transcode the output of the above into all other video
 # formats.
-$config->{transcode} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./transcode $talkid"; };
-# This should generate a low-quality preview version of the cut talk
-$config->{preview} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output ./previews $talkid";};
+$state->{review_done} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -b y -N transcode_$talkid -o $output_dir -e $output_dir /usr/bin/perl transcode $talkid"; };
 # This job should do whatever is necessary to release the given video
 # onto the given URL.
-$config->{upload} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -l upload ./upload $input $url"; };
+$state->{waiting} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -l upload -b y -N upload_$talkid -o $output_dir -e $output_dir /usr/bin/perl upload $talkid"; };
 
 # Script definitions for running things directly (disabled by default)
 
@@ -30,10 +34,12 @@ $config->{upload} = sub { my ($talkid) = @_; return "qsub -cwd -V -l output -l u
 ## multiple hosts may perform work
 # $config->{query_limit} = 1
 ## We just run everything else directly, without any qsub stuff
-# $config->{detect_files} = sub { return "detect_files"; };
-# $config->{cut_film} = sub { my ($inputs, $output) = shift; return "cut_film $inputs $output"; };
-# $config->{transcode} = sub { my ($input, $output, $type) = shift; return "dv2$type $input $output"; };
-# $config->{upload} = sub { my ($input, $url) = shift; return "upload $input $url"; };
+# $state->{files_found} = sub { my $talkid = shift; return "./cut_talk $talkid"; };
+# $state->{cut_ready} = sub { my $talkid = shift; return "./previews $talkid"; };
+# $state->{transcode} = sub { my $talkid = shift; return "./transcode $talkid"; };
+# $state->{upload} = sub { my $talkid = shift; return "./upload $talkid"; };
+
+$config->{state} = $state;
 
 # Definitions for things that don't depend on how jobs are ran.
 
