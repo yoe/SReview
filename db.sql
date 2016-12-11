@@ -2,17 +2,12 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.1
--- Dumped by pg_dump version 9.6.1
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
-SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -52,6 +47,7 @@ CREATE TYPE talkstate AS ENUM (
     'files_missing',
     'partial_files_found',
     'files_found',
+    'cut_pending',
     'cut_ready',
     'generating_previews',
     'preview',
@@ -63,8 +59,6 @@ CREATE TYPE talkstate AS ENUM (
     'broken'
 );
 
-
-SET default_tablespace = '';
 
 SET default_with_oids = false;
 
@@ -123,7 +117,7 @@ CREATE VIEW raw_talks AS
         END AS fragment_start
    FROM talks,
     raw_files
-  WHERE (((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime)) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime) AND (talks.room = raw_files.room)));
+  WHERE ((((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime))) OR (((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime)) AND (talks.room = raw_files.room)));
 
 
 --
@@ -191,6 +185,22 @@ CREATE FUNCTION speakerlist(integer) RETURNS character varying
    RETURN retval;
  END;
 $_$;
+
+
+--
+-- Name: state_next(talkstate); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+declare
+  enumvals talkstate[];
+  startval alias for $1;
+begin
+  enumvals := enum_range(startval, NULL);
+  return enumvals[2];
+end $_$;
 
 
 --
@@ -298,6 +308,34 @@ ALTER SEQUENCE filetypes_id_seq OWNED BY filetypes.id;
 
 
 --
+-- Name: rooms; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE rooms (
+    id integer NOT NULL,
+    name character varying
+);
+
+
+--
+-- Name: last_room_files; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW last_room_files AS
+ SELECT raw_files.filename,
+    raw_files.starttime,
+    raw_files.endtime,
+    (date_part('epoch'::text, raw_files.endtime) - date_part('epoch'::text, raw_files.starttime)) AS length,
+    rooms.name AS room
+   FROM (raw_files
+     JOIN rooms ON ((raw_files.room = rooms.id)))
+  WHERE ((raw_files.room, raw_files.starttime) IN ( SELECT raw_files_1.room,
+            max(raw_files_1.starttime) AS max
+           FROM raw_files raw_files_1
+          GROUP BY raw_files_1.room));
+
+
+--
 -- Name: speakers; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -379,16 +417,6 @@ CREATE SEQUENCE raw_files_id_seq
 --
 
 ALTER SEQUENCE raw_files_id_seq OWNED BY raw_files.id;
-
-
---
--- Name: rooms; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE rooms (
-    id integer NOT NULL,
-    name character varying
-);
 
 
 --
@@ -499,70 +527,70 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: events id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY events ALTER COLUMN id SET DEFAULT nextval('events_id_seq'::regclass);
 
 
 --
--- Name: files id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files ALTER COLUMN id SET DEFAULT nextval('files_id_seq'::regclass);
 
 
 --
--- Name: filetypes id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY filetypes ALTER COLUMN id SET DEFAULT nextval('filetypes_id_seq'::regclass);
 
 
 --
--- Name: properties id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY properties ALTER COLUMN id SET DEFAULT nextval('properties_id_seq'::regclass);
 
 
 --
--- Name: raw_files id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY raw_files ALTER COLUMN id SET DEFAULT nextval('raw_files_id_seq'::regclass);
 
 
 --
--- Name: rooms id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY rooms ALTER COLUMN id SET DEFAULT nextval('rooms_id_seq'::regclass);
 
 
 --
--- Name: speakers id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers ALTER COLUMN id SET DEFAULT nextval('speakers_id_seq'::regclass);
 
 
 --
--- Name: talks id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks ALTER COLUMN id SET DEFAULT nextval('talks_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: corrections corrections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: corrections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -570,7 +598,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY events
@@ -578,7 +606,7 @@ ALTER TABLE ONLY events
 
 
 --
--- Name: files files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -586,7 +614,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: filetypes filetypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: filetypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY filetypes
@@ -594,7 +622,7 @@ ALTER TABLE ONLY filetypes
 
 
 --
--- Name: properties properties_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: properties_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY properties
@@ -602,7 +630,7 @@ ALTER TABLE ONLY properties
 
 
 --
--- Name: raw_files raw_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: raw_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY raw_files
@@ -610,7 +638,7 @@ ALTER TABLE ONLY raw_files
 
 
 --
--- Name: rooms rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY rooms
@@ -618,7 +646,7 @@ ALTER TABLE ONLY rooms
 
 
 --
--- Name: speakers speakers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: speakers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers
@@ -626,7 +654,7 @@ ALTER TABLE ONLY speakers
 
 
 --
--- Name: speakers_talks speakers_talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: speakers_talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -634,7 +662,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: talks talks_nonce_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_nonce_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -642,7 +670,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -650,7 +678,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks talks_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -658,7 +686,7 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -666,7 +694,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: corrections corrections_property_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: corrections_property_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -674,7 +702,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: corrections corrections_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: corrections_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY corrections
@@ -682,7 +710,7 @@ ALTER TABLE ONLY corrections
 
 
 --
--- Name: files files_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: files_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -690,7 +718,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: files files_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: files_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY files
@@ -698,7 +726,7 @@ ALTER TABLE ONLY files
 
 
 --
--- Name: raw_files raw_files_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: raw_files_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY raw_files
@@ -706,7 +734,7 @@ ALTER TABLE ONLY raw_files
 
 
 --
--- Name: speakers_talks speakers_talks_speaker_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: speakers_talks_speaker_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -714,7 +742,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: speakers_talks speakers_talks_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: speakers_talks_talk_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY speakers_talks
@@ -722,7 +750,7 @@ ALTER TABLE ONLY speakers_talks
 
 
 --
--- Name: talks talks_event_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_event_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
@@ -730,11 +758,21 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks talks_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
     ADD CONSTRAINT talks_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
