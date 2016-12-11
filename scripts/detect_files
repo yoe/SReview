@@ -51,7 +51,7 @@ foreach my $file(@files) {
 	}
 }
 
-my $full = $dbh->prepare("UPDATE talks SET state = 'files_found' WHERE state < 'files_found' AND id IN (select talkid FROM raw_talks WHERE talks_interval <= raw_total)");
+my $full = $dbh->prepare("UPDATE talks SET state = 'files_found' WHERE state < 'files_found' AND id IN (select talkid FROM raw_talks WHERE talks_length <= raw_total)");
 $full->execute();
 my $partial = $dbh->prepare("UPDATE talks SET state = 'partial_files_found' WHERE state < 'partial_files_found' AND id IN (select distinct talkid FROM raw_talks)");
 $partial->execute();
