@@ -38,7 +38,9 @@ sub buswatch {
 	my $msg = shift;
 	my $data = shift;
 
-	print "got a bus message: $bus $msg $data\n";
+	if($msg->type >= "eos") {
+		$mainloop->quit();
+	}
 
 	return 1;
 }
