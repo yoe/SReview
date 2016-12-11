@@ -51,12 +51,12 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
 		$stop = " -t " . $row->{raw_length_corrected};
 	}
-	system("ffmpeg -i " . $row->{raw_filename} . " -c copy -bsf:v h264_mp4toannexb -f mpegts $start $stop $workdir/segment" . $row->{rawid} . ".ts");
+	system("ffmpeg -i " . $row->{raw_filename} . " -c copy -f mpegts $start $stop $workdir/segment" . $row->{rawid} . ".ts");
 	push @segments, "$workdir/segment" . $row->{rawid} . ".ts";
 }
 
 # Concat files losslessly
-system("ffmpeg -f mpegts -i \"concat:" . join('|',@segments) . "\" -c:v copy -y $workdir/preaudio.mp4");
+system("ffmpeg -f mpegts -i \"concat:" . join('|',@segments) . "\" -c copy -y $workdir/preaudio.mp4");
 # Do audio normalisation:
 # - Extract audio from stream (the correct channel only, though)
 my $channel = "0";
