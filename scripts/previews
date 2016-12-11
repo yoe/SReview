@@ -1,0 +1,61 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+use Glib qw/G_PRIORITY_DEFAULT/;
+use Glib::Object::Introspection;
+
+Glib::Object::Introspection->setup(
+		basename => "Gst",
+		version => "1.0",
+		package => "Gst",
+	);
+
+my $mainloop = Glib::MainLoop->new();
+
+Gst::init(\@ARGV);
+
+our $config;
+require "./config.pl";
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+$dbh->begin_work;
+
+my $talkid = $ARGV[0];
+
+my $talk = $dbh->prepare("SELECT * FROM talks WHERE id = ?");
+
+$talk->execute($talkid);
+
+my $row = $talk->fetchrow_hashref();
+my $slug = $row->{slug};
+
+sub buswatch {
+	my $bus = shift;
+	my $msg = shift;
+	my $data = shift;
+
+	print "got a bus message: $bus $msg $data\n";
+
+	return 1;
+}
+
+my $data = $dbh->prepare("SELECT events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$data->execute($talkid);
+my $drow = $data->fetchrow_hashref();
+my $outputsub = $config->{outputdir};
+my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{starttime});
+my $pipeline = Gst::parse_launch("webmmux name=mux ! filesink location=$slug.p.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0");
+my $bus = $pipeline->get_bus();
+$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
+
+$pipeline->set_state("playing");
+
+$mainloop->run();
+
+my $update = $dbh->prepare("UPDATE talks SET state = 'preview' WHERE id = ?");
+$update->execute($talkid);
+$dbh->commit;
