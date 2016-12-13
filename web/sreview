@@ -60,7 +60,7 @@ helper talk_update => sub {
 			my $parm = $c->param("correction_${name}");
 			next unless defined($parm);
 			next if (length($parm) == 0);
-			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?)");
+			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, (SELECT id FROM properties WHERE name = ?))");
 			$s->execute($parm, $talk, $name) or die;
 			$c->log("foo");
 		}
