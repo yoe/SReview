@@ -60,8 +60,8 @@ helper talk_update => sub {
 			my $parm = $c->param("correction_${name}");
 			next unless defined($parm);
 			next if (length($parm) == 0);
-			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, (SELECT id FROM properties WHERE name = ?))");
-			$s->execute($parm, $talk, $name) or die;
+			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?)");
+			$s->execute($parm, $talk, $row->{id}) or die;
 		}
 	} elsif($choice eq 'comments') {
 		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', comments = ? WHERE id = ?");
