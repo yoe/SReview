@@ -7,6 +7,7 @@ use DBI;
 use Glib qw/G_PRIORITY_DEFAULT/;
 use Glib::Object::Introspection;
 use File::Path qw/make_path/;
+use File::Temp qw/tempdir/;
 
 Glib::Object::Introspection->setup(
 		basename => "Gst",
