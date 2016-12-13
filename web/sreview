@@ -60,8 +60,8 @@ helper talk_update => sub {
 			my $parm = $c->param("correction_${name}");
 			next unless defined($parm);
 			next if (length($parm) == 0);
-			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?) ON CONFLICT ON CONSTRAINT corrections_pkey DO UPDATE SET property_value = ? WHERE talk = ? AND property = ?");
-			$s->execute($parm, $talk, $name, $parm, $talk, $name) or die;
+			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?)");
+			$s->execute($parm, $talk, $name) or die;
 			$c->log("foo");
 		}
 	} elsif($choice eq 'comments') {

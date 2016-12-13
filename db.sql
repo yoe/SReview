@@ -158,6 +158,24 @@ END $_$;
 
 
 --
+-- Name: corrections_redirect(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION corrections_redirect() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  corrs RECORD;
+BEGIN
+  FOR corrs IN SELECT * FROM corrections WHERE talk = NEW.talk AND property = NEW.property LOOP
+    UPDATE corrections SET property_value = NEW.property_value WHERE talk = NEW.talk AND property = NEW.property;
+    RETURN NULL;
+  END LOOP;
+  RETURN NEW;
+END $$;
+
+
+--
 -- Name: speakerlist(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -691,6 +709,13 @@ ALTER TABLE ONLY talks
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: corr_redirect_conflict; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER corr_redirect_conflict BEFORE INSERT ON corrections FOR EACH ROW EXECUTE PROCEDURE corrections_redirect();
 
 
 --
