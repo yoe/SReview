@@ -63,7 +63,7 @@ helper talk_update => sub {
 			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?)");
 			$s->execute($parm, $talk, $row->{id}) or die;
 		}
-		my $sth = $c->dbh->prepare("UPDATE talks SET state='files_found' WHERE id = ?");
+		$sth = $c->dbh->prepare("UPDATE talks SET state='files_found' WHERE id = ?");
 		$sth->execute($talk) or die;
 	} elsif($choice eq 'comments') {
 		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', comments = ? WHERE id = ?");
