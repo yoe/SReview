@@ -62,7 +62,6 @@ helper talk_update => sub {
 			next if (length($parm) == 0);
 			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, (SELECT id FROM properties WHERE name = ?))");
 			$s->execute($parm, $talk, $name) or die;
-			$c->log("foo");
 		}
 	} elsif($choice eq 'comments') {
 		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', comments = ? WHERE id = ?");
