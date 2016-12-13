@@ -503,7 +503,7 @@ ALTER SEQUENCE talks_id_seq OWNED BY talks.id;
 CREATE TABLE users (
     id integer NOT NULL,
     email character varying,
-    password bytea
+    password text
 );
 
 
