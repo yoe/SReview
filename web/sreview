@@ -92,7 +92,7 @@ post '/login_post' => sub {
 	my $email = $c->param('email');
 	my $pass = $c->param('pass');
 
-	my $st = $c->dbh->prepare("SELECT id FROM users WHERE email=? AND password=digest(?, 'sha256')");
+	my $st = $c->dbh->prepare("SELECT id FROM users WHERE email=? AND password=crypt(?, password)");
 	my $rv;
 	if(!($rv = $st->execute($email, $pass))) {
 		die "Could not check password: " . $st->errstr;
