@@ -233,7 +233,7 @@ get '/talk' => sub {
 	my $st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
 	$st->execute($id);
 	my $row = $st->fetchrow_hashref("NAME_lc");
-	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
+	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
 	$stp->execute($id);
 
 	if(!defined($row)) {
