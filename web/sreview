@@ -147,12 +147,33 @@ get '/overview' => sub {
 	my $c = shift;
 	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL ORDER BY state, room, starttime');
 	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks GROUP BY state ORDER BY state;');
+	my %expls;
+	my $tot_results;
+	my $totals = ();
+	$expls{'files_missing'} = 'No files found for these talks, yet';
+	$expls{'partial_files_found'} = 'Some files found for these talks, but data is incomplete';
+	$expls{'files_found'} = 'All files for these talk were found, cut may commence; alternatively, human review found issues, new cut necessary';
+	$expls{'cut_pending'} = 'Cut scheduled, waiting for slot/completion';
+	$expls{'cut_ready'} = 'Cut ready, preview generation may commence';
+	$expls{'generating_previews'} = 'Preview generation scheduled, waiting for slot/completion';
+	$expls{'preview'} = 'Preview ready, waiting for human review';
+	$expls{'review_done'} = 'Human review complete, transcode may commence';
+	$expls{'generating_data'} = 'Transcode scheduled, waiting for slot/completion';
+	$expls{'waiting'} = 'Transcode complete, waiting for upload';
+	$expls{'uploading'} = 'Upload scheduled, waiting for slot/completion';
+	$expls{'done'} = 'Process completed, talks released';
+	$expls{'broken'} = 'Review identified problems, waiting for administrator intervention';
 	$st->execute or die;
 	$tot->execute or die;
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
 	$c->stash(rows => $st->fetchall_arrayref);
 	$c->stash(header => 'Video status overview');
-	$c->stash(totals => $tot->fetchall_arrayref());
+	$tot_results = $tot->fetchall_arrayref();
+	foreach my $row(@{$tot_results}) {
+		push @$row, $expls{$row->[0]};
+		push @$totals, $row;
+	}
+	$c->stash(totals => $totals);
 	$c->stash(layout => 'default');
 	$c->render;
 } => 'table';
