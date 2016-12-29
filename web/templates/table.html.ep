@@ -21,6 +21,13 @@
 % if(defined($totals)) {
 <h2>Totals</h2>
 <table>
+  % if(defined($tottitrow)) {
+    <tr>
+    % foreach my $cell(@$tottitrow) {
+    <th><%= $cell %></th>
+    % }
+    </tr>
+  % }
   % foreach my $row(@$totals) {
   <tr class='brick'>
     % $rowtype = 1 - $rowtype;

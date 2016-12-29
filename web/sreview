@@ -168,6 +168,7 @@ get '/overview' => sub {
 	$tot->execute($config->{eventid}) or die;
 	$c->stash(title => 'Video status overview');
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
+	$c->stash(tottitrow => [ 'State', 'Count', 'State meaning']);
 	$c->stash(rows => $st->fetchall_arrayref);
 	$c->stash(header => 'Video status overview');
 	$tot_results = $tot->fetchall_arrayref();
