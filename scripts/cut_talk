@@ -73,7 +73,7 @@ my $row = $eventname->fetchrow_hashref();
 my $outdirsub = $config->{outputdir};
 my $outdir = &$outdirsub($row->{event}, $row->{room}, $row->{starttime});
 make_path($outdir);
-system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:v copy -map 0:v -map 1:a -y $outdir/" . $row->{slug} . ".mp4");
+system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $outdir/" . $row->{slug} . ".mp4");
 
 my $update = $dbh->prepare("UPDATE talks SET state = 'cut_ready' WHERE id = ?");
 $update->execute($talkid);
