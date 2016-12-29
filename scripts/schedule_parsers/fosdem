@@ -2,7 +2,6 @@
 
 use XML::Simple qw(:strict);
 use DBI;
-use Data::Dumper;
 
 require './config.pl';
 
@@ -17,8 +16,6 @@ while(<SCHEDULE>) {
 }
 
 my $xml = XMLin($schedule, ForceArray => ["conference", "room", "event", "day", "person"], KeyAttr => { event => 'id' });
-
-print Dumper($xml);
 
 $dbh->begin_work;
 
