@@ -57,7 +57,7 @@ foreach my $day(@{$xml->{day}}) {
 			} else {
 				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, event = ? WHERE upstreamid = ?");
 			}
-			my $starttime = $day->{date} . " " . $talk->{start} . ":00";
+			my $starttime = $day->{date} . " " . $talk->{start} . ":00+01";
 			my $subtitle = $talk->{subtitle};
 			if(ref($subtitle) eq 'HASH') {
 				$subtitle = undef;
