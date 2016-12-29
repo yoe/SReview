@@ -90,7 +90,8 @@ CREATE TABLE talks (
     event integer NOT NULL,
     state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
     comments text,
-    upstreamid character varying NOT NULL
+    upstreamid character varying NOT NULL,
+    subtitle character varying
 );
 
 
@@ -239,7 +240,7 @@ CREATE TABLE corrections (
 CREATE TABLE events (
     id integer NOT NULL,
     name character varying NOT NULL,
-    time_offset integer NOT NULL
+    time_offset integer DEFAULT 0 NOT NULL
 );
 
 
@@ -360,7 +361,8 @@ CREATE VIEW last_room_files AS
 CREATE TABLE speakers (
     id integer NOT NULL,
     email character varying,
-    name character varying NOT NULL
+    name character varying NOT NULL,
+    upstreamid character varying
 );
 
 
@@ -696,11 +698,11 @@ ALTER TABLE ONLY talks
 
 
 --
--- Name: talks_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: talks_slug_event_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY talks
-    ADD CONSTRAINT talks_slug_key UNIQUE (slug);
+    ADD CONSTRAINT talks_slug_event_key UNIQUE (slug, event);
 
 
 --

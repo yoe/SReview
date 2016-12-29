@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+
+use XML::Simple qw(:strict);
+use DBI;
+use Data::Dumper;
+
+require './config.pl';
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+open SCHEDULE, "curl -s https://fosdem.org/2017/schedule/xml|";
+
+my $schedule = "";
+
+while(<SCHEDULE>) {
+	$schedule .= $_;
+}
+
+my $xml = XMLin($schedule, ForceArray => ["conference", "room", "event", "day", "person"], KeyAttr => { event => 'id' });
+
+print Dumper($xml);
+
+$dbh->begin_work;
+
+my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
+
+do {
+	$st->execute($xml->{conference}[0]{title});
+
+	if($st->rows != 1) {
+		my $ins = $dbh->prepare("INSERT INTO events(name) VALUES(?)");
+		$ins->execute($xml->{conference}[0]{title}) or die;
+	}
+} while($st->rows != 1);
+
+my $row = $st->fetchrow_arrayref;
+my $eventid = $row->[0];
+
+my $dbroom = $dbh->prepare("SELECT id FROM rooms WHERE name = ?");
+my $dbpers = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ?");
+
+foreach my $day(@{$xml->{day}}) {
+	foreach my $room(@{$day->{room}}) {
+		do {
+			$dbroom->execute($room->{'name'});
+
+			if($dbroom->rows < 1) {
+				my $ins = $dbh->prepare("INSERT INTO rooms(name) VALUES (?)");
+				$ins->execute($room->{'name'}) or die;
+			}
+		} while($dbroom->rows < 1);
+		$row = $dbroom->fetchrow_arrayref;
+		my $roomid = $row->[0];
+		foreach my $talk_upid(keys %{$room->{event}}) {
+			$talk = $room->{event}{$talk_upid};
+			my $talk_st = $dbh->prepare("SELECT id FROM talks WHERE upstreamid = ? AND event = ?");
+			$talk_st->execute($talk_upid, $eventid);
+			if($talk_st->rows < 1) {
+				$talk_st = $dbh->prepare("INSERT INTO talks (room, slug, starttime, endtime, title, subtitle, event, upstreamid) VALUES (?, ?, ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, ?)");
+			} else {
+				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, event = ? WHERE upstreamid = ?");
+			}
+			my $starttime = $day->{date} . " " . $talk->{start} . ":00";
+			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $talk->{title}, $talk->{subtitle}, $eventid, $talk_upid);
+			my $clean = $dbh->prepare("DELETE FROM speakers_talks WHERE talk IN (SELECT id FROM talks WHERE upstreamid = ?)");
+			$clean->execute($talk_upid);
+			foreach my $person(@{$talk->{persons}{person}}) {
+				do {
+					$dbpers->execute($person->{id});
+
+					if($dbpers->rows < 1) {
+						my $ins = $dbh->prepare("INSERT INTO speakers(name, upstreamid) VALUES (?, ?)");
+						$ins->execute($person->{'content'}, $person->{id}) or die;
+					}
+				} while($dbpers->rows < 1);
+				my $row = $dbpers->fetchrow_arrayref;
+				my $speaktalk = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES(?, (SELECT id FROM talks WHERE upstreamid = ?))");
+				$speaktalk->execute($row->[0], $talk_upid);
+			}
+		}
+	}
+}
+
+$dbh->commit;
+print "ok\n";
