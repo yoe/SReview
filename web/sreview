@@ -146,8 +146,8 @@ get '/review/:nonce' => sub {
 
 get '/overview' => sub {
 	my $c = shift;
-	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE state IS NOT NULL ORDER BY state, room, starttime');
-	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks GROUP BY state ORDER BY state;');
+	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE event = ? AND state IS NOT NULL ORDER BY state, room, starttime');
+	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 	my %expls;
 	my $tot_results;
 	my $totals = ();
@@ -164,8 +164,8 @@ get '/overview' => sub {
 	$expls{'uploading'} = 'Upload scheduled, waiting for slot/completion';
 	$expls{'done'} = 'Process completed, talks released';
 	$expls{'broken'} = 'Review identified problems, waiting for administrator intervention';
-	$st->execute or die;
-	$tot->execute or die;
+	$st->execute($config->{eventid}) or die;
+	$tot->execute($config->{eventid}) or die;
 	$c->stash(title => 'Video status overview');
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
 	$c->stash(rows => $st->fetchall_arrayref);
