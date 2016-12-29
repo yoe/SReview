@@ -58,7 +58,11 @@ foreach my $day(@{$xml->{day}}) {
 				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, event = ? WHERE upstreamid = ?");
 			}
 			my $starttime = $day->{date} . " " . $talk->{start} . ":00";
-			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $talk->{title}, $talk->{subtitle}, $eventid, $talk_upid);
+			my $subtitle = $talk->{subtitle};
+			if(ref($subtitle) eq 'HASH') {
+				$subtitle = undef;
+			}
+			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $talk->{title}, $subtitle, $eventid, $talk_upid);
 			my $clean = $dbh->prepare("DELETE FROM speakers_talks WHERE talk IN (SELECT id FROM talks WHERE upstreamid = ?)");
 			$clean->execute($talk_upid);
 			foreach my $person(@{$talk->{persons}{person}}) {
