@@ -12,10 +12,6 @@ my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to d
 
 while(1) {
 	$dbh->begin_work;
-	print("==> Checking for new files...\n");
-	my $detect = $config->{detect_files};
-	system &$detect();
-
 	print("==> Checking for new work...\n");
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
 
