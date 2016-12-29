@@ -126,6 +126,7 @@ get '/review/:nonce' => sub {
 		$c->render('msg');
 		return undef;
 	}
+	$c->stash(title => 'Review for ' . $row->{name});
 	$c->stash(talk_title => $row->{name});
 	$c->stash(talk_speakers => $row->{speakers});
 	$c->stash(talk_start => $row->{starttime});
@@ -165,6 +166,7 @@ get '/overview' => sub {
 	$expls{'broken'} = 'Review identified problems, waiting for administrator intervention';
 	$st->execute or die;
 	$tot->execute or die;
+	$c->stash(title => 'Video status overview');
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State' ]);
 	$c->stash(rows => $st->fetchall_arrayref);
 	$c->stash(header => 'Video status overview');
