@@ -1,7 +1,13 @@
 <h1>Preview recording</h1>
+<div style="width: 900px">
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
 <p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the WebM format (VP8/vorbis). Alternatively, here is a <a href='/video/<%= $eventid %>/<%= $slug %>.webm'>direct download</a> of the same file.</p>
-<video controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video>
+<p>
+<table width="860" align="center">
+<tr><td>In case it is needed (and they were recorded), these are the five minutes before...:</td><td>... and after this talk:</td></tr>
+<tr><td><video controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-pre.mp4" height="240" width="416"></video></td><td><video controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-post.mp4" height="240" width="416"></video></td></tr>
+<tr><td colspan="2" style="text-align: center;"><video controls="controls" autoplay="autoplay" height="480" width="848" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video></td></tr>
+</table>
 % my $disabled = "disabled";
 % my $checked = "";
 % if (defined($state)) {
@@ -63,3 +69,4 @@
   </fieldset>
   %= submit_button
 % end
+</div>
