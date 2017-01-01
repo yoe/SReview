@@ -349,7 +349,11 @@ group {
 		close(PASSWORD);
 		chomp $password;
 		my $st = $c->dbh->prepare("INSERT INTO users(email, name, isadmin, password, room) VALUES(?, ?, ?, crypt(?, gen_salt('bf', 8)), ?)");
-		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $password, $c->param('rooms')) or die;
+		my $room = $c->param('rooms');
+		if($room eq "") {
+			$room = undef;
+		}
+		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $password, $room) or die;
 		$c->dbh->prepare("UPDATE users SET isadmin = false WHERE isadmin is null")->execute;
 		$c->flash(msg => "User with email " . $c->param('email') . " created, with password '$password'");
 		$c->redirect_to('/admin/system');
