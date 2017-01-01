@@ -1,0 +1,3 @@
+<h1>User added</h1>
+<p>The password for the user you just created is: <tt><%= $password %></tt></p>
+<p>Please make sure to give it to them, the system does not (yet) do this automatically!</p>
