@@ -1,0 +1,21 @@
+<h1> Hi <%= $email%>!</h1>
+<p>The following actions are possible:</p>
+<dl><dt>Create a new user</dt>
+<dd>
+  %= form_for adduser => begin
+    %= label_for email => 'Username (email address):'
+    %= email_field 'email'
+    <br>
+    %= label_for name => 'Name:'
+    %= text_field 'name'
+    <br>
+    %= label_for isadmin => 'Is administrator?'
+    %= check_box isadmin => 'true'
+    <br>
+    %= label_for rooms => 'Limited to room:'
+    %= select_field rooms => $rooms
+    <br>
+    %= submit_button
+  %end
+</dd>
+</dl>

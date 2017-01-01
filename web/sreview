@@ -93,7 +93,7 @@ post '/login_post' => sub {
 	my $email = $c->param('email');
 	my $pass = $c->param('pass');
 
-	my $st = $c->dbh->prepare("SELECT id FROM users WHERE email=? AND password=crypt(?, password)");
+	my $st = $c->dbh->prepare("SELECT id, isadmin, name, room FROM users WHERE email=? AND password=crypt(?, password)");
 	my $rv;
 	if(!($rv = $st->execute($email, $pass))) {
 		die "Could not check password: " . $st->errstr;
@@ -106,6 +106,9 @@ post '/login_post' => sub {
 	my $row = $st->fetchrow_arrayref or die "eep?! username query returned nothing\n";
 	$c->session->{id} = $row->[0];
 	$c->session->{email} = $email;
+	$c->session->{admin} = $row->[1];
+	$c->session->{name} = $row->[2];
+	$c->session->{room} = $row->[3];
 
 	return $c->redirect_to('/admin');
 };
@@ -207,96 +210,153 @@ post '/talk_update' => sub {
 
 ### ADMINISTRATION ###
 
-under '/admin' => sub {
-	my $c = shift;
-	if(!exists($c->session->{id})) {
-		$c->res->code(403);
-		$c->render(text => 'Unauthorized');
-		return 0;
-	}
-	$c->stash(layout => "admin");
-	return 1;
-};
-
-get '/' => sub {
-	my $c = shift;
-	my $st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list  WHERE event = ? ORDER BY room, starttime');
-	my $talks = ();
-	my $room;
-	my $lastroom = '';
-	$st->execute($config->{eventid});
-	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
-		if ($row->{'room'} ne $lastroom) {
-			if(defined($room)) {
-				push @$talks, c($lastroom => $room);
-			}
-			$room = [];
+group {
+	under '/admin' => sub {
+		my $c = shift;
+		if(!exists($c->session->{id})) {
+			$c->res->code(403);
+			$c->render(text => 'Unauthorized');
+			return 0;
 		}
-		$lastroom = $row->{'room'};
-		next unless defined($row->{id});
-		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'id'}];
-	}
-	if(defined($room)) {
-		push @$talks, c($lastroom => $room);
-	}
-	$c->stash(email => $c->session->{email});
-	$c->stash(talks => $talks);
-	$c->render;
-} => 'admin/main';
+		$c->stash(layout => "admin");
+		$c->stash(admin => $c->session->{admin});
+		return 1;
+	};
 
-get '/logout' => sub {
-	my $c = shift;
-	delete $c->session->{id};
-	$c->redirect_to('/');
+	get '/' => sub {
+		my $c = shift;
+		my $st;
+		my $talks = ();
+		my $room;
+		my $lastroom = '';
+
+		if(defined($c->session->{room})) {
+			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE event = ? AND roomid = ? ORDER BY starttime');
+			$st->execute($config->{eventid}, $c->session->{room});
+		} else {
+			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE event = ? ORDER BY room, starttime');
+			$st->execute($config->{eventid});
+		}
+		while(my $row = $st->fetchrow_hashref("NAME_lc")) {
+			if ($row->{'room'} ne $lastroom) {
+				if(defined($room)) {
+					push @$talks, c($lastroom => $room);
+				}
+				$room = [];
+			}
+			$lastroom = $row->{'room'};
+			next unless defined($row->{id});
+			push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'id'}];
+		}
+		if(defined($room)) {
+			push @$talks, c($lastroom => $room);
+		}
+		$c->stash(email => $c->session->{email});
+		$c->stash(talks => $talks);
+		$c->render;
+	} => 'admin/main';
+
+	get '/logout' => sub {
+		my $c = shift;
+		delete $c->session->{id};
+		delete $c->session->{room};
+		$c->redirect_to('/');
+	};
+
+	get '/talk' => sub {
+		my $c = shift;
+		my $id = $c->param("talk");
+		my $st;
+
+		if(defined($c->session->{room})) {
+			$st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ? AND roomid = ?');
+			$st->execute($id, $c->session->{room});
+		} else {
+			$st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
+			$st->execute($id);
+		}
+		my $row = $st->fetchrow_hashref("NAME_lc");
+		my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
+		$stp->execute($id);
+
+		if(!defined($row)) {
+			$c->stash(message => "Unknown talk.");
+			$c->render('error');
+			return undef;
+		}
+
+		$c->stash(talk_title => $row->{name});
+		$c->stash(talk_speakers => $row->{speakers});
+		$c->stash(talk_start => $row->{starttime});
+		$c->stash(talk_end => $row->{endtime});
+		$c->stash(slug => $row->{slug});
+		$c->stash(event => $config->{event});
+		$c->stash(eventid => $config->{eventid});
+		$c->stash(room => $row->{room});
+		$c->stash(state => $row->{state});
+		$c->stash(comments => $row->{comments});
+		$c->stash(corrections => $stp->fetchall_arrayref);
+		$c->stash(target => "talk_update_admin");
+		$c->render(template => 'talk');
+	} => 'admin_talk';
+
+	post '/talk_update' => sub {
+		my $c = shift;
+		my $talk = $c->param("talk");
+		if(!defined($talk)) {
+			$c->stash(message => "Required parameter talk missing.");
+			$c->render("error");
+			return undef;
+		}
+		$c->stash(template => 'talk');
+		$c->talk_update($talk);
+		$c->redirect_to("/admin/talk?talk=$talk");
+	} => 'talk_update_admin';
+
+	under '/admin/system' => sub {
+		my $c = shift;
+		if(!exists($c->session->{id})) {
+			$c->res->code(403);
+			$c->render(text => 'Unauthorized (not logged on)');
+			return 0;
+		}
+		if(!$c->session->{admin}) {
+			$c->res->code(403);
+			$c->render(text => 'Unauthorized (not admin)');
+			return 0;
+		}
+		$c->stash(layout => "admin");
+		$c->stash(admin => $c->session->{admin});
+		return 1;
+	};
+
+	get '/' => sub {
+		my $c = shift;
+		$c->stash(email => $c->session->{email});
+		my $st = $dbh->prepare("SELECT DISTINCT rooms.id, rooms.name FROM rooms LEFT JOIN talks ON rooms.id = talks.room WHERE talks.event = ?");
+		$st->execute($config->{eventid});
+		my $rooms = [['All rooms' => '', selected => 'selected']];
+		while(my $row = $st->fetchrow_arrayref) {
+			push @$rooms, [$row->[1] => $row->[0]];
+		}
+		$c->stash(rooms => $rooms);
+	} => 'admin/dashboard';
+
+	get '/adduser' => sub {
+		my $c = shift;
+		open PASSWORD, "pwgen -s 10 -n 1|";
+		my $password = <PASSWORD>;
+		close(PASSWORD);
+		my $st = $c->dbh->prepare("INSERT INTO users(email, name, isadmin, password, room) VALUES(?, ?, ?, crypt(?, gen_salt('bf', 8)), ?)");
+		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $password, $c->param('rooms')) or die;
+		$c->dbh->prepare("UPDATE users SET isadmin = false WHERE isadmin is null")->execute;
+		$c->render("User created, password = $password");
+	};
 };
-
-get '/talk' => sub {
-	my $c = shift;
-	my $id = $c->param("talk");
-
-	my $st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
-	$st->execute($id);
-	my $row = $st->fetchrow_hashref("NAME_lc");
-	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
-	$stp->execute($id);
-
-	if(!defined($row)) {
-		$c->stash(message => "Unknown talk.");
-		$c->render('error');
-		return undef;
-	}
-
-	$c->stash(talk_title => $row->{name});
-	$c->stash(talk_speakers => $row->{speakers});
-	$c->stash(talk_start => $row->{starttime});
-	$c->stash(talk_end => $row->{endtime});
-	$c->stash(slug => $row->{slug});
-	$c->stash(event => $config->{event});
-	$c->stash(eventid => $config->{eventid});
-	$c->stash(room => $row->{room});
-	$c->stash(state => $row->{state});
-	$c->stash(comments => $row->{comments});
-	$c->stash(corrections => $stp->fetchall_arrayref);
-	$c->stash(target => "talk_update_admin");
-	$c->render(template => 'talk');
-} => 'admin_talk';
-
-post '/talk_update' => sub {
-	my $c = shift;
-	my $talk = $c->param("talk");
-	if(!defined($talk)) {
-		$c->stash(message => "Required parameter talk missing.");
-		$c->render("error");
-		return undef;
-	}
-	$c->stash(template => 'talk');
-	$c->talk_update($talk);
-	$c->redirect_to("/admin/talk?talk=$talk");
-} => 'talk_update_admin';
 
 get '*any' => sub {
 	my $c = shift;
-	$c->redirect_to('/admin');
+	$c->redirect_to('/overview');
 };
 
 app->start;

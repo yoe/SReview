@@ -1,7 +1,10 @@
 <h1>Hi <%= $email %>!</h1>
-<p>Please select an action or a talk to work with:</p>
+<p>Please select a talk to work with:</p>
   %= form_for admin_talk => begin
     %= select_field talk => $talks, size => 25
     <br>
     %= submit_button
   %end
+<% if ($admin) { %>
+  %= link_to 'Admin actions' => 'admin/dashboard'
+<% } %>
