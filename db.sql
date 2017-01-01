@@ -492,7 +492,8 @@ CREATE VIEW talk_list AS
     talks.starttime,
     talks.endtime,
     talks.state,
-    talks.comments
+    talks.comments,
+    rooms.id AS roomid
    FROM (rooms
      LEFT JOIN talks ON ((rooms.id = talks.room)));
 
@@ -523,7 +524,10 @@ ALTER SEQUENCE talks_id_seq OWNED BY talks.id;
 CREATE TABLE users (
     id integer NOT NULL,
     email character varying,
-    password text
+    password text,
+    isadmin boolean DEFAULT false,
+    room integer,
+    name character varying
 );
 
 
@@ -790,6 +794,14 @@ ALTER TABLE ONLY talks
 
 ALTER TABLE ONLY talks
     ADD CONSTRAINT talks_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
+
+
+--
+-- Name: users_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
 
 
 --
