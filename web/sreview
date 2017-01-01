@@ -350,8 +350,9 @@ group {
 		my $st = $c->dbh->prepare("INSERT INTO users(email, name, isadmin, password, room) VALUES(?, ?, ?, crypt(?, gen_salt('bf', 8)), ?)");
 		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $password, $c->param('rooms')) or die;
 		$c->dbh->prepare("UPDATE users SET isadmin = false WHERE isadmin is null")->execute;
-		$c->stash(password => $password);
-	} => 'admin/user_added';
+		$c->flash(msg => "User with email " . $c->param('email') . " created; password is <tt>$password</tt>");
+		$c->redirect_to('admin/system');
+	};
 };
 
 get '*any' => sub {

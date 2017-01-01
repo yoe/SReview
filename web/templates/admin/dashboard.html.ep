@@ -1,4 +1,7 @@
 <h1> Hi <%= $email%>!</h1>
+<% if (my $message = flash 'msg') { %>
+<p><b><%= $message %></b></p>
+<% } %>
 <p>The following actions are possible:</p>
 <dl><dt>Create a new user</dt>
 <dd>
