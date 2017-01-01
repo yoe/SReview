@@ -8,6 +8,7 @@
 <tr><td><video controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-pre.mp4" height="240" width="416"></video></td><td><video controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-post.mp4" height="240" width="416"></video></td></tr>
 <tr><td colspan="2" style="text-align: center;"><video controls="controls" autoplay="autoplay" height="480" width="848" src="/video/<%= $eventid %>/<%= $slug %>.webm"></video></td></tr>
 </table>
+<p><b>Note:</b> making any changes in this form does <em>not</em> remove the originals. Nothing you do here can result in data loss!</p>
 % my $disabled = "disabled";
 % my $checked = "";
 % if (defined($state)) {
