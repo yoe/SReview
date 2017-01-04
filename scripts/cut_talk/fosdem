@@ -1,0 +1,102 @@
+#!/usr/bin/perl -w
+
+# Extract the "interesting" parts of one or more raw mp4 input file(s) into a
+# single "work" file named after the talk slug.
+
+use strict;
+use warnings;
+
+use DBI;
+use File::Temp qw/tempdir/;
+use File::Path qw/make_path/;
+use WWW::Curl::Easy;
+
+our $config;
+require './config.pl';
+
+my $workdir = tempdir( "cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+$dbh->begin_work;
+
+my $talkid = $ARGV[0];
+
+my $talk_data = $dbh->prepare("SELECT rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, ?::interval, ?::interval) ORDER BY raw_start");
+my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
+$corrections_data->execute($talkid);
+
+my %corrections;
+my @segments;
+
+while(my $row = $corrections_data->fetchrow_hashref()) {
+	my $name = $row->{property};
+	my $val = $row->{property_value};
+	$corrections{$name} = $val;
+}
+
+foreach my $prop ("offset_start", "length_adj") {
+	if(!exists($corrections{$prop})) {
+		$corrections{$prop} = '00:00:00';
+	}
+}
+
+$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
+
+my $curl = WWW::Curl::Easy->new;
+#$curl->setopt(CURLOPT_HEADER, 1);
+
+while(my $row = $talk_data->fetchrow_hashref()) {
+	my $start;
+	my $stop;
+	my $pref = "?";
+	my $url = $row->{raw_filename};
+	if($row->{fragment_start} ne '0') {
+		$url .= $pref;
+		$pref = "&";
+		$url .= "start=" . $row->{fragment_start};
+	}
+	if($row->{raw_length} ne $row->{raw_length_corrected}) {
+		$url .= $pref;
+		$url .= "end=" . $row->{raw_length_corrected};
+	}
+	open OUTPUT, ">$workdir/segment" . $row->{rawid} . ".mp4";
+	$curl->setopt(CURLOPT_URL, $url);
+	$curl->setopt(CURLOPT_WRITEDATA, \*OUTPUT);
+	my $res = $curl->perform;
+	if($res != 0) {
+		die "Received HTTP error code $res: " . $curl->strerror($res) . " " . $curl->errbuf;
+	}
+	close OUTPUT;
+	push @segments, "$workdir/segment" . $row->{rawid} . ".mp4";
+}
+
+# ensure we have at least something
+if(!scalar(@segments)) {
+	die "did not find any segments";
+}
+
+# Concat files losslessly
+system("ffmpeg -i \"concat:" . join('|',@segments) . "\" -c copy -y $workdir/preaudio.mp4");
+# Do audio normalisation:
+# - Extract audio from stream (the correct channel only, though)
+my $channel = "0";
+if(exists($corrections{audio_channel}) && $corrections{audio_channel} =~ /A/i) {
+	$channel = "1";
+}
+system("ffmpeg -i $workdir/preaudio.mp4 -map 0:a:$channel -y $workdir/audio.wav");
+# - Run bs1770gain (which creates a FLAC file)
+system("bs1770gain -a -o $workdir $workdir/audio.wav");
+# - Replace original audio stream with normalized one
+my $eventname = $dbh->prepare("SELECT events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$eventname->execute($talkid);
+my $row = $eventname->fetchrow_hashref();
+my $outdirsub = $config->{outputdir};
+my $outdir = &$outdirsub($row->{event}, $row->{room}, $row->{starttime});
+make_path($outdir);
+system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $outdir/" . $row->{slug} . ".mp4");
+
+my $update = $dbh->prepare("UPDATE talks SET state = 'cut_ready' WHERE id = ?");
+$update->execute($talkid);
+
+$dbh->commit;
