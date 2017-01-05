@@ -118,7 +118,7 @@ CREATE VIEW raw_talks AS
         END AS fragment_start
    FROM talks,
     raw_files
-  WHERE ((((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime))) OR (((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime)) AND (talks.room = raw_files.room)));
+  WHERE (((((talks.starttime >= raw_files.starttime) AND (talks.starttime <= raw_files.endtime)) OR ((talks.endtime >= raw_files.starttime) AND (talks.endtime <= raw_files.endtime))) OR ((talks.starttime <= raw_files.starttime) AND (talks.endtime >= raw_files.endtime))) AND (talks.room = raw_files.room));
 
 
 --
@@ -136,25 +136,71 @@ BEGIN
   RETURN QUERY
     SELECT talk_id AS talkid,
            talks.slug,
-	   raw_files.id AS rawid,
+           raw_files.id AS rawid,
            raw_files.filename AS raw_filename,
-	   talks.starttime + start_off AS talk_start,
-	   talks.endtime + start_off + end_off AS talk_end,
-	   raw_files.starttime AS raw_start,
-	   raw_files.endtime AS raw_end,
-	   (talks.endtime + start_off + end_off) - (talks.starttime + start_off) AS talk_length,
-	   raw_files.endtime - raw_files.starttime AS raw_length,
-	   LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off) AS raw_length_corrected,
-	   SUM(LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off)) OVER (range unbounded preceding),
-	   CASE
-	     WHEN raw_files.starttime < talks.starttime + start_off THEN talks.starttime + start_off - raw_files.starttime
-	     ELSE '00:00:00'::interval
-	   END AS fragment_start
+           talks.starttime + start_off AS talk_start,
+           talks.endtime + start_off + end_off AS talk_end,
+           raw_files.starttime AS raw_start,
+           raw_files.endtime AS raw_end,
+           (talks.endtime + start_off + end_off) - (talks.starttime + start_off) AS talk_length,
+           raw_files.endtime - raw_files.starttime AS raw_length,
+           LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off) AS raw_length_corrected,
+           SUM(LEAST(raw_files.endtime, talks.endtime + start_off + end_off) - GREATEST(raw_files.starttime, talks.starttime + start_off)) OVER (range unbounded preceding),
+           CASE
+             WHEN raw_files.starttime < talks.starttime + start_off THEN talks.starttime + start_off - raw_files.starttime
+             ELSE '00:00:00'::interval
+           END AS fragment_start
       FROM raw_files JOIN rooms ON raw_files.room = rooms.id JOIN talks ON rooms.id = talks.room
       WHERE talks.id = talk_id
-	AND ((talks.starttime + start_off) >= raw_files.starttime AND (talks.starttime + start_off) <= raw_files.endtime
-	    OR (talks.endtime + start_off + end_off) >= raw_files.starttime AND (talks.endtime + start_off + end_off) <= raw_files.endtime
-	    OR (talks.starttime + start_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off) >= raw_files.endtime);
+        AND ((talks.starttime + start_off) >= raw_files.starttime AND (talks.starttime + start_off) <= raw_files.endtime
+            OR (talks.endtime + start_off + end_off) >= raw_files.starttime AND (talks.endtime + start_off + end_off) <= raw_files.endtime
+            OR (talks.starttime + start_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off) >= raw_files.endtime)
+      UNION
+    SELECT
+	-1 AS talkid, -- use -1 to mark that this is the pre video
+	talks.slug,
+	raw_files.id AS rawid,
+	raw_files.filename AS raw_filename,
+	talks.starttime + start_off - '00:05:00'::interval AS talk_start,
+	talks.starttime + start_off AS talk_end,
+	raw_files.starttime AS raw_start,
+	raw_files.endtime AS raw_end,
+	'00:05:00'::interval AS talk_length,
+	raw_files.endtime - raw_files.starttime AS raw_length,
+	LEAST(raw_files.endtime, talks.starttime + start_off) - GREATEST(raw_files.starttime, talks.starttime + start_off - '00:05:00'::interval) AS raw_length_corrected,
+        SUM(LEAST(raw_files.endtime, talks.starttime + start_off) - GREATEST(raw_files.starttime, talks.starttime + start_off - '00:05:00'::interval)) OVER (range unbounded preceding),
+	CASE
+	  WHEN raw_files.starttime < talks.starttime + start_off - '00:05:00'::interval THEN (talks.starttime + start_off - '00:05:00'::interval) - raw_files.starttime
+	  ELSE '00:00:00'::interval
+	END AS fragment_start
+      FROM raw_files JOIN rooms ON raw_files.room = rooms.id JOIN talks ON rooms.id = talks.room
+      WHERE talks.id = talk_id
+        AND ((talks.starttime + start_off - '00:05:00'::interval) >= raw_files.starttime AND (talks.starttime + start_off - '00:05:00'::interval) <= raw_files.endtime
+            OR (talks.starttime + start_off) >= raw_files.starttime AND (talks.starttime + start_off) <= raw_files.endtime
+            OR (talks.starttime + start_off - '00:05:00'::interval) <= raw_files.starttime AND (talks.endtime + start_off) >= raw_files.endtime)
+      UNION
+    SELECT
+	-2 AS talkid, -- use -2 to mark that this is the post video
+	talks.slug,
+	raw_files.id AS rawid,
+	raw_files.filename AS raw_filename,
+	talks.endtime + start_off + end_off AS talk_start,
+	talks.endtime + start_off + end_off + '00:05:00'::interval AS talk_end,
+	raw_files.starttime AS raw_start,
+	raw_files.endtime AS raw_end,
+	'00:05:00'::interval AS talk_length,
+	raw_files.endtime - raw_files.starttime AS raw_length,
+	LEAST(raw_files.endtime, talks.endtime + start_off + end_off + '00:05:00'::interval) - GREATEST(raw_files.starttime, talks.endtime + start_off + end_off) AS raw_length_corrected,
+        SUM(LEAST(raw_files.endtime, talks.endtime + start_off + end_off + '00:05:00'::interval) - GREATEST(raw_files.starttime, talks.endtime + start_off + end_off)) OVER (range unbounded preceding),
+	CASE
+	  WHEN raw_files.starttime < talks.endtime + start_off + end_off THEN talks.endtime + start_off + end_off - raw_files.starttime
+	  ELSE '00:00:00'::interval
+	END AS fragment_start
+      FROM raw_files JOIN rooms ON raw_files.room = rooms.id JOIN talks ON rooms.id = talks.room
+      WHERE talks.id = talk_id
+        AND ((talks.endtime + start_off + end_off) >= raw_files.starttime AND (talks.endtime + start_off + end_off) <= raw_files.endtime
+            OR (talks.endtime + start_off + end_off + '00:05:00'::interval) >= raw_files.starttime AND (talks.endtime + start_off + end_off + '00:05:00'::interval) <= raw_files.endtime
+            OR (talks.endtime + start_off + end_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off + '00:05:00'::interval) >= raw_files.endtime);
 END $_$;
 
 
