@@ -55,7 +55,7 @@ function endPointPost() {
 <td colspan="3"><video id="video-post" controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-post.mp4" height="240" width="416"></video></td></tr>
 <tr><td><button onclick='startPointPre();'>Take start point</button></td><td>&nbsp;</td><td><button onclick='endPointPre();'>Take end point</button></td><td><button onclick='startPointPost();'>Take start point</button></td><td>&nbsp;</td><td><button onclick='endPointPost();'>Take end point</button></td></tr>
 <tr><td colspan="6" style="text-align: center;"><video id="video-main" controls="controls" autoplay="autoplay" height="480" width="848" src="/video/<%= $eventid %>/<%= $slug %>.mp4"></video></td></tr>
-<tr><td><button onclick='startPointMain();'>Take start point</button></td><td colspan="4">&nbsp;</td><td><button onclick="endPointMain();'>Take end point</button></td></tr>
+<tr><td><button onclick='startPointMain();'>Take start point</button></td><td colspan="4">&nbsp;</td><td><button onclick='endPointMain();'>Take end point</button></td></tr>
 </table>
 <p><b>Note:</b> making any changes in this form does <em>not</em> remove the originals. Nothing you do here can result in data loss!</p>
 % my $disabled = "disabled";
