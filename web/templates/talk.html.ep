@@ -50,7 +50,7 @@
     %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
     </td>
     <td>
-    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction};
+    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction;
     </td>
     </tr>
   % }
