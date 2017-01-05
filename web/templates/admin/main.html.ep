@@ -5,6 +5,3 @@
     <br>
     %= submit_button
   %end
-<% if ($admin) { %>
-  %= link_to 'Admin actions' => 'admin/dashboard'
-<% } %>
