@@ -3,6 +3,9 @@
   <head>
     <title><%= title %></title>
     %= stylesheet '/style.css'
+    % if (my $script = stash 'script_raw') {
+    <script><%== $script %></script>
+    % }
   </head>
   <body><%= content %>
   <p><%= link_to 'Log out' => 'logout' %></p>

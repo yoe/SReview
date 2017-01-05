@@ -43,16 +43,14 @@
   %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled
   %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
   <table class='offset_left'>
-  % foreach my $correction(@$corrections) {
+  % my $viddata = stash 'viddata';
+  % foreach my $correction(keys %{$viddata->{corrvals}}) {
     <tr>
-    % my $id = "correction_" . $correction->[0];
-    % my $desc = $correction->[1];
-    % my $val = $correction->[2];
     <td>
-    %= label_for ${id} => ${desc}
+    %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
     </td>
     <td>
-    %= text_field ${id} => $val
+    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction};
     </td>
     </tr>
   % }

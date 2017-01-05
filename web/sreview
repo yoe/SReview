@@ -5,6 +5,7 @@ use warnings;
 
 use Mojolicious::Lite;
 use Mojo::Collection 'c';
+use Mojo::JSON qw(encode_json);
 use DBI;
 
 use experimental "switch";
@@ -115,7 +116,7 @@ post '/login_post' => sub {
 
 get '/review/:nonce' => sub {
 	my $c = shift;
-	my $stt = $c->dbh->prepare("SELECT * FROM talk_list WHERE nonce=?");
+	my $stt = $c->dbh->prepare("SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE nonce=?");
 	my $rv = $stt->execute($c->param("nonce"));
 	if($rv == 0) {
 		$c->res->code(404);
@@ -129,6 +130,19 @@ get '/review/:nonce' => sub {
 		$c->render('msg');
 		return undef;
 	}
+	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
+	$stp->execute($row->{id});
+	my $viddata = {};
+	$viddata->{corrvals} = {};
+	$viddata->{corrdescs} = {};
+	foreach(my $corrrow = $stp->fetchrow_hashref) {
+		$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
+		$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
+	}
+
+	$viddata->{mainlen} = $row->{length};
+	$viddata->{prepostlen} = 300;
+
 	$c->stash(title => 'Review for ' . $row->{name});
 	$c->stash(talk_title => $row->{name});
 	$c->stash(talk_speakers => $row->{speakers});
@@ -139,12 +153,11 @@ get '/review/:nonce' => sub {
 	$c->stash(eventid => $config->{eventid});
 	$c->stash(room => $row->{room});
 	$c->stash(state => $row->{state});
-	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on properties.id = corrections.property where talk is null or talk = ? ORDER BY properties.description");
-	$stp->execute($row->{id});
-	$c->stash(corrections => $stp->fetchall_arrayref());
+	$c->stash(corrections => $viddata);
 	$c->stash(comments => $row->{comments});
 	$c->stash(target => "talk_update");
 	$c->stash(layout => 'default');
+	$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
 } => 'talk';
 
 get '/overview' => sub {
@@ -269,10 +282,10 @@ group {
 		my $st;
 
 		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ? AND roomid = ?');
+			$st = $c->dbh->prepare('SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE id = ? AND roomid = ?');
 			$st->execute($id, $c->session->{room});
 		} else {
-			$st = $c->dbh->prepare('SELECT * FROM talk_list WHERE id = ?');
+			$st = $c->dbh->prepare('SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE id = ?');
 			$st->execute($id);
 		}
 		my $row = $st->fetchrow_hashref("NAME_lc");
@@ -284,6 +297,15 @@ group {
 			$c->render('error');
 			return undef;
 		}
+		my $viddata = {};
+		$viddata->{corrvals} = {};
+		$viddata->{corrdescs} = {};
+		foreach(my $corrrow = $stp->fetchrow_hashref) {
+			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
+			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
+		}
+		$viddata->{mainlen} = $row->{length};
+		$viddata->{prepostlen} = 300;
 
 		$c->stash(talk_title => $row->{name});
 		$c->stash(talk_speakers => $row->{speakers});
@@ -295,8 +317,9 @@ group {
 		$c->stash(room => $row->{room});
 		$c->stash(state => $row->{state});
 		$c->stash(comments => $row->{comments});
-		$c->stash(corrections => $stp->fetchall_arrayref);
+		$c->stash(corrections => $viddata);
 		$c->stash(target => "talk_update_admin");
+		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
 		$c->render(template => 'talk');
 	} => 'admin_talk';
 
