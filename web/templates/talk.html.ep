@@ -1,46 +1,81 @@
 <h1>Preview recording</h1>
 <script>
-function ensureSelection() {
-};
+// TODO: the below contains a lot of copy-paste code. Clean it up.
 function startPointPre() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
+	var SAl = sreview_viddata.corrvals.offset_start;
+	if(!SAl) {
+		SAl = 0;
+	}
 	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj + (sreview_viddata.prepostlen - Tv1);
-	var SAn = sreview_viddata.corrvals.offset_start - (sreview_viddata.prepostlen - Tv1);
+	var LAn = LAl + (sreview_viddata.prepostlen - Tv1);
+	var SAn = SAl - (sreview_viddata.prepostlen - Tv1);
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointPre() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
 	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
+	var LAn = LAl - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 };
 function startPointMain() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
+	var SAl = sreview_viddata.corrvals.offset_start;
+	if(!SAl) {
+		SAl = 0;
+	}
 	var Tv2 = document.getElementById("video-main").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj - Tv2;
-	var SAn = sreview_viddata.corrvals.offset_start - Tv2;
+	var LAn = LAl - Tv2;
+	var SAn = SAl - Tv2;
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointMain() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
 	var Tv2 = document.getElementById("video-main").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj - (sreview_viddata.corrvals.mainlen - Tv2);
+	var LAn = LAl - (sreview_viddata.mainlen - Tv2);
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 };
 function startPointPost() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
+	var SAl = sreview_viddata.corrvals.offset_start;
+	if(!SAl) {
+		SAl = 0;
+	}
 	var Tv3 = document.getElementById("video-post").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj - sreview_viddata.corrvals.mainlen - Tv3;
-	var SAn = sreview_viddata.corrvals.offset_start + sreview_viddata.corrvals.mainlen + Tv3;
+	var LAn = LAl - sreview_viddata.mainlen - Tv3;
+	var SAn = SAl + sreview_viddata.mainlen + Tv3;
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointPost() {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
 	var Tv3 = document.getElementById("video-post").currentTime;
-	var LAn = sreview_viddata.corrvals.length_adj + Tv3;
+	var LAn = LAl + Tv3;
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 };
