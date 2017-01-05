@@ -1,12 +1,61 @@
 <h1>Preview recording</h1>
+<script>
+function ensureSelection() {
+};
+function startPointPre() {
+	var Tv1 = document.getElementById("video-pre").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj + (sreview_viddata.prepostlen - Tv1);
+	var SAn = sreview_viddata.corrvals.offset_start - (sreview_viddata.prepostlen - Tv1);
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+	document.getElementById("offset_start").value = SAn;
+};
+function endPointPre() {
+	var Tv1 = document.getElementById("video-pre").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+};
+function startPointMain() {
+	var Tv2 = document.getElementById("video-main").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj - Tv2;
+	var SAn = sreview_viddata.corrvals.offset_start - Tv2;
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+	document.getElementById("offset_start").value = SAn;
+};
+function endPointMain() {
+	var Tv2 = document.getElementById("video-main").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj - (sreview_viddata.corrvals.mainlen - Tv2);
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+};
+function startPointPost() {
+	var Tv3 = document.getElementById("video-post").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj - sreview_viddata.corrvals.mainlen - Tv3;
+	var SAn = sreview_viddata.corrvals.offset_start + sreview_viddata.corrvals.mainlen + Tv3;
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+	document.getElementById("offset_start").value = SAn;
+};
+function endPointPost() {
+	var Tv3 = document.getElementById("video-post").currentTime;
+	var LAn = sreview_viddata.corrvals.length_adj + Tv3;
+	document.getElementById("standard").checked = true;
+	document.getElementById("length_adj").value = LAn;
+};
+</script>
 <div style="width: 900px">
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
 <p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the MP4 format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= $slug %>.mp4'>direct download</a> of the same file.</p>
 <p>
 <table width="860" align="center">
-<tr><td>In case it is needed (and they were recorded), these are the five minutes before...:</td><td>... and after this talk:</td></tr>
-<tr><td><video id="video-pre" controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-pre.mp4" height="240" width="416"></video></td><td><video id="video-post" controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-post.mp4" height="240" width="416"></video></td></tr>
-<tr><td colspan="2" style="text-align: center;"><video id="video-main" controls="controls" autoplay="autoplay" height="480" width="848" src="/video/<%= $eventid %>/<%= $slug %>.mp4"></video></td></tr>
+<tr><td colspan="3">In case it is needed (and they were recorded), these are the five minutes before...:</td><td>... and after this talk:</td></tr>
+<tr><td colspan="3"><video id="video-pre" controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-pre.mp4" height="240" width="416"></video></td>
+<td colspan="3"><video id="video-post" controls="controls" src="/video/<%= $eventid %>/<%= $slug %>-post.mp4" height="240" width="416"></video></td></tr>
+<tr><td><button onclick='startPointPre();'>Take start point</button></td><td>&nbsp;</td><td><button onclick='endPointPre();'>Take end point</button></td><td><button onclick='startPointPost();'>Take start point</button></td><td>&nbsp;</td><td><button onclick='endPointPost();'>Take end point</button></td></tr>
+<tr><td colspan="6" style="text-align: center;"><video id="video-main" controls="controls" autoplay="autoplay" height="480" width="848" src="/video/<%= $eventid %>/<%= $slug %>.mp4"></video></td></tr>
+<tr><td><button onclick='startPointMain();'>Take start point</button></td><td colspan="4">&nbsp;</td><td><button onclick="endPointMain();'>Take end point</button></td></tr>
 </table>
 <p><b>Note:</b> making any changes in this form does <em>not</em> remove the originals. Nothing you do here can result in data loss!</p>
 % my $disabled = "disabled";
