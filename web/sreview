@@ -137,10 +137,10 @@ get '/review/:nonce' => sub {
 	$viddata->{corrdescs} = {};
 	while(my $corrrow = $stp->fetchrow_hashref) {
 		$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
-		$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
+		$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
 	}
 
-	$viddata->{mainlen} = $row->{length};
+	$viddata->{mainlen} = $row->{length} + 0;
 	$viddata->{prepostlen} = 300;
 
 	$c->stash(title => 'Review for ' . $row->{name});
