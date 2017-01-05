@@ -135,7 +135,7 @@ get '/review/:nonce' => sub {
 	my $viddata = {};
 	$viddata->{corrvals} = {};
 	$viddata->{corrdescs} = {};
-	foreach(my $corrrow = $stp->fetchrow_hashref) {
+	while(my $corrrow = $stp->fetchrow_hashref) {
 		$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
 		$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
 	}
@@ -300,7 +300,7 @@ group {
 		my $viddata = {};
 		$viddata->{corrvals} = {};
 		$viddata->{corrdescs} = {};
-		foreach(my $corrrow = $stp->fetchrow_hashref) {
+		while(my $corrrow = $stp->fetchrow_hashref) {
 			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
 			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
 		}
