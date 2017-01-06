@@ -14,7 +14,7 @@ use WWW::Curl::Easy;
 our $config;
 require './config.pl';
 
-my $workdir = tempdir( "cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+my $tempdir = tempdir( "cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
 
 my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
@@ -75,7 +75,7 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 		$url .= $pref;
 		$url .= "end=" . ($row->{fragment_start} + $row->{raw_length_corrected});
 	}
-	open OUTPUT, ">$workdir/$target" . $row->{rawid} . ".mp4";
+	open OUTPUT, ">$tempdir/$target" . $row->{rawid} . ".mp4";
 	$curl->setopt(CURLOPT_URL, $url);
 	$curl->setopt(CURLOPT_WRITEDATA, \*OUTPUT);
 	my $res = $curl->perform;
@@ -83,7 +83,7 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 		die "Received HTTP error code $res: " . $curl->strerror($res) . " " . $curl->errbuf;
 	}
 	close OUTPUT;
-	push @$segments, "$workdir/$target" . $row->{rawid} . ".mp4";
+	push @$segments, "$tempdir/$target" . $row->{rawid} . ".mp4";
 }
 
 # ensure we have at least something
@@ -92,31 +92,28 @@ if(!scalar(@segments_main)) {
 }
 
 # Concat files losslessly
-system("ffmpeg -i \"concat:" . join('|',@segments_main) . "\" -c copy -y $workdir/preaudio.mp4");
+system("ffmpeg -i \"concat:" . join('|',@segments_main) . "\" -c copy -y $tempdir/preaudio.mp4");
 # Do audio normalisation on main file:
 # - Extract audio from stream (the correct channel only, though)
 my $channel = "0";
 if(exists($corrections{audio_channel}) && $corrections{audio_channel} =~ /A/i) {
 	$channel = "1";
 }
-system("ffmpeg -i $workdir/preaudio.mp4 -map 0:a:$channel -y $workdir/audio.wav");
+system("ffmpeg -i $tempdir/preaudio.mp4 -map 0:a:$channel -y $tempdir/audio.wav");
 # - Run bs1770gain (which creates a FLAC file)
-system("bs1770gain -a -o $workdir $workdir/audio.wav");
+system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 # - Replace original audio stream with normalized one
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
-my $outdirsub = $config->{outputdir};
-my $outdir = &$outdirsub($row->{event}, $row->{room}, $row->{starttime});
-make_path($outdir);
-system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $outdir/" . $row->{slug} . ".mp4");
-symlink("$outdir/" . $row->{slug} . ".mp4", "/srv/sreview/" . $row->{eventid} . "/" . $row->{slug} . ".mp4");
+my $workdir = $config->{pubdir} . "/" . $row->{eventid};
+system("ffmpeg -i $workdir/preaudio.mp4 -i $workdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $workdir/" . $row->{slug} . ".mp4");
 # Now also concatenate the pre and post files, but don't deal with audio there
 if(scalar(@segments_pre) > 0) {
-	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y /srv/sreview/" . $row->{eventid} . "/" . $row->{slug} . "-pre.mp4");
+	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
 };
 if(scalar(@segments_post) > 0) {
-	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y /srv/sreview/" . $row->{eventid} . "/" . $row->{slug} . "-post.mp4");
+	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
 };
 
 my $update = $dbh->prepare("UPDATE talks SET state = 'cut_ready' WHERE id = ?");
