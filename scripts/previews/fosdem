@@ -5,7 +5,15 @@ use warnings;
 
 use DBI;
 
+our $config;
+require "./config.pl";
+
 # For FOSDEM, the cut_talk output is the preview, so don't do anything else.
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+$dbh->begin_work;
+
+my $talkid = $ARGV[0];
 
 my $update = $dbh->prepare("UPDATE talks SET state = 'preview' WHERE id = ?");
 $update->execute($talkid);
