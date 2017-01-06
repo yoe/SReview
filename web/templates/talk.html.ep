@@ -172,7 +172,7 @@ function edit_length_adj(val) {
     %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
     </td>
     <td>
-    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction, onedit => "edit_$correction(this.value)";
+    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction, onchange => "edit_$correction(this.value)";
     </td>
     </tr>
   % }
