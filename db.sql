@@ -529,7 +529,8 @@ ALTER SEQUENCE speakers_id_seq OWNED BY speakers.id;
 
 CREATE VIEW talk_list AS
  SELECT talks.id,
-    talks.event,
+    talks.event AS eventid,
+    events.name AS event,
     rooms.name AS room,
     speakerlist(talks.id) AS speakers,
     talks.title AS name,
@@ -540,8 +541,9 @@ CREATE VIEW talk_list AS
     talks.state,
     talks.comments,
     rooms.id AS roomid
-   FROM (rooms
-     LEFT JOIN talks ON ((rooms.id = talks.room)));
+   FROM ((rooms
+     LEFT JOIN talks ON ((rooms.id = talks.room)))
+     LEFT JOIN events ON ((talks.event = events.id)));
 
 
 --

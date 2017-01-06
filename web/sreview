@@ -162,8 +162,8 @@ get '/review/:nonce' => sub {
 
 get '/overview' => sub {
 	my $c = shift;
-	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE event = ? AND state IS NOT NULL ORDER BY state, room, starttime');
-	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
+	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime');
+	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE eventid = ? GROUP BY state ORDER BY state;');
 	my %expls;
 	my $tot_results;
 	my $totals = ();
@@ -244,10 +244,10 @@ group {
 		my $lastroom = '';
 
 		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE event = ? AND roomid = ? ORDER BY starttime');
+			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
 			$st->execute($config->{eventid}, $c->session->{room});
 		} else {
-			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE event = ? ORDER BY room, starttime');
+			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
 			$st->execute($config->{eventid});
 		}
 		while(my $row = $st->fetchrow_hashref("NAME_lc")) {
