@@ -1,0 +1,117 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+use Glib qw/G_PRIORITY_DEFAULT/;
+use Glib::Object::Introspection;
+use File::Path qw/make_path/;
+use File::Temp qw/tempdir/;
+
+Glib::Object::Introspection->setup(
+		basename => "Gst",
+		version => "1.0",
+		package => "Gst",
+	);
+
+my $mainloop = Glib::MainLoop->new();
+
+Gst::init(\@ARGV);
+
+our $config;
+require "./config.pl";
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+$dbh->begin_work;
+
+my $talkid = $ARGV[0];
+
+my $talk = $dbh->prepare("SELECT * FROM talks WHERE id = ?");
+
+$talk->execute($talkid);
+
+my $row = $talk->fetchrow_hashref();
+my $slug = $row->{slug};
+
+sub buswatch {
+	my $bus = shift;
+	my $msg = shift;
+	my $data = shift;
+
+	if($msg->type >= "eos") {
+		$mainloop->quit();
+	}
+
+	return 1;
+}
+
+my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name FROM talk_list WHERE id = ?");
+$data->execute($talkid);
+my $drow = $data->fetchrow_hashref();
+my $pubdir = $config->{pubdir};
+my $eid = $drow->{eventid};
+make_path("$pubdir/video/$eid");
+my $outputsub = $config->{outputdir};
+my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{starttime});
+my $tmpdir = tempdir( "transXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+
+sub process_template($$) {
+	my $input = shift;
+	my $output = shift;
+	my $outputsvg = "$tmpdir/tmp.svg";
+
+	open INPUT, "<$input";
+	open OUTPUT, ">$outputsvg";
+	while(<INPUT>) {
+		s/\@SPEAKERS@/$drow->{speakers}/g;
+		s/\@ROOM@/$drow->{room}/g;
+		s/\@TITLE@/$drow->{name}/g;
+		s/\@STARTTIME@/$drow->{startdate}/g;
+	}
+	close INPUT;
+	close OUTPUT;
+	system("inkscape --export-png=$output $outputsvg");
+}
+
+my $preroll = $config->{pubdir} . "/$slug-pre.png";
+if ( ! -f $preroll ) {
+	process_template($config->{preroll_template}, $preroll);
+}
+
+my $postroll = $config->{pubdir} . "/$slug-post.png";
+if ( ! -f $postroll ) {
+	if(exists($config->{postroll_template})) {
+		process_template($config->{postroll_template}, $postroll);
+	} elsif(exists($config->{postroll})) {
+		$postroll = $config->{postroll};
+	}
+}
+
+my $outdirsub = $config->{outputdir};
+my $outdir = &$outdirsub($drow->{event}, $drow->{room}, $drow->{startdate});
+# concatenate preroll, main video, postroll
+my $workdir = $config->{pubdir} . "/$eid";
+system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-preroll.mp4");
+system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-postroll.mp4");
+system("ffmpeg -i \"concat:$tmpdir/$slug-preroll.mp4|$workdir/$slug-main.mp4|$tmpdir/$slug-postroll.mp4\" -c copy -y $outputdir/$slug.mp4");
+
+my @pipelines = (
+	"webmmux name=mux ! fakesink uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp8enc threads=1 multipass-cache-file=$tmpdir/vp8-multipass multipass-mode=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug.vp8.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp8enc threads=1 multipass-cache-file=$tmpdir/vp8-multipass multipass-mode=2 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! fakesink uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp9enc threads=1 multipass-cache-file=$tmpdir/vp9-multipass multipass-mode=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! opusenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug.vp9.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp9enc threads=1 multipass-cache-file=$tmpdir/vp9-multipass multipass-mode=2 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! opusenc ! queue ! mux.audio_0",
+);
+
+foreach my $pipeline_str(@pipelines) {
+	my $pipeline = Gst::parse_launch($pipeline_str);
+	my $bus = $pipeline->get_bus();
+	$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
+	$pipeline->set_state("playing");
+	$mainloop->run();
+}
+
+my $update = $dbh->prepare("UPDATE talks SET state = 'waiting' WHERE id = ?");
+$update->execute($talkid);
+$dbh->commit;
