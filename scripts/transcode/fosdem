@@ -113,12 +113,15 @@ my @pipelines = (
 	"webmmux name=mux ! filesink location=$outputdir/$slug.vp9.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp9enc threads=1 multipass-cache-file=$tmpdir/vp9-multipass multipass-mode=2 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! opusenc ! queue ! mux.audio_0",
 );
 
+#foreach my $pipeline_str(@pipelines) {
+#	my $pipeline = Gst::parse_launch($pipeline_str);
+#	my $bus = $pipeline->get_bus();
+#	$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
+#	$pipeline->set_state("playing");
+#	$mainloop->run();
+#}
 foreach my $pipeline_str(@pipelines) {
-	my $pipeline = Gst::parse_launch($pipeline_str);
-	my $bus = $pipeline->get_bus();
-	$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
-	$pipeline->set_state("playing");
-	$mainloop->run();
+	system("gst-launch-1.0 $pipeline_str");
 }
 
 my $update = $dbh->prepare("UPDATE talks SET state = 'waiting' WHERE id = ?");
