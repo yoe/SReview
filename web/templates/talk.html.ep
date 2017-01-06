@@ -62,7 +62,7 @@ function endPointMain() {
 	}
 	var Tv2 = document.getElementById("video-main").currentTime;
 	var LAn = LAl - (sreview_viddata.mainlen - Tv2);
-	sreview_viddata.endpoint = sreview_viddata.mainlen - Tv2;
+	sreview_viddata.endpoint = Tv2 - sreview_viddata.mainlen;
 	if(sreview_viddata.startpoint) {
 		LAn -= sreview_viddata.startpoint;
 	}
