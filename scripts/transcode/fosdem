@@ -8,6 +8,7 @@ use Glib qw/G_PRIORITY_DEFAULT/;
 use Glib::Object::Introspection;
 use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
+use Mojo::Util qw/xml_escape/;
 
 Glib::Object::Introspection->setup(
 		basename => "Gst",
@@ -54,38 +55,45 @@ my $pubdir = $config->{pubdir};
 my $eid = $drow->{eventid};
 make_path("$pubdir/video/$eid");
 my $outputsub = $config->{outputdir};
-my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{starttime});
+my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
 my $tmpdir = tempdir( "transXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
 
 sub process_template($$) {
 	my $input = shift;
 	my $output = shift;
 	my $outputsvg = "$tmpdir/tmp.svg";
+	my $speakers = xml_escape($drow->{speakers});
+	my $room = xml_escape($drow->{room});
+	my $title = xml_escape($drow->{name});
+	my $startdate = xml_escape($drow->{startdate});
 
 	open INPUT, "<$input";
 	open OUTPUT, ">$outputsvg";
 	while(<INPUT>) {
-		s/\@SPEAKERS@/$drow->{speakers}/g;
-		s/\@ROOM@/$drow->{room}/g;
-		s/\@TITLE@/$drow->{name}/g;
-		s/\@STARTTIME@/$drow->{startdate}/g;
+		s/\@SPEAKERS@/$speakers/g;
+		s/\@ROOM@/$room/g;
+		s/\@TITLE@/$title/g;
+		s/\@STARTTIME@/$startdate/g;
+		print OUTPUT $_;
 	}
 	close INPUT;
 	close OUTPUT;
 	system("inkscape --export-png=$output $outputsvg");
 }
 
-my $preroll = $config->{pubdir} . "/$slug-pre.png";
+my $preroll = $config->{pubdir} . "/$eid/$slug-pre.png";
 if ( ! -f $preroll ) {
 	process_template($config->{preroll_template}, $preroll);
 }
 
-my $postroll = $config->{pubdir} . "/$slug-post.png";
+my $postroll = $config->{pubdir} . "/$eid/$slug-post.png";
 if ( ! -f $postroll ) {
 	if(exists($config->{postroll_template})) {
 		process_template($config->{postroll_template}, $postroll);
 	} elsif(exists($config->{postroll})) {
 		$postroll = $config->{postroll};
+	} else {
+		die "need postroll or postroll template!";
 	}
 }
 
@@ -93,9 +101,10 @@ my $outdirsub = $config->{outputdir};
 my $outdir = &$outdirsub($drow->{event}, $drow->{room}, $drow->{startdate});
 # concatenate preroll, main video, postroll
 my $workdir = $config->{pubdir} . "/$eid";
-system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-preroll.mp4");
-system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-postroll.mp4");
-system("ffmpeg -i \"concat:$tmpdir/$slug-preroll.mp4|$workdir/$slug-main.mp4|$tmpdir/$slug-postroll.mp4\" -c copy -y $outputdir/$slug.mp4");
+system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
+system("ffmpeg -y -i $workdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
+system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
+system("ffmpeg -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc -y $outputdir/$slug.mp4");
 
 my @pipelines = (
 	"webmmux name=mux ! fakesink uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp8enc threads=1 multipass-cache-file=$tmpdir/vp8-multipass multipass-mode=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
