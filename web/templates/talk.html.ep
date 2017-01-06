@@ -13,6 +13,10 @@ function startPointPre() {
 	var Tv1 = document.getElementById("video-pre").currentTime;
 	var LAn = LAl + (sreview_viddata.prepostlen - Tv1);
 	var SAn = SAl - (sreview_viddata.prepostlen - Tv1);
+	sreview_viddata.startpoint = 0 - (sreview_viddata.prepostlen - Tv1);
+	if(sreview_viddata.endpoint) {
+		LAn += sreview_viddata.endpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
@@ -24,6 +28,10 @@ function endPointPre() {
 	}
 	var Tv1 = document.getElementById("video-pre").currentTime;
 	var LAn = LAl - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
+	sreview_viddata.endpoint = 0 - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
+	if(sreview_viddata.startpoint) {
+		LAn -= sreview_viddata.startpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 };
@@ -39,6 +47,10 @@ function startPointMain() {
 	var Tv2 = document.getElementById("video-main").currentTime;
 	var LAn = LAl - Tv2;
 	var SAn = SAl - Tv2;
+	sreview_viddata.startpoint = Tv2;
+	if(sreview_viddata.endpoint) {
+		LAn += sreview_viddata.endpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
@@ -50,6 +62,10 @@ function endPointMain() {
 	}
 	var Tv2 = document.getElementById("video-main").currentTime;
 	var LAn = LAl - (sreview_viddata.mainlen - Tv2);
+	sreview_viddata.endpoint = sreview_viddata.mainlen - Tv2;
+	if(sreview_viddata.startpoint) {
+		LAn -= sreview_viddata.startpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 };
@@ -65,6 +81,10 @@ function startPointPost() {
 	var Tv3 = document.getElementById("video-post").currentTime;
 	var LAn = LAl - sreview_viddata.mainlen - Tv3;
 	var SAn = SAl + sreview_viddata.mainlen + Tv3;
+	sreview_viddata.startpoint = sreview_viddata.mainlen + Tv3;
+	if(sreview_viddata.endpoint) {
+		LAn += sreview_viddata.endpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
 	document.getElementById("offset_start").value = SAn;
@@ -76,8 +96,26 @@ function endPointPost() {
 	}
 	var Tv3 = document.getElementById("video-post").currentTime;
 	var LAn = LAl + Tv3;
+	sreview_viddata.endpoint = Tv3;
+	if(sreview_viddata.startpoint) {
+		LAn -= sreview_viddata.startpoint;
+	}
 	document.getElementById("standard").checked = true;
 	document.getElementById("length_adj").value = LAn;
+};
+function edit_offset_start(val) {
+	var SAl = sreview_viddata.corrvals.offset_start;
+	if(!SAl) {
+		SAl = 0;
+	}
+	sreview_viddata.startpoint = val - SAl;
+};
+function edit_length_adj(val) {
+	var LAl = sreview_viddata.corrvals.length_adj;
+	if(!LAl) {
+		LAl = 0;
+	}
+	sreview_viddata.endpoint = val - LAl;
 };
 </script>
 <div style="width: 900px">
@@ -134,7 +172,7 @@ function endPointPost() {
     %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
     </td>
     <td>
-    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction;
+    %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction, onedit => "edit_$correction(this.value)";
     </td>
     </tr>
   % }
