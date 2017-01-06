@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+
+# For FOSDEM, the cut_talk output is the preview, so don't do anything else.
+
+my $update = $dbh->prepare("UPDATE talks SET state = 'preview' WHERE id = ?");
+$update->execute($talkid);
+$dbh->commit;
