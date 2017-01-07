@@ -4,21 +4,9 @@ use strict;
 use warnings;
 
 use DBI;
-use Glib qw/G_PRIORITY_DEFAULT/;
-use Glib::Object::Introspection;
 use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
 use Mojo::Util qw/xml_escape/;
-
-Glib::Object::Introspection->setup(
-		basename => "Gst",
-		version => "1.0",
-		package => "Gst",
-	);
-
-my $mainloop = Glib::MainLoop->new();
-
-Gst::init(\@ARGV);
 
 our $config;
 require "./config.pl";
@@ -35,18 +23,6 @@ $talk->execute($talkid);
 
 my $row = $talk->fetchrow_hashref();
 my $slug = $row->{slug};
-
-sub buswatch {
-	my $bus = shift;
-	my $msg = shift;
-	my $data = shift;
-
-	if($msg->type >= "eos") {
-		$mainloop->quit();
-	}
-
-	return 1;
-}
 
 my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name FROM talk_list WHERE id = ?");
 $data->execute($talkid);
@@ -101,28 +77,13 @@ my $outdirsub = $config->{outputdir};
 my $outdir = &$outdirsub($drow->{event}, $drow->{room}, $drow->{startdate});
 # concatenate preroll, main video, postroll
 my $workdir = $config->{pubdir} . "/$eid";
-system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
+system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -r 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
 system("ffmpeg -y -i $workdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
-system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -r 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
+system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -r 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
 system("ffmpeg -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc -y $outputdir/$slug.mp4");
-
-my @pipelines = (
-	"webmmux name=mux ! fakesink uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp8enc threads=1 multipass-cache-file=$tmpdir/vp8-multipass multipass-mode=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
-	"webmmux name=mux ! filesink location=$outputdir/$slug.vp8.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp8enc threads=1 multipass-cache-file=$tmpdir/vp8-multipass multipass-mode=2 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
-	"webmmux name=mux ! fakesink uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp9enc threads=1 multipass-cache-file=$tmpdir/vp9-multipass multipass-mode=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! opusenc ! queue ! mux.audio_0",
-	"webmmux name=mux ! filesink location=$outputdir/$slug.vp9.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! vp9enc threads=1 multipass-cache-file=$tmpdir/vp9-multipass multipass-mode=2 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! opusenc ! queue ! mux.audio_0",
-);
-
-#foreach my $pipeline_str(@pipelines) {
-#	my $pipeline = Gst::parse_launch($pipeline_str);
-#	my $bus = $pipeline->get_bus();
-#	$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
-#	$pipeline->set_state("playing");
-#	$mainloop->run();
-#}
-foreach my $pipeline_str(@pipelines) {
-	system("gst-launch-1.0 $pipeline_str");
-}
+system("ffmpeg -i $outputdir/$slug.mp4 -c:v libvpx-vp9 -c:a libopus -y $outputdir/$slug.vp9.webm");
+system("ffmpeg -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis -y $outputdir/$slug.vp8.webm");
+system("ffmpeg -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis -y $outputdir/$slug.vp8.webm");
 
 my $update = $dbh->prepare("UPDATE talks SET state = 'waiting' WHERE id = ?");
 $update->execute($talkid);
