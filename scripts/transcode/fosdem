@@ -79,7 +79,6 @@ system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -r 25 -frame
 system("ffmpeg -y -i $workdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
 system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -r 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
 system("ffmpeg -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc -y $outputdir/$slug.mp4");
-system("ffmpeg -i $outputdir/$slug.mp4 -c:v libvpx-vp9 -c:a libopus -y $outputdir/$slug.vp9.webm");
 system("ffmpeg -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis -y $outputdir/$slug.vp8.webm");
 system("ffmpeg -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis -y $outputdir/$slug.vp8.webm");
 
