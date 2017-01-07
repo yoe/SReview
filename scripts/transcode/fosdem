@@ -73,8 +73,6 @@ if ( ! -f $postroll ) {
 	}
 }
 
-my $outdirsub = $config->{outputdir};
-my $outdir = &$outdirsub($drow->{event}, $drow->{room}, $drow->{startdate});
 # concatenate preroll, main video, postroll
 my $workdir = $config->{pubdir} . "/$eid";
 system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -r 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
