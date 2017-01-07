@@ -163,7 +163,7 @@ get '/review/:nonce' => sub {
 get '/overview' => sub {
 	my $c = shift;
 	my $st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime');
-	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE eventid = ? GROUP BY state ORDER BY state;');
+	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 	my %expls;
 	my $tot_results;
 	my $totals = ();
