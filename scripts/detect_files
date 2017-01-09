@@ -31,7 +31,7 @@ my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtim
 my $last = $dbh->prepare("SELECT filename, length FROM last_room_files WHERE room = ?)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = ?::timestamptz + ?::interval WHERE filename = ?");
 
-my @files = glob($config->{inputdir} . "/*/*/*" . $config->{inputext});
+my @files = glob($config->{inputglob});
 
 Gst::init(\@ARGV);
 my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
@@ -39,17 +39,14 @@ my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
 foreach my $file(@files) {
 	next unless (-f $file);
 	my $ext = $config->{inputext};
-	next unless $file =~ /.*\/([^\/]*)\/([^\/]*)\/(.*)${ext}$/;
-	my $room = $1;
-	my $start_day = $2;
-	my $start_hour = $3;
-	$start_hour =~ s/_/:/g;
+	my ($room, $start_day, $start_hour, $url) = $config->parse_raw($file)
+	next unless defined($room);
 	$exists->execute($file);
 	my $row = $exists->fetchrow_hashref;
 	if($row->{count} eq '0') {
 		$last->execute($room);
 		my $lastrow = $last->fetchrow_hashref;
-		next unless $lastrow->{filename} eq $file;
+		next unless $lastrow->{filename} eq $url;
 	}
 	my $info = $disc->discover_uri(Glib->filename_to_uri($file, undef));
 	my $length = $info->get_duration() / 1_000_000_000;
