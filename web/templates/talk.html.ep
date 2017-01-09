@@ -166,7 +166,7 @@ function edit_length_adj(val) {
   %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
   <table class='offset_left'>
   % my $viddata = stash 'corrections';
-  % foreach my $correction(keys %{$viddata->{corrvals}}) {
+  % foreach my $correction(sort (keys %{$viddata->{corrvals}})) {
     <tr>
     <td>
     %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
