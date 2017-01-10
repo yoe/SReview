@@ -39,7 +39,8 @@ my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
 foreach my $file(@files) {
 	next unless (-f $file);
 	my $ext = $config->{inputext};
-	my ($room, $start_day, $start_hour, $url) = $config->parse_raw($file)
+	my $parsesub = $config->{parse_raw};
+	my ($room, $start_day, $start_hour, $url) = &$parsesub($file);
 	next unless defined($room);
 	$exists->execute($file);
 	my $row = $exists->fetchrow_hashref;
