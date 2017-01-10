@@ -91,7 +91,9 @@ CREATE TABLE talks (
     state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
     comments text,
     upstreamid character varying NOT NULL,
-    subtitle character varying
+    subtitle character varying,
+    prelen interval,
+    postlen interval
 );
 
 
@@ -378,7 +380,8 @@ ALTER SEQUENCE filetypes_id_seq OWNED BY filetypes.id;
 
 CREATE TABLE rooms (
     id integer NOT NULL,
-    name character varying
+    name character varying,
+    email character varying
 );
 
 
