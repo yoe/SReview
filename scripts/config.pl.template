@@ -47,9 +47,15 @@ $config->{state} = $state;
 # subdirectory structure of "<room>/<date>/<time>.<inputext>" under this
 # location, where <date> and <time> should be in a format that
 # PostgreSQL supports for "timestamptz" fields in the current locale.
-$config->{inputdir} = "/srv/sreview/input";
-# What extension the input files have
-$config->{inputext} = ".mp4";
+$config->{inputglob} = "/var/www/dump/*/*.flv.mp4";
+# Subroutine that parses a filename into a room, starting day, starting hour,
+# and URL
+$config->{parse_raw} = sub($) {
+	my $file = shift;
+	my $hostname = "streambackendX.video.fosdem.org";
+	return undef unless $file =~ /.*\/(([ \/]*)(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).flv.mp4)/;
+	return ($2, "$3-$4-$5", "$6:$7:$8", "http://$hostname/$1");
+};
 # Where temporary (job-internal) files should be saved. This can safely be a
 # local per-node scratch directory.
 $config->{workdir} = "/tmp/";
