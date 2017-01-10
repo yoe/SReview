@@ -29,13 +29,13 @@ my @trackmgrs;
 
 foreach my $speaker(@$recplist) {
 	if(defined($speaker->[1])) {
-		push @speakers, $speaker->[0] . "<" . $speaker->[1] . ">";
+		push @speakers, $speaker->[0] . " <" . $speaker->[1] . ">";
 	}
 }
 
 foreach my $trackmgr(@$trackmgrlist) {
 	if(defined($trackmgr->[1])) {
-		push @trackmgrs, "managers for devroom " . $trackmgr->[0] . "<" . $trackmgr->[1] . ">";
+		push @trackmgrs, "managers for devroom " . $trackmgr->[0] . " <" . $trackmgr->[1] . ">";
 	}
 }
 
