@@ -6,7 +6,6 @@ use warnings;
 use Email::Sender::Simple qw(sendmail);
 use Email::Simple;
 use DBI;
-use Data::Dumper;
 
 our $config;
 
