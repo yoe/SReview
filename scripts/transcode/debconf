@@ -69,6 +69,6 @@ foreach my $pipeline_str(@pipelines) {
 	$mainloop->run();
 }
 
-my $update = $dbh->prepare("UPDATE talks SET state = 'waiting' WHERE id = ?");
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_data'");
 $update->execute($talkid);
 $dbh->commit;

@@ -62,6 +62,6 @@ $pipeline->set_state("playing");
 
 $mainloop->run();
 
-my $update = $dbh->prepare("UPDATE talks SET state = 'preview' WHERE id = ?");
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_previews'");
 $update->execute($talkid);
 $dbh->commit;

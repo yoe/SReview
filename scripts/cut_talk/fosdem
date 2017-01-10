@@ -116,7 +116,7 @@ if(scalar(@segments_post) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
 };
 
-my $update = $dbh->prepare("UPDATE talks SET state = 'cut_ready' WHERE id = ?");
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'cut_pending'");
 $update->execute($talkid);
 
 $dbh->commit;

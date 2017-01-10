@@ -82,6 +82,6 @@ system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 
-my $update = $dbh->prepare("UPDATE talks SET state = 'waiting' WHERE id = ?");
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_data'");
 $update->execute($talkid);
 $dbh->commit;
