@@ -381,7 +381,8 @@ ALTER SEQUENCE filetypes_id_seq OWNED BY filetypes.id;
 CREATE TABLE rooms (
     id integer NOT NULL,
     name character varying,
-    email character varying
+    email character varying,
+    altname character varying
 );
 
 
