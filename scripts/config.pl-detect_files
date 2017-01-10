@@ -9,8 +9,10 @@ $config->{inputglob} = "/var/www/dump/*/*.flv.mp4";
 $config->{parse_raw} = sub($) {
 	my $file = shift;
 	my $hostname = "streambackendX.video.fosdem.org"; # need to update (from ansible) "streambackendX" to whatever the correct FQDN is.
-	return undef unless $file =~ /.*\/(([^\/]*)\/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).flv.mp4))/;
+	return undef unless $file =~ /.*\/(([^\/]*)\/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).flv.mp4)/;
 	return ($2, "$3-$4-$5", "$6:$7:$8", "http://$hostname/$1");
 }
+
+$config->{inputext} = ".flv.mp4";
 
 1;
