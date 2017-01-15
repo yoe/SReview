@@ -47,7 +47,9 @@ helper talk_update => sub {
 	my $c = shift;
 	my $talk = shift;
 	my $choice = $c->param('choice');
-	if($choice eq 'reset') {
+	if(!defined($choice)) {
+		die "choice empty";
+	} elsif($choice eq 'reset') {
 		my $sth = $c->dbh->prepare("UPDATE talks SET state='preview' WHERE id = ?");
 		$sth->execute($talk) or die;
 	} elsif($choice eq 'ok') {
