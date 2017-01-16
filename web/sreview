@@ -304,9 +304,9 @@ group {
 		$viddata->{corrdescs} = {};
 		while(my $corrrow = $stp->fetchrow_hashref) {
 			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
-			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value};
+			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
 		}
-		$viddata->{mainlen} = $row->{length};
+		$viddata->{mainlen} = $row->{length} + 0;
 		$viddata->{prepostlen} = 20*60;
 
 		$c->stash(talk_title => $row->{name});
