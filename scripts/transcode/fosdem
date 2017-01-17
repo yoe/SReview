@@ -32,6 +32,7 @@ my $eid = $drow->{eventid};
 make_path("$pubdir/video/$eid");
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
+make_path($outputdir);
 my $tmpdir = tempdir( "transXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
 
 sub process_template($$) {
