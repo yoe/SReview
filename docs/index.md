@@ -41,12 +41,22 @@ happen automatically. You're done!
 If you see a problem, and it's something that one of the options in the
 "Common fixes" section of the webform could take care of, then first
 select the "This preview has some issues" radio button. Then, modify the
-relevant options in that section of the webform, and submit it again.
-Your talk will now be re-cut; once that has finished, you'll get another
-notification email. You can check the new cut, make any more changes as
-needed, and re-submit the talk. Rinse, repeat, until all is well. Then
-select the "This preview looks OK" option, and submit the form. You're
-done!
+relevant options in that section of the webform.
+
+There are some javascript buttons on the review page that will help you
+adjust the start and length of the talk; just play the relevant video
+until the correct point has been reached. You may wish to pause it
+(although that's not strictly necessary). Once you're happy with your
+position, click the "Take start point" button under that video to make
+*that* point be the start of the video; or click the "Take end point"
+button to make *that* point be the end of the video.
+
+Once you've made all the changes you think are needed, hit the "OK"
+button at the bottom of the page. Your talk will now be re-cut; once
+that has finished, you'll get another notification email. You can check
+the new cut, make any more changes as needed, and re-submit the talk.
+Rinse, repeat, until all is well. Then re-read the "If all is well"
+section, above.
 
 If you see a problem that can *not* be fixed by any of the options in
 the "Common fixes" section, then you can select the "This preview has
