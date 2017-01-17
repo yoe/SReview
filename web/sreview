@@ -127,7 +127,7 @@ get '/review/:nonce' => sub {
 	}
 	my $row = $stt->fetchrow_hashref("NAME_lc");
 	if($row->{state} ne 'preview' && $row->{state} ne 'broken') {
-		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently available for review. It is in the state <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. For more information, please see <a href=''>the documentation</a>");
+		$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently available for review. It is in the state <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. For more information, please see <a href='https://yoe.github.io/sreview/'>the documentation</a>");
 		$c->stash(title => 'Review finished or not yet available.');
 		$c->render('msg');
 		return undef;
