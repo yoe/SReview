@@ -143,7 +143,8 @@ get '/review/:nonce' => sub {
 	}
 
 	$viddata->{mainlen} = $row->{length} + 0;
-	$viddata->{prepostlen} = 20*60;
+	$viddata->{prelen} = $row->{prelen} + 0;
+	$viddata->{postlen} = $row->{postlen} + 0;
 
 	$c->stash(title => 'Review for ' . $row->{name});
 	$c->stash(talk_title => $row->{name});
@@ -307,7 +308,8 @@ group {
 			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
 		}
 		$viddata->{mainlen} = $row->{length} + 0;
-		$viddata->{prepostlen} = 20*60;
+		$viddata->{prelen} = $row->{prelen} + 0;
+		$viddata->{postlen} = $row->{postlen} + 0;
 
 		$c->stash(talk_title => $row->{name});
 		$c->stash(talk_speakers => $row->{speakers});

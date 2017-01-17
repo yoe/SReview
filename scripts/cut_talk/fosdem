@@ -11,6 +11,20 @@ use File::Temp qw/tempdir/;
 use File::Path qw/make_path/;
 use WWW::Curl::Easy;
 
+use Glib;
+use Glib::Object::Introspection;
+
+Glib::Object::Introspection->setup(
+	basename => "Gst",
+	version => "1.0",
+	package => "Gst",
+	);
+Glib::Object::Introspection->setup(
+	basename => "GstPbutils",
+	version => "1.0",
+	package => "Gst::Pbutils",
+	);
+
 our $config;
 require './config.pl';
 
@@ -109,14 +123,21 @@ my $row = $eventname->fetchrow_hashref();
 my $workdir = $config->{pubdir} . "/" . $row->{eventid};
 system("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $workdir/" . $row->{slug} . ".mp4");
 # Now also concatenate the pre and post files, but don't deal with audio there
+my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
+my $prelen = 0;
+my $postlen = 0;
 if(scalar(@segments_pre) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-pre.mp4"));
+	$prelen = $info->get_duration() / 1_000_000_000;
 };
 if(scalar(@segments_post) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4"));
+	$postlen = $info->get_duration() / 1_000_000_000;
 };
 
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'cut_pending'");
-$update->execute($talkid);
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state), prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
+$update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;

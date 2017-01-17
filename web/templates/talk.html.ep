@@ -11,9 +11,9 @@ function startPointPre() {
 		SAl = 0;
 	}
 	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = LAl + (sreview_viddata.prepostlen - Tv1);
-	var SAn = SAl - (sreview_viddata.prepostlen - Tv1);
-	sreview_viddata.startpoint = 0 - (sreview_viddata.prepostlen - Tv1);
+	var LAn = LAl + (sreview_viddata.prelen - Tv1);
+	var SAn = SAl - (sreview_viddata.prelen - Tv1);
+	sreview_viddata.startpoint = 0 - (sreview_viddata.prelen - Tv1);
 	if(sreview_viddata.endpoint) {
 		LAn += sreview_viddata.endpoint;
 	}
@@ -27,8 +27,8 @@ function endPointPre() {
 		LAl = 0;
 	}
 	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = LAl - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
-	sreview_viddata.endpoint = 0 - sreview_viddata.mainlen - (sreview_viddata.prepostlen - Tv1);
+	var LAn = LAl - sreview_viddata.mainlen - (sreview_viddata.prelen - Tv1);
+	sreview_viddata.endpoint = 0 - sreview_viddata.mainlen - (sreview_viddata.prelen - Tv1);
 	if(sreview_viddata.startpoint) {
 		LAn -= sreview_viddata.startpoint;
 	}
