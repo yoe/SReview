@@ -50,6 +50,7 @@ CREATE TYPE talkstate AS ENUM (
     'cut_pending',
     'cut_ready',
     'generating_previews',
+    'needs_notify',
     'preview',
     'review_done',
     'generating_data',
@@ -93,7 +94,8 @@ CREATE TABLE talks (
     upstreamid character varying NOT NULL,
     subtitle character varying,
     prelen interval,
-    postlen interval
+    postlen interval,
+    track integer
 );
 
 
@@ -570,6 +572,37 @@ ALTER SEQUENCE talks_id_seq OWNED BY talks.id;
 
 
 --
+-- Name: tracks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE tracks (
+    id integer NOT NULL,
+    name character varying,
+    email character varying,
+    upstreamid character varying
+);
+
+
+--
+-- Name: tracks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE tracks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tracks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE tracks_id_seq OWNED BY tracks.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -656,6 +689,13 @@ ALTER TABLE ONLY speakers ALTER COLUMN id SET DEFAULT nextval('speakers_id_seq':
 --
 
 ALTER TABLE ONLY talks ALTER COLUMN id SET DEFAULT nextval('talks_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY tracks ALTER COLUMN id SET DEFAULT nextval('tracks_id_seq'::regclass);
 
 
 --
@@ -762,6 +802,14 @@ ALTER TABLE ONLY talks
 
 
 --
+-- Name: tracks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY tracks
+    ADD CONSTRAINT tracks_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -846,6 +894,14 @@ ALTER TABLE ONLY talks
 
 ALTER TABLE ONLY talks
     ADD CONSTRAINT talks_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
+
+
+--
+-- Name: talks_track_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY talks
+    ADD CONSTRAINT talks_track_fkey FOREIGN KEY (track) REFERENCES tracks(id);
 
 
 --
