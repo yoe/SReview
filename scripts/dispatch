@@ -16,11 +16,12 @@ while(1) {
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
 
 	my $st;
+	my $statelist = "'" . join("','", keys($config->{state})) . "'";
 	if($config->{query_limit} > 0) {
-		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') LIMIT ? FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ($statelist) LIMIT ? FOR UPDATE");
 		$st->execute($config->{query_limit});
 	} else {
-		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ('cut_ready', 'files_found', 'review_done', 'waiting') FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ($statelist) FOR UPDATE");
 		$st->execute;
 	}
 	while(my $row = $st->fetchrow_hashref) {
