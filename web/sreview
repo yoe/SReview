@@ -231,7 +231,7 @@ group {
 		my $c = shift;
 		if(!exists($c->session->{id})) {
 			$c->res->code(403);
-			$c->render(text => 'Unauthorized');
+			$c->redirect_to('/login');
 			return 0;
 		}
 		$c->stash(layout => "admin");
