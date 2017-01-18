@@ -118,7 +118,7 @@ post '/login_post' => sub {
 
 get '/review/:nonce' => sub {
 	my $c = shift;
-	my $stt = $c->dbh->prepare("SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE nonce=?");
+	my $stt = $c->dbh->prepare("SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE nonce=?");
 	my $rv = $stt->execute($c->param("nonce"));
 	if($rv == 0) {
 		$c->res->code(404);
@@ -285,7 +285,7 @@ group {
 		my $st;
 
 		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE id = ? AND roomid = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE id = ? AND roomid = ?');
 			$st->execute($id, $c->session->{room});
 		} else {
 			$st = $c->dbh->prepare('SELECT *, extract(epoch from (endtime - starttime)) as length FROM talk_list WHERE id = ?');
