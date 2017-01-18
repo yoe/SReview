@@ -76,9 +76,9 @@ if ( ! -f $postroll ) {
 
 # concatenate preroll, main video, postroll
 my $workdir = $config->{pubdir} . "/$eid";
-system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 -f lavfi -i anullsrc -c:a aac -shortest $tmpdir/$slug-preroll.ts");
+system("ffmpeg -y -loop 1 -i $preroll -f lavfi -i anullsrc -c:a libfdk_aac -b:a 128k -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 -shortest $tmpdir/$slug-preroll.ts");
 system("ffmpeg -y -i $workdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
-system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 -f lavfi -i anullsrc -c:a aac -shortest $tmpdir/$slug-postroll.ts");
+system("ffmpeg -y -loop 1 -i $postroll -f lavfi -i anullsrc -c:a libfdk_aac -b:a 128k -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 -shortest $tmpdir/$slug-postroll.ts");
 system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
