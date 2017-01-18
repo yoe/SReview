@@ -25,6 +25,8 @@ Glib::Object::Introspection->setup(
 	package => "Gst::Pbutils",
 	);
 
+Gst::init(\@ARGV);
+
 our $config;
 require './config.pl';
 
