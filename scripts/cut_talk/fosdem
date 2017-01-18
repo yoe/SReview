@@ -130,12 +130,12 @@ my $prelen = 0;
 my $postlen = 0;
 if(scalar(@segments_pre) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
-	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-pre.mp4"));
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-pre.mp4", undef));
 	$prelen = $info->get_duration() / 1_000_000_000;
 };
 if(scalar(@segments_post) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
-	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4"));
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4", undef));
 	$postlen = $info->get_duration() / 1_000_000_000;
 };
 
