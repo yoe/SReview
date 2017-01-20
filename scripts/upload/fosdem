@@ -27,6 +27,8 @@ require './config.pl';
 
 my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
+$dbh->begin_work;
+
 my $talkid = $ARGV[0];
 
 my $talkslug = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug FROM talk_list WHERE id = ?");
@@ -45,4 +47,5 @@ system("rsync -zavHP $outputdir/$slug.mp4 $outputdir/$slug.vp8.webm wverhelst\@p
 
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'uploading'");
 $update->execute($talkid);
+
 $dbh->commit;
