@@ -35,10 +35,10 @@ while(1) {
 	my $st;
 	my $statelist = "'" . join("','", keys($config->{state})) . "'";
 	if($config->{query_limit} > 0) {
-		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ($statelist) LIMIT ? FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE state IN ($statelist) LIMIT ? FOR UPDATE");
 		$st->execute($config->{query_limit});
 	} else {
-		$st = $dbh->prepare("SELECT id, state, title FROM talks WHERE state IN ($statelist) FOR UPDATE");
+		$st = $dbh->prepare("SELECT id, state, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE state IN ($statelist) FOR UPDATE");
 		$st->execute;
 	}
 	while(my $row = $st->fetchrow_hashref) {
@@ -46,7 +46,7 @@ while(1) {
 			print("Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n");
 			$next->execute($row->{id});
 			my $statetranssub = $config->{state}{$row->{state}};
-			system &$statetranssub($row->{id});
+			system &$statetranssub($row->{id}, $row->{room}, $row->{length});
 		}
 	}
 	print("finished, waiting 30 seconds...\n");
