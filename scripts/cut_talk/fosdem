@@ -140,7 +140,8 @@ system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
-my $workdir = $config->{pubdir} . "/" . $row->{eventid};
+my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+make_path($workdir);
 system("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $workdir/" . $row->{slug} . ".mp4");
 # Now also concatenate the pre and post files, but don't deal with audio there
 my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);

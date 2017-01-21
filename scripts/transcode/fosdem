@@ -44,9 +44,8 @@ my $slug = $row->{slug};
 my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
-my $pubdir = $config->{pubdir};
 my $eid = $drow->{eventid};
-make_path("$pubdir/video/$eid");
+my $pubdir = $config->{pubdir} . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
 make_path($outputdir);
@@ -75,12 +74,12 @@ sub process_template($$) {
 	system("inkscape --export-png=$output $outputsvg");
 }
 
-my $preroll = $config->{pubdir} . "/$eid/$slug-pre.png";
+my $preroll = $pubdir . "/$slug-pre.png";
 if ( ! -f $preroll ) {
 	process_template($config->{preroll_template}, $preroll);
 }
 
-my $postroll = $config->{pubdir} . "/$eid/$slug-post.png";
+my $postroll = $pubdir . "/$slug-post.png";
 if ( ! -f $postroll ) {
 	if(exists($config->{postroll_template})) {
 		process_template($config->{postroll_template}, $postroll);
@@ -92,9 +91,8 @@ if ( ! -f $postroll ) {
 }
 
 # concatenate preroll, main video, postroll
-my $workdir = $config->{pubdir} . "/$eid";
 system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
-system("ffmpeg -y -i $workdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
+system("ffmpeg -y -i $pubdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
 system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
 system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");

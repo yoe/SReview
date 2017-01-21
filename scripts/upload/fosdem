@@ -44,7 +44,8 @@ my $room = $row->{room};
 my $slug = $row->{slug};
 
 foreach my $suffix('.mp4', '-post.mp4', '-post.png', '-pre.mp4', '-pre.png') {
-	unlink(join('/', ($config->{pubdir}, $row->{eventid}, $row->{slug} . $suffix)));
+	my $building = substr($room, 0, 1);
+	unlink(join('/', ($config->{pubdir}, $row->{eventid}, $building, $row->{slug} . $suffix)));
 }
 system("rsync -zavHP --remove-source-files $outputdir/$slug.mp4 $outputdir/$slug.vp8.webm wverhelst\@phronesis.fosdem.org:/jail/www-public/video/2017/$room/");
 
