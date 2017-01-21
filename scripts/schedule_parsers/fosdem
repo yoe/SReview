@@ -91,7 +91,9 @@ foreach my $day(@{$xml->{day}}) {
 			if(ref($subtitle) eq 'HASH') {
 				$subtitle = undef;
 			}
-			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $talk->{title}, $subtitle, $eventid, $trackid, $talk_upid);
+			my $title = $talk->{title};
+			$title =~ s/AMENDMENT\s*//;
+			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $title, $subtitle, $eventid, $trackid, $talk_upid);
 			my $clean = $dbh->prepare("DELETE FROM speakers_talks WHERE talk IN (SELECT id FROM talks WHERE upstreamid = ?)");
 			$clean->execute($talk_upid);
 			foreach my $person(@{$talk->{persons}{person}}) {
