@@ -33,7 +33,7 @@ while(1) {
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
 
 	my $st;
-	my $statelist = "'" . join("','", keys($config->{state})) . "'";
+	my $statelist = "'" . join("','", keys(%{$config->{state}})) . "'";
 	if($config->{query_limit} > 0) {
 		$st = $dbh->prepare("SELECT talks.id, state, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE state IN ($statelist) LIMIT ? FOR UPDATE");
 		$st->execute($config->{query_limit});
