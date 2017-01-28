@@ -21,7 +21,7 @@
     %= submit_button
   %end
 </dd>
-<dt>Change a password</dt>
+<dt>Reset a password</dt>
 <dd>
   %= form_for chpw => begin
     %= label_for email => 'User email:'
