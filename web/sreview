@@ -402,6 +402,25 @@ group {
 		$c->flash(msg => "User with email " . $c->param('email') . " created, with password '$password'");
 		$c->redirect_to('/admin/system');
 	};
+
+	get '/chpw' => sub {
+		my $c = shift;
+		my $st = $c->dbh->prepare("SELECT * FROM users WHERE email=?");
+		my $email = $c->param("email");
+		$st->execute($email);
+		if($st->rows != 1) {
+			$c->flash(msg => "There is no user with email address " . $c->param('email') . ". Try creating it?");
+			$c->redirect_to('/admin/system');
+			return;
+		}
+		open PASSWORD, "pwgen -s 10 -n 1|";
+		my $password = <PASSWORD>;
+		close(PASSWORD);
+		chomp $password;
+		$st = $c->dbh->prepare("UPDATE users SET password = ? WHERE email = ?");
+		$st->execute($email);
+		$c->flash(msg => "Password for user $email set to '$password'");
+	};
 };
 
 get '*any' => sub {
