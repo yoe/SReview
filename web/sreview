@@ -418,7 +418,7 @@ group {
 		close(PASSWORD);
 		chomp $password;
 		$st = $c->dbh->prepare("UPDATE users SET password = ? WHERE email = ?");
-		$st->execute($email);
+		$st->execute($password, $email);
 		$c->flash(msg => "Password for user $email set to '$password'");
 	};
 };
