@@ -29,4 +29,14 @@
     %= submit_button
   %end
 </dd>
+<dt>Change my password</dt>
+<dd>
+  %= form_for setpw => begin
+    %= label_for password1 => 'New password:'
+    %= password_field password1
+    %= label_for password2 => 'Again:'
+    %= password_field password2
+    %= submit_button
+  %end
+</dd>
 </dl>

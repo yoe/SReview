@@ -422,6 +422,21 @@ group {
 		$c->flash(msg => "Password for user $email set to '$password'");
 		$c->redirect_to('/admin/system');
 	};
+
+	get '/setpw' => sub {
+		my $c = shift;
+		my $pw1 = $c->param('password1');
+		my $pw2 = $c->param('password2');
+		if ($pw1 ne $pw2) {
+			$c->flash(msg => "Passwords did not match!");
+			$c->redirect_to('/admin/system');
+			return;
+		}
+		$st = $c->dbh->prepare("UPDATE users SET password = crypt(?, gen_salt('bf', 8)) WHERE email = ?");
+		$st->execute($password, $c->session->{email});
+		$c->flash(msg => "Password changed.");
+		$c->redirect_to('/admin/system');
+	};
 };
 
 get '*any' => sub {
