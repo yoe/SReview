@@ -417,7 +417,7 @@ group {
 		my $password = <PASSWORD>;
 		close(PASSWORD);
 		chomp $password;
-		$st = $c->dbh->prepare("UPDATE users SET password = ? WHERE email = ?");
+		$st = $c->dbh->prepare("UPDATE users SET password = crypt(?, gen_salt('bf', 8)) WHERE email = ?");
 		$st->execute($password, $email);
 		$c->flash(msg => "Password for user $email set to '$password'");
 		$c->redirect_to('/admin/system');
