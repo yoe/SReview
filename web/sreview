@@ -432,8 +432,8 @@ group {
 			$c->redirect_to('/admin/system');
 			return;
 		}
-		$st = $c->dbh->prepare("UPDATE users SET password = crypt(?, gen_salt('bf', 8)) WHERE email = ?");
-		$st->execute($password, $c->session->{email});
+		my $st = $c->dbh->prepare("UPDATE users SET password = crypt(?, gen_salt('bf', 8)) WHERE email = ?");
+		$st->execute($pw1, $c->session->{email});
 		$c->flash(msg => "Password changed.");
 		$c->redirect_to('/admin/system');
 	};
