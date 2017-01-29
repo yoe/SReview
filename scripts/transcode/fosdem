@@ -20,6 +20,7 @@
 use strict;
 use warnings;
 
+use utf8;
 use DBI;
 use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
@@ -61,16 +62,16 @@ sub process_template($$) {
 	my $startdate = xml_escape($drow->{startdate});
 
 	open INPUT, "<$input";
-	open OUTPUT, ">$outputsvg";
+	open my $fh, ">:encoding(UTF-8)", $outputsvg;
 	while(<INPUT>) {
 		s/\@SPEAKERS@/$speakers/g;
 		s/\@ROOM@/$room/g;
 		s/\@TITLE@/$title/g;
 		s/\@STARTTIME@/$startdate/g;
-		print OUTPUT $_;
+		print $fh $_;
 	}
 	close INPUT;
-	close OUTPUT;
+	close $fh;
 	system("inkscape --export-png=$output $outputsvg");
 }
 
