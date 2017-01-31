@@ -114,7 +114,7 @@ EOF
 
 my $email = Email::Simple->create(header =>
 	       	[
-	      	 	From => '<noreply@video.fosdem.org>',
+			From => '<noreply@fosdem.org>',
 	       		To => join(',',@speakers),
 	       		Subject => "Video of your FOSDEM talk entitled \"$title\" ready for review",
 	       		Cc => join(',',@trackmgrs)
