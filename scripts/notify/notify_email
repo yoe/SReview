@@ -99,6 +99,17 @@ In particular, you should pay attention to:
 - Is the audio usable? If not, you may want to try to use the alternate
   audio channel.
 
+Note: if you click on the above link, and you do not see the video,
+there are two possibilities:
+- Someone else already did a review of this video, but found some issues
+  and entered the right values to fix that. A new cut is being
+  generated. You'll get this email a second (or third, or fourth, ...)
+  time when the video is ready for a new review.
+- Someone else already did a review of this video, found no issues, and
+  released the video. It's being transcoded to WebM now. Once that's
+  finished, the video will appear on video.fosdem.org and (eventually)
+  your event page on the FOSDEM schedule.
+
 If you have any further questions, note that this email was sent from an
 address that does not receive email. If you want to reach us, you can do
 so via:
