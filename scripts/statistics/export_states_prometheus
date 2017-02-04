@@ -24,9 +24,9 @@ while(my $row = $tst->fetchrow_hashref()) {
 while(my $row = $rst->fetchrow_hashref()) {
 	print PROM "sreview_roomstate{room=\"" . $row->{name} . "\"} ";
 	if(defined($row->{id})) {
-		print "1\n";
+		print PROM "1\n";
 	} else {
-		print "0\n";
+		print PROM "0\n";
 	}
 }
 close PROM;
