@@ -11,12 +11,22 @@ require "./config.pl";
 
 my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
-my $st = $dbh->prepare("SELECT count(*) AS count, state FROM talks GROUP BY state");
+my $tst = $dbh->prepare("SELECT count(*) AS count, state FROM talks GROUP BY state");
+my $rst = $dbh->prepare("SELECT rooms.name, talks.id FROM rooms LEFT JOIN talks ON (rooms.id = talks.room AND talks.starttime < now() AND talks.endtime > now())");
 
-$st->execute();
+$tst->execute();
+$rst->execute();
 
 open PROM, ">/srv/node_exporter/textfiles/sreview.prom";
-while(my $row = $st->fetchrow_hashref()) {
+while(my $row = $tst->fetchrow_hashref()) {
 	print PROM "sreview_talkstate{state=\"" . $row->{state} . "\"} " . $row->{count} . "\n";
 }
-close PROM
+while(my $row = $rst->fetchrow_hashref()) {
+	print PROM "sreview_roomstate{room=\"" . $row->{name} . "\"} ";
+	if(defined($row->{id})) {
+		print "1\n";
+	} else {
+		print "0\n";
+	}
+}
+close PROM;
