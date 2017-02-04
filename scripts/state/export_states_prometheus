@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+use warnings;
+use strict;
+
+use DBI;
+use File::Temp qw/tempfile/;
+
+our $config;
+require "./config.pl";
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
+my $st = $dbh->prepare("SELECT count(*) AS count, state FROM talks GROUP BY state");
+
+$st->execute();
+
+open PROM, ">/srv/node_exporter/textfiles/sreview.prom"
+while(my $row = $st->fechrow_hashref()) {
+	print $prom, "sreview_talkstate{state=\"" . $st->{state} . "\"} " . $st->{count} . "\n";
+}
+close PROM
