@@ -47,7 +47,7 @@ foreach my $file(@files) {
 	next unless defined($room);
 	$exists->execute($url);
 	my $row = $exists->fetchrow_hashref;
-	open INFO, "ffprobe $file|";
+	open INFO, "ffprobe $file 2>&1|";
 	my $length;
 	while(my $line = <INFO>) {
 		next unless $line =~ /Duration: ([0-9]+:[0-9]+:[0-9]+.[0-9]+)/;
