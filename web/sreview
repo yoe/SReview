@@ -227,11 +227,11 @@ post '/talk_update' => sub {
 		$c->render('error');
 		return undef;
 	}
-	my $sth = $c->dbh->prepare("SELECT id FROM talks WHERE nonce = ?");
+	my $sth = $c->dbh->prepare("SELECT id FROM talks WHERE nonce = ? AND state IN ('preview', 'broken')");
 	$sth->execute($nonce);
 	my $row = $sth->fetchrow_arrayref;
 	if(scalar($row) == 0) {
-		$c->stash(message=>"Unauthorized.");
+		$c->stash(message=>"Change not allowed. If this talk exists, it was probably reviewed by someone else while you were doing so too. Please try again later, or check the overview page.");
 		$c->res->code(403);
 		$c->render('error');
 		return undef;
