@@ -22,20 +22,7 @@ use warnings;
 
 use DBI;
 
-use Glib;
-use Glib::Object::Introspection;
 use Net::Domain qw(hostname);
-
-Glib::Object::Introspection->setup(
-	basename => "Gst",
-	version => "1.0",
-	package => "Gst",
-	);
-Glib::Object::Introspection->setup(
-	basename => "GstPbutils",
-	version => "1.0",
-	package => "Gst::Pbutils",
-	);
 
 our $config;
 require '/etc/sreview/config.pl';
@@ -50,9 +37,6 @@ my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interv
 
 my @files = glob($config->{inputglob});
 
-Gst::init(\@ARGV);
-my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
-
 my $host = hostname() . ".video.fosdem.org";
 
 foreach my $file(@files) {
@@ -63,12 +47,17 @@ foreach my $file(@files) {
 	next unless defined($room);
 	$exists->execute($url);
 	my $row = $exists->fetchrow_hashref;
-	my $info = $disc->discover_uri(Glib->filename_to_uri($file, undef));
-	my $length = $info->get_duration() / 1_000_000_000;
+	open INFO, "ffprobe $file|";
+	my $length;
+	while(my $line = <INFO>) {
+		next unless $line =~ /Duration: ([0-9]+:[0-9]+:[0-9]+.[0-9]+)/;
+		$length = $1;
+	}
+	close INFO;
 	if($row->{count} eq '0') {
-		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", "$length seconds");
+		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length);
 	} else {
-		$update->execute("$length seconds", $url);
+		$update->execute("$length", $url);
 	}
 }
 
