@@ -15,8 +15,8 @@ my $st = $dbh->prepare("SELECT count(*) AS count, state FROM talks GROUP BY stat
 
 $st->execute();
 
-open PROM, ">/srv/node_exporter/textfiles/sreview.prom"
-while(my $row = $st->fechrow_hashref()) {
-	print $prom, "sreview_talkstate{state=\"" . $st->{state} . "\"} " . $st->{count} . "\n";
+open PROM, ">/srv/node_exporter/textfiles/sreview.prom";
+while(my $row = $st->fetchrow_hashref()) {
+	print PROM "sreview_talkstate{state=\"" . $row->{state} . "\"} " . $row->{count} . "\n";
 }
 close PROM
