@@ -22,7 +22,7 @@ while(my $row = $tst->fetchrow_hashref()) {
 	print PROM "sreview_talkstate{state=\"" . $row->{state} . "\"} " . $row->{count} . "\n";
 }
 while(my $row = $rst->fetchrow_hashref()) {
-	print PROM "sreview_roomstate{room=\"" . $row->{name} . "\"} ";
+	print PROM "sreview_roomstate{stream=\"vocto-" . $row->{name} . "\"} ";
 	if(defined($row->{id})) {
 		print PROM "1\n";
 	} else {
