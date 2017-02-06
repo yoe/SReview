@@ -143,7 +143,7 @@ function edit_length_adj(val) {
 </script>
 <div style="width: 900px">
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
-<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the MP4 format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= $slug %>.mp4'>direct download</a> of the same file.</p>
+<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the MP4 format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= substr($room, 0, 1) %>/<%= $slug %>.mp4'>direct download</a> of the same file.</p>
 <p>
 <table width="860" align="center">
 <tr><td colspan="3">In case it is needed (and they were recorded), these are the 20 minutes before...:</td><td>... and after this talk:</td></tr>
