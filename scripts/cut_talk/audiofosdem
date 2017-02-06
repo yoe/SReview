@@ -134,14 +134,18 @@ if(!scalar(@segments_main)) {
 
 # Concat files losslessly
 system("ffmpeg -i \"concat:" . join('|',@segments_main) . "\" -c copy -y $tempdir/preaudio.mp4");
+
+my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$eventname->execute($talkid);
+my $row = $eventname->fetchrow_hashref();
+my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+make_path($workdir);
 # Also concatenate the pre and post files
 if(scalar(@segments_pre) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
 };
 if(scalar(@segments_post) > 0) {
 	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
-	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4", undef));
-	$postlen = $info->get_duration() / 1_000_000_000;
 };
 # Do audio normalisation on main file:
 # - Extract audio from stream (the correct channel only, though)
@@ -158,30 +162,30 @@ if($corrections{offset_audio} != 0) {
 	rename("$workdir/" . $row->{slug} . "-pre.mp4", "$workdir/" . $row->{slug} . "-oldpre.mp4");
 	rename("$workdir/" . $row->{slug} . "-post.mp4", "$workdir/" . $row->{slug} . "-oldpost.mp4");
 	# Extract the pre and post audio
-	system("ffmpeg -i $workdir/" . $row->{slug} . "-pre.mp4 -y $tempdir/audio-pre.wav");
-	system("ffmpeg -i $workdir/" . $row->{slug} . "-post.mp4 -y $tempdir/audio-post.wav");
+	system("ffmpeg -i $workdir/" . $row->{slug} . "-oldpre.mp4 -y $tempdir/audio-pre.wav");
+	system("ffmpeg -i $workdir/" . $row->{slug} . "-oldpost.mp4 -y $tempdir/audio-post.wav");
 	if($corrections{offset_audio} > 0) {
 		# delay audio:
 		# - Extract a bit of audio from the end of the pre video and
 		# main audio with the length of the A/V correction
 		system("ffmpeg -i $tempdir/audio-main.wav -sseof -" . $corrections{offset_audio} . " -y $tempdir/audio-mainpost.wav");
-		system("ffmpeg -i $workdir/" . $row->{slug} . "-pre.mp4 -sseof -" . $corrections{offset_audio} . " -y $tempdir/audio-premain.wav");
+		system("ffmpeg -i $workdir/" . $row->{slug} . "-oldpre.mp4 -sseof -" . $corrections{offset_audio} . " -y $tempdir/audio-premain.wav");
 		# - Concatenate a new main audio file
 		system("ffmpeg -i \"concat:$tempdir/audio-premain.wav|$tempdir/audio-main.wav\" -c copy -y $tempdir/audio.wav");
 		# - Recreate new pre and post videos with synchronized audio
-		system("ffmpeg -i $tempdir/audio-pre.wav -ss " . $corrections{offset_audio} . " -i $workdir/" . $row->{slug} . "-oldpre.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
-		system("ffmpeg -i \"concat:$tempdir/audio-mainpost.wav|$tempdir/audio-post.wav\" -i $workdir/" . $row->{slug} . "-post.mp4 -map 0:a -map 1:v -shortest -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
+		system("ffmpeg -i $tempdir/audio-pre.wav -ss " . $corrections{offset_audio} . " -i $workdir/" . $row->{slug} . "-oldpre.mp4 -c:a libfdk_aac -b:a 128k -c:v copy -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
+		system("ffmpeg -i \"concat:$tempdir/audio-mainpost.wav|$tempdir/audio-post.wav\" -i $workdir/" . $row->{slug} . "-post.mp4 -c:a libfdk_aac -b:a 128k -c:v copy -map 0:a -map 1:v -shortest -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
 	} else {
 		# delay video:
 		# - Extract a bit of audio from the start of the post video and
 		# main audio with the length of the A/V correction
 		system("ffmpeg -i $tempdir/audio-main.wav -t " . abs($corrections{offset_audio}) . " -y $tempdir/audio-premain.wav");
-		system("ffmpeg -i $workdir/" . $row->{slug} . "-post.mp4 -t " . abs($corrections{offset_audio}) . " -y $tempdir/audio-mainpost.wav");
+		system("ffmpeg -i $workdir/" . $row->{slug} . "-oldpost.mp4 -t " . abs($corrections{offset_audio}) . " -y $tempdir/audio-mainpost.wav");
 		# - Concatenate a new main audio file
 		system("ffmpeg -i \"concat:$tempdir/audio-main.wav|$tempdir/audio-mainpost.wav\" -c copy -y $tempdir/audio.wav");
 		# - Recreate new pre and post videos with synchronized audio
-		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i \"concat:$tempdir/audio-pre.wav|$tempdir/audio-premain.wav\" -i $workdir/" . $row->{slug} . "-oldpre.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
-		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/audio-post.wav -i $workdir/" . $row->{slug} . "-oldpost.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{ßlug} . "-post.mp4");
+		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i \"concat:$tempdir/audio-pre.wav|$tempdir/audio-premain.wav\" -i $workdir/" . $row->{slug} . "-oldpre.mp4 -c:a libfdk_aac -b:a 128k -c:v copy -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
+		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/audio-post.wav -i $workdir/" . $row->{slug} . "-oldpost.mp4 -c:a libfdk_aac -b:a 128k -c:v copy -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-post.mp4");
 	};
 	# Clean up old files
 	unlink("$workdir/" . $row->{slug} . "-oldpre.mp4", "$workdir/" . $row->{slug} . "-oldpost.mp4");;
@@ -189,11 +193,6 @@ if($corrections{offset_audio} != 0) {
 # - Run bs1770gain (which creates a FLAC file)
 system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 # - Replace original audio stream with normalized one
-my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
-$eventname->execute($talkid);
-my $row = $eventname->fetchrow_hashref();
-my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
-make_path($workdir);
 system("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -shortest -y $workdir/" . $row->{slug} . ".mp4");
 
 # Now figure out what the size of the pre and post videos is, and update the
