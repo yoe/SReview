@@ -201,6 +201,8 @@ get '/overview' => sub {
 	$expls{'uploading'} = 'Upload scheduled, waiting for slot/completion';
 	$expls{'done'} = 'Process completed, talks released';
 	$expls{'broken'} = 'Review identified problems, waiting for administrator intervention';
+	$expls{'needs_work'} = 'Administrator confirmed (fixable) issues with talk, needs work'; 
+	$expls{'lost'} = 'Administrator confirmed (unfixable) issues with talk, will not be released';
 	$st->execute($config->{eventid}) or die;
 	$tot->execute($config->{eventid}) or die;
 	$c->stash(title => 'Video status overview');
