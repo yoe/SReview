@@ -57,7 +57,9 @@ CREATE TYPE talkstate AS ENUM (
     'waiting',
     'uploading',
     'done',
-    'broken'
+    'broken',
+    'needs_work',
+    'lost'
 );
 
 
@@ -224,6 +226,35 @@ BEGIN
   END LOOP;
   RETURN NEW;
 END $$;
+
+
+--
+-- Name: speakeremail(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION speakeremail(integer) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$
+declare
+  crsr cursor for select speakers.email from speakers join speakers_talks on speakers.id = speakers_talks.speaker where speakers_talks.talk = $1;
+  row record;
+  curname varchar;
+  prevname varchar;
+  retval varchar;
+begin
+  retval=NULL;
+  prevname=NULL;
+  curname=NULL;
+  for row in crsr loop
+    prevname=curname;
+    curname=row.email;
+    if prevname is not null then
+      retval = concat_ws(', ', retval, prevname);
+    end if;
+  end loop;
+  retval = concat_ws(', ', retval, curname);
+  return retval;
+end; $_$;
 
 
 --
@@ -546,7 +577,10 @@ CREATE VIEW talk_list AS
     talks.endtime,
     talks.state,
     talks.comments,
-    rooms.id AS roomid
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle
    FROM ((rooms
      LEFT JOIN talks ON ((rooms.id = talks.room)))
      LEFT JOIN events ON ((talks.event = events.id)));
