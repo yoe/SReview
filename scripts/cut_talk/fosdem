@@ -158,7 +158,7 @@ if(scalar(@segments_post) > 0) {
 	$postlen = $info->get_duration() / 1_000_000_000;
 };
 
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state), prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
+my $update = $dbh->prepare("UPDATE talks SET state = 'needs_notify', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;
