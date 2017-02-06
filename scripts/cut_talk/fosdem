@@ -130,7 +130,7 @@ system("ffmpeg -i \"concat:" . join('|',@segments_main) . "\" -c copy -y $tempdi
 # Do audio normalisation on main file:
 # - Extract audio from stream (the correct channel only, though)
 my $channel = "0";
-if(exists($corrections{audio_channel}) && $corrections{audio_channel} =~ /A/i) {
+if(exists($corrections{audio_channel}) && ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} =~ /1/)) {
 	$channel = "1";
 }
 system("ffmpeg -i $tempdir/preaudio.mp4 -map 0:a:$channel -y $tempdir/audio.wav");
