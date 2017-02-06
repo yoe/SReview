@@ -56,7 +56,7 @@ $dbh->begin_work;
 
 my $talkid = $ARGV[0];
 
-my $talk_data = $dbh->prepare("SELECT talkid, talks_length AS length, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs := (? + ?)), make_interval(secs := (? + ?)) ORDER BY talk_start, raw_start");
+my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric) ORDER BY talk_start, raw_start");
 my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
 $corrections_data->execute($talkid);
 
@@ -77,10 +77,11 @@ foreach my $prop ("offset_start", "length_adj", "offset_audio") {
 	}
 }
 
-$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"offset_audio"}, $corrections{"length_adj"}, "-" . $corrections{"offset_audio"});
+$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
 
 my $curl = WWW::Curl::Easy->new;
-my $talk_len;
+
+my $audio_pre;
 
 while(my $row = $talk_data->fetchrow_hashref()) {
 	my $start;
@@ -93,13 +94,18 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 	if($row->{talkid} == -1) {
 		$target = "pre";
 		$segments = \@segments_pre;
+		if(!defined($audio_pre) && $corrections{offset_audio} > 0) {
+			if($row->{fragment_start} > 0) {
+				$row->{fragment_start} -= $corrections{offset_audio} > $row->{fragment_start} ? $corrections{offset_audio} : $row->{fragment_start};
+				$audio_pre = 1;
+			}
+		}
 	} elsif($row->{talkid} == -2) {
 		$target = "post";
 		$segments = \@segments_post;
 	} else {
 		$target = "main";
 		$segments = \@segments_main;
-		$talk_len = $row->{length};
 	}
 	if($row->{fragment_start} ne '0') {
 		$url .= $pref;
@@ -128,24 +134,58 @@ if(!scalar(@segments_main)) {
 
 # Concat files losslessly
 system("ffmpeg -i \"concat:" . join('|',@segments_main) . "\" -c copy -y $tempdir/preaudio.mp4");
+# Also concatenate the pre and post files
+if(scalar(@segments_pre) > 0) {
+	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
+};
+if(scalar(@segments_post) > 0) {
+	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4", undef));
+	$postlen = $info->get_duration() / 1_000_000_000;
+};
 # Do audio normalisation on main file:
 # - Extract audio from stream (the correct channel only, though)
 my $channel = "0";
-if(exists($corrections{audio_channel}) && $corrections{audio_channel} =~ /A/i) {
+if(exists($corrections{audio_channel}) && ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} =~ /1/)) {
 	$channel = "1";
 }
-my $ss = "";
+system("ffmpeg -i $tempdir/preaudio.mp4 -map 0:a:$channel -y $tempdir/audio.wav");
+# if there is an A/V sync correction value, shift the audio around a bit
 if($corrections{offset_audio} != 0) {
-	my $st = $dbh->prepare("SELECT ?::interval - make_interval(secs := abs(?)) AS val");
-	$st->execute($talk_len, $corrections{offset_audio});
-	my $row = $st->fetchrow_hashref;
-	$talk_len = $row->{val};
+	print "adjusting A/V desync...\n";
+	# Rename some files
+	rename("$tempdir/audio.wav", "$tempdir/audio-main.wav");
+	rename("$workdir/" . $row->{slug} . "-pre.mp4", "$workdir/" . $row->{slug} . "-oldpre.mp4");
+	rename("$workdir/" . $row->{slug} . "-post.mp4", "$workdir/" . $row->{slug} . "-oldpost.mp4");
+	# Extract the pre and post audio
+	system("ffmpeg -i $workdir/" . $row->{slug} . "-pre.mp4 -y $tempdir/audio-pre.wav");
+	system("ffmpeg -i $workdir/" . $row->{slug} . "-post.mp4 -y $tempdir/audio-post.wav");
 	if($corrections{offset_audio} > 0) {
-		$ss = '-ss ' . $corrections{offset_audio};
-	}
+		# delay audio:
+		# - Extract a bit of audio from the end of the pre video and
+		# main audio with the length of the A/V correction
+		system("ffmpeg -i $tempdir/audio-main.wav -sseof -" . $corrections{offset_audio} . " -y $tempdir/audio-mainpost.wav");
+		system("ffmpeg -i $workdir/" . $row->{slug} . "-pre.mp4 -sseof -" . $corrections{offset_audio} . " -y $tempdir/audio-premain.wav");
+		# - Concatenate a new main audio file
+		system("ffmpeg -i \"concat:$tempdir/audio-premain.wav|$tempdir/audio-main.wav\" -c copy -y $tempdir/audio.wav");
+		# - Recreate new pre and post videos with synchronized audio
+		system("ffmpeg -i $tempdir/audio-pre.wav -ss " . $corrections{offset_audio} . " -i $workdir/" . $row->{slug} . "-oldpre.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
+		system("ffmpeg -i \"concat:$tempdir/audio-mainpost.wav|$tempdir/audio-post.wav\" -i $workdir/" . $row->{slug} . "-post.mp4 -map 0:a -map 1:v -shortest -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
+	} else {
+		# delay video:
+		# - Extract a bit of audio from the start of the post video and
+		# main audio with the length of the A/V correction
+		system("ffmpeg -i $tempdir/audio-main.wav -t " . abs($corrections{offset_audio}) . " -y $tempdir/audio-premain.wav");
+		system("ffmpeg -i $workdir/" . $row->{slug} . "-post.mp4 -t " . abs($corrections{offset_audio}) . " -y $tempdir/audio-mainpost.wav");
+		# - Concatenate a new main audio file
+		system("ffmpeg -i \"concat:$tempdir/audio-main.wav|$tempdir/audio-mainpost.wav\" -c copy -y $tempdir/audio.wav");
+		# - Recreate new pre and post videos with synchronized audio
+		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i \"concat:$tempdir/audio-pre.wav|$tempdir/audio-premain.wav\" -i $workdir/" . $row->{slug} . "-oldpre.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{slug} . "-pre.mp4");
+		system("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/audio-post.wav -i $workdir/" . $row->{slug} . "-oldpost.mp4 -map 0:a -map 1:v -shortest -y $workdir/" . $row->{ßlug} . "-post.mp4");
+	};
+	# Clean up old files
+	unlink("$workdir/" . $row->{slug} . "-oldpre.mp4", "$workdir/" . $row->{slug} . "-oldpost.mp4");;
 }
-
-system("ffmpeg -i $tempdir/preaudio.mp4 -map 0:a:$channel -y $ss -t $talk_len $tempdir/audio.wav");
 # - Run bs1770gain (which creates a FLAC file)
 system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 # - Replace original audio stream with normalized one
@@ -154,26 +194,22 @@ $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
 my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
-if($corrections{offset_audio} < 0) {
-	$ss = '-ss ' . abs($corrections{offset_audio});
-}
-system("ffmpeg $ss -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -y $workdir/" . $row->{slug} . ".mp4");
-# Now also concatenate the pre and post files, but don't deal with audio there
+system("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -shortest -y $workdir/" . $row->{slug} . ".mp4");
+
+# Now figure out what the size of the pre and post videos is, and update the
+# database to match
 my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
 my $prelen = 0;
 my $postlen = 0;
 if(scalar(@segments_pre) > 0) {
-	system("ffmpeg -i \"concat:" . join('|',@segments_pre) . "\" -c copy -y $workdir/" . $row->{slug} . "-pre.mp4");
 	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-pre.mp4", undef));
 	$prelen = $info->get_duration() / 1_000_000_000;
 };
 if(scalar(@segments_post) > 0) {
-	system("ffmpeg -i \"concat:" . join('|',@segments_post) . "\" -c copy -y $workdir/" . $row->{slug} . "-post.mp4");
 	my $info = $disc->discover_uri(Glib->filename_to_uri("$workdir/" . $row->{slug} . "-post.mp4", undef));
 	$postlen = $info->get_duration() / 1_000_000_000;
 };
-
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state), prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
+my $update = $dbh->prepare("UPDATE talks SET state = 'needs_notify', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;
