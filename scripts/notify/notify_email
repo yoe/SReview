@@ -63,6 +63,7 @@ if(scalar(@trackmgrs) == 0 && scalar(@speakers) == 0) {
 $talk->execute($talkid);
 my $talkdata = $talk->fetchrow_hashref;
 my $title = $talkdata->{title};
+$title =~ s/[^[:ascii:]]//g;
 my $save = $/;
 $/ = '/';
 chomp($config->{urlbase});
