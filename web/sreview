@@ -186,7 +186,7 @@ get '/overview' => sub {
 	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 	my %expls;
 	my $tot_results;
-	my $totals = ();
+	my $totals = [];
 	$expls{'files_missing'} = 'No files found for these talks, yet';
 	$expls{'partial_files_found'} = 'Some files found for these talks, but data is incomplete';
 	$expls{'files_found'} = 'All files for these talk were found, cut may commence; alternatively, human review found issues, new cut necessary';
