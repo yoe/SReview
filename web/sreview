@@ -360,6 +360,29 @@ group {
 		$c->redirect_to("/admin/talk?talk=$talk");
 	} => 'talk_update_admin';
 
+	get '/brokens' => sub {
+		my $c = shift;
+		my $st = $c->dbh->prepare("SELECT id, title, speakeremail(id), comments FROM talks WHERE state='broken' ORDER BY id");
+		my $tst = $c->dbh->prepare("SELECT rooms.altname, count(talks.id) FROM talks JOIN rooms ON talks.room = rooms.id WHERE talks.state='broken' GROUP BY rooms.altname");
+		my $rows = [];
+		$st->execute;
+		$tst->execute;
+		$c->stash(title => 'Broken talks');
+		$c->stash(titlerow => [ 'id', 'Title', 'Speakers', 'Speaker emails', 'Comments', 'Link' ]);
+		$c->stash(tottitrow => [ 'Room', 'Count' ]);
+		my $pgrows = $st->fetchall_arrayref;
+		foreach my $row(@{$pgrows}) {
+			push @$row, "<a href='/admin/talk?talk=" . $row->[0] . "'>review</a>";
+			push @$rows, $row;
+		}
+		$c->stash(rows => $rows);
+		$c->stash(totals => $tst->fetchall_arrayref);
+		$c->stash(header => 'Broken talks');
+		$c->stash(layout => 'admin');
+		$c->stash(totals => undef);
+		$c->render(template => 'table');
+	} => 'broken_table';
+
 	under '/admin/system' => sub {
 		my $c = shift;
 		if(!exists($c->session->{id})) {
