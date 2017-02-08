@@ -29,6 +29,21 @@ use File::Temp qw/tempdir/;
 use File::Path qw/make_path/;
 use WWW::Curl::Easy;
 
+use Glib;
+use Glib::Object::Introspection;
+
+Glib::Object::Introspection->setup(
+		basename => "Gst",
+		version => "1.0",
+		package => "Gst",
+		);
+Glib::Object::Introspection->setup(
+		basename => "GstPbutils",
+		version => "1.0",
+		package => "Gst::Pbutils",
+		);
+Gst::init(\@ARGV);
+
 sub system_v($) {
 	my $command = shift;
 	print $command . "\n";
@@ -184,6 +199,16 @@ system_v("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 # - Replace original audio stream with normalized one
 system_v("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -shortest -y $outname.mp4");
 
+# Detect the size of pre and post videos to be sure they're correct
+my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
+if(scalar(@segments_pre) > 0) {
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-pre.mp4", undef));
+	$prelen = $info->get_duration() / 1_000_000_000;
+};
+if(scalar(@segments_post) > 0) {
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-post.mp4", undef));
+	$postlen = $info->get_duration() / 1_000_000_000;
+};
 # Now update the database
 my $update = $dbh->prepare("UPDATE talks SET state = 'needs_notify', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
