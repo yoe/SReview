@@ -90,7 +90,10 @@ while(my $row=$recps->fetchrow_hashref) {
 	$trackmgr_name = $row->{name};
 	$trackmgr_email = $row->{email};
 	my $speakers = defined($row->{speakers}) ? $row->{speakers} : "(not known)";
-	push @talks, $row->{title} . ":\n\tspeakers:" .  $speakers
+	$speakers =~ s/[^[:ascii:]]//g;
+	my $title = $row->{title};
+	$title =~ s/[^[:ascii:]]//g;
+	push @talks, $title . ":\n\tspeakers:" .  $speakers
 			.  "\n\thttps://review.video.fosdem.org/review/" . $row->{nonce} . "\n";
 }
 
