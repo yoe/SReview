@@ -368,7 +368,7 @@ group {
 		$st->execute;
 		$tst->execute;
 		$c->stash(title => 'Broken talks');
-		$c->stash(titlerow => [ 'id', 'Title', 'Speakers', 'Speaker emails', 'Comments', 'Link' ]);
+		$c->stash(titlerow => [ 'id', 'Title', 'Speakers', 'Comments', 'Link' ]);
 		$c->stash(tottitrow => [ 'Room', 'Count' ]);
 		my $pgrows = $st->fetchall_arrayref;
 		foreach my $row(@{$pgrows}) {
