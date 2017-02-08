@@ -8,7 +8,7 @@
     % }
   </head>
   <body><%= content %>
-  <p><%= link_to 'Log out' => 'logout' %> | <%= link_to 'Admin review: overview' => '/admin' %>
+  <p><%= link_to 'Log out' => 'logout' %> | <%= link_to 'Admin review: overview' => '/admin' %> | <%= link_to 'Admin review: broken talks' => 'broken_table' %>
     % if ($c->session->{admin}) {
         | <%= link_to 'Admin: actions' => '/admin/system' %>
     % }
