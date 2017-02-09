@@ -164,9 +164,9 @@ my $outname = "$workdir/" . $row->{slug};
 # Figure out what the correct thing to do with is
 my $channel = "-map_channel 0.1.0";
 if(exists($corrections{audio_channel})) {
-	if ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} = 1) {
+	if ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} == 1) {
 		$channel = "-map_channel 0.1.1";
-	} elsif($corrections{audio_channel} = 2) {
+	} elsif($corrections{audio_channel} == 2) {
 		$channel = "-ac 1";
 	}
 }
