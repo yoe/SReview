@@ -13,7 +13,7 @@
   <tr class='brick'>
     % $rowtype = 1 - $rowtype;
     % foreach my $cell(@$row) {
-      <td><%= $cell %></td>
+      <td><%== $cell %></td>
     % }
   </tr>
   % }
