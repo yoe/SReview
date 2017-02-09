@@ -78,8 +78,12 @@ while(my $row = $corrections_data->fetchrow_hashref()) {
 
 foreach my $prop ("offset_start", "length_adj", "offset_audio") {
 	if(!exists($corrections{$prop})) {
-		$corrections{$prop} = '0';
+		$corrections{$prop} = 0;
 	}
+}
+
+if(!exists($corrections{audio_channel})) {
+	$corrections{audio_channel} = 2;
 }
 
 $talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
@@ -157,12 +161,16 @@ my $row = $eventname->fetchrow_hashref();
 my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
 my $outname = "$workdir/" . $row->{slug};
-# Figure out what the correct channel is
-my $channel = "0";
-if(exists($corrections{audio_channel}) && ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} =~ /1/)) {
-	$channel = "1";
+# Figure out what the correct thing to do with is
+my $channel = "-map_channel 0.1.0";
+if(exists($corrections{audio_channel})) {
+	if ($corrections{audio_channel} =~ /A/i || $corrections{audio_channel} = 1) {
+		$channel = "-map_channel 0.1.1";
+	} elsif($corrections{audio_channel} = 2) {
+		$channel = "-ac 1";
+	}
 }
-system_v("ffmpeg -i $tempdir/full.mp4 -map_channel 0.1.$channel -y $tempdir/full.wav");
+system_v("ffmpeg -i $tempdir/full.mp4 $channel -y $tempdir/full.wav");
 # if there is an A/V sync correction value, shift the audio around a bit
 if($corrections{offset_audio} != 0) {
 	print "adjusting A/V desync...\n";
