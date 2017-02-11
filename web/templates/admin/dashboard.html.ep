@@ -15,6 +15,9 @@
     %= label_for isadmin => 'Is administrator?'
     %= check_box isadmin => 'true'
     <br>
+    %= label_for isvolunteer => 'Is volunteer?'
+    %= check_box isvolunteer => 'true'
+    <br>
     %= label_for rooms => 'Limited to room:'
     %= select_field rooms => $rooms
     <br>

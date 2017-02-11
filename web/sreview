@@ -111,7 +111,7 @@ post '/login_post' => sub {
 	my $email = $c->param('email');
 	my $pass = $c->param('pass');
 
-	my $st = $c->dbh->prepare("SELECT id, isadmin, name, room FROM users WHERE email=? AND password=crypt(?, password)");
+	my $st = $c->dbh->prepare("SELECT id, isadmin, isvolunteer, name, room FROM users WHERE email=? AND password=crypt(?, password)");
 	my $rv;
 	if(!($rv = $st->execute($email, $pass))) {
 		die "Could not check password: " . $st->errstr;
@@ -125,10 +125,15 @@ post '/login_post' => sub {
 	$c->session->{id} = $row->[0];
 	$c->session->{email} = $email;
 	$c->session->{admin} = $row->[1];
-	$c->session->{name} = $row->[2];
-	$c->session->{room} = $row->[3];
+	$c->session->{volunteer} = $row->[2];
+	$c->session->{name} = $row->[3];
+	$c->session->{room} = $row->[4];
 
-	return $c->redirect_to('/admin');
+	if($c->session->{volunteer}) {
+		return $c->redirect_to('/volunteer/list');
+	} else {
+		return $c->redirect_to('/admin');
+	}
 };
 
 get '/review/:nonce' => sub {
@@ -242,6 +247,46 @@ post '/talk_update' => sub {
 	$c->redirect_to("/review/$nonce");
 } => 'talk_update';
 
+### VOLUNTEER REVIEW ###
+
+group {
+	under '/volunteer' => sub {
+		my $c = shift;
+		if(!exists($c->session->{id})) {
+			$c->redirect_to('/login');
+			return 0;
+		}
+		$c->stash(id => $c->session->{id});
+		return 1;
+	};
+
+	get '/list' => sub {
+		my $c = shift;
+		my @talks;
+		$c->dbh->begin_work;
+		my $already = $c->dbh->prepare("SELECT nonce, title, id, state FROM talks WHERE reviewer = ? AND state < 'review_done'");
+		my $new = $c->dbh->prepare("SELECT nonce, title, id, state FROM talks WHERE reviewer IS NULL AND state = ANY(enum_range('files_found'::talkstate, 'preview'::talkstate)) LIMIT ? FOR UPDATE");
+		my $claim = $c->dbh->prepare("UPDATE talks SET reviewer = ? WHERE id = ?");
+		$already->execute($c->session->{id});
+		my $count = $already->rows;
+		if($count < 3) {
+			$new->execute(3 - $count);
+		}
+		for(my $i = 0; $i < $count; $i++) {
+			my $row = [ $already->fetchrow_array ];
+			push @talks, $row;
+		}
+		for(my $i = 0; $i < $new->rows; $i++) {
+			my $row = [ $new->fetchrow_array ];
+			$claim->execute($row->[2], $c->session->{id});
+			push @talks, $row;
+		}
+		$c->stash(talks => \@talks);
+		$c->stash(layout => 'admin');
+		$c->dbh->commit;
+	} => 'volunteer/list';
+};
+
 ### ADMINISTRATION ###
 
 group {
@@ -250,6 +295,10 @@ group {
 		if(!exists($c->session->{id})) {
 			$c->res->code(403);
 			$c->redirect_to('/login');
+			return 0;
+		}
+		if(exists($c->session->{volunteer})) {
+			$c->redirect_to('/volunteer');
 			return 0;
 		}
 		$c->stash(layout => "admin");
@@ -416,12 +465,12 @@ group {
 		my $password = <PASSWORD>;
 		close(PASSWORD);
 		chomp $password;
-		my $st = $c->dbh->prepare("INSERT INTO users(email, name, isadmin, password, room) VALUES(?, ?, ?, crypt(?, gen_salt('bf', 8)), ?)");
+		my $st = $c->dbh->prepare("INSERT INTO users(email, name, isadmin, isvolunteer, password, room) VALUES(?, ?, ?, ?, crypt(?, gen_salt('bf', 8)), ?)");
 		my $room = $c->param('rooms');
 		if($room eq "") {
 			$room = undef;
 		}
-		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $password, $room) or die;
+		$st->execute($c->param('email'), $c->param('name'), $c->param('isadmin'), $c->param('isvolunteer'), $password, $room) or die;
 		$c->dbh->prepare("UPDATE users SET isadmin = false WHERE isadmin is null")->execute;
 		$c->flash(msg => "User with email " . $c->param('email') . " created, with password '$password'");
 		$c->redirect_to('/admin/system');
