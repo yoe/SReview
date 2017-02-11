@@ -297,8 +297,8 @@ group {
 			$c->redirect_to('/login');
 			return 0;
 		}
-		if(exists($c->session->{volunteer})) {
-			$c->redirect_to('/volunteer');
+		if($c->session->{volunteer}) {
+			$c->redirect_to('/volunteer/list');
 			return 0;
 		}
 		$c->stash(layout => "admin");
