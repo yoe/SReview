@@ -278,7 +278,7 @@ group {
 		}
 		for(my $i = 0; $i < $new->rows; $i++) {
 			my $row = [ $new->fetchrow_array ];
-			$claim->execute($row->[2], $c->session->{id});
+			$claim->execute($c->session->{id}, $row->[2]);
 			push @talks, $row;
 		}
 		$c->stash(talks => \@talks);
