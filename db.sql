@@ -97,7 +97,8 @@ CREATE TABLE talks (
     subtitle character varying,
     prelen interval,
     postlen interval,
-    track integer
+    track integer,
+    reviewer integer
 );
 
 
@@ -235,26 +236,17 @@ END $$;
 CREATE FUNCTION speakeremail(integer) RETURNS character varying
     LANGUAGE plpgsql
     AS $_$
-declare
-  crsr cursor for select speakers.email from speakers join speakers_talks on speakers.id = speakers_talks.speaker where speakers_talks.talk = $1;
-  row record;
-  curname varchar;
-  prevname varchar;
-  retval varchar;
-begin
-  retval=NULL;
-  prevname=NULL;
-  curname=NULL;
-  for row in crsr loop
-    prevname=curname;
-    curname=row.email;
-    if prevname is not null then
-      retval = concat_ws(', ', retval, prevname);
-    end if;
-  end loop;
-  retval = concat_ws(', ', retval, curname);
-  return retval;
-end; $_$;
+DECLARE
+  crsr CURSOR FOR SELECT speakers.email, speakers.name FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = $1;
+  row RECORD;
+  retval VARCHAR;
+BEGIN
+  retval = NULL;
+  FOR row IN crsr LOOP
+    retval = concat_ws(', ', retval, row.name || ' <' || row.email || '>');
+  END LOOP;
+  RETURN retval;
+END; $_$;
 
 
 --
@@ -646,7 +638,8 @@ CREATE TABLE users (
     password text,
     isadmin boolean DEFAULT false,
     room integer,
-    name character varying
+    name character varying,
+    isvolunteer boolean DEFAULT false
 );
 
 
@@ -920,6 +913,14 @@ ALTER TABLE ONLY speakers_talks
 
 ALTER TABLE ONLY talks
     ADD CONSTRAINT talks_event_fkey FOREIGN KEY (event) REFERENCES events(id);
+
+
+--
+-- Name: talks_reviewer_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY talks
+    ADD CONSTRAINT talks_reviewer_fkey FOREIGN KEY (reviewer) REFERENCES users(id);
 
 
 --
