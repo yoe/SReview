@@ -64,6 +64,7 @@ sub process_template($$) {
 
 	open INPUT, "<$input";
 	open my $fh, ">:encoding(UTF-8)", $outputsvg;
+	$room =~ s/ \(backup\)//;
 	while(<INPUT>) {
 		s/\@SPEAKERS@/$speakers/g;
 		s/\@ROOM@/$room/g;
