@@ -42,7 +42,7 @@ $talk->execute($talkid);
 my $row = $talk->fetchrow_hashref();
 my $slug = $row->{slug};
 
-my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name, subtitle FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name, subtitle, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
@@ -61,6 +61,7 @@ sub process_template($$) {
 	my $title = xml_escape($drow->{name});
 	my $subtitle = xml_escape($drow->{subtitle});
 	my $startdate = xml_escape($drow->{startdate});
+	my $apology = xml_escape($drow->{apologynote});
 
 	open INPUT, "<$input";
 	open my $fh, ">:encoding(UTF-8)", $outputsvg;
@@ -71,6 +72,7 @@ sub process_template($$) {
 		s/\@TITLE@/$title/g;
 		s/\@SUBTITLE@/$subtitle/g;
 		s/\@STARTTIME@/$startdate/g;
+		s/\@APOLOGY@/$apology/g;
 		print $fh $_;
 	}
 	close INPUT;
@@ -94,11 +96,22 @@ if ( ! -f $postroll ) {
 	}
 }
 
+my $apology = $pubdir . "/$slug-sorry.png";
+if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
+	die unless exists($config->{apology_template});
+	process_template($config->{apology_template}, $apology);
+	system("ffmpeg -y -loop 1 -i $apology -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-sorry.ts");
+}
+
 # concatenate preroll, main video, postroll
 system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
 system("ffmpeg -y -i $pubdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
 system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
-system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
+if( -f "$tmpdir/$slug-sorry.ts") {
+	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adstoasc $outputdir/$slug.mp4");
+} else {
+	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
+}
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 
