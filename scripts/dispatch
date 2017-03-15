@@ -21,6 +21,9 @@ use strict;
 use warnings;
 
 use DBI;
+use Sys::Syslog qw/:standard :macros/;
+
+openlog("SReview-dispatch", "pid", LOG_DAEMON);
 
 our $config;
 require './config.pl';
@@ -29,7 +32,7 @@ my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to d
 
 while(1) {
 	$dbh->begin_work;
-	print("==> Checking for new work...\n");
+	syslog(LOG_DEBUG, "==> Checking for new work...\n");
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ?");
 
 	my $st;
@@ -43,13 +46,13 @@ while(1) {
 	}
 	while(my $row = $st->fetchrow_hashref) {
 		if(exists($config->{state}{$row->{state}})) {
-			print("Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n");
+			syslog(LOG_NOTICE, "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n");
 			$next->execute($row->{id});
 			my $statetranssub = $config->{state}{$row->{state}};
 			system &$statetranssub($row->{id}, $row->{room}, $row->{length});
 		}
 	}
-	print("finished, waiting 30 seconds...\n");
+	syslog(LOG_DEBUG, "finished, waiting 30 seconds...\n");
 	$dbh->commit;
 
 	sleep 30;
