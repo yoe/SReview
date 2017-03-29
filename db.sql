@@ -44,22 +44,25 @@ SET search_path = public, pg_catalog;
 --
 
 CREATE TYPE talkstate AS ENUM (
-    'files_missing',
-    'partial_files_found',
-    'files_found',
-    'cut_pending',
-    'cut_ready',
+    'waiting_for_files',
+    'cutting',
     'generating_previews',
-    'needs_notify',
+    'notification',
     'preview',
-    'review_done',
-    'generating_data',
-    'waiting',
+    'transcoding',
     'uploading',
     'done',
     'broken',
     'needs_work',
     'lost'
+);
+
+CREATE TYPE jobstate AS ENUM (
+    'waiting',
+    'scheduled',
+    'running',
+    'done',
+    'failed'
 );
 
 
@@ -91,7 +94,8 @@ CREATE TABLE talks (
     endtime timestamp with time zone NOT NULL,
     title character varying NOT NULL,
     event integer NOT NULL,
-    state talkstate DEFAULT 'files_missing'::talkstate NOT NULL,
+    state talkstate DEFAULT 'waiting_for_files'::talkstate NOT NULL,
+    progress jobstate DEFAULT 'waiting'::jobstate NOT NULL,
     comments text,
     upstreamid character varying NOT NULL,
     subtitle character varying,
