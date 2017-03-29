@@ -14,7 +14,7 @@ sub new {
 	my $cfile = shift;
 
 	if (! -f $cfile) {
-		warn("could not find configuration file $cfile, using defaults");
+		warn("Warning: could not find configuration file $cfile. Using defaults.\n");
 	} else {
 		package SReview::Config::_private;
 		my $rc = do($cfile);
