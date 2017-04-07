@@ -36,6 +36,9 @@ sub define {
 	my $name = shift;
 	my $doc = shift;
 	my $default = shift;
+	if(exists($self->{fixed})) {
+		croak "Tried to define a new value after a value has already been requested. This is not allowed!";
+	}
 	$self->{defs}{$name}{doc} = $doc;
 	$self->{defs}{$name}{default} = $default;
 };
@@ -46,6 +49,7 @@ sub get {
 	if(!exists($self->{defs}{$name})) {
 		die "e: definition for config file item $name does not exist!";
 	}
+	$self->{fixed} = 1;
 	if(exists($SReview::Config::_private::{$name})) {
 		return ${$SReview::Config::_private::{$name}};
 	} else {
