@@ -4,6 +4,7 @@ use warnings;
 package SReview::Config;
 
 use Data::Dumper;
+use Carp;
 
 sub new {
 	my $self = {defs => {}};
@@ -14,16 +15,17 @@ sub new {
 	my $cfile = shift;
 
 	if (! -f $cfile) {
-		warn("Warning: could not find configuration file $cfile. Using defaults.\n");
+		carp "Warning: could not find configuration file $cfile, falling back to defaults";
 	} else {
 		package SReview::Config::_private;
+		use Carp;
 		my $rc = do($cfile);
 		if($@) {
-			die "could not compile config file $cfile: $@";
+			croak "could not compile config file $cfile: $@";
 		} elsif(!defined($rc)) {
-			die "could not read config file $cfile: $!";
+			carp "could not read config file $cfile. Falling back to defaults.";
 		} elsif(!$rc) {
-			die "could not process config file $cfile";
+			croak "could not process config file $cfile";
 		}
 	}
 	return $self;
