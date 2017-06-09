@@ -7,12 +7,14 @@ use SReview::Config;
 use SReview::Config::Common;
 use SReview::Job;
 use WWW::Curl::Easy;
+use File::Temp qw(tempdir);
 
 use DBI;
 
 sub get_fragment_nginx($$$$) {
 	my ($url, $start, $stop, $target) = @_;
-	my $pref = ?
+	my $pref = "?";
+	my $curl = WWW::Curl::Easy->new;
 
 	if(defined($start)) {
 		$url .= $pref . $start;
@@ -26,7 +28,7 @@ sub get_fragment_nginx($$$$) {
 	$curl->setopt(CURLOPT_WRITEDATA, \*OUTPUT);
 	my $res = $curl->perform;
 	if($res != 0) {
-		die "Received HTTP error code $res: " . $curl->strerror($res) . " " $curl->errbuf;
+		die "Received HTTP error code $res: " . $curl->strerror($res) . " " . $curl->errbuf;
 	}
 	close OUTPUT;
 };
@@ -71,6 +73,7 @@ if($cutstyle eq 'nginx_mp4') {
 my $tempdir = tempdir("cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
 
 $corrections_data->execute($talkid);
+my %corrections;
 
 while(my $row = $corrections_data->fetchrow_hashref()) {
 	my $name = $row->{property};

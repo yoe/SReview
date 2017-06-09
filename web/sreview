@@ -352,10 +352,10 @@ group {
 		my $st;
 
 		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE id = ? AND roomid = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote FROM talk_list WHERE id = ? AND roomid = ?');
 			$st->execute($id, $c->session->{room});
 		} else {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE id = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote FROM talk_list WHERE id = ?');
 			$st->execute($id);
 		}
 		my $row = $st->fetchrow_hashref("NAME_lc");
@@ -391,6 +391,8 @@ group {
 		$c->stash(corrections => $viddata);
 		$c->stash(target => "talk_update_admin");
 		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
+		$c->stash(type => "admin");
+		$c->stash(apology => $row->{apologynote});
 		$c->render(template => 'talk');
 	} => 'admin_talk';
 
