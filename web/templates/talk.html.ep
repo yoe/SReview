@@ -178,6 +178,7 @@ function edit_length_adj(val) {
   %= hidden_field nonce => $nonce;
   % }
   <fieldset>
+  <legend>No action</legend>
   %= radio_button choice => 'reset', id => 'reset', $checked => $checked
   %= label_for reset => "Do not make changes, do not notify video team; set the state back to \"preview\".", class => "minor"
   </fieldset>
