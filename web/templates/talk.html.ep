@@ -1,5 +1,14 @@
-% if (my $message = flash 'completion_message') {
-<p class="msg"><%= $message =%></p>
+% if (my $cmessage = flash 'completion_message') {
+<div class="alert alert-success alert-dismissable fade in">
+  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  <%= $cmessage =%>
+</div>
+% }
+% if (my $emessage = flash 'error_message') {
+<div class="alert alert-warning alert-dismissable fade in">
+  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  <%= $emessage =%>
+</div>
 % }
 <h1>Preview recording</h1>
 <script>
