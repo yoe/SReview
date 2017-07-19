@@ -1,3 +1,6 @@
+% if (my $message = flash 'completion_message') {
+<p class="msg"><%= $message =%></p>
+% }
 <h1>Preview recording</h1>
 <script>
 /* @licstart The following is the entire license notice for this

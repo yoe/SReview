@@ -1,5 +1,8 @@
 %layout 'default';
 %title "SReview: $title";
+% if (my $msg = flash 'completion_message') {
+<p class='msg'><%= $msg =%></p>
+% }
 <h1><%= $title %></h1>
 <p><%== $message %></p>
 <p>Go to <%= link_to 'the SReview home page' => '/' %> or <%= link_to 'the video status overview page' => '/overview' %>.</p>

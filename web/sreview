@@ -243,6 +243,7 @@ post '/talk_update' => sub {
 	}
 	$c->stash(layout => 'default');
 	$c->stash(template => 'talk');
+	$c->flash(completion_message => 'Your change has been accepted. Thanks for your help!');
 	$c->talk_update($row->[0]);
 	$c->redirect_to("/review/$nonce");
 } => 'talk_update';
@@ -405,6 +406,7 @@ group {
 			return undef;
 		}
 		$c->stash(template => 'talk');
+		$c->flash(completion_message => 'Your change has been accepted. Thanks for your help!');
 		$c->talk_update($talk);
 		$c->redirect_to("/admin/talk?talk=$talk");
 	} => 'talk_update_admin';
