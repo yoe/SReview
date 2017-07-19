@@ -36,7 +36,24 @@
  * including all its JavaScript.
  */
 // TODO: the below contains a lot of copy-paste code. Clean it up.
+function formitems(which) {
+	var disableval = true;
+	if(which === 'standard') {
+		disableval = false;
+	}
+        % my $viddata = stash 'corrections';
+	% foreach my $correction(sort(keys %{$viddata->{corrvals}})) {
+	$('#<%= $correction =%>').prop("disabled", disableval);
+	% }
+	if(which === 'comments') {
+		disableval = false;
+	} else {
+		disableval = true;
+	}
+	$('#comment_text').prop("disabled", disableval);
+}
 function startPointPre() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -57,6 +74,7 @@ function startPointPre() {
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointPre() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -71,6 +89,7 @@ function endPointPre() {
 	document.getElementById("length_adj").value = LAn;
 };
 function startPointMain() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -91,6 +110,7 @@ function startPointMain() {
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointMain() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -105,6 +125,7 @@ function endPointMain() {
 	document.getElementById("length_adj").value = LAn;
 };
 function startPointPost() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -125,6 +146,7 @@ function startPointPost() {
 	document.getElementById("offset_start").value = SAn;
 };
 function endPointPost() {
+	formitems('standard');
 	var LAl = sreview_viddata.corrvals.length_adj;
 	if(!LAl) {
 		LAl = 0;
@@ -154,7 +176,7 @@ function edit_length_adj(val) {
 };
 </script>
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
-<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the MP4 format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= substr($room, 0, 1) %>/<%= $slug %>.mp4'>direct download</a> of the same file.</p>
+<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the MP4 format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= substr($room, 0, 1) %>/<%= $slug %>.mp4'>direct download <span class="glyphicon glyphicon-download"></span></a> of the same file.</p>
 <p>
 <div class="row">
   <div class="col-sm-6">
@@ -176,6 +198,7 @@ function edit_length_adj(val) {
 </div>
 <div class="row">
   <div class="col-sm-12">
+    <p>Main video:</p>
     <div class="embed-responsive embed-responsive-16by9"><video id="video-main" class="embed-responsive-item" controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>.mp4"></video></div>
     <div class="btn-group btn-group-justified">
       <div class="btn-group"><button class="btn" onclick='startPointMain();'>Take start point</button></div>
@@ -183,7 +206,7 @@ function edit_length_adj(val) {
     </div>
   </div>
 </div>
-<div class="jumbotron"><p>Making any changes in this form does <em>not</em> remove the originals. Nothing you do here can result in data loss!</p></div>
+<div class="well"><p>Making any changes in the form below does <em>not</em> remove the originals. Nothing you do here can result in data loss!</p></div>
 % my $disabled = "disabled";
 % my $checked = "";
 % if (defined($state)) {
@@ -196,7 +219,7 @@ function edit_length_adj(val) {
 %     param choice => 'comments'
 %   }
 % }
-%= form_for $target => (method => 'POST') => begin
+%= form_for $target => (method => 'POST', class => "form-horizontal") => begin
   % my $talk = param('talk');
   % if(defined($talk)) {
   %= hidden_field talk => param('talk')
@@ -205,40 +228,59 @@ function edit_length_adj(val) {
   %= hidden_field nonce => $nonce;
   % }
   <fieldset>
-  <legend>No action</legend>
-  %= radio_button choice => 'reset', id => 'reset', $checked => $checked
-  %= label_for reset => "Do not make changes, do not notify video team; set the state back to \"preview\".", class => "minor"
+    <legend>Reset</legend>
+    <div class="form-group">
+      %= radio_button choice => 'reset', id => 'reset', $checked => $checked, onchange => "formitems('reset')";
+      %= label_for reset => "Do not make changes, do not notify video team; set the state back to \"preview\".", class => "minor"
+    </div>
   </fieldset>
   <fieldset>
-  <legend>OK</legend>
-  %= radio_button choice => 'ok', id => 'ok', $disabled => $disabled
-  %= label_for ok => 'This preview looks OK, please transcode it at high quality and release it.'
+    <legend>OK</legend>
+    <div class="form-group">
+      %= radio_button choice => 'ok', id => 'ok', $disabled => $disabled, onchange => "formitems('ok')";
+      %= label_for ok => 'This preview looks OK, please transcode it at high quality and release it.'
+    </div>
   </fieldset>
   <fieldset>
     <legend>Common fixes</legend>
-  %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled
-  %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
-  % my $viddata = stash 'corrections';
-  % foreach my $correction(sort (keys %{$viddata->{corrvals}})) {
-    <div class="row">
-      <div class="col-xs-8">
-      %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction};
-      </div>
-      <div class="col-xs-4">
-      %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction, onchange => "edit_$correction(this.value)", class => 'form-control';
+    <div class="form-group">
+      %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled, onchange => "formitems('standard')";
+      %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
+    </div>
+    % foreach my $correction(sort (keys %{$viddata->{corrvals}})) {
+    <div class="form-group">
+      %= label_for "correction_$correction" => $viddata->{corrdescs}{$correction}, class => 'control-label col-sm-2';
+      <div class="col-sm-10">
+        <div class="input-group">
+          %= text_field "correction_$correction" => $viddata->{corrvals}{$correction}, id => $correction, onchange => "edit_$correction(this.value)", class => 'form-control', disabled => "disabled";
+          <div class="input-group-btn">
+            <a class="btn btn-default" data-placement="left" data-toggle="popover" data-content="<%= $viddata->{corrhelps}{$correction} =%>" title="<%= $viddata->{corrdescs}{$correction} =%>">
+              <i class="glyphicon glyphicon-question-sign"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   % }
   </fieldset>
   <fieldset>
   <legend>Other brokenness</legend>
-  %= radio_button choice => 'comments', id => 'comments', $disabled => $disabled
-  %= label_for comments => 'This preview has the following issues not covered by the above:'
-  <br>
-  %= text_area 'comment_text' => ( rows => 10, class => 'form-control' ) => begin
-  <%= $comments =%>
-  % end
-  <br>Note: if you choose this option, your video will be marked as <q>broken</q> until the video team has had time to look at it or you set it back to preview by choosing the first option in this form.
+  <div class="form-group">
+    %= radio_button choice => 'comments', id => 'comments', $disabled => $disabled, onchange => "formitems('comments')";
+    %= label_for comments => 'This preview has the following issues not covered by the above:'
+    <br>
+    %= text_area 'comment_text' => ( id => 'comment_text', rows => 10, class => 'form-control', disabled => 'disabled' ) => begin
+    <%= $comments =%>
+    % end
+    <div class="well">Note: if you choose this option, your video will be marked as <q>broken</q> until the video team has had time to look at it or you set it back to preview by choosing the first option in this form.</div>
+  </div>
   </fieldset>
   %= submit_button 'ok' => (class => 'btn btn-primary');
 % end
+<script>
+$(document).ready(function() {
+  $('[data-toggle="popover"]').popover({
+    container: 'body'
+  });
+});
+</script>

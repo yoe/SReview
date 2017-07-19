@@ -152,13 +152,15 @@ get '/review/:nonce' => sub {
 		$c->render('msg');
 		return undef;
 	}
-	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND talk = ?) ORDER BY properties.description");
+	my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, properties.helptext, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND talk = ?) ORDER BY properties.description");
 	$stp->execute($row->{id});
 	my $viddata = {};
 	$viddata->{corrvals} = {};
 	$viddata->{corrdescs} = {};
+        $viddata->{corrhelps} = {};
 	while(my $corrrow = $stp->fetchrow_hashref) {
 		$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
+		$viddata->{corrhelps}{$corrrow->{name}} = $corrrow->{helptext};
 		$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
 	}
 
@@ -360,7 +362,7 @@ group {
 			$st->execute($id);
 		}
 		my $row = $st->fetchrow_hashref("NAME_lc");
-		my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
+		my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, properties.helptext, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
 		$stp->execute($id);
 
 		if(!defined($row)) {
@@ -371,9 +373,11 @@ group {
 		my $viddata = {};
 		$viddata->{corrvals} = {};
 		$viddata->{corrdescs} = {};
+		$viddata->{corrhelps} = {};
 		while(my $corrrow = $stp->fetchrow_hashref) {
 			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
 			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
+			$viddata->{corrhelps}{$corrrow->{name}} = $corrrow->{helptext};
 		}
 		$viddata->{mainlen} = $row->{length} + 0;
 		$viddata->{prelen} = $row->{prelen} + 0;
