@@ -65,10 +65,10 @@ helper talk_update => sub {
 	if(!defined($choice)) {
 		die "choice empty";
 	} elsif($choice eq 'reset') {
-		my $sth = $c->dbh->prepare("UPDATE talks SET state='preview' WHERE id = ?");
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='preview', progress='waiting' WHERE id = ?");
 		$sth->execute($talk) or die;
 	} elsif($choice eq 'ok') {
-		my $sth = $c->dbh->prepare("UPDATE talks SET state='review_done' WHERE id = ?");
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='preview', progress='done' WHERE id = ?");
 		$sth->execute($talk) or die;
 	} elsif($choice eq 'standard') {
 		my $sth = $c->dbh->prepare("SELECT id, name FROM properties");
@@ -81,10 +81,10 @@ helper talk_update => sub {
 			my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, ?)");
 			$s->execute($parm, $talk, $row->{id}) or die;
 		}
-		$sth = $c->dbh->prepare("UPDATE talks SET state='files_found' WHERE id = ?");
+		$sth = $c->dbh->prepare("UPDATE talks SET state='waiting_for_files', progress='done' WHERE id = ?");
 		$sth->execute($talk) or die;
 	} elsif($choice eq 'comments') {
-		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', comments = ? WHERE id = ?");
+		my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', progress='failed', comments = ? WHERE id = ?");
 		my $comments = $c->param("comment_text");
 		$sth->execute($comments, $talk) or die;
 	} else {
