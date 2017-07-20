@@ -29,6 +29,7 @@ $state->{transcoding} = sub { my ($talkid, $room, $length) = @_; return "qsub -c
 # This job should do whatever is necessary to release the given video
 # onto the given URL.
 $state->{uploading} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -l upload -b y -N upload_$talkid -o $output_dir -e $output_dir /usr/bin/perl upload $talkid"; };
+$state->{notification} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -b y -N notify_$talkid -o $output_dir -e $output_dir /usr/bin/perl notify $talkid"; };
 
 # Script definitions for running things directly (disabled by default)
 
