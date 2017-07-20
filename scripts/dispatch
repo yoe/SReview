@@ -47,6 +47,7 @@ while(1) {
 	}
 	while(my $row = $st->fetchrow_hashref) {
 		if($row->{progress} eq "done") {
+			syslog(LOG_NOTICE, "Job for event " . $row->{title} . " in state " . $row->{state} . " finished, migrating it to the next state");
 			$next->execute($row->{id});
 			next;
 		}
