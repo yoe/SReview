@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Extract the "interesting" parts of one or more raw mp4 input file(s)
+# Extract the "interesting" parts of one or more raw input file(s)
 # into a single "work" file named after the talk slug.
 
 # This file is part of Sreview, a web-based video review and transcoding
