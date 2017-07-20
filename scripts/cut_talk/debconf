@@ -60,7 +60,7 @@ my $talkid = $ARGV[0];
 
 $dbh->begin_work;
 
-my $started = $dbh->prepare("UPDATE talk SET progress='running', state='cutting' WHERE id = ?");
+my $started = $dbh->prepare("UPDATE talks SET progress='running', state='cutting' WHERE id = ?");
 $started->execute($talkid);
 
 $dbh->commit;
