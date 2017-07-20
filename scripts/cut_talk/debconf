@@ -129,7 +129,7 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 		$stop = " -t " . $row->{raw_length_corrected};
 	}
 	system("ffmpeg -i " . $row->{raw_filename} . " -c copy -f mpegts $start $stop $tempdir/$target" . $row->{rawid} . ".ts");
-	push @$segments, "$tempdir/$target" . $row->{rawid} . ".mp4";
+	push @$segments, "$tempdir/$target" . $row->{rawid} . ".ts";
 }
 
 # ensure we have at least something
@@ -145,7 +145,7 @@ foreach my $segment(@segments) {
 	print CONCAT "file '$segment'\n";
 }
 close CONCAT;
-system_v("ffmpeg -f concat -safe 0 -i $tempdir/concat.txt -c copy -y $tempdir/full.mp4");
+system_v("ffmpeg -f concat -safe 0 -i $tempdir/concat.txt -c copy -y $tempdir/full.ts");
 
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
@@ -162,21 +162,21 @@ if(exists($corrections{audio_channel})) {
 		$channel = "-ac 1";
 	}
 }
-system_v("ffmpeg -i $tempdir/full.mp4 $channel -y $tempdir/full.wav");
+system_v("ffmpeg -i $tempdir/full.ts $channel -y $tempdir/full.wav");
 # if there is an A/V sync correction value, shift the audio around a bit
 if($corrections{offset_audio} != 0) {
 	print "adjusting A/V desync...\n";
 	# Extract audio
 	if($corrections{offset_audio} > 0) {
 		# delay audio by cutting off some of the video at the start
-		system_v("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/full.mp4 -c copy -y $tempdir/full-new.mp4");
+		system_v("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/full.ts -c copy -y $tempdir/full-new.ts");
 		$prelen -= $corrections{offset_audio};
 		if($prelen < 0) {
 			$mainlen -= abs($prelen);
 			$prelen = 0;
 		}
-		unlink("$tempdir/full.mp4");
-		rename("$tempdir/full-new.mp4", "$tempdir/full.mp4");
+		unlink("$tempdir/full.ts");
+		rename("$tempdir/full-new.ts", "$tempdir/full.ts");
 	} else {
 		# delay video by cutting off some of the audio at the start
 		system_v("ffmpeg -ss " . abs($corrections{offset_audio}) . " -i $tempdir/full.wav -c copy -y $tempdir/full-new.wav");
@@ -190,23 +190,23 @@ if($corrections{offset_audio} != 0) {
 	};
 }
 # Now split and merge the full video and audio files into three video files with the audio reattached
-system_v("ffmpeg -i $tempdir/full.mp4 -i $tempdir/full.wav -t $prelen -c:v copy -c:a libfdk_aac -b:a 128k -map 0:v -map 1:a -y $outname-pre.mp4");
-system_v("ffmpeg -i $tempdir/full.mp4 -i $tempdir/full.wav -ss " . ($prelen + $mainlen) . " -c:v copy -c:a libfdk_aac -b:a 128k -map 0:v -map 1:a -shortest -y $outname-post.mp4");
+system_v("ffmpeg -i $tempdir/full.ts -i $tempdir/full.wav -t $prelen -c:v copy -b:a 128k -map 0:v -map 1:a -y $outname-pre.ts");
+system_v("ffmpeg -i $tempdir/full.ts -i $tempdir/full.wav -ss " . ($prelen + $mainlen) . " -c:v copy -b:a 128k -map 0:v -map 1:a -shortest -y $outname-post.ts");
 system_v("ffmpeg -i $tempdir/full.wav -ss $prelen -t $mainlen -c copy $tempdir/audio.wav");
-system_v("ffmpeg -i $tempdir/full.mp4 -ss $prelen -t $mainlen -c copy $tempdir/preaudio.mp4");
+system_v("ffmpeg -i $tempdir/full.ts -ss $prelen -t $mainlen -c copy $tempdir/preaudio.ts");
 # - Run bs1770gain (which creates a FLAC file)
 system_v("bs1770gain -a -o $tempdir $tempdir/audio.wav");
 # - Replace original audio stream with normalized one
-system_v("ffmpeg -i $tempdir/preaudio.mp4 -i $tempdir/audio.flac -c:a libfdk_aac -b:a 128k -c:v copy -map 0:v -map 1:a -shortest -y $outname.mp4");
+system_v("ffmpeg -i $tempdir/preaudio.ts -i $tempdir/audio.flac -b:a 128k -c:v copy -map 0:v -map 1:a -shortest -y $outname.ts");
 
 # Detect the size of pre and post videos to be sure they're correct
 my $disc = Gst::Pbutils::Discoverer->new(1_000_000_000);
 if(scalar(@segments_pre) > 0) {
-	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-pre.mp4", undef));
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-pre.ts", undef));
 	$prelen = $info->get_duration() / 1_000_000_000;
 };
 if(scalar(@segments_post) > 0) {
-	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-post.mp4", undef));
+	my $info = $disc->discover_uri(Glib->filename_to_uri("$outname-post.ts", undef));
 	$postlen = $info->get_duration() / 1_000_000_000;
 };
 # Now update the database
