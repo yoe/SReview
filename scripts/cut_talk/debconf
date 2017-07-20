@@ -56,9 +56,16 @@ my $tempdir = tempdir( "cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
 
 my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
+my $talkid = $ARGV[0];
+
 $dbh->begin_work;
 
-my $talkid = $ARGV[0];
+my $started = $dbh->prepare("UPDATE talk SET progress='running', state='cutting' WHERE id = ?");
+$started->execute($talkid);
+
+$dbh->commit;
+
+$dbh->begin_work;
 
 my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
 my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
@@ -203,7 +210,7 @@ if(scalar(@segments_post) > 0) {
 	$postlen = $info->get_duration() / 1_000_000_000;
 };
 # Now update the database
-my $update = $dbh->prepare("UPDATE talks SET state = 'needs_notify', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
+my $update = $dbh->prepare("UPDATE talks SET progress = 'done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state = 'cutting'");
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;
