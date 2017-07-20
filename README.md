@@ -13,47 +13,45 @@ edges.
 ## States
 
 SReview is fairly minimalistic; it tries to assume as little as possible
-about video workflow. There is, however, a state machine that you should
-be aware of:
+about video workflow. There are, however, state machines that you should be
+aware of. First, there is the main state:
 
-    files_missing
-    partial_files_found
-    files_found
-    cut_pending
-    cut_ready
+    waiting_for_files
+    cutting
     generating_previews
+    notification
     preview
-    review_done
-    generating_data
-    waiting
+    transcoding
     uploading
     done
     broken
+    needs_work
+    lost
 
-Every talk is in one of the above states. The following is a list of
-possible states, with their meaning:
+Next, there is the job state:
 
-- `files_missing`: no files have been found as of yet. Talks should
-  initially be in this state.
-- `partial_files_found`: some files have been found, but not all of
-  them. This may be because some data was lost, or because the talk is
-  not finished yet.
-- `cut_pending`: the `cut_talk` script is running, or scheduled to
-  start.
-- `cut_ready`: the `cut_talk` script has finished.
-- `generating_previews`: the `previews` script is running, or scheduled
-  to start.
-- `needs_notify`: the `previews` script has finished, and a notification
-  needs to be sent to the user responsible for reviewing the talk.
+    waiting
+    scheduled
+    running
+    done
+    failed
+
+Every talk is in one of the main states as well as in one of the job. The
+following list explains what each of the main states means:
+
+- `waiting_for_files`: no files (or not all of them) have been found as of yet.
+  Talks should initially be in this state.
+- `cutting`: the `cut_talk` script
+- `generating_previews`: the `previews` script
+- `notification`: a notification needs to be sent to the user responsible for
+  reviewing the talk. This may be the speaker, or someone else.
 - `preview`: the notification was sent. This talk is now ready for
   review by a human being (the webinterface is necessary for this step).
-- `review_done`: human review has finished
-- `generating_data`: the `transcode` script is running, or scheduled to
+- `transcoding`: the `transcode` script is running, or scheduled to
   start.
-- `waiting`: the `transcode` script has finished
 - `uploading`: the files are being uploaded.
 - `done`: the talk has been fully completed, all files should be
-  published
+  published.
 - `broken`: SReview will not automatically switch a talk to this state,
   but it can be used to mark talks that are lost forever and should not
   be considered anymore.
@@ -62,6 +60,18 @@ possible states, with their meaning:
   fixed eventually.
 - `lost`: Refinement of `broken`. Can be used by an administrator to
   confirm that a recording is broken and cannot be usefully released.
+
+The job states, then, mean:
+
+- `waiting`: it's waiting for the dispatch script to do something.
+- `scheduled`: the script was picked up by the dispatch script, and has
+  been put into the job scheduler's queue. If a slot is available, it
+  will be started almost immediately; if not, it may need to wait until
+  that's done.
+- `running`: the script is now active and running.
+- `done : the script finished successfully
+- `failed`: the script did *not* finish successfully (note: when that
+  hapens, it doesn't always go into this state, currently).
 
 ## Components
 
@@ -79,7 +89,8 @@ webinterface in production, see
 To run the backend, it is recommended that you install gridengine first.
 In theory, the backend *should* work without gridengine, but that is not
 tested. Additionally, you will then need to run a dispatcher per CPU,
-rather than having just one dispatcher in the whole network.
+rather than having just one dispatcher in the whole network (which is
+annoying).
 
 Once gridengine has been installed, copy the `config.pl.template` file
 in the scripts directory to `config.pl`, edit it, and run `perl
