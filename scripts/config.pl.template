@@ -17,16 +17,18 @@ $config->{query_limit} = -1;
 
 # The job which transforms the raw input data into a raw work file that
 # the high-quality jobs transcode to. This should preferably use a
-# "copy" operation for the video and audio codecs, if at all possible.
-$state->{files_found} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l input -l output -b y -pe smp 2 -N cut_talk_$talkid -o $output_dir -e $output_dir /usr/bin/perl cut_talk $talkid"; };
-# This should generate a low-quality preview version of the cut talk
-$state->{cut_ready} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -b y -N previews_$talkid -o $output_dir -e $output_dir /usr/bin/perl previews $talkid";};
+# "copy" operation for the video and audio codecs, if at all possible,
+# so that little or no quality is lost before the transcode step, below.
+$state->{cutting} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l input -l output -b y -pe smp 2 -N cut_talk_$talkid -o $output_dir -e $output_dir /usr/bin/perl cut_talk $talkid"; };
+# This should generate a low-quality preview version of the cut talk.
+# This should preferably use settings so things go really really fast.
+$state->{generating_previews} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -b y -N previews_$talkid -o $output_dir -e $output_dir /usr/bin/perl previews $talkid";};
 # This job should transcode the output of the above into all other video
 # formats.
-$state->{review_done} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -b y -N transcode_$talkid -o $output_dir -e $output_dir /usr/bin/perl transcode $talkid"; };
+$state->{transcoding} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -b y -N transcode_$talkid -o $output_dir -e $output_dir /usr/bin/perl transcode $talkid"; };
 # This job should do whatever is necessary to release the given video
 # onto the given URL.
-$state->{waiting} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -l upload -b y -N upload_$talkid -o $output_dir -e $output_dir /usr/bin/perl upload $talkid"; };
+$state->{uploading} = sub { my ($talkid, $room, $length) = @_; return "qsub -cwd -V -l output -l upload -b y -N upload_$talkid -o $output_dir -e $output_dir /usr/bin/perl upload $talkid"; };
 
 # Script definitions for running things directly (disabled by default)
 
