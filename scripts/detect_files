@@ -37,7 +37,7 @@ my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interv
 
 my @files = glob($config->{inputglob});
 
-my $host = hostname() . ".video.fosdem.org";
+my $host = hostname();
 
 foreach my $file(@files) {
 	next unless (-f $file);
