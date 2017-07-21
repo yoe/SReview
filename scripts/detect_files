@@ -25,7 +25,7 @@ use DBI;
 use Net::Domain qw(hostname);
 
 our $config;
-require '/etc/sreview/config.pl';
+require './config.pl';
 
 my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
