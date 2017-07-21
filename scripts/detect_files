@@ -60,9 +60,9 @@ foreach my $file(@files) {
 	}
 }
 
-my $full = $dbh->prepare("UPDATE talks SET state = 'files_found' WHERE state < 'files_found' AND id IN (select talkid FROM raw_talks WHERE talks_length <= (raw_total + '5 seconds'::interval))");
+my $full = $dbh->prepare("UPDATE talks SET progress = 'done' WHERE state = 'waiting_for_files' AND progress < 'done' AND id IN (select talkid FROM raw_talks WHERE talks_length <= (raw_total + '5 seconds'::interval))");
 $full->execute();
-my $partial = $dbh->prepare("UPDATE talks SET state = 'partial_files_found' WHERE state < 'partial_files_found' AND id IN (select distinct talkid FROM raw_talks)");
+my $partial = $dbh->prepare("UPDATE talks SET progress = 'running' WHERE state = 'waiting_for_files' AND progress < 'running' AND id IN (select distinct talkid FROM raw_talks)");
 $partial->execute();
 
 $dbh->commit;
