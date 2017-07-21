@@ -41,7 +41,6 @@ my $host = hostname();
 
 foreach my $file(@files) {
 	next unless (-f $file);
-	my $ext = $config->{inputext};
 	my $parsesub = $config->{parse_raw};
 	my ($room, $start_day, $start_hour, $url) = &$parsesub($file, $host);
 	next unless defined($room);
