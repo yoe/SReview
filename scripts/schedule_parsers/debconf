@@ -63,6 +63,8 @@ my $track_add = $dbh->prepare("INSERT INTO tracks(name) VALUES (?)");
 foreach my $day($xml->child('schedule')->children('day')) {
 	foreach my $room($day->children('room')) {
 		next if ($room->attribute('name') eq 'Elsewhere');
+		next if ($room->attribute('name') eq 'Woody');
+		next if ($room->attribute('name') eq 'Potato');
 		do {
 			$dbroom->execute($room->attribute('name'));
 
