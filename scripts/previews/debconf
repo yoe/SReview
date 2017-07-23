@@ -71,7 +71,7 @@ my $eid = $drow->{eventid};
 make_path("$pubdir/video/$eid");
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{starttime});
-my $pipeline = Gst::parse_launch("webmmux name=mux ! filesink location=$pubdir/video/$eid/$slug.webm uridecodebin uri=file://$outputdir/$slug.mp4 name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0");
+my $pipeline = Gst::parse_launch("webmmux name=mux ! filesink location=$pubdir/video/$eid/$slug.webm uridecodebin uri=file://$outputdir/$slug.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0");
 my $bus = $pipeline->get_bus();
 $bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
 
