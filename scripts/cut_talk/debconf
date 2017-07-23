@@ -150,7 +150,7 @@ system_v("ffmpeg -f concat -safe 0 -i $tempdir/concat.txt -c copy -y $tempdir/fu
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
-my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+my $workdir = $config->{pubdir} . "/video/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
 my $outname = "$workdir/" . $row->{slug};
 # Figure out what the correct thing to do with is
