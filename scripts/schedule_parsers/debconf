@@ -77,7 +77,7 @@ foreach my $day($xml->child('schedule')->children('day')) {
 		my $roomid = $row->[0];
 		my $talk_upid;
 		foreach my $talk($room->children('event')) {
-			$talk_upid = $talk->attribute('id');
+			$talk_upid = $talk->child('conf_url')->value();
 			next unless defined($talk_upid);
 			my $title = $talk->child('title')->value();
 			next unless defined($title);
