@@ -262,7 +262,7 @@ group {
 		my $c = shift;
 		my @talks;
 		$c->dbh->begin_work;
-		my $already = $c->dbh->prepare("SELECT nonce, title, id, state FROM talks WHERE reviewer = ? AND state < 'review_done'");
+		my $already = $c->dbh->prepare("SELECT nonce, title, id, state FROM talks WHERE reviewer = ? AND state <= 'preview'");
 		my $new = $c->dbh->prepare("SELECT nonce, title, id, state FROM talks WHERE reviewer IS NULL AND state = ANY(enum_range('files_found'::talkstate, 'preview'::talkstate)) LIMIT ? FOR UPDATE");
 		my $claim = $c->dbh->prepare("UPDATE talks SET reviewer = ? WHERE id = ?");
 		$already->execute($c->session->{id});
