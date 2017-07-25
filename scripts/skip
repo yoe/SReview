@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+
+our $config;
+
+require "./config.pl";
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to databse!";
+
+my $talkid = $ARGV[0];
+
+$dbh->prepare("UPDATE talk SET progress='done' WHERE id=?")->execute($talkid);
