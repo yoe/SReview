@@ -70,13 +70,21 @@ my $pubdir = $config->{pubdir};
 my $eid = $drow->{eventid};
 make_path("$pubdir/video/$eid");
 my $outputdir = "$pubdir/video/$eid/" . substr($drow->{room}, 0, 1);
-my $pipeline = Gst::parse_launch("webmmux name=mux ! filesink location=$outputdir/$slug.webm uridecodebin uri=file://$outputdir/$slug.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0");
-my $bus = $pipeline->get_bus();
-$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
+my @pipelines = (
+	"webmmux name=mux ! filesink location=$outputdir/$slug.webm uridecodebin uri=file://$outputdir/$slug.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug-pre.webm uridecodebin uri=file://$outputdir/$slug-pre.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug-post.webm uridecodebin uri=file://$outputdir/$slug-post.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+);
 
-$pipeline->set_state("playing");
+foreach my $pipestring(@pipelines) {
+	my $pipeline = Gst::parse_launch($pipestring);
+	my $bus = $pipeline->get_bus();
+	$bus->add_watch(G_PRIORITY_DEFAULT, \&buswatch, $mainloop);
 
-$mainloop->run();
+	$pipeline->set_state("playing");
+
+	$mainloop->run();
+}
 
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_previews'");
 $update->execute($talkid);
