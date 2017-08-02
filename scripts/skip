@@ -13,4 +13,4 @@ my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to d
 
 my $talkid = $ARGV[0];
 
-$dbh->prepare("UPDATE talk SET progress='done' WHERE id=?")->execute($talkid);
+$dbh->prepare("UPDATE talks SET progress='done' WHERE id=?")->execute($talkid);
