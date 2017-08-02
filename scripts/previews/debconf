@@ -38,11 +38,11 @@ Gst::init(\@ARGV);
 our $config;
 require "./config.pl";
 
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id=? AND state='generating_previews' AND progress < 'running'")->execute($talkid);
 
 $dbh->begin_work;
-
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
 my $talkid = $ARGV[0];
 
