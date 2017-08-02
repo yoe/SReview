@@ -38,9 +38,11 @@ Gst::init(\@ARGV);
 our $config;
 require "./config.pl";
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+$dbh->prepare("UPDATE talks SET progress='running' WHERE id=? AND state='generating_previews' AND progress < 'running'")->execute($talkid);
 
 $dbh->begin_work;
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
 
 my $talkid = $ARGV[0];
 
@@ -71,9 +73,9 @@ my $eid = $drow->{eventid};
 make_path("$pubdir/video/$eid");
 my $outputdir = "$pubdir/video/$eid/" . substr($drow->{room}, 0, 1);
 my @pipelines = (
-	"webmmux name=mux ! filesink location=$outputdir/$slug.webm uridecodebin uri=file://$outputdir/$slug.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
-	"webmmux name=mux ! filesink location=$outputdir/$slug-pre.webm uridecodebin uri=file://$outputdir/$slug-pre.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
-	"webmmux name=mux ! filesink location=$outputdir/$slug-post.webm uridecodebin uri=file://$outputdir/$slug-post.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=144,height=180 ! vp8enc threads=1 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug.webm uridecodebin uri=file://$outputdir/$slug.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=160,height=90 ! vp8enc cq-level=63 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug-pre.webm uridecodebin uri=file://$outputdir/$slug-pre.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=160,height=90 ! vp8enc cq-level=63 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
+	"webmmux name=mux ! filesink location=$outputdir/$slug-post.webm uridecodebin uri=file://$outputdir/$slug-post.ts name=demux demux. ! deinterlace ! videoconvert ! videoscale ! video/x-raw,width=160,height=90 ! vp8enc cq-level=63 ! queue ! mux.video_0 demux. ! progressreport ! audioconvert ! audiorate ! vorbisenc ! queue ! mux.audio_0",
 );
 
 foreach my $pipestring(@pipelines) {
@@ -86,6 +88,6 @@ foreach my $pipestring(@pipelines) {
 	$mainloop->run();
 }
 
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_previews'");
+my $update = $dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ? AND state = 'generating_previews' AND progress < 'done'");
 $update->execute($talkid);
 $dbh->commit;
