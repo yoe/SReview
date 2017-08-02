@@ -114,9 +114,9 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
 system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
 if( -f "$tmpdir/$slug-sorry.ts") {
-	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adstoasc $outputdir/$slug.mp4");
+	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy $outputdir/$slug.ts");
 } else {
-	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$pubdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
+	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy $outputdir/$slug.ts");
 }
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");

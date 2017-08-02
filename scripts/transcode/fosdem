@@ -105,7 +105,7 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 
 # concatenate preroll, main video, postroll
 system("ffmpeg -y -loop 1 -i $preroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-preroll.ts");
-system("ffmpeg -y -i $pubdir/$slug.mp4 -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
+system("ffmpeg -y -i $pubdir/$slug.ts -c copy -bsf:v h264_mp4toannexb -y $tmpdir/$slug.ts");
 system("ffmpeg -y -loop 1 -i $postroll -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-postroll.ts");
 if( -f "$tmpdir/$slug-sorry.ts") {
 	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adstoasc $outputdir/$slug.mp4");
