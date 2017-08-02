@@ -43,7 +43,7 @@ my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
 
 do {
 	my $title = $xml->child('schedule')->child('conference')->child('title')->value();
-	$st->execute($title);
+	$st->execute($title) or die;
 
 	if($st->rows != 1) {
 		my $ins = $dbh->prepare("INSERT INTO events(name) VALUES(?)");
@@ -66,7 +66,7 @@ foreach my $day($xml->child('schedule')->children('day')) {
 		next if ($room->attribute('name') eq 'Woody');
 		next if ($room->attribute('name') eq 'Potato');
 		do {
-			$dbroom->execute($room->attribute('name'));
+			$dbroom->execute($room->attribute('name')) or die;
 
 			if($dbroom->rows < 1) {
 				my $ins = $dbh->prepare("INSERT INTO rooms(name) VALUES (?)");
@@ -82,7 +82,7 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			my $title = $talk->child('title')->value();
 			next unless defined($title);
 			do {
-				$track_ex->execute($talk->child('track')->value());
+				$track_ex->execute($talk->child('track')->value()) or die;
 
 				if($track_ex->rows < 1) {
 					$track_add->execute($talk->child('track')->value()) or die;
@@ -90,7 +90,7 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			} while($track_ex->rows < 1);
 			my $track_row = $track_ex->fetchrow_arrayref;
 			my $talk_st = $dbh->prepare("SELECT id FROM talks WHERE upstreamid = ? AND event = ?");
-			$talk_st->execute($talk_upid, $eventid);
+			$talk_st->execute($talk_upid, $eventid) or die;
 			if($talk_st->rows < 1) {
 				$talk_st = $dbh->prepare("INSERT INTO talks (room, slug, starttime, endtime, title, subtitle, track, event, upstreamid) VALUES (?, ?, ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, ?, ?, ?)");
 			} else {
@@ -102,26 +102,26 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			#if(ref($subtitle) eq 'HASH') {
 				my $subtitle = undef;
 			#}
-			$talk_st->execute($roomid, substr(slugify($title), 0, 40), $starttime, $starttime, $talk->child('duration')->value(), $title, $subtitle, $trackid, $eventid, $talk_upid);
+			$talk_st->execute($roomid, substr(slugify($title), 0, 40), $starttime, $starttime, $talk->child('duration')->value(), $title, $subtitle, $trackid, $eventid, $talk_upid) or die;
 			my $clean = $dbh->prepare("DELETE FROM speakers_talks WHERE talk IN (SELECT id FROM talks WHERE upstreamid = ? AND event = ?)");
-			$clean->execute($talk_upid, $eventid);
+			$clean->execute($talk_upid, $eventid) or die;
 			my $persons = $talk->child('persons');
 			next unless defined($persons);
 			foreach my $person($persons->children('person')) {
 				do {
-					$dbpers->execute($person->attribute('id'), $eventid);
+					$dbpers->execute($person->attribute('id'), $eventid) or die;
 
 					if($dbpers->rows < 1) {
 						my $ins = $dbh->prepare("INSERT INTO speakers(name) VALUES (?) RETURNING id");
 						$ins->execute($person->value()) or die;
 						my $row = $ins->fetchrow_hashref();
 						my $ins_se = $dbh->prepare("INSERT INTO speakers_events(speaker, event, upstreamid) VALUES(?, ?, ?)");
-						$ins_se->execute($row->{id}, $eventid, $person->attribute('id'));
+						$ins_se->execute($row->{id}, $eventid, $person->attribute('id')) or die;
 					}
 				} while($dbpers->rows < 1);
 				my $row = $dbpers->fetchrow_arrayref;
 				my $speaktalk = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES(?, (SELECT id FROM talks WHERE upstreamid = ? AND event = ?))");
-				$speaktalk->execute($row->[0], $talk_upid, $eventid);
+				$speaktalk->execute($row->[0], $talk_upid, $eventid) or die;
 			}
 		}
 	}
