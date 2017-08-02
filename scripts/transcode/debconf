@@ -53,7 +53,7 @@ my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startd
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
-my $pubdir = $config->{pubdir} . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
+my $pubdir = $config->{pubdir} . "/video/" . $eid . "/" . substr($drow->{room}, 0, 1);
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
 make_path($outputdir);
