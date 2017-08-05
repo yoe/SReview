@@ -21,9 +21,6 @@ use strict;
 use warnings;
 
 use DBI;
-use Sys::Syslog qw/:standard :macros/;
-
-openlog("SReview-dispatch", "pid", LOG_DAEMON);
 
 our $config;
 require './config.pl';
@@ -32,7 +29,7 @@ my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to d
 
 while(1) {
 	$dbh->begin_work;
-	syslog(LOG_DEBUG, "==> Checking for new work...\n");
+	print "==> Checking for new work...\n";
 	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state), progress='waiting' WHERE id = ?");
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
 
@@ -47,18 +44,18 @@ while(1) {
 	}
 	while(my $row = $st->fetchrow_hashref) {
 		if($row->{progress} eq "done") {
-			syslog(LOG_NOTICE, "Job for event " . $row->{title} . " in state " . $row->{state} . " finished, migrating it to the next state");
+			print "Job for event " . $row->{title} . " in state " . $row->{state} . " finished, migrating it to the next state\n";
 			$next->execute($row->{id});
 			next;
 		}
 		if(exists($config->{state}{$row->{state}})) {
-			syslog(LOG_NOTICE, "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n");
+			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
 			my $statetranssub = $config->{state}{$row->{state}};
 			system &$statetranssub($row->{id}, $row->{room}, $row->{length});
 		}
 	}
-	syslog(LOG_DEBUG, "finished, waiting 10 seconds...\n");
+	print finished, waiting 10 seconds...\n";
 	$dbh->commit;
 
 	sleep 10;
