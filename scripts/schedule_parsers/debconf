@@ -81,6 +81,8 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			next unless defined($talk_upid);
 			my $title = $talk->child('title')->value();
 			next unless defined($title);
+			my $released = $talk->child('released')->value();
+			next unless $released eq 'True';
 			do {
 				$track_ex->execute($talk->child('track')->value()) or die;
 
