@@ -55,7 +55,7 @@ while(1) {
 			system &$statetranssub($row->{id}, $row->{room}, $row->{length});
 		}
 	}
-	print finished, waiting 10 seconds...\n";
+	print "finished, waiting 10 seconds...\n";
 	$dbh->commit;
 
 	sleep 10;
