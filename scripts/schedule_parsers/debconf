@@ -98,7 +98,7 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			} else {
 				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, track = ? WHERE event = ? AND upstreamid = ?");
 			}
-			my $starttime = $day->attribute('date') . " " . $talk->child('start')->value() . ":00+01";
+			my $starttime = $day->attribute('date') . " " . $talk->child('start')->value() . ":00+00";
 			my $trackid = $track_row->[0];
 			#my $subtitle = $talk->child('subtitle');
 			#if(ref($subtitle) eq 'HASH') {
