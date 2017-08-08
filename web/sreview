@@ -185,6 +185,17 @@ get '/review/:nonce' => sub {
 	$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
 } => 'talk';
 
+get '/released' => sub {
+	my $c = shift;
+	my $st = $c->dbh->prepare("SELECT slug, upstreamid FROM talks WHERE state='done'");
+	$st->execute;
+	my $json = [];
+	foreach my $row(@{$st->fetchrow_arrayref}) {
+		push @$json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/" . $row->[1], waferurl => $row->[2] };
+	}
+	$c->render(json => $json);
+}
+
 get '/overview' => sub {
 	my $c = shift;
 	my $st;
