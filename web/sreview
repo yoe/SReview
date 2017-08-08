@@ -194,7 +194,7 @@ get '/released' => sub {
 		push @$json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/" . $row->[1], waferurl => $row->[2] };
 	}
 	$c->render(json => $json);
-}
+};
 
 get '/overview' => sub {
 	my $c = shift;
