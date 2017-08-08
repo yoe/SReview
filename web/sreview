@@ -193,7 +193,7 @@ get '/released' => sub {
 	my @json = ();
 	while (my $row = $st->fetchrow_hashref()) {
 		my $slug = $row->{slug};
-		push @json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/$slug.vp8.webm", waferurl => $$row->{upstreamid} };
+		push @json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/$slug.vp8.webm", waferurl => $row->{upstreamid} };
 	}
 	$c->render(json => \@json);
 };
