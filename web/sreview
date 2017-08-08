@@ -189,9 +189,9 @@ get '/overview' => sub {
 	my $c = shift;
 	my $st;
 	if($config->{anonreviews}) {
-		$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime, progress');
+		$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime, progress');
 	} else {
-		$st = $c->dbh->prepare('SELECT name, speakers, room, starttime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime, progress');
+		$st = $c->dbh->prepare('SELECT name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, room, starttime, progress');
 	}
 	my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 	my %expls;
@@ -211,7 +211,7 @@ get '/overview' => sub {
 	$st->execute($config->{eventid}) or die;
 	$tot->execute($config->{eventid}) or die;
 	$c->stash(title => 'Video status overview');
-	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'State', 'Progress' ]);
+	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'End time', 'State', 'Progress' ]);
 	$c->stash(tottitrow => [ 'State', 'Count', 'State meaning']);
 	my $rows = $st->fetchall_arrayref;
 	if($config->{anonreviews}) {
