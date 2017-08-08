@@ -191,7 +191,7 @@ get '/released' => sub {
 	$st->execute;
 	my $json = [];
 	foreach my $row(@{$st->fetchrow_arrayref}) {
-		push @$json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/" . $row->[1], waferurl => $row->[2] };
+		push @$json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/" . $row->[0] . ".vp8.webm", waferurl => $row->[1] };
 	}
 	$c->render(json => $json);
 };
