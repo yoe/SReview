@@ -176,12 +176,12 @@ function edit_length_adj(val) {
 };
 </script>
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
-<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the WebM format. Alternatively, here is a <a href='/video/<%= $eventid %>/<%= substr($room, 0, 1) %>/<%= $slug %>.webm'>direct download <span class="glyphicon glyphicon-download"></span></a> of the same file.</p>
+<p>To be able to see this preview in your browser, you must use an HTML5 browser which supports the WebM format. Alternatively, here is a <a href='https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1) %>/<%= $slug %>.webm'>direct download <span class="glyphicon glyphicon-download"></span></a> of the same file.</p>
 <p>
 <div class="row">
   <div class="col-sm-6">
     <p>In case it is needed (and they were recorded), these are the 20 minutes before...:</p>
-    <div class="embed-responsive embed-responsive-16by9"><video id="video-pre" class="embed-responsive-item" controls="controls" src="/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-pre.webm"></video></div>
+    <div class="embed-responsive embed-responsive-16by9"><video id="video-pre" class="embed-responsive-item" controls="controls" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-pre.webm"></video></div>
     <div class="btn-group btn-group-justified">
       <div class="btn-group"><button class="btn" onclick='startPointPre();'>Take start point</button></div>
       <div class="btn-group"><button class="btn" onclick='endPointPre();'>Take end point</button></div>
@@ -189,7 +189,7 @@ function edit_length_adj(val) {
   </div>
   <div class="col-sm-6">
     <p>... and after this talk:</p>
-    <div class="embed-responsive embed-responsive-16by9"><video id="video-post" class="embed-responsive-item" controls="controls" src="/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-post.webm"></video></div>
+    <div class="embed-responsive embed-responsive-16by9"><video id="video-post" class="embed-responsive-item" controls="controls" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-post.webm"></video></div>
     <div class="btn-group btn-group-justified">
       <div class="btn-group"><button class="btn" onclick='startPointPost();'>Take start point</button></div>
       <div class="btn-group"><button class="btn" onclick='endPointPost();'>Take end point</button></div>
@@ -199,7 +199,7 @@ function edit_length_adj(val) {
 <div class="row">
   <div class="col-sm-12">
     <p>Main video:</p>
-    <div class="embed-responsive embed-responsive-16by9"><video id="video-main" class="embed-responsive-item" controls="controls" autoplay="autoplay" src="/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>.webm"></video></div>
+    <div class="embed-responsive embed-responsive-16by9"><video id="video-main" class="embed-responsive-item" controls="controls" autoplay="autoplay" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>.webm"></video></div>
     <div class="btn-group btn-group-justified">
       <div class="btn-group"><button class="btn" onclick='startPointMain();'>Take start point</button></div>
       <div class="btn-group"><button class="btn" onclick='endPointMain();'>Take end point</button></div>
