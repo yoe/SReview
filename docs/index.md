@@ -2,6 +2,11 @@
 
 Welcome to Sreview, a video review and transcoding system.
 
+Sreview has two major modes of operation: in anonymous mode, the
+"overview" page contains links to the review forms. In the notification
+mode, the "overview" page does not contain those links, and instead
+email notifications are sent out to reviewers that contain them.
+
 ## Reviewing
 
 If you received an email stating that your talk is ready for review, but
@@ -53,10 +58,11 @@ button to make *that* point be the end of the video.
 
 Once you've made all the changes you think are needed, hit the "OK"
 button at the bottom of the page. Your talk will now be re-cut; once
-that has finished, you'll get another notification email. You can check
-the new cut, make any more changes as needed, and re-submit the talk.
-Rinse, repeat, until all is well. Then re-read the "If all is well"
-section, above.
+that has finished, it will be available for review again, (and if
+sreview is running in notification mode, you'll get another notification
+email). You can check the new cut, make any more changes as needed, and
+re-submit the talk. Rinse, repeat, until all is well. Then re-read the
+"If all is well" section, above.
 
 If you see a problem that can *not* be fixed by any of the options in
 the "Common fixes" section, then you can select the "This preview has
