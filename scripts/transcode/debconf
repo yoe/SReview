@@ -107,19 +107,19 @@ my $apology = $pubdir . "/$slug-sorry.png";
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	die unless exists($config->{apology_template});
 	process_template($config->{apology_template}, $apology);
-	system("ffmpeg -y -loop 1 -i $apology -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -map 0:v -map 1:a -shortest $tmpdir/$slug-sorry.ts");
+	system("ffmpeg -y -loop 1 -i $apology -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -r:a 48000 -ac 1 -map 0:v -map 1:a -shortest $tmpdir/$slug-sorry.ts");
 }
 
 # concatenate preroll, apology, main video, postroll
-system("ffmpeg -y -loop 1 -i $preroll -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -map 0:v -map 1:a $tmpdir/$slug-preroll.ts");
-system("ffmpeg -y -loop 1 -i $postroll -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -map 0:v -map 1:a $tmpdir/$slug-postroll.ts");
+system("ffmpeg -y -loop 1 -i $preroll -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -r:a 48000 -ac 1 -map 0:v -map 1:a $tmpdir/$slug-preroll.ts");
+system("ffmpeg -y -loop 1 -i $postroll -f lavfi -i anullsrc -c:v mpeg2video -pix_fmt yuv422p -framerate 25 -frames:v 125 -b:a 128k -r:a 48000 -ac 1 -map 0:v -map 1:a $tmpdir/$slug-postroll.ts");
 if( -f "$tmpdir/$slug-sorry.ts") {
 	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy $outputdir/$slug.ts");
 } else {
 	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy $outputdir/$slug.ts");
 }
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 32 -c:a libvorbis $outputdir/$slug.vp8.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 32 -c:a libvorbis $outputdir/$slug.vp8.webm");
 
 my $update = $dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ? AND state = 'transcoding' AND progress = 'running'");
 $update->execute($talkid);
