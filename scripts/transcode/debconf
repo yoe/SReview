@@ -123,7 +123,7 @@ my $speakers = $drow->{speakers};
 my $event = $drow->{event};
 my $speakers = $drow->{speakers};
 # VP8
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis$outputdir/$slug.vp8.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" $outputdir/$slug.vp8.webm");
 # VP9
 system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp9 -c:v libvpx-vp9 -crf 32 -b:v 1024k -minrate 512k -maxrate 1485k -c:a libopus -quality good -speed 4 -g 240 -tile-columns 2 -threads 4 $outputdir/$slug.vp9.webm");
