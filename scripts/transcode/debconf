@@ -53,6 +53,9 @@ my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startd
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
+my $title = $drow->{title};
+my $speakers = $drow->{speakers};
+my $event = $drow->{event};
 my $pubdir = $config->{pubdir} . "/video/" . $eid . "/" . substr($drow->{room}, 0, 1);
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
@@ -63,9 +66,7 @@ sub process_template($$) {
 	my $input = shift;
 	my $output = shift;
 	my $outputsvg = "$tmpdir/tmp.svg";
-	my $speakers = xml_escape($drow->{speakers});
 	my $room = xml_escape($drow->{room});
-	my $title = xml_escape($drow->{name});
 	my $subtitle = xml_escape($drow->{subtitle});
 	my $startdate = xml_escape($drow->{startdate});
 	my $apology = xml_escape($drow->{apologynote});
@@ -118,10 +119,6 @@ if( -f "$tmpdir/$slug-sorry.ts") {
 } else {
 	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$pubdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy $outputdir/$slug.ts");
 }
-my $title = $drow->{title};
-my $speakers = $drow->{speakers};
-my $event = $drow->{event};
-my $speakers = $drow->{speakers};
 # VP8
 system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis $outputdir/$slug.vp8.webm");
 system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" $outputdir/$slug.vp8.webm");
