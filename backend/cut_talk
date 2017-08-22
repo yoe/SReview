@@ -59,6 +59,8 @@ my $cutstyle = $config->get('cut_style');
 my $talkid = $ARGV[0];
 die "Need a talk to work on!\n" unless defined($talkid);
 
+$dbh->prepare("UPDATE talks SET progress='running' WHERE id = ? AND state='cutting' AND progress < 'running'");
+
 my $talk_data = $dbh->prepare('SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start');
 my $corrections_data = $dbh->prepare('SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?');
 
@@ -237,7 +239,7 @@ while(<INFO>) {
 close INFO;
 
 # Now update the database
-my $update = $dbh->prepare("UPDATE talks SET state = 'needs_notify', prelen = ?::interval, postlen = ?::interval, mainlen = ?::interval WHERE id = ? AND state = 'cut_pending'");
+my $update = $dbh->prepare("UPDATE talks SET progress = 'done', prelen = ?::interval, postlen = ?::interval, mainlen = ?::interval WHERE id = ? AND state = 'cutting'");
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;
