@@ -597,10 +597,12 @@ CREATE VIEW talk_list AS
     talks.prelen,
     talks.postlen,
     talks.subtitle,
-    talks.apologynote
-   FROM ((rooms
+    talks.apologynote,
+    tracks.name AS track
+   FROM (((rooms
      LEFT JOIN talks ON ((rooms.id = talks.room)))
-     LEFT JOIN events ON ((talks.event = events.id)));
+     LEFT JOIN events ON ((talks.event = events.id)))
+     LEFT JOIN tracks ON ((talks.track = tracks.id)));
 
 
 --

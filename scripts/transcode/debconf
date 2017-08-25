@@ -49,13 +49,15 @@ $talk->execute($talkid);
 my $row = $talk->fetchrow_hashref();
 my $slug = $row->{slug};
 
-my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name, subtitle, apologynote FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name, subtitle, apologynote, track FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
 my $title = $drow->{title};
 my $speakers = $drow->{speakers};
 my $event = $drow->{event};
+my $track = $drow->{track};
+my $startdate = $drow->{startdate};
 my $pubdir = $config->{pubdir} . "/video/" . $eid . "/" . substr($drow->{room}, 0, 1);
 my $outputsub = $config->{outputdir};
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
@@ -68,7 +70,6 @@ sub process_template($$) {
 	my $outputsvg = "$tmpdir/tmp.svg";
 	my $room = xml_escape($drow->{room});
 	my $subtitle = xml_escape($drow->{subtitle});
-	my $startdate = xml_escape($drow->{startdate});
 	my $apology = xml_escape($drow->{apologynote});
 
 	open INPUT, "<$input";
@@ -121,10 +122,10 @@ if( -f "$tmpdir/$slug-sorry.ts") {
 }
 # VP8
 system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis $outputdir/$slug.vp8.webm");
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" $outputdir/$slug.vp8.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -crf 10 -qmin 0 -qmax 20 -b:v 1M -c:a libvorbis -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" -metadata \"track=$track\" -metadata \"date=$startdate\" $outputdir/$slug.vp8.webm");
 # VP9
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp9 -c:v libvpx-vp9 -crf 32 -b:v 1024k -minrate 512k -maxrate 1485k -c:a libopus -quality good -speed 4 -g 240 -tile-columns 2 -threads 4 $outputdir/$slug.vp9.webm");
-system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp9 -c:v libvpx-vp9 -crf 32 -b:v 1024k -minrate 512k -maxrate 1485k -c:a libopus -quality good -speed 2 -g 240 -tile-columns 2 -threads 4 -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" $outputdir/$slug.vp9.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 1 -passlogfile $tmpdir/passlog-vp9 -c:v libvpx-vp9 -crf 32 -b:v 1024k -minrate 512k -maxrate 1485k -c:a libopus -quality good -speed 4 -g 240 -pix_fmt yuv420p -tile-columns 2 -threads 4 $outputdir/$slug.vp9.webm");
+system("ffmpeg -y -i $outputdir/$slug.ts -pass 2 -passlogfile $tmpdir/passlog-vp9 -c:v libvpx-vp9 -crf 32 -b:v 1024k -minrate 512k -maxrate 1485k -c:a libopus -quality good -speed 2 -g 240 -pix_fmt yuv240p -tile-columns 2 -threads 4 -metadata \"title=$title\" -metadata \"event=$event\" -metadata \"language=eng\" -metadata \"speakers=$speakers\" -metadata \"track=$track\" -metadata \"date=$startdate\" $outputdir/$slug.vp9.webm");
 
 my $update = $dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ? AND state = 'transcoding' AND progress = 'running'");
 $update->execute($talkid);
