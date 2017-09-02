@@ -17,15 +17,17 @@ has 'components' => (
 sub readopts {
 	my $self = shift;
 
-	die "refusing to overwrite file " . $self->url . "!\n" if (-f $self->url);
+	if($self->has_pass && $self->pass < 2) {
+		die "refusing to overwrite file " . $self->url . "!\n" if (-f $self->url);
 
-	open CONCAT, ">" . $self->url;
-	foreach my $component(@{$self->components}) {
-		my $input = $component->url;
-		print CONCAT "file '$input'\n";
+		open CONCAT, ">" . $self->url;
+		foreach my $component(@{$self->components}) {
+			my $input = $component->url;
+			print CONCAT "file '$input'\n";
+		}
+		close CONCAT;
+		$self->add_custom('-f', 'concat', '-safe', '0');
 	}
-	close CONCAT;
-	$self->add_custom('-f', 'concat', '-safe', '0');
 	return $self->SReview::Video::readopts();
 }
 

@@ -42,26 +42,43 @@ has 'acopy' => (
 	default => 1,
 );
 
+has 'multipass' => (
+	isa => 'Bool',
+	is => 'rw',
+	default => 0,
+);
+
 sub run {
 	my $self = shift;
+	my $pass;
 
-	my @command = ("ffmpeg", "-y");
+	for($pass = 1; $pass <= ($self->multipass ? 2 : 1); $pass++) {
+		my @command = ("ffmpeg", "-y");
+		foreach my $input(@{$self->inputs}) {
+			if($self->multipass) {
+				$input->pass($pass);
+				$self->output->pass($pass);
+			}
+			push @command, $input->readopts($self->output);
+		}
+		foreach my $map(@{$self->map}) {
+			push @command, "-map", $map;
+		}
+		if($self->vcopy) {
+			push @command, ('-c:v', 'copy');
+		}
+		if($self->acopy) {
+			push @command, ('-c:a', 'copy');
+		}
+		push @command, $self->output->writeopts($self);
+
+		print "Running: '" . join ("' '", @command) . "'\n";
+		system(@command);
+	}
 	foreach my $input(@{$self->inputs}) {
-		push @command, $input->readopts($self->output);
+		$input->clear_pass;
 	}
-	foreach my $map(@{$self->map}) {
-		push @command, "-map", $map;
-	}
-	if($self->vcopy) {
-		push @command, ('-c:v', 'copy');
-	}
-	if($self->acopy) {
-		push @command, ('-c:a', 'copy');
-	}
-	push @command, $self->output->writeopts($self);
-
-	print "Running: '" . join ("' '", @command) . "'\n";
-	system(@command);
+	$self->output->clear_pass;
 }
 
 no Moose;

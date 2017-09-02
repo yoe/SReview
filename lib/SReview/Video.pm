@@ -11,56 +11,46 @@ has 'url' => (
 has 'duration' => (
 	is => 'rw',
 	builder => '_probe_duration',
-	predicate => 'has_duration',
 	lazy => 1,
 );
 has 'video_codec' => (
 	is => 'rw',
 	builder => '_probe_videocodec',
-	predicate => 'has_video_codec',
 	lazy => 1,
 );
 has 'audio_codec' => (
 	is => 'rw',
 	builder => '_probe_audiocodec',
-	predicate => 'has_audio_codec',
 	lazy => 1,
 );
 has 'video_size' => (
 	is => 'rw',
 	builder => '_probe_videosize',
-	predicate => 'has_video_size',
 	lazy => 1,
 );
 has 'video_bitrate' => (
 	is => 'rw',
 	builder => '_probe_videobitrate',
-	predicate => 'has_video_bitrate',
 	lazy => 1,
 );
 has 'audio_bitrate' => (
 	is => 'rw',
 	builder => '_probe_audiobitrate',
-	predicate => 'has_audio_bitrate',
 	lazy => 1,
 );
 has 'audio_samplerate' => (
 	is => 'rw',
 	builder => '_probe_audiorate',
-	predicate => 'has_audio_samplerate',
 	lazy => 1,
 );
 has 'video_framerate' => (
 	is => 'rw',
 	builder => '_probe_framerate',
-	predicate => 'has_video_framerate',
 	lazy => 1,
 );
 has 'fragment_start' => (
 	is => 'rw',
-	default => '0',
 	predicate => 'has_fragment_start',
-	lazy => 1,
 );
 has 'profile' => (
 	is => 'rw',
@@ -93,8 +83,12 @@ has 'reference' => (
 has 'pix_fmt' => (
 	is => 'rw',
 	builder => '_probe_pix_fmt',
-	predicate => 'has_pix_fmt',
 	lazy => 1,
+);
+has 'pass' => (
+	is => 'rw',
+	predicate => 'has_pass',
+	clearer => 'clear_pass',
 );
 
 ## The below exist to help autodetect sizes, and are not meant for the end user
@@ -114,7 +108,7 @@ has 'probedata' => (
 	is => 'bare',
 	reader => '_get_probedata',
 	builder => '_probe',
-	clearer => '_clear_probedata',
+	clearer => 'clear_probedata',
 	lazy => 1,
 );
 
@@ -135,34 +129,37 @@ sub writeopts {
 	my @opts = ();
 
 	if(!$pipe->vcopy) {
-		if($self->has_video_codec) {
+		if(defined($self->video_codec)) {
 			push @opts, ('-c:v', $self->video_codec);
 		}
-		if($self->has_video_bitrate) {
+		if(defined($self->video_bitrate)) {
 			push @opts, ('-b:v', $self->video_bitrate . "k", '-minrate', $self->video_bitrate * .5 . "k", '-maxrate', $self->video_bitrate * 1.45 . "k");
 		}
-		if($self->has_video_framerate) {
+		if(defined($self->video_framerate)) {
 			push @opts, ('-r:v', $self->video_framerate);
+		}
+		if($self->has_pass) {
+			push @opts, ('-pass', $self->pass, '-passlogfile', $self->url . '-multipass');
 		}
 	}
 	if(!$pipe->acopy) {
-		if($self->has_audio_codec) {
+		if(defined($self->audio_codec)) {
 			push @opts, ('-c:a', $self->audio_codec);
 		}
-		if($self->has_audio_bitrate) {
+		if(defined($self->audio_bitrate)) {
 			push @opts, ('-b:a', $self->audio_bitrate);
 		}
-		if($self->has_audio_samplerate) {
+		if(defined($self->audio_samplerate)) {
 			push @opts, ('-ar', $self->audio_samplerate);
 		}
 	}
 	if($self->has_fragment_start) {
 		push @opts, ('-ss', $self->fragment_start);
 	}
-	if($self->has_duration) {
+	if(defined($self->duration)) {
 		push @opts, ('-t', $self->duration);
 	}
-	if($self->has_pix_fmt) {
+	if(defined($self->pix_fmt)) {
 		push @opts, ('-pix_fmt', $self->pix_fmt);
 	}
 	if($self->has_metadata) {
@@ -186,7 +183,9 @@ sub _probe_duration {
 sub _probe_framerate {
 	my $self = shift;
 	my $framerate = $self->_get_videodata->{r_frame_rate};
-	$framerate =~ s/^([0-9]+).*/$1/g;
+	if(defined($framerate)) {
+		$framerate =~ s/^([0-9]+).*/$1/g;
+	}
 	return $framerate;
 }
 
@@ -242,6 +241,9 @@ sub _probe {
 
 sub _probe_audiodata {
 	my $self = shift;
+	if(!exists($self->_get_probedata->{streams})) {
+		return {};
+	}
 	foreach my $stream(@{$self->_get_probedata->{streams}}) {
 		if($stream->{codec_type} eq "audio") {
 			return $stream;
@@ -251,6 +253,9 @@ sub _probe_audiodata {
 
 sub _probe_videodata {
 	my $self = shift;
+	if(!exists($self->_get_probedata->{streams})) {
+		return {};
+	}
 	foreach my $stream(@{$self->_get_probedata->{streams}}) {
 		if($stream->{codec_type} eq "video") {
 			return $stream;
