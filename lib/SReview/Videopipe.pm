@@ -16,6 +16,7 @@ has 'inputs' => (
 
 has 'output' => (
 	is => 'rw',
+	isa => 'SReview::Video';
 	required => 1,
 );
 
