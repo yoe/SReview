@@ -33,12 +33,12 @@ low-priority jobs. When using gridengine, this can be done by creating
 two queues, where the high-priority queue has a `subordinate_queues`
 configuration set.
 
-## Webinterface
+## Web interface
 
 If human review is required, a web interface needs to be running. This is
 implemented in Mojolicious. Since it stores all state in the database
-and in cookies, it should be possible to run multiple instances of the
-web interface, although this has not been tested.
+and in (encrypted) cookies, it should be possible to run multiple
+instances of the web interface, although this has not been tested.
 
 ## Job dispatcher
 
@@ -139,10 +139,15 @@ credits (based on an SVG template after a simple sed-like replacement of
 a few key words), appends closing credits (based on either a similar SVG
 template or a static PNG file), and then transcodes the whole resulting
 file into high-quality output files that will be released to the general
-public.
+public. Optionally, it will also add an "apology" slide just after the
+opening credits; this is designed for cases where minor but
+uncorrectable technical issues exist with the recordings (e.g., a
+microphone buzz, or the loss of some but not all of the recorded data),
+and allows to show a "We are sorry for the inconvenience" type of slide,
+so that viewers know what's going on.
 
-It may take a long time to complete (usually several seconds per second
-of recorded time), and should probably do a two-pass transcode, too.
+This script may take a long time to complete (usually several seconds
+per second of recorded time), and usually does a two-pass transcode.
 
 It is designed to be run in the `transcoding` state.
 
