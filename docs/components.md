@@ -46,6 +46,11 @@ The `dispatch` script watches the database for new work, and submits
 jobs in the scheduler that will handle them. It needs to run for as long
 as work is being performed.
 
+Currently it polls the database every 10 seconds, but long-term plans
+are for it to use [Mojo::Pg](https://metacpan.org/pod/Mojo::Pg) and
+PostgreSQL [asynchronous
+notification](https://www.postgresql.org/docs/9.6/static/sql-listen.html).
+
 ## File detection
 
 The `detect_files` script needs to be run from cron every so often. It
@@ -66,6 +71,9 @@ already exists in the database.
 After files are added to the database, the script will run a few SQL
 `UPDATE` statements so the review process will be started for talks for
 which all recordings are available.
+
+Future plans are for `detect_files` to be rewritten so it (optionally)
+uses the Linux `inotify` API to detect when file contents is modified.
 
 ## Per-state scripts
 
