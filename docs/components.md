@@ -16,7 +16,7 @@ There can be only one SReview database per instance.
 ## Scheduler
 
 Theoretically speaking, SReview does not require a distributed resource
-maanger (DRM), but using it without one has not been tested at all. It
+manager (DRM), but using it without one has not been tested at all. It
 may magically work, but it is quite likely that it does not work.
 
 To use SReview, the use of a DRM is therefore strongly recommended. For
@@ -35,10 +35,10 @@ configuration set.
 
 ## Webinterface
 
-If human review is required, a webinterface needs to be running. This is
+If human review is required, a web interface needs to be running. This is
 implemented in Mojolicious. Since it stores all state in the database
 and in cookies, it should be possible to run multiple instances of the
-webinterface, although this has not been tested.
+web interface, although this has not been tested.
 
 ## Job dispatcher
 
@@ -163,7 +163,7 @@ Two versions exist here too, but they are very similar.
 
 At FOSDEM 2017, SReview was installed on the following machines:
 
-- review.video.fosdem.org: webinterface, postgresql, gridengine master,
+- review.video.fosdem.org: web interface, postgresql, gridengine master,
   gridengine exec, dispatch script
 - encoder0.video.fosdem.org, encoder1.video.fosdem.org, ...: gridengine
   exec, encoder nodes
@@ -177,7 +177,7 @@ to the database and the raw files was LAN-based and therefore quick.
 
 At DebConf17, SReview was installed on the following machines:
 
-- vittoria.debian.org: webinterface, postgresql, gridengine master,
+- vittoria.debian.org: web interface, postgresql, gridengine master,
   gridengine exec, dispatch script with configuration for upload and
   notification *only* (upload script would pull from noc1st0 first and
   then publish).
