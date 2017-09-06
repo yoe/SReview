@@ -105,3 +105,7 @@ edit the files in the web/templates directory.
 
 If you have any issues with SReview, please file an issue (or better
 yet, a pull request) on the github issue tracker.
+
+# Further reading
+
+See the [documentation](docs/)
