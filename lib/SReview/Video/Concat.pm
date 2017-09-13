@@ -14,6 +14,10 @@ has 'components' => (
 	},
 );
 
+has '+duration' => (
+	builder => '_build_duration',
+);
+
 sub readopts {
 	my $self = shift;
 
@@ -29,6 +33,15 @@ sub readopts {
 		$self->add_custom('-f', 'concat', '-safe', '0');
 	}
 	return $self->SReview::Video::readopts();
+}
+
+sub _build_duration {
+	my $self = shift;
+	my $rv = 0;
+	foreach my $component(@{$self->components}) {
+		$rv += $component->duration;
+	}
+	return $rv;
 }
 
 no Moose;
