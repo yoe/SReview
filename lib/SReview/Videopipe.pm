@@ -49,6 +49,41 @@ has 'multipass' => (
 	default => 0,
 );
 
+has 'progress' => (
+	isa => 'CodeRef',
+	is => 'ro',
+	predicate => 'has_progress',
+);
+
+sub run_progress {
+	my $self = shift;
+	my $command = shift;
+	my ($in, $out, $err);
+	my $running;
+	my @lines;
+	my $old_perc = 0;
+	my %vals;
+
+	my $length = $self->inputs->[0]->duration * 1000000;
+	shift @$command;
+	unshift @$command, ('ffmpeg', '-progress', '/dev/stdout');
+	open my $ffmpeg, "-|", @{$command};
+	while(<$ffmpeg>) {
+		/^(\w+)=(.*)$/;
+		$vals{$1} = $2;
+		if($1 eq 'progress') {
+			my $perc = int($vals{out_time_ms} / $length * 100);
+			if($vals{progress} eq 'end') {
+				$perc = 100;
+			}
+			if($perc != $old_perc) {
+				$old_perc = $perc;
+				&{$self->progress}($perc);
+			}
+		}
+	}
+}
+
 sub run {
 	my $self = shift;
 	my $pass;
@@ -74,7 +109,11 @@ sub run {
 		push @command, $self->output->writeopts($self);
 
 		print "Running: '" . join ("' '", @command) . "'\n";
-		system(@command);
+		if($self->has_progress) {
+			$self->run_progress(\@command);
+		} else {
+			system(@command);
+		}
 	}
 	foreach my $input(@{$self->inputs}) {
 		$input->clear_pass;
