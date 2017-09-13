@@ -51,128 +51,21 @@ function formitems(which) {
 		disableval = true;
 	}
 	$('#comment_text').prop("disabled", disableval);
+	if(which === 'standard') {
+		$('#length_adj').value = sreview_viddata.get_length_adjust();
+		$('#offset_start').value = sreview_viddata.geet_start_offset();
+	}
 }
-function startPointPre() {
+function setPoint(vid, startstop, time) {
+	sreview_viddata.set_point(vid, startstop, time);
+	$('standard').checked = true;
 	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var SAl = sreview_viddata.corrvals.offset_start;
-	if(!SAl) {
-		SAl = 0;
-	}
-	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = LAl + (sreview_viddata.prelen - Tv1);
-	var SAn = SAl - (sreview_viddata.prelen - Tv1);
-	sreview_viddata.startpoint = 0 - (sreview_viddata.prelen - Tv1);
-	if(sreview_viddata.endpoint) {
-		LAn += sreview_viddata.endpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
-	document.getElementById("offset_start").value = SAn;
-};
-function endPointPre() {
-	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var Tv1 = document.getElementById("video-pre").currentTime;
-	var LAn = LAl - sreview_viddata.mainlen - (sreview_viddata.prelen - Tv1);
-	sreview_viddata.endpoint = 0 - sreview_viddata.mainlen - (sreview_viddata.prelen - Tv1);
-	if(sreview_viddata.startpoint) {
-		LAn -= sreview_viddata.startpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
-};
-function startPointMain() {
-	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var SAl = sreview_viddata.corrvals.offset_start;
-	if(!SAl) {
-		SAl = 0;
-	}
-	var Tv2 = document.getElementById("video-main").currentTime;
-	var LAn = LAl - Tv2;
-	var SAn = SAl + Tv2;
-	sreview_viddata.startpoint = Tv2;
-	if(sreview_viddata.endpoint) {
-		LAn += sreview_viddata.endpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
-	document.getElementById("offset_start").value = SAn;
-};
-function endPointMain() {
-	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var Tv2 = document.getElementById("video-main").currentTime;
-	var LAn = LAl - (sreview_viddata.mainlen - Tv2);
-	sreview_viddata.endpoint = Tv2 - sreview_viddata.mainlen;
-	if(sreview_viddata.startpoint) {
-		LAn -= sreview_viddata.startpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
-};
-function startPointPost() {
-	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var SAl = sreview_viddata.corrvals.offset_start;
-	if(!SAl) {
-		SAl = 0;
-	}
-	var Tv3 = document.getElementById("video-post").currentTime;
-	var LAn = LAl - sreview_viddata.mainlen - Tv3;
-	var SAn = SAl + sreview_viddata.mainlen + Tv3;
-	sreview_viddata.startpoint = sreview_viddata.mainlen + Tv3;
-	if(sreview_viddata.endpoint) {
-		LAn += sreview_viddata.endpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
-	document.getElementById("offset_start").value = SAn;
-};
-function endPointPost() {
-	formitems('standard');
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	var Tv3 = document.getElementById("video-post").currentTime;
-	var LAn = LAl + Tv3;
-	sreview_viddata.endpoint = Tv3;
-	if(sreview_viddata.startpoint) {
-		LAn -= sreview_viddata.startpoint;
-	}
-	document.getElementById("standard").checked = true;
-	document.getElementById("length_adj").value = LAn;
 };
 function edit_offset_start(val) {
-	var SAl = sreview_viddata.corrvals.offset_start;
-	if(!SAl) {
-		SAl = 0;
-	}
-	sreview_viddata.startpoint = val - SAl;
+	sreview_viddata.set_start_offset(val);
 };
 function edit_length_adj(val) {
-	var LAl = sreview_viddata.corrvals.length_adj;
-	if(!LAl) {
-		LAl = 0;
-	}
-	sreview_viddata.endpoint = val - LAl;
+	sreview_viddata.set_length_adj(val);
 };
 </script>
 <p>This video is for the talk entitled <q><strong><%= $talk_title %></strong></q> by <strong><%= $talk_speakers %></strong> which happened in room <strong><%= $room %></strong> from <strong><%= $talk_start %></strong> to <strong><%= $talk_end %></strong> at <strong><%= $event %></strong></p>
@@ -183,16 +76,16 @@ function edit_length_adj(val) {
     <p>In case it is needed (and they were recorded), these are the 20 minutes before...:</p>
     <div class="embed-responsive embed-responsive-16by9"><video id="video-pre" class="embed-responsive-item" controls="controls" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-pre.webm"></video></div>
     <div class="btn-group btn-group-justified">
-      <div class="btn-group"><button class="btn" onclick='startPointPre();'>Take start point</button></div>
-      <div class="btn-group"><button class="btn" onclick='endPointPre();'>Take end point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('pre', 'start', $('#video-pre').currentTime);">Take start point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('pre', 'end', $('#video-pre').currentTime);">Take end point</button></div>
     </div>
   </div>
   <div class="col-sm-6">
     <p>... and after this talk:</p>
     <div class="embed-responsive embed-responsive-16by9"><video id="video-post" class="embed-responsive-item" controls="controls" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>-post.webm"></video></div>
     <div class="btn-group btn-group-justified">
-      <div class="btn-group"><button class="btn" onclick='startPointPost();'>Take start point</button></div>
-      <div class="btn-group"><button class="btn" onclick='endPointPost();'>Take end point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('post', 'start', $('#video-post').currentTime);">Take start point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('post', 'end', $('#video-post').currentTime);">Take end point</button></div>
     </div>
   </div>
 </div>
@@ -201,8 +94,8 @@ function edit_length_adj(val) {
     <p>Main video:</p>
     <div class="embed-responsive embed-responsive-16by9"><video id="video-main" class="embed-responsive-item" controls="controls" autoplay="autoplay" src="https://<%= $vid_hostname %>/video/<%= $eventid %>/<%= substr($room, 0, 1)%>/<%= $slug %>.webm"></video></div>
     <div class="btn-group btn-group-justified">
-      <div class="btn-group"><button class="btn" onclick='startPointMain();'>Take start point</button></div>
-      <div class="btn-group"><button class="btn" onclick='endPointMain();'>Take end point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('main', 'start', $('video-main').currentTime);">Take start point</button></div>
+      <div class="btn-group"><button class="btn" onclick="setPoint('main', 'end', $('video-main').currentTime);">Take end point</button></div>
     </div>
   </div>
 </div>
