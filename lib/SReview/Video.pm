@@ -183,9 +183,6 @@ sub _probe_duration {
 sub _probe_framerate {
 	my $self = shift;
 	my $framerate = $self->_get_videodata->{r_frame_rate};
-	if(defined($framerate)) {
-		$framerate =~ s/^([0-9]+).*/$1/g;
-	}
 	return $framerate;
 }
 
