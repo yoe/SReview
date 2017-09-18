@@ -45,7 +45,10 @@ find_event;
 
 app->secrets($config->{secrets});
 
-helper dbh => sub { return $dbh; };
+helper dbh => sub {
+	$dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
+	return $dbh;
+};
 
 my $version;
 
@@ -482,7 +485,7 @@ group {
 	get '/' => sub {
 		my $c = shift;
 		$c->stash(email => $c->session->{email});
-		my $st = $dbh->prepare("SELECT DISTINCT rooms.id, rooms.name FROM rooms LEFT JOIN talks ON rooms.id = talks.room WHERE talks.event = ?");
+		my $st = $c->dbh->prepare("SELECT DISTINCT rooms.id, rooms.name FROM rooms LEFT JOIN talks ON rooms.id = talks.room WHERE talks.event = ?");
 		$st->execute($config->{eventid});
 		my $rooms = [['All rooms' => '', selected => 'selected']];
 		while(my $row = $st->fetchrow_arrayref) {
