@@ -60,6 +60,24 @@ sub get {
 	}
 };
 
+sub set {
+	my $self = shift;
+	my %vals = @_;
+
+	foreach my $name(keys %vals) {
+		if(! exists($self->{defs}{$name})) {
+			croak "Configuration value $name is not defined yet";
+		}
+	}
+}
+
+sub describe {
+	my $self = shift;
+	my $conf = shift;
+
+	return $self->{defs}{$conf}{doc};
+}
+
 sub dump {
 	my $self = shift;
 	foreach my $conf(keys %{$self->{defs}}) {
