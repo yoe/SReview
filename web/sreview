@@ -23,27 +23,45 @@ use warnings;
 use Mojolicious::Lite;
 use Mojo::Collection 'c';
 use Mojo::JSON qw(encode_json);
+use SReview::Config;
+use SReview::Config::Common;
+use SReview::Db;
 use DBI;
 
-our $config;
-require './config.pl';
+#our $config;
+#require './config.pl';
 
-die if $config->{secrets}[0] eq "_INSECURE_DEFAULT_REPLACE_ME_";
+my $dir = $ENV{SREVIEW_WDIR};
+$dir = '' if (!defined($dir));
+my $cfile = join('/', '.', $dir, 'config.pm');
+my $config = SReview::Config->new($cfile);
+my $eventid = undef;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
+SReview::Config::Common::setup($config);
+
+$config->define("secret", "A random secret key, used to encrypt the cookies. Leaking this will break your security!", "_INSECURE_DEFAULT_REPLACE_ME_");
+$config->define("event", "The default event to handle in the webinterface", undef);
+$config->define("vid_prefix", "The URL prefix to be used for video data files", "");
+$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
+
+die "Need to configure secrets!" if $config->get("secret") eq "_INSECURE_DEFAULT_REPLACE_ME_";
+
+SReview::Db::init($config);
+
+my $dbh = DBI->connect($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!\n";
 
 sub find_event {
 	my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
-	$st->execute($config->{event}) or die "Could not find event!\n";
+	$st->execute($config->get("event")) or die "Could not find event!\n";
 	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
-		die if exists($config->{eventid});
-		$config->{eventid} = $row->{id};
+		die if defined($eventid);
+		$eventid = $row->{id};
 	}
 }
 
 find_event;
 
-app->secrets($config->{secrets});
+app->secrets([$config->get("secret")]);
 
 helper dbh => sub {
 	$dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
@@ -177,8 +195,8 @@ get '/review/:nonce' => sub {
 	$c->stash(talk_start => $row->{starttime});
 	$c->stash(talk_end => $row->{endtime});
 	$c->stash(slug => $row->{slug});
-	$c->stash(event => $config->{event});
-	$c->stash(eventid => $config->{eventid});
+	$c->stash(event => $config->get("event"));
+	$c->stash(eventid => $eventid);
 	$c->stash(room => $row->{room});
 	$c->stash(state => $row->{state});
 	$c->stash(corrections => $viddata);
@@ -186,7 +204,7 @@ get '/review/:nonce' => sub {
 	$c->stash(target => "talk_update");
 	$c->stash(layout => 'default');
 	$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
-	$c->stash(vid_hostname => $config->{vid_hostname});
+	$c->stash(vid_hostname => $config->get("vid_prefix"));
 } => 'talk';
 
 get '/released' => sub {
@@ -204,7 +222,7 @@ get '/released' => sub {
 get '/overview' => sub {
 	my $c = shift;
 	my $st;
-	if($config->{anonreviews}) {
+	if($config->get("anonreviews")) {
 		$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
 	} else {
 		$st = $c->dbh->prepare('SELECT name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
@@ -224,13 +242,13 @@ get '/overview' => sub {
 	$expls{'broken'} = 'Review found problems, administrator required';
 	$expls{'needs_work'} = 'Fixable problems exist, manual intervention required';
 	$expls{'lost'} = 'Nonfixable problems exist, talk lost';
-	$st->execute($config->{eventid}) or die;
-	$tot->execute($config->{eventid}) or die;
+	$st->execute($eventid) or die;
+	$tot->execute($eventid) or die;
 	$c->stash(title => 'Video status overview');
 	$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'End time', 'State', 'Progress' ]);
 	$c->stash(tottitrow => [ 'State', 'Count', 'State meaning']);
 	my $rows = $st->fetchall_arrayref;
-	if($config->{anonreviews}) {
+	if($config->get("anonreviews")) {
 		my $newrows = [];
 		foreach my $row(@$rows) {
 			my $nonce = shift @$row;
@@ -344,10 +362,10 @@ group {
 
 		if(defined($c->session->{room})) {
 			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
-			$st->execute($config->{eventid}, $c->session->{room});
+			$st->execute($eventid, $c->session->{room});
 		} else {
 			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
-			$st->execute($config->{eventid});
+			$st->execute($eventid);
 		}
 		while(my $row = $st->fetchrow_hashref("NAME_lc")) {
 			if ($row->{'room'} ne $lastroom) {
@@ -414,8 +432,8 @@ group {
 		$c->stash(talk_start => $row->{starttime});
 		$c->stash(talk_end => $row->{endtime});
 		$c->stash(slug => $row->{slug});
-		$c->stash(event => $config->{event});
-		$c->stash(eventid => $config->{eventid});
+		$c->stash(event => $config->get("event"));
+		$c->stash(eventid => $eventid);
 		$c->stash(room => $row->{room});
 		$c->stash(state => $row->{state});
 		$c->stash(comments => $row->{comments});
@@ -424,7 +442,7 @@ group {
 		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
 		$c->stash(type => "admin");
 		$c->stash(apology => $row->{apologynote});
-		$c->stash(vid_hostname => $config->{vid_hostname});
+		$c->stash(vid_hostname => $config->get("vid_prefix"));
 		$c->render(template => 'talk');
 	} => 'admin_talk';
 
@@ -486,7 +504,7 @@ group {
 		my $c = shift;
 		$c->stash(email => $c->session->{email});
 		my $st = $c->dbh->prepare("SELECT DISTINCT rooms.id, rooms.name FROM rooms LEFT JOIN talks ON rooms.id = talks.room WHERE talks.event = ?");
-		$st->execute($config->{eventid});
+		$st->execute($eventid);
 		my $rooms = [['All rooms' => '', selected => 'selected']];
 		while(my $row = $st->fetchrow_arrayref) {
 			push @$rooms, [$row->[1] => $row->[0]];
