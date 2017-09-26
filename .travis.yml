@@ -6,5 +6,4 @@ perl:
   - "5.26"
 sudo: true
 install:
-  - sudo add-apt-repository ppa:mc3man/trusty-media -y
-  - sudo apt-get install ffmpeg
+  - sudo add-apt-repository ppa:mc3man/trusty-media -y && sudo apt-get update && sudo apt-get install ffmpeg
