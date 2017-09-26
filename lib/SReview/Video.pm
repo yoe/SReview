@@ -13,6 +13,10 @@ has 'duration' => (
 	builder => '_probe_duration',
 	lazy => 1,
 );
+has 'duration_style' => (
+	is => 'rw',
+	default => 'seconds',
+);
 has 'video_codec' => (
 	is => 'rw',
 	builder => '_probe_videocodec',
@@ -157,7 +161,11 @@ sub writeopts {
 		push @opts, ('-ss', $self->fragment_start);
 	}
 	if(defined($self->duration)) {
-		push @opts, ('-t', $self->duration);
+		if($self->duration_style eq 'seconds') {
+			push @opts, ('-t', $self->duration);
+		} else {
+			push @opts, ('-frames:v', $self->duration);
+		}
 	}
 	if(defined($self->pix_fmt)) {
 		push @opts, ('-pix_fmt', $self->pix_fmt);
