@@ -89,7 +89,7 @@ sub run {
 	my $pass;
 
 	for($pass = 1; $pass <= ($self->multipass ? 2 : 1); $pass++) {
-		my @command = ("ffmpeg", "-y");
+		my @command = ("ffmpeg", "-loglevel", "warning", "-y");
 		foreach my $input(@{$self->inputs}) {
 			if($self->multipass) {
 				$input->pass($pass);
