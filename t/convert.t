@@ -19,7 +19,7 @@ SKIP: {
 
 	my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
 	isa_ok($input, 'SReview::Video');
-	my $output = SReview::Video->new(url => 't/testvids/1sec.webm', video_codec => 'libvpx-vp9', audio_codec => 'libopus', duration => 1);
+	my $output = SReview::Video->new(url => 't/testvids/1sec.webm', video_codec => 'libvpx-vp9', audio_codec => 'libopus', duration => 1, audio_bitrate => '128k');
 	isa_ok($output, 'SReview::Video');
 	my $pipe = SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0);
 	isa_ok($pipe, 'SReview::Videopipe');
