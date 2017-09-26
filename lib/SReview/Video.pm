@@ -70,15 +70,6 @@ has 'metadata' => (
 	},
 	predicate => 'has_metadata',
 );
-has 'custom_opts' => (
-	traits => ['Array'],
-	isa => 'ArrayRef[Str]',
-	is => 'ro',
-	handles => {
-		add_custom => 'push',
-	},
-	predicate => 'has_custom_opts',
-);
 has 'reference' => (
 	isa => 'SReview::Video',
 	is => 'ro',
@@ -120,9 +111,6 @@ sub readopts {
 	my $self = shift;
 	my @opts = ();
 
-	if($self->has_custom_opts) {
-		push @opts, @{$self->custom_opts};
-	}
 	push @opts, ("-i", $self->url);
 	return @opts;
 }
@@ -174,9 +162,6 @@ sub writeopts {
 		foreach my $meta(keys %{$self->metadata}) {
 			push @opts, ('-metadata', $meta . '=' . $self->metadata->{$meta});
 		}
-	}
-	if($self->has_custom_opts) {
-		push @opts, @{$self->custom_opts};
 	}
 	push @opts, $self->url;
 
