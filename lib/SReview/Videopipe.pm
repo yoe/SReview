@@ -87,6 +87,20 @@ sub run_progress {
 sub run {
 	my $self = shift;
 	my $pass;
+	my @attrs = (
+		'video_codec' => 'vcopy',
+		'video_size' => 'vcopy',
+		'video_width' => 'vcopy',
+		'video_height' => 'vcopy',
+		'video_bitrate' => 'vcopy',
+		'video_framerate' => 'vcopy',
+		'pix_fmt' => 'vcopy',
+		'audio_codec' => 'acopy',
+		'audio_bitrate' => 'acopy',
+		'audio_samplerate' => 'acopy',
+	);
+	my @video_attrs = ('video_codec', 'video_size', 'video_width', 'video_height', 'video_bitrate', 'video_framerate', 'pix_fmt');
+	my @audio_attrs = ('audio_codec', 'audio_bitrate', 'audio_samplerate');
 
 	for($pass = 1; $pass <= ($self->multipass ? 2 : 1); $pass++) {
 		my @command = ("ffmpeg", "-loglevel", "warning", "-y");
@@ -94,6 +108,16 @@ sub run {
 			if($self->multipass) {
 				$input->pass($pass);
 				$self->output->pass($pass);
+			}
+			while(scalar(@attrs) > 0) {
+				my $attr = shift @attrs;
+				my $target = shift @attrs;
+				next unless $self->meta->get_attribute($target)->get_value($self);
+				my $oval = $self->output->meta->get_attribute($attr)->get_value($self->output);
+				my $ival = $input->meta->get_attribute($attr)->get_value($input);
+				if(defined($oval) && $ival ne $oval) {
+					$self->meta->get_attribute($target)->set_value($self, 0);
+				}
 			}
 			push @command, $input->readopts($self->output);
 		}
