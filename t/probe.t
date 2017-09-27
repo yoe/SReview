@@ -7,10 +7,6 @@ use Test::More tests => 12;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 
-open WFFP, 'which ffprobe|';
-
-my $ffprobe = <WFFP>;
-
 my $vid = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
 isa_ok($vid, 'SReview::Video');
 ok($vid->duration == 22.894867, 'video duration probed correctly');
