@@ -7,8 +7,7 @@ my $db;
 
 sub selfdestruct {
 	my $where = shift;
-	print "ofo\n";
-	$db->migrations->migrate($where);
+	return $db->migrations->migrate($where);
 }
 
 sub init {
@@ -357,7 +356,7 @@ DROP VIEW mailers;
 DROP VIEW last_room_files;
 DROP VIEW raw_talks;
 EOF
-	$db->migrations->migrate;
+	return $db->migrations->migrate;
 }
 
 1;

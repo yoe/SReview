@@ -4,7 +4,15 @@ perl:
   - "5.20"
   - "5.24"
   - "5.26"
+services:
+  - postgresql
+addons:
+  postgresql: "9.6"
 sudo: true
+env:
+  - SREVIEW_TESTDB=sreview
 install:
   - sudo add-apt-repository ppa:mc3man/trusty-media -y && sudo apt-get update && sudo apt-get install ffmpeg
   - cpanm --quiet --installdeps --notest .
+before_script:
+  - psql -c "create database $SREVIEW_TESTDB;" -U postgres
