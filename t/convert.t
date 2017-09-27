@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More tests => 10;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 
