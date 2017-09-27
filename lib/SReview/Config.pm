@@ -68,6 +68,10 @@ sub set {
 		if(! exists($self->{defs}{$name})) {
 			croak "Configuration value $name is not defined yet";
 		}
+		{
+			my $val = $vals{$name};
+			$SReview::Config::_private::{$name} = \$val;
+		}
 	}
 }
 
