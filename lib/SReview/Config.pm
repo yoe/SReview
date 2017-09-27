@@ -84,11 +84,14 @@ sub describe {
 
 sub dump {
 	my $self = shift;
+	my $rv = "";
 	foreach my $conf(keys %{$self->{defs}}) {
-		print "# " . $self->{defs}{$conf}{doc} . "\n";
-		print "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
+		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
+		$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
 	}
-	print "# Do not remove this, perl needs it\n1;\n";
+	$rv .= "# Do not remove this, perl needs it\n1;\n";
+
+	return $rv;
 };
 
 1;
