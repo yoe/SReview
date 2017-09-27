@@ -16,3 +16,17 @@ isa_ok($config, 'SReview::Config');
 $val = '';
 $config = SReview::Config->new('t/test.cf');
 ok(length($val) == 0, 'loading an existing config file succeeds and prints no warning');
+
+$config->define('test', 'testingk', undef);
+my $rv = $config->dump();
+my @expect = ("# testingk", "#\$test = undef;", "# Do not remove this, perl needs it", "1;");
+my $ok = 1;
+foreach my $line(split /\n/, $rv) {
+	next unless length($line);
+	my $expline = shift @expect;
+	if($expline ne $line) {
+		$ok = 0;
+	}
+}
+ok($ok, "Config dump output is as expected");
+ok($config->describe('test') eq 'testingk', "Description of configuration value is as expected");
