@@ -31,6 +31,17 @@ has 'video_size' => (
 	is => 'rw',
 	builder => '_probe_videosize',
 	lazy => 1,
+	predicate => 'has_video_size',
+);
+has 'video_width' => (
+	is => 'rw',
+	builder => '_probe_width',
+	lazy => 1,
+);
+has 'video_height' => (
+	is => 'rw',
+	builder => '_probe_height',
+	lazy => 1,
 );
 has 'video_bitrate' => (
 	is => 'rw',
@@ -196,7 +207,28 @@ sub _probe_audiocodec {
 
 sub _probe_videosize {
 	my $self = shift;
-	return $self->_get_videodata->{width} . "x" . $self->_get_videodata->{height};
+	my $width = $self->video_width;
+	my $height = $self->video_height;
+	return undef unless defined($width) && defined($height);
+	return $self->video_width . "x" . $self->video_height;
+}
+
+sub _probe_width {
+	my $self = shift;
+	if($self->has_video_size) {
+		return (split /x/, $self->video_size)[0];
+	} else {
+		return $self->_get_videodata->{width};
+	}
+}
+
+sub _probe_height {
+	my $self = shift;
+	if($self->has_video_size) {
+		return (split /x/, $self->video_size)[1];
+	} else {
+		return $self->_get_videodata->{height};
+	}
 }
 
 sub _probe_videobitrate {

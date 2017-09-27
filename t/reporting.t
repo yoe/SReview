@@ -9,7 +9,7 @@ use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 
 my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
-my $output = SReview::Video->new(url => 't/testvids/out.ts');
+my $output = SReview::Video->new(url => 't/testvids/out.ts', video_codec => 'mpeg2video');
 
 my $old_perc;
 my $ok = 1;
@@ -24,7 +24,7 @@ sub progress {
 	$old_perc = $perc;
 }
 
-my $pipe = SReview::Videopipe->new(inputs => [$input], output => $output, progress => \&progress);
+my $pipe = SReview::Videopipe->new(inputs => [$input], output => $output, progress => \&progress, vcopy => 0, acopy => 0);
 
 isa_ok($pipe, 'SReview::Videopipe');
 
