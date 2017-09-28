@@ -58,6 +58,8 @@ has 'progress' => (
 sub run_progress {
 	my $self = shift;
 	my $command = shift;
+	my $pass = shift;
+	my $multipass = shift;
 	my ($in, $out, $err);
 	my $running;
 	my @lines;
@@ -75,6 +77,12 @@ sub run_progress {
 			my $perc = int($vals{out_time_ms} / $length * 100);
 			if($vals{progress} eq 'end') {
 				$perc = 100;
+			}
+			if($multipass) {
+				$perc = int($perc / 2);
+			}
+			if($pass == 2) {
+				$perc += 50;
 			}
 			if($perc != $old_perc) {
 				$old_perc = $perc;
@@ -134,7 +142,7 @@ sub run {
 
 		print "Running: '" . join ("' '", @command) . "'\n";
 		if($self->has_progress) {
-			$self->run_progress(\@command);
+			$self->run_progress(\@command, $pass, $self->multipass);
 		} else {
 			system(@command);
 		}
