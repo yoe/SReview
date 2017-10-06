@@ -21,7 +21,7 @@ has '+duration' => (
 sub readopts {
 	my $self = shift;
 
-	if($self->has_pass && $self->pass < 2) {
+	if(($self->has_pass && $self->pass < 2) || !$self->has_pass) {
 		die "refusing to overwrite file " . $self->url . "!\n" if (-f $self->url);
 
 		open CONCAT, ">" . $self->url;
@@ -30,9 +30,9 @@ sub readopts {
 			print CONCAT "file '$input'\n";
 		}
 		close CONCAT;
-		$self->add_custom('-f', 'concat', '-safe', '0');
 	}
-	return $self->SReview::Video::readopts();
+
+	return ('-f', 'concat', '-safe', '0', $self->SReview::Video::readopts());
 }
 
 sub _build_duration {
