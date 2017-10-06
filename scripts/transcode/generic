@@ -130,14 +130,8 @@ if( -f "$tmpdir/$slug-sorry.ts") {
 	push @$inputs, $sorry;
 }
 push @$inputs, ( $main, $post );
-#	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug-sorry.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adstoasc $outputdir/$slug.mp4");
-#} else {
-#	system("ffmpeg -y -i \"concat:$tmpdir/$slug-preroll.ts|$tmpdir/$slug.ts|$tmpdir/$slug-postroll.ts\" -c copy -bsf:a aac_adtstoasc $outputdir/$slug.mp4");
-#}
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
 my $pipe = SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug.webm"), vcopy => 0, acopy => 0, multipass => 1)->run();
-#system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 1 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
-#system("ffmpeg -y -i $outputdir/$slug.mp4 -pass 2 -passlogfile $tmpdir/passlog-vp8 -c:v libvpx -c:a libvorbis $outputdir/$slug.vp8.webm");
 
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_data'");
 $update->execute($talkid);
