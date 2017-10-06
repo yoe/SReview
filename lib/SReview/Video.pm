@@ -48,6 +48,11 @@ has 'video_bitrate' => (
 	builder => '_probe_videobitrate',
 	lazy => 1,
 );
+has 'aspect_ratio' => (
+	is => 'rw',
+	builder => '_probe_aspect_ratio',
+	lazy => 1,
+);
 has 'audio_bitrate' => (
 	is => 'rw',
 	builder => '_probe_audiobitrate',
@@ -244,6 +249,11 @@ sub _probe_audiobitrate {
 sub _probe_pix_fmt {
 	my $self = shift;
 	return $self->_get_videodata->{pix_fmt}
+}
+
+sub _probe_aspect_ratio {
+	my $self = shift;
+	return $self->_get_videodata->{display_aspect_ratio};
 }
 
 sub _probe {
