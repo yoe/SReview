@@ -248,7 +248,7 @@ sub _probe_audiobitrate {
 
 sub _probe_pix_fmt {
 	my $self = shift;
-	return $self->_get_videodata->{pix_fmt}
+	return $self->_get_videodata->{pix_fmt};
 }
 
 sub _probe_aspect_ratio {
