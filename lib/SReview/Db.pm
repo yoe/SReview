@@ -355,7 +355,15 @@ DROP VIEW talk_list;
 DROP VIEW mailers;
 DROP VIEW last_room_files;
 DROP VIEW raw_talks;
+-- 5 up
+INSERT INTO properties(name, description, helptext) VALUES('length_adj', 'Length adjustment', 'Set a relative adjustment value for the talk here, specified in seconds. To shorten the talk length, enter a negative value; to increase the talk length, enter a positive value');
+INSERT INTO properties(name, description, helptext) VALUES('offset_audio', 'Audio offset', 'Use for fixing A/V sync issues. Positive delays audio, negative delays video. Seconds; may be fractional.');
+INSERT INTO properties(name, description, helptext) VALUES('audio_channel', 'Audio channel', 'Use 0 for the main channel, 1 for the alternate channel, or 2 for both channels mixed together');
+INSERT INTO properties(name, description, helptext) VALUES('offset_start', 'Time offset', 'Use to adjust the time position of this talk. Negative values move the start to earlier in time, positive to later. Note that both start and end position are updated; if the end should not be updated, make sure to also set the "Length adjustment" value. Seconds; may be fractional.');
+-- 5 down
+DELETE FROM properties WHERE name IN ('length_adj', 'offset_audio', 'audio_channel', 'offset_start');
 EOF
+
 	return $db->migrations->migrate;
 }
 
