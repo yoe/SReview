@@ -132,9 +132,10 @@ if( -f "$tmpdir/$slug-sorry.ts") {
 }
 push @$inputs, ( $main, $post );
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
-my $profile = SReview::Video::ProfileFactory->create($input, "vp9");
-my $pipe = SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug.webm", reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
-
+foreach my $profile_str(@$config->{output_profiles}) {
+	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
+	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
+}
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
 $update->execute($talkid);
 $dbh->commit;
