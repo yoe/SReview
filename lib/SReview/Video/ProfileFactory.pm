@@ -98,6 +98,11 @@ sub _probe_width {
 	return int($self->reference->video_width / 8);
 }
 
+sub _probe_videosize {
+	my $self = shift;
+	return $self->video_width . "x" . $self->video_height;
+}
+
 sub _probe_videocodec {
 	return "libvpx";
 }

@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 use_ok('SReview::Video');
-#use_ok('SReview::VideoPipe');
+use_ok('SReview::Videopipe');
 use_ok('SReview::Video::ProfileFactory');
 
 my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
@@ -26,5 +26,13 @@ $output = SReview::Video->new(url => "t/testvids/foo.webm", reference => $profil
 ok(defined($output), "Could create an output video from the LQ profile");
 ok($output->video_height < $input->video_height, "The LQ profile creates smaller videos");
 ok($output->video_codec eq "libvpx", "A VP8 video has the correct video codec");
+
+my $pipe = SReview::Videopipe->new(inputs => [$input], output => $output);
+ok(defined($pipe), "We can create a video pipe from a profiled output file");
+$pipe->run();
+
+my $check = SReview::Video->new(url => $output->url);
+ok(-f $output->url, "Creating a profiled video creates output");
+ok($check->video_height eq $output->video_height, "Creating a scaled video produces smaller output") or diag($check->video_height, " is not the same as ", $output->video_height);
 
 done_testing();
