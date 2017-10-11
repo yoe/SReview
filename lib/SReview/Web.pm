@@ -1,6 +1,7 @@
 package SReview::Web;
 
 use Mojo::Base 'Mojolicious';
+use Mojo::Collection 'c';
 use SReview::Config;
 use SReview::Config::Common;
 use SReview::Db;
