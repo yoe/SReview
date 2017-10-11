@@ -72,9 +72,10 @@ has 'fragment_start' => (
 	is => 'rw',
 	predicate => 'has_fragment_start',
 );
-has 'profile' => (
+has 'quality' => (
 	is => 'rw',
-	trigger => \&_profile_set,
+	builder => '_probe_quality',
+	lazy => 1,
 );
 has 'metadata' => (
 	traits => ['Hash'],
@@ -146,6 +147,10 @@ sub writeopts {
 		if(defined($self->video_framerate)) {
 			push @opts, ('-r:v', $self->video_framerate);
 		}
+		if(defined($self->quality)) {
+			push @opts, ('-crf', $self->quality);
+		}
+		push @opts, ('-speed', $self->speed);
 		if($self->has_pass) {
 			push @opts, ('-pass', $self->pass, '-passlogfile', $self->url . '-multipass');
 		}
@@ -293,6 +298,14 @@ sub _probe_videodata {
 			return $stream;
 		}
 	}
+}
+
+sub _probe_quality {
+	return undef;
+}
+
+sub speed {
+	return 4;
 }
 
 no Moose;
