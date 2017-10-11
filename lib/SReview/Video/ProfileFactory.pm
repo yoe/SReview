@@ -8,10 +8,6 @@ has '+reference' => (
 	required => 1,
 );
 
-sub _probe_audiobitrate {
-	return "128k";
-}
-
 package SReview::Video::Profile::vp9;
 
 use Moose;
@@ -55,6 +51,10 @@ sub _probe_videobitrate {
 	} else {
 		return $rates_30{$self->video_height};
 	}
+}
+
+sub _probe_audiobitrate {
+	return "128k";
 }
 
 sub _probe_quality {
@@ -108,7 +108,11 @@ sub _probe_videocodec {
 }
 
 sub _probe_audiocodec {
-	return "vorbis";
+	return "libvorbis";
+}
+
+sub _probe_audiobitrate {
+	return undef;
 }
 
 no Moose;
