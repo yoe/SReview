@@ -191,32 +191,50 @@ sub writeopts {
 
 sub _probe_duration {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->duration;
+	}
 	return $self->_get_probedata->{format}{duration};
 }
 
 sub _probe_framerate {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_framerate;
+	}
 	my $framerate = $self->_get_videodata->{r_frame_rate};
 	return $framerate;
 }
 
 sub _probe_audiorate {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_samplerate;
+	}
 	return $self->_get_audiodata->{sample_rate};
 }
 
 sub _probe_videocodec {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_codec;
+	}
 	return $self->_get_videodata->{codec_name};
 }
 
 sub _probe_audiocodec {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_codec;
+	}
 	return $self->_get_audiodata->{codec_name};
 }
 
 sub _probe_videosize {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_size;
+	}
 	my $width = $self->video_width;
 	my $height = $self->video_height;
 	return undef unless defined($width) && defined($height);
@@ -225,6 +243,9 @@ sub _probe_videosize {
 
 sub _probe_width {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_width;
+	}
 	if($self->has_video_size) {
 		return (split /x/, $self->video_size)[0];
 	} else {
@@ -234,6 +255,9 @@ sub _probe_width {
 
 sub _probe_height {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_height;
+	}
 	if($self->has_video_size) {
 		return (split /x/, $self->video_size)[1];
 	} else {
@@ -243,21 +267,33 @@ sub _probe_height {
 
 sub _probe_videobitrate {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_bitrate;
+	}
 	return $self->_get_videodata->{bit_rate};
 }
 
 sub _probe_audiobitrate {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_bitrate;
+	}
 	return $self->_get_audiodata->{bit_rate};
 }
 
 sub _probe_pix_fmt {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->pix_fmt;
+	}
 	return $self->_get_videodata->{pix_fmt};
 }
 
 sub _probe_aspect_ratio {
 	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->aspect_ratio;
+	}
 	return $self->_get_videodata->{display_aspect_ratio};
 }
 
