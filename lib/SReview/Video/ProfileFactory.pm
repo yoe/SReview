@@ -8,11 +8,21 @@ has '+reference' => (
 	required => 1,
 );
 
+has 'exten' => (
+	lazy => 1,
+	is => 'ro',
+	default => 'IEK -- extension not defined',
+);
+
 package SReview::Video::Profile::vp9;
 
 use Moose;
 
 extends 'SReview::Video::Profile::Base';
+
+has '+exten' => (
+	default => 'vp9.webm'
+);
 
 my %rates_30 = (
 	240 => 150,
@@ -82,11 +92,39 @@ sub _probe_audiocodec {
 
 no Moose;
 
-package SReview::Video::Profile::vp8_lq;
+package SReview::Video::Profile::vp8;
 
 use Moose;
 
 extends 'SReview::Video::Profile::Base';
+
+has '+exten' => (
+	default => 'vp8.webm',
+);
+
+sub _probe_videocodec {
+	return "libvpx";
+}
+
+sub _probe_audiocodec {
+	return "libvorbis";
+}
+
+sub _probe_audiobitrate {
+	return undef;
+}
+
+no Moose;
+
+package SReview::Video::Profile::vp8_lq;
+
+use Moose;
+
+extends 'SReview::Video::Profile::vp8';
+
+has '+exten' => (
+	default => 'lq.webm',
+);
 
 sub _probe_height {
 	my $self = shift;
@@ -101,18 +139,6 @@ sub _probe_width {
 sub _probe_videosize {
 	my $self = shift;
 	return $self->video_width . "x" . $self->video_height;
-}
-
-sub _probe_videocodec {
-	return "libvpx";
-}
-
-sub _probe_audiocodec {
-	return "libvorbis";
-}
-
-sub _probe_audiobitrate {
-	return undef;
 }
 
 no Moose;

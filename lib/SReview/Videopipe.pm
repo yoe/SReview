@@ -130,8 +130,10 @@ sub run {
 			push @command, $input->readopts($self->output);
 		}
 		if(!$self->vcopy()) {
-			if($self->inputs->[0]->video_size ne $self->output->video_size) {
-				push @command, ("-vf", "scale=" . $self->output->video_size);
+			my $isize = $self->inputs->[0]->video_size;
+			my $osize = $self->output->video_size;
+			if(defined($isize) && defined($osize) && $isize ne $osize) {
+				push @command, ("-vf", "scale=" . $osize);
 			}
 		}
 		foreach my $map(@{$self->map}) {

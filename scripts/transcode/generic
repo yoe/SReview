@@ -27,6 +27,7 @@ use File::Temp qw/tempdir/;
 use SReview::Video;
 use SReview::Video::PNGGen;
 use SReview::Video::Concat;
+use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
 use Mojo::Util qw/xml_escape/;
 
@@ -131,8 +132,9 @@ if( -f "$tmpdir/$slug-sorry.ts") {
 }
 push @$inputs, ( $main, $post );
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
-my $pipe = SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug.webm"), vcopy => 0, acopy => 0, multipass => 1)->run();
+my $profile = SReview::Video::ProfileFactory->create($input, "vp9");
+my $pipe = SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug.webm", reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
 
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'generating_data'");
+my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
 $update->execute($talkid);
 $dbh->commit;
