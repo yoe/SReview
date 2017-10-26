@@ -361,7 +361,7 @@ sub _probe_framerate {
 =head2 fragment_start
 
 If set, this instructs SReview on read to only read a particular part of the
-video from this file. Should be specified in seconds.
+video from this file. Should be specified in seconds; will not be probed.
 
 =cut
 
@@ -373,7 +373,7 @@ has 'fragment_start' => (
 =head2 quality
 
 The quality used for the video encoding, i.e., the value passed to the C<-crf>
-parameter. Mostly for use by a profile.
+parameter. Mostly for use by a profile. Will not be probed.
 
 =cut
 
@@ -395,7 +395,7 @@ sub _probe_quality {
 
 Can be used to set video metadata (as per C<ffmpeg>'s C<-metadata>
 parameter). Functions C<add_metadata> and C<drop_metadata> can be used
-to add or remove individual metedata values.
+to add or remove individual metedata values. Will not be probed.
 
 =cut
 
@@ -419,6 +419,8 @@ object.
 
 Can be used in "build a file almost like this one, but with these things
 different" kind of scenarios.
+
+Will not be probed (obviously).
 
 =cut
 
