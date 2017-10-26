@@ -1,82 +1,404 @@
 package SReview::Video;
 
+our $VERSION = "0.1";
+
+=head1 NAME
+
+SReview::Video - SReview internal representation of an asset
+
+=head1 SYNOPSIS
+
+  use SReview::Video;
+  use SReview::Video::ProfileFactory;
+  use SReview::Videopipe;
+
+  # convert any input file to VP9 at recommended settings for vertical resolution and frame rate
+  my $input = SReview::Video->new(url => $input_filename);
+  my $profile = SReview::Video::ProfileFactory->new("vp9", $input);
+  my $output = SReview::Video->new(url => $output_filename, reference => $profile);
+  SReview::Videopipe->new(inputs => [$input], output => $output)->run();
+
+  # do that again; but this time, force vorbis audio:
+  $output->audio_codec("libvorbis");
+  SReview::Videopipe->new(inputs => [$input], output => $output)->run();
+
+=head1 DESCRIPTION
+
+The SReview::Video package is used to represent media assets inside
+SReview. It is a C<Moose>-based base class for much of the other Video*
+classes in SReview.
+
+There is one required attribute, C<url>, which represents the filename
+of the video (however, for SReview::Video::NGinX, it should be an HTTP
+URL instead).
+
+If the C<url> attribute points to an existing file and an attempt is
+made to read any of the codec, framerate, bit rate, or similar
+attributes (without explicitly writing to them first), then
+C<SReview::Video> will call C<ffprobe> on the file in question, and use
+that to populate the requested attributes. If it does not, or C<ffprobe>
+is incapable of detecting the requested attribute (which may be the case
+for things like audio or video bitrate), then the attribute in question
+will resolve to C<undef>.
+
+If the C<url> attribute does not point to an existing file and an
+attempt is made to read any of the codec, framerate, bit rate, or
+similar attributes (without explicitly writing to them first), then they
+will resolve to C<undef>. However, if the C<reference> attribute is
+populated with another C<SReview::Video> object, then reading any of the
+codec, framerate, bit rate, or similar attributes (without explicitly
+writing to them first) will resolve to the value of the requested
+attribute that is set or detected on the C<reference> object.
+
+The return value of C<SReview::Video::ProfileFactory-E<gt>create()> is
+also an SReview::Video object, but with different implementations of
+some of the probing methods; this allows it to choose the correct values
+for things like bitrate and encoder speed based on properties set in the
+input object provided to the
+C<SReview::Video::ProfileFactory-E<gt>create()> method.
+
+For more information on how to use the files referred to in the
+C<SReview::Video> object in an ffmpeg command line, please see
+C<SReview::Videopipe>.
+
+=head1 ATTRIBUTES
+
+The following attributes are supported by SReview::Video. All attributes
+will be probed from ffprobe output unless noted otherwise.
+
+=cut
+
 use Mojo::JSON qw(decode_json);
 
 use Moose;
+
+=head2 url
+
+The filename of the asset this object should deal with. Required at
+construction time. Will not be probed.
+
+=cut
 
 has 'url' => (
 	is => 'rw',
 	required => 1,
 );
+
+=head2 duration
+
+The duration of this asset.
+
+=cut
+
 has 'duration' => (
 	is => 'rw',
 	builder => '_probe_duration',
 	lazy => 1,
 );
+
+sub _probe_duration {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->duration;
+	}
+	return $self->_get_probedata->{format}{duration};
+}
+
+=head2 duration_style
+
+The time unit is used for the C<duration> attribute. One of 'seconds'
+(default) or 'frames'. Will not be probed.
+
+=cut
+
 has 'duration_style' => (
 	is => 'rw',
 	default => 'seconds',
 );
+
+=head2 video_codec
+
+The codec in use for the video stream. Note that C<ffprobe> will
+sometimes use a string (e.g., "vp8") that is not the best choice when
+instructing C<ffmpeg> to transcode video to the said codec (for vp8, the
+use of "libvpx" is recommended). No attempt is made (yet?) by
+C<SReview::Video> to filter this out.
+
+=cut
+
 has 'video_codec' => (
 	is => 'rw',
 	builder => '_probe_videocodec',
 	lazy => 1,
 );
+
+sub _probe_videocodec {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_codec;
+	}
+	return $self->_get_videodata->{codec_name};
+}
+
+=head2 audio_codec
+
+The codec in use for the audio stream. Note that C<ffprobe> will
+sometimes use a string (e.g., "vorbis") that is not the best choice when
+instructing C<ffmpeg> to transcode audio to the said codec (for vorbis,
+the use of "libvorbis" is recommended). No attempt is made (yet?) by
+C<SReview::Video> to filter this out.
+
+=cut
+
 has 'audio_codec' => (
 	is => 'rw',
 	builder => '_probe_audiocodec',
 	lazy => 1,
 );
+
+sub _probe_audiocodec {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_codec;
+	}
+	return $self->_get_audiodata->{codec_name};
+}
+
+=head2 video_size
+
+A string representing the resolution of the video in C<WxH> format,
+where W is the width and H is the height.
+
+This attribute is special in that in contrast to all the other
+attributes, it is not provided directly by C<ffprobe>; instead, when
+this parameter is read, the C<video_width> and C<video_height>
+attributes are read and combined.
+
+That does mean that you should not read this attribute, and based on
+that possibly set the height and/or width attributes of a video (or vice
+versa). Instead, you should read I<either> the C<video_width> and
+C<video_height> attribute, I<or> this one.
+
+Failure to follow this rule will result in undefined behaviour.
+
+=cut
+
 has 'video_size' => (
 	is => 'rw',
 	builder => '_probe_videosize',
 	lazy => 1,
 	predicate => 'has_video_size',
 );
+
+sub _probe_videosize {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_size;
+	}
+	my $width = $self->video_width;
+	my $height = $self->video_height;
+	return undef unless defined($width) && defined($height);
+	return $self->video_width . "x" . $self->video_height;
+}
+
+=head2 video_width
+
+The width of the video, in pixels.
+
+=cut
+
 has 'video_width' => (
 	is => 'rw',
 	builder => '_probe_width',
 	lazy => 1,
 );
+
+sub _probe_width {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_width;
+	}
+	if($self->has_video_size) {
+		return (split /x/, $self->video_size)[0];
+	} else {
+		return $self->_get_videodata->{width};
+	}
+}
+
+=head2 video_height
+
+The height of the video, in pixels.
+
+=cut
+
 has 'video_height' => (
 	is => 'rw',
 	builder => '_probe_height',
 	lazy => 1,
 );
+
+sub _probe_height {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_height;
+	}
+	if($self->has_video_size) {
+		return (split /x/, $self->video_size)[1];
+	} else {
+		return $self->_get_videodata->{height};
+	}
+}
+
+=head2 video_bitrate
+
+The bit rate of this video, in bits per second.
+
+Note that not all container formats support probing the bitrate of the
+encoded video or audio; when read on input objects with those that do
+not, this will resolve to C<undef>.
+
+=cut
+
 has 'video_bitrate' => (
 	is => 'rw',
 	builder => '_probe_videobitrate',
 	lazy => 1,
 );
+
+sub _probe_videobitrate {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_bitrate;
+	}
+	return $self->_get_videodata->{bit_rate};
+}
+
+=head2 aspect_ratio
+
+The Display Aspect Ratio of a video. Note that with non-square pixels,
+this is not guaranteed to be what one would expect when reading the
+C<video_size> attribute.
+
+=cut
+
 has 'aspect_ratio' => (
 	is => 'rw',
 	builder => '_probe_aspect_ratio',
 	lazy => 1,
 );
+
+sub _probe_aspect_ratio {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->aspect_ratio;
+	}
+	return $self->_get_videodata->{display_aspect_ratio};
+}
+
+=head2 audio_bitrate
+
+The bit rate of the audio stream on this video, in bits per second
+
+=cut
+
 has 'audio_bitrate' => (
 	is => 'rw',
 	builder => '_probe_audiobitrate',
 	lazy => 1,
 );
+
+sub _probe_audiobitrate {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_bitrate;
+	}
+	return $self->_get_audiodata->{bit_rate};
+}
+
+=head2 audio_samplerate
+
+The sample rate of the audio, in samples per second
+
+=cut
+
 has 'audio_samplerate' => (
 	is => 'rw',
 	builder => '_probe_audiorate',
 	lazy => 1,
 );
+
+sub _probe_audiorate {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->audio_samplerate;
+	}
+	return $self->_get_audiodata->{sample_rate};
+}
+
+=head2 video_framerate
+
+The frame rate of the video, as a fraction.
+
+Note that in the weird US frame rate, this could be 30000/1001.
+
+=cut
+
 has 'video_framerate' => (
 	is => 'rw',
 	builder => '_probe_framerate',
 	lazy => 1,
 );
+
+sub _probe_framerate {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_framerate;
+	}
+	my $framerate = $self->_get_videodata->{r_frame_rate};
+	return $framerate;
+}
+
+=head2 fragment_start
+
+If set, this instructs SReview on read to only read a particular part of the
+video from this file. Should be specified in seconds.
+
+=cut
+
 has 'fragment_start' => (
 	is => 'rw',
 	predicate => 'has_fragment_start',
 );
+
+=head2 quality
+
+The quality used for the video encoding, i.e., the value passed to the C<-crf>
+parameter. Mostly for use by a profile.
+
+=cut
+
 has 'quality' => (
 	is => 'rw',
 	builder => '_probe_quality',
 	lazy => 1,
 );
+
+sub _probe_quality {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->quality;
+	}
+	return undef;
+}
+
+=head2 metadata
+
+Can be used to set video metadata (as per C<ffmpeg>'s C<-metadata>
+parameter). Functions C<add_metadata> and C<drop_metadata> can be used
+to add or remove individual metedata values.
+
+=cut
+
 has 'metadata' => (
 	traits => ['Hash'],
 	isa => 'HashRef[Str]',
@@ -87,16 +409,46 @@ has 'metadata' => (
 	},
 	predicate => 'has_metadata',
 );
+
+=head2 reference
+
+If set to any C<SReview::Video> object, then when any value is being
+probed, rather than trying to run C<ffprobe> on the file pointed to by
+our C<url> attribute, we will use the value reported by the referenced
+object.
+
+Can be used in "build a file almost like this one, but with these things
+different" kind of scenarios.
+
+=cut
+
 has 'reference' => (
 	isa => 'SReview::Video',
 	is => 'ro',
 	predicate => 'has_reference',
 );
+
+=head2 pix_fmt
+
+The pixel format (e.g., C<yuv420p> or the likes) of the video.
+
+=cut
+
 has 'pix_fmt' => (
 	is => 'rw',
 	builder => '_probe_pix_fmt',
 	lazy => 1,
 );
+
+sub _probe_pix_fmt {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->pix_fmt;
+	}
+	return $self->_get_videodata->{pix_fmt};
+}
+
+# Only to be used by the Videopipe class when doing multiple passes
 has 'pass' => (
 	is => 'rw',
 	predicate => 'has_pass',
@@ -189,114 +541,6 @@ sub writeopts {
 	return @opts;
 }
 
-sub _probe_duration {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->duration;
-	}
-	return $self->_get_probedata->{format}{duration};
-}
-
-sub _probe_framerate {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_framerate;
-	}
-	my $framerate = $self->_get_videodata->{r_frame_rate};
-	return $framerate;
-}
-
-sub _probe_audiorate {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->audio_samplerate;
-	}
-	return $self->_get_audiodata->{sample_rate};
-}
-
-sub _probe_videocodec {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_codec;
-	}
-	return $self->_get_videodata->{codec_name};
-}
-
-sub _probe_audiocodec {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->audio_codec;
-	}
-	return $self->_get_audiodata->{codec_name};
-}
-
-sub _probe_videosize {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_size;
-	}
-	my $width = $self->video_width;
-	my $height = $self->video_height;
-	return undef unless defined($width) && defined($height);
-	return $self->video_width . "x" . $self->video_height;
-}
-
-sub _probe_width {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_width;
-	}
-	if($self->has_video_size) {
-		return (split /x/, $self->video_size)[0];
-	} else {
-		return $self->_get_videodata->{width};
-	}
-}
-
-sub _probe_height {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_height;
-	}
-	if($self->has_video_size) {
-		return (split /x/, $self->video_size)[1];
-	} else {
-		return $self->_get_videodata->{height};
-	}
-}
-
-sub _probe_videobitrate {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->video_bitrate;
-	}
-	return $self->_get_videodata->{bit_rate};
-}
-
-sub _probe_audiobitrate {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->audio_bitrate;
-	}
-	return $self->_get_audiodata->{bit_rate};
-}
-
-sub _probe_pix_fmt {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->pix_fmt;
-	}
-	return $self->_get_videodata->{pix_fmt};
-}
-
-sub _probe_aspect_ratio {
-	my $self = shift;
-	if($self->has_reference) {
-		return $self->reference->aspect_ratio;
-	}
-	return $self->_get_videodata->{display_aspect_ratio};
-}
-
 sub _probe {
 	my $self = shift;
 
@@ -334,10 +578,6 @@ sub _probe_videodata {
 			return $stream;
 		}
 	}
-}
-
-sub _probe_quality {
-	return undef;
 }
 
 sub speed {
