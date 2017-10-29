@@ -116,7 +116,6 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	process_template($config->{apology_template}, $apology);
 	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $main_input);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
-	#system("ffmpeg -y -loop 1 -i $apology -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-sorry.ts");
 }
 
 # concatenate preroll, main video, postroll
