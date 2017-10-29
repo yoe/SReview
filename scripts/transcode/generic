@@ -107,27 +107,27 @@ if ( ! -f $postroll ) {
 	print "reusing $postroll\n";
 }
 
-my $main_input = SReview::Video->new(url => "$pubdir/$slug.ts");
+my $main_input = SReview::Video->new(url => "$pubdir/$slug.mkv");
 
 my $apology = $pubdir . "/$slug-sorry.png";
 my $sorry;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	die unless exists($config->{apology_template});
 	process_template($config->{apology_template}, $apology);
-	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.ts", reference => $main_input);
+	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $main_input);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
 	#system("ffmpeg -y -loop 1 -i $apology -c:v libx264 -pix_fmt yuv420p -framerate 25 -frames:v 125 $tmpdir/$slug-sorry.ts");
 }
 
 # concatenate preroll, main video, postroll
-my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.ts", reference => $main_input, duration => 5);
+my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.mkv", reference => $main_input, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
-my $main = SReview::Video->new(url => "$tmpdir/$slug.ts");
+my $main = SReview::Video->new(url => "$tmpdir/$slug.mkv");
 SReview::Videopipe->new(inputs => [$main_input], output => $main)->run();
-my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.ts", reference => $main_input, duration => 5);
+my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.mkv", reference => $main_input, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
 my $inputs = [ $pre ];
-if( -f "$tmpdir/$slug-sorry.ts") {
+if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
 }
 push @$inputs, ( $main, $post );
