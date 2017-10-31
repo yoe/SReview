@@ -11,7 +11,7 @@ has 'input' => (
 has 'type' => (
 	isa => 'Str',
 	is => 'rw',
-	default => 'audio',
+	default => 'channel',
 );
 
 has 'choice' => (
@@ -25,7 +25,7 @@ sub arguments($$) {
 	my $index = shift;
 	my $stream_id;
 
-	if($self->type eq "audio") {
+	if($self->type eq "channel") {
 		if($self->choice eq "both") {
 			return ('-ac', '1');
 		}
@@ -38,10 +38,14 @@ sub arguments($$) {
 			# other choices exist?!?
 			...
 		}
-	} else {
-		# Not sure whether video mapping will be useful; if so,
-		# we'll implement it then.
-		...
+	} elsif($self->type eq "stream") {
+		if($self->choice eq 'audio') {
+			return ('-map', "$index:a");
+		} elsif($self->choice eq 'video') {
+			return ('-map', "$index:v");
+		} else {
+			...
+		}
 	}
 }
 
