@@ -450,6 +450,42 @@ sub _probe_pix_fmt {
 	return $self->_get_videodata->{pix_fmt};
 }
 
+=head2 astream_id
+
+Returns the numeric ID for the first audio stream in this file. Useful for the
+implementation of stream mappings etc; see C<SReview::Map>
+
+=cut
+
+has 'astream_id' => (
+	is => 'rw',
+	builder => '_probe_astream_id',
+	lazy => 1,
+);
+
+sub _probe_astream_id {
+	my $self = shift;
+	return $self->_get_audiodata->{index};
+}
+
+=head2 vstream_id
+
+Returns the numeric ID for the first video stream in this file. Useful
+for the implementation of stream mappings etc; see C<SReview::Map>
+
+=cut
+
+has 'vstream_id' => (
+	is => 'rw',
+	builder => '_probe_vstream_id',
+	lazy => 1,
+);
+
+sub _probe_vstream_id {
+	my $self = shift;
+	return $self->_get_videodata->{index};
+}
+
 # Only to be used by the Videopipe class when doing multiple passes
 has 'pass' => (
 	is => 'rw',

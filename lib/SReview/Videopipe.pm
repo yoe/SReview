@@ -23,7 +23,7 @@ has 'output' => (
 has 'map' => (
 	traits => ['Array'],
 	is => 'ro',
-	isa => 'ArrayRef[Str]',
+	isa => 'ArrayRef[SReview::Map]',
 	default => sub {[]},
 	clearer => 'clear_map',
 	handles => {
@@ -137,7 +137,14 @@ sub run {
 			}
 		}
 		foreach my $map(@{$self->map}) {
-			push @command, "-map", $map;
+			my $in_map = $map->input;
+			my $index;
+			for(my $i=0; $i<=$#{$self->inputs}; $i++) {
+				if($in_map == ${$self->inputs}[$i]) {
+					$index = $i;
+				}
+			}
+			push @command, $map->arguments($index);
 		}
 		if($self->vcopy) {
 			push @command, ('-c:v', 'copy');
