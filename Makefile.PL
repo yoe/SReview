@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
 	NAME	=> "SReview",
-	VERSION => "0.1",
+	VERSION_FROM => "lib/SReview.pm",
 	PREREQ_PM => {
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,

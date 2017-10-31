@@ -3,4 +3,6 @@ package SReview;
 use strict;
 use warnings;
 
-use DBI;
+our $VERSION;
+
+$VERSION = "0.1";
