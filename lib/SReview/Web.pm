@@ -3,6 +3,7 @@ package SReview::Web;
 use Mojo::Base 'Mojolicious';
 use Mojo::Collection 'c';
 use Mojo::JSON qw(encode_json);
+use SReview;
 use SReview::Config;
 use SReview::Config::Common;
 use SReview::Db;
@@ -50,10 +51,13 @@ sub startup {
 		if(defined $rv) {
 			return $rv;
 		}
-		open GIT, "git describe --tags --dirty|";
+		open GIT, "git describe --tags --dirty 2>/dev/null|";
 		$rv = <GIT>;
-		chomp $rv;
 		close GIT;
+		if(!defined $rv) {
+			return $SReview::VERSION;
+		}
+		chomp $rv;
 		return $rv;
 	});
 
