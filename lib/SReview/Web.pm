@@ -40,6 +40,9 @@ sub startup {
 		push @{$self->static->paths}, "./public";
 		push @{$self->renderer->paths}, "./templates";
 	}
+	if(defined($config->get("pubdir"))) {
+		push @{$self->static->paths}, $config->get("pubdir");
+	}
 
 	$self->helper(dbh => sub {
 		state $dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
