@@ -44,6 +44,11 @@ sub _build_duration {
 	return $rv;
 }
 
+sub _probe {
+	my $self = shift;
+	return $self->components->[0]->_get_probedata;
+}
+
 no Moose;
 
 1;
