@@ -1,0 +1,174 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+use File::Temp qw/tempdir/;
+use File::Path qw/make_path/;
+use SReview::Map;
+use SReview::Video;
+use SReview::Video::Concat;
+use SReview::Videopipe;
+
+our $config;
+require './config.pl';
+
+my $tempdir = tempdir("cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $talkid = $ARGV[0];
+
+$dbh->begin_work;
+
+my $started = $dbh->prepare("UPDATE talks SET progress='running', state='cutting' WHERE id=?");
+$started->execute($talkid);
+
+$dbh->commit;
+
+$dbh->begin_work;
+
+my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
+my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
+$corrections_data->execute($talkid);
+
+my %corrections;
+my @segments_pre;
+my @segments_main;
+my @segments_post;
+
+while(my $row = $corrections_data->fetchrow_hashref()) {
+	my $name = $row->{property};
+	my $val = $row->{property_value};
+	$corrections{$name} = $val;
+}
+
+foreach my $prop ("offset_start", "length_adj", "offset_audio") {
+	if(!exists($corrections{$prop})) {
+		$corrections{$prop} = 0;
+	}
+}
+
+if(!exists($corrections{audio_channel})) {
+	$corrections{audio_channel} = 0;
+}
+
+$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
+
+my $prelen = 0;
+my $mainlen = 0;
+my $postlen = 0;
+
+while(my $row = $talk_data->fetchrow_hashref()) {
+	my $start;
+	my $stop;
+	my $target;
+	my $segments;
+
+	next if ($row->{raw_length_corrected} <= 0);
+	if($row->{talkid} == -1) {
+		$target = "pre";
+		$segments = \@segments_pre;
+		if($prelen == 0 && $corrections{offset_audio} > 0) {
+			if($row->{fragment_start} > 0) {
+				$row->{fragment_start} -= ($corrections{offset_audio} > $row->{fragment_start} ? $row->{fragment_start} : $corrections{offset_audio});
+			}
+		}
+		$prelen += $row->{raw_length_corrected};
+	} elsif($row->{talkid} == -2) {
+		$target = "post";
+		$segments = \@segments_post;
+		$postlen += $row->{raw_length_corrected};
+	} else {
+		$target = "main";
+		$segments = \@segments_main;
+		$mainlen += $row->{raw_length_corrected};
+	}
+	my $input = SReview::Video->new(url => $row->{raw_filename});
+	my $output = SReview::Video->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv");
+	if($row->{fragment_start} ne '0') {
+		$output->fragment_start($row->{fragment_start});
+	}
+	if($row->{raw_length} ne $row->{raw_length_corrected}) {
+		$output->duration($row->{raw_length});
+	}
+	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+	push @$segments, SReview::Video->new(url => $output->url);
+}
+
+my $full_input = SReview::Video::Concat->new(url => "$tempdir/full.txt", components => [@segments_pre, @segments_main, @segments_post]);
+my $full_output = SReview::Video->new(url => "$tempdir/full.mkv");
+
+SReview::Videopipe->new(inputs => [$full_input], output => $full_output)->run();
+
+my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$eventname->execute($talkid);
+my $row = $eventname->fetchrow_hashref();
+my $workdir = $config->{pubdir} . "/video/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+make_path($workdir);
+my $outname = "$workdir/" . $row->{slug};
+
+# Extract the correct audio
+my $full = SReview::Video->new(url => $full_output->url);
+my $map = SReview::Map->new(input => $full);
+
+if(exists($corrections{audio_channel})) {
+	if($corrections{audio_channel} == 1) {
+		$map->choice('right');
+	} elsif($corrections{audio_channel} == 2) {
+		$map->choice('both');
+	}
+}
+
+my $full_wav = SReview::Video->new(url => "$tempdir/full.wav");
+SReview::Videopipe->new(inputs => [$full], output => $full_wav, "map" => [$map], acopy => 0, vcopy => 0)->run();
+
+# If necessary, fickle with A/V sync values
+if($corrections{offset_audio} != 0) {
+	if($corrections{offset_audio} > 0) {
+		# Delay audio by cutting off some of the video at the start
+		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.mkv", fragment_start => $corrections{offset_audio});
+		$prelen -= $corrections{offset_audio};
+		if($prelen < 0) {
+			$mainlen -= abs($prelen);
+			$prelen = 0;
+		}
+		SReview::Videopipe->new(inputs => [$full], output => $full_corrected)->run();
+		unlink("$tempdir/full.mkv");
+		rename("$tempdir/full-new.mkv", "$tempdir/full.mkv");
+	} else {
+		# Delay video by cutting off some of the audio at the start
+		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.wav", fragment_start => abs($corrections{offset_audio}));
+		$postlen -= abs($corrections{offset_audio});
+		if($postlen < 0) {
+			$mainlen -= abs($postlen);
+			$postlen = 0;
+		}
+		SReview::Videopipe->new(inputs => [$full_wav], output => $full_corrected)->run();
+		unlink("$tempdir/full.wav");
+		rename("$tempdir/full-new.wav", "$tempdir/full.wav");
+	}
+}
+
+# Now split and merge the full video and audio files back into three video files with the audio reattached
+my $map_v = SReview::Map->new(input => $full, type => 'stream', choice => 'video');
+my $map_a = SReview::Map->new(input => $full_wav, type => 'stream', choice => 'audio');
+SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$tempdir/$outname-pre.mkv", audio_codec => $full->audio_codec, duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$tempdir/$outname-post.mkv", audio_codec => $full->audio_codec, fragment_start => ($prelen + $mainlen)), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
+SReview::Videopipe->new(inputs => [$full], output => SReview::Video->new(url => "$tempdir/preaudio.mkv", fragment_start => $prelen, duration => $mainlen), vcopy => 1)->run();
+# Run bs1770gain (no class, maybe do that later)
+system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
+my $preaudio = SReview::Video->new(url => "$tempdir/preaudio.mkv");
+my $flac = SReview::Video->new(url => "$tempdir/audio.flac");
+$map_v->input($preaudio);
+$map_a->input($flac);
+SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => "$outname.mkv"), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a]);
+
+# Ensure the durations get probed from the actual file to remove any computation inaccuracies
+$prelen = SReview::Video->new(url => "$outname-pre.mkv")->duration;
+$postlen = SReview::Video->new(url => "$outname-post.mkv")->duration;
+
+my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
+$update->execute("$prelen seconds", "$postlen seconds", $talkid);
+
+$dbh->commit;
