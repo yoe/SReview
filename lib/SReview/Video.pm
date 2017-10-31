@@ -574,6 +574,11 @@ sub writeopts {
 			push @opts, ('-metadata', $meta . '=' . $self->metadata->{$meta});
 		}
 	}
+
+	if(!defined($self->duration) && $#{$pipe->inputs}>0) {
+		push @opts, '-shortest';
+	}
+
 	push @opts, $self->url;
 
 	return @opts;
