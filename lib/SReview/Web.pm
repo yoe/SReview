@@ -29,7 +29,7 @@ sub startup {
 	$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
 
 	die "Need to configure secrets!" if $config->get("secret") eq "_INSECURE_DEFAULT_REPLACE_ME_";
-	$self->secrets($config->get("secret"));
+	$self->secrets([$config->get("secret")]);
 
 	SReview::Db::init($config);
 
