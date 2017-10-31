@@ -12,8 +12,11 @@ sub startup {
 
 	my $dir = $ENV{SREVIEW_WDIR};
 
-	$dir = '' if (!defined($dir));
-	my $cfile = join('/', '.', $dir, 'config.pm');
+	$dir = '.' if (!defined($dir));
+	my $cfile = join('/', $dir, 'config.pm');
+	if(! -f $cfile) {
+		$cfile = join('/', '', 'etc', 'sreview', 'config.pm');
+	}
 	my $config = SReview::Config->new($cfile);
 
 	SReview::Config::Common::setup($config);
