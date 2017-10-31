@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use DBI;
+use SReview::Video;
+use SReview::Videopipe;
+use SReview::Video::ProfileFactory;
+
+sub convert($) {
+	my $basename = shift;
+	my $filename = $basename . ".mkv";
+	return unless (-f $filename);
+	my $input = SReview::Video->new(url => $filename);
+	my $vc = $input->video_codec;
+	my $ac = $input->audio_codec;
+
+	if (($vc eq "vp8" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "opus")) {
+		my $output = SReview::Video->new(url => $basename . ".webm");
+		SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+		return;
+	}
+	if ($vc eq "h264" && $ac eq "aac") {
+		my $output = SReview::Video->new(url => $basename . ".mp4");
+		SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+		return;
+	}
+	my $profile = SReview::Video::ProfileFactory->create('vp8_lq', $input);
+	my $output = SReview::Video->new(url => $basename . ".webm", reference => $profile);
+	SReview::Videopipe->new(inputs => [$input], output => $output)->run();
+}
+
+our $config;
+require './config.pl';
+
+my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $talkid = $ARGV[0];
+
+$dbh->prepare("UPDATE talks SET progress='running', state='generating_previews' WHERE id=?")->execute($talkid);
+
+$dbh->begin_work;
+
+my $talk_data = $dbh->prepare("SELECT talks.event, talks.slug, rooms.name FROM talks JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+$talk_data->execute($talkid);
+
+my $row = $talk_data->fetchrow_hashref();
+
+my $outname = $config->{pubdir} . "/video/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
+
+convert($outname . "-pre");
+convert($outname);
+convert($outname . "-post");
+
+$dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='generating_previews'")->execute($talkid);
+
+$dbh->commit;
