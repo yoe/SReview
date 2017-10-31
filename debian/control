@@ -1,0 +1,56 @@
+Source: sreview
+Section: video
+Priority: extra
+Standards-Version: 4.0.0
+Maintainer: Wouter Verhelst <wouter@debian.org>
+Build-Depends: debhelper, ffmpeg, dh-exec
+
+Package: sreview-master
+Architecture: all
+Depends: sreview-common
+Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master
+Description: SReview master
+ SReview is a video review and transcoding system. It allows users to
+ review videos, and will then (after the review has finished) transcode
+ them into archive-quality video files.
+ .
+ This package contains the components that should run on just one
+ server. It is not useful without one or more machines also running the
+ webinterface (in the sreview-web package) or the encoder (in the
+ sreview-encoder package).
+
+Package: sreview-web
+Architecture: all
+Depends: sreview-common, libjs-bootstrap
+Recommends: httpd
+Description: SReview webinterface
+ SReview is a video review and transcoding system. It allows users to
+ review videos, and will then (after the review has finished) transcode
+ them into archive-quality video files.
+ .
+ This package contains the sreview webinterface, used by administrators
+ and reviewers.
+
+Package: sreview-encoder
+Architecture: all
+Depends: sreview-common
+Recommends: gridengine-exec
+Description: SReview encoder code
+ SReview is a video review and transcoding system. It allows users to
+ review videos, and will then (after the review has finished) transcode
+ them into archive-quality video files.
+ .
+ This package contains the encoder scripts that do all the hard work.
+ It should be installed on the machines which will do the actual
+ transcoding.
+
+Package: sreview-common
+Architecture: all
+Depends: libmojolicious-perl, libdbd-pg-perl, libmoose-perl, ffmpeg
+Description: SReview -- common code
+ SReview is a video review and transcoding system. It allows users to
+ review videos, and will then (after the review has finished) transcode
+ them into archive-quality video files.
+ .
+ This package contains the common code used by all the other SReview
+ packages.

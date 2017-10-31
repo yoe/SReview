@@ -1,0 +1,10 @@
+usr/share/perl5/SReview.pm
+usr/share/perl5/SReview/CodecMap.pm
+usr/share/perl5/SReview/Config/
+usr/share/perl5/SReview/Config.pm
+usr/share/perl5/SReview/Db.pm
+usr/share/perl5/SReview/Map.pm
+usr/share/perl5/SReview/Video/
+usr/share/perl5/SReview/Video.pm
+usr/share/perl5/SReview/Videopipe.pm
+usr/share/man/man3/SReview::Video*
