@@ -153,11 +153,13 @@ if($corrections{offset_audio} != 0) {
 # Now split and merge the full video and audio files back into three video files with the audio reattached
 my $map_v = SReview::Map->new(input => $full, type => 'stream', choice => 'video');
 my $map_a = SReview::Map->new(input => $full_wav, type => 'stream', choice => 'audio');
+unlink("$outname-pre.mkv");
 if($prelen > 0) {
 	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-pre.mkv", audio_codec => detect_to_write($full->audio_codec), duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
 } else {
 	print "Skipping generation of pre video, no data\n";
 }
+unlink("$outname-post.mkv");
 if($postlen > 0) {
 	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-post.mkv", audio_codec => detect_to_write($full->audio_codec), fragment_start => ($prelen + $mainlen)), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
 } else {
