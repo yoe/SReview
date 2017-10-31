@@ -46,7 +46,7 @@ $talk_data->execute($talkid);
 
 my $row = $talk_data->fetchrow_hashref();
 
-my $outname = $config->{pubdir} . "/video/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
+my $outname = $config->{pubdir} . "/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
 
 foreach my $suffix ("-pre.webm", "-post.webm", ".webm", "-pre.mp4", "-post.mp4", ".mp4") {
 	unlink($outname . $suffix);
