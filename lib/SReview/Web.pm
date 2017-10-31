@@ -48,6 +48,43 @@ sub startup {
 		state $dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
 		return $dbh;
 	});
+	
+	$self->helper(talk_update => sub {
+		my $c = shift;
+		my $talk = shift;
+		my $choice = $c->param('choice');
+		if(!defined($choice)) {
+			die "choice empty";
+		} elsif($choice eq "reset") {
+			my $sth = $c->dbh->prepare("UPDATE talks SET state='preview', progress='waiting' WHERE id = ?");
+			$sth->execute($talk) or die;
+		} elsif($choice eq "ok") {
+			my $sth = $c->dbh->prepare("UPDATE talks SET state='preview', progress='done' WHERE id = ?");
+			$sth->execute($talk) or die;
+		} elsif($choice eq 'standard') {
+			my $sth = $c->dbh->prepare("SELECT id, name FROM properties");
+			$sth->execute();
+			while(my $row = $sth->fetchrow_hashref("NAME_lc")) {
+				my $name = $row->{name};
+				my $parm = $c->param("correction_${name}");
+				next unless defined($parm);
+				next if (length($parm) == 0);
+				my $s = $c->dbh->prepare("INSERT INTO corrections(property_value, talk, property) VALUES (?, ?, ?)");
+				$s->execute($parm, $talk, $row->{id}) or die;
+			}
+			$sth = $c->dbh->prepare("UPDATE talks SET state='waiting_for_files', progress='done' WHERE id = ?");
+			$sth->execute($talk) or die;
+		} elsif($choice eq "comments") {
+			my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', progress='failed', comments = ? WHERE id = ?");
+			my $comments = $c->param->("comment_text");
+			$sth->execute($comments, $talk) or die;
+		} else {
+			$c->stash(message => "Unknown action.");
+			$c->render("error");
+			return undef;
+		}
+		$c->stash(message => 'Update successful.');
+	});
 
 	my $template_dir = join('/', '.', $dir, 'templates');
 	push @{$self->renderer->paths}, $template_dir;
