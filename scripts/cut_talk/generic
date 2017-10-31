@@ -152,8 +152,8 @@ if($corrections{offset_audio} != 0) {
 # Now split and merge the full video and audio files back into three video files with the audio reattached
 my $map_v = SReview::Map->new(input => $full, type => 'stream', choice => 'video');
 my $map_a = SReview::Map->new(input => $full_wav, type => 'stream', choice => 'audio');
-SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$tempdir/$outname-pre.mkv", audio_codec => $full->audio_codec, duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
-SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$tempdir/$outname-post.mkv", audio_codec => $full->audio_codec, fragment_start => ($prelen + $mainlen)), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-pre.mkv", audio_codec => $full->audio_codec, duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-post.mkv", audio_codec => $full->audio_codec, fragment_start => ($prelen + $mainlen)), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
 SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
 SReview::Videopipe->new(inputs => [$full], output => SReview::Video->new(url => "$tempdir/preaudio.mkv", fragment_start => $prelen, duration => $mainlen), vcopy => 1)->run();
 # Run bs1770gain (no class, maybe do that later)
