@@ -31,6 +31,14 @@ sub startup {
 
 	SReview::Db::init($config);
 
+	if($self->mode eq "production") {
+		push @{$self->renderer->paths}, "/usr/share/sreview/templates";
+		push @{$self->static->paths}, "/usr/share/sreview/public";
+	} else {
+		push @{$self->static->paths}, "./public";
+		push @{$self->renderer->paths}, "./templates";
+	}
+
 	$self->helper(dbh => sub {
 		state $dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
 		return $dbh;
