@@ -1,4 +1,3 @@
-#!/usr/bin/dh-exec
 usr/share/perl5/SReview/Web.pm
 web/sreview-web usr/bin
 web/templates usr/share/sreview
