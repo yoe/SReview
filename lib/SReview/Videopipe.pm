@@ -121,8 +121,8 @@ sub run {
 				my $attr = shift @attrs;
 				my $target = shift @attrs;
 				next unless $self->meta->get_attribute($target)->get_value($self);
-				my $oval = $self->output->meta->get_attribute($attr)->get_value($self->output);
-				my $ival = $input->meta->get_attribute($attr)->get_value($input);
+				my $oval = $self->output->meta->find_attribute_by_name($attr)->get_value($self->output);
+				my $ival = $input->meta->find_attribute_by_name($attr)->get_value($input);
 				if(defined($oval) && $ival ne $oval) {
 					$self->meta->get_attribute($target)->set_value($self, 0);
 				}
