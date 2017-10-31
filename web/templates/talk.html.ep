@@ -35,7 +35,6 @@
  * @licend The above is the entire license notice for this project,
  * including all its JavaScript.
  */
-// TODO: the below contains a lot of copy-paste code. Clean it up.
 function formitems(which) {
 	var disableval = true;
 	if(which === 'standard') {
