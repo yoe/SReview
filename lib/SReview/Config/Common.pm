@@ -5,7 +5,7 @@ use SReview::Config;
 sub get_default_cfile() {
 	my $dir = $ENV{SREVIEW_WDIR};
 
-	dir = "." unless defined($dir);
+	$dir = "." unless defined($dir);
 	my $cfile = join('/', $dir, 'config.pm');
 	if(!-f $cfile) {
 		$cfile = join('/', '', 'etc', 'sreview', 'config.pm');
