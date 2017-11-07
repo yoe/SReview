@@ -32,6 +32,7 @@ scripts/previews/generic
 scripts/schedule_parsers/debconf
 scripts/schedule_parsers/fosdem
 scripts/skip
+scripts/sreview-config
 scripts/statistics/export_states_prometheus
 scripts/transcode/debconf
 scripts/transcode/debconf_vp9
