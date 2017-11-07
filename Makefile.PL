@@ -16,4 +16,10 @@ WriteMakefile(
 	TEST_REQUIRES => {
 		'Test::More' => 0,
 	},
+	EXE_FILES => [
+		'scripts/cut_talk/sreview-cut',
+		'scripts/sreview-config',
+		'scripts/transcode/sreview-transcode',
+		'scripts/previews/sreview-previews',
+	],
 );
