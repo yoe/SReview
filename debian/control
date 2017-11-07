@@ -46,7 +46,7 @@ Description: SReview encoder code
 
 Package: sreview-common
 Architecture: all
-Depends: libmojolicious-perl, libdbd-pg-perl, libmoose-perl, ffmpeg
+Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, ffmpeg
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
