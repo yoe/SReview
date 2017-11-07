@@ -47,7 +47,7 @@ $talk->execute($talkid);
 my $row = $talk->fetchrow_hashref();
 my $slug = $row->{slug};
 
-my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, slug, speakers, name, subtitle, apologynote FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, speakers, name, subtitle, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
