@@ -85,7 +85,7 @@ sub describe {
 sub dump {
 	my $self = shift;
 	my $rv = "";
-	foreach my $conf(keys %{$self->{defs}}) {
+	foreach my $conf(sort(keys %{$self->{defs}})) {
 		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
 		$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
 	}
