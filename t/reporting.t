@@ -34,9 +34,13 @@ ok($old_perc == 100, "progress stops at 100%");
 
 $old_perc = undef;
 
+unlink($output->url);
 $output = SReview::Video->new(url => 't/testvids/out.webm', duration => 10, video_codec => 'vp8', audio_codec => 'libvorbis');
 $pipe = SReview::Videopipe->new(inputs => [$input], output => $output, progress => \&progress, vcopy => 0, acopy => 0, multipass => 1);
 $pipe->run;
 
 ok($ok == 1, "progress information is strictly incresing when doing multipass");
 ok($old_perc == 100, "progress stops at 100% when doing multipass");
+
+unlink($output->url);
+unlink($output->url . "-multipass-0.log");

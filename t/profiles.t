@@ -22,6 +22,7 @@ ok($output->video_height == $input->video_height, "The VP9 video has the same he
 
 $profile = SReview::Video::ProfileFactory->create('vp8_lq', $input);
 ok(defined($profile), "Could create a VP8 LQ profile based on the input video");
+unlink($output->url);
 $output = SReview::Video->new(url => "t/testvids/foo.webm", reference => $profile);
 ok(defined($output), "Could create an output video from the LQ profile");
 ok($output->video_height < $input->video_height, "The LQ profile creates smaller videos");
@@ -36,3 +37,5 @@ ok(-f $output->url, "Creating a profiled video creates output");
 ok($check->video_height eq $output->video_height, "Creating a scaled video produces smaller output") or diag($check->video_height, " is not the same as ", $output->video_height);
 
 done_testing();
+
+unlink($output->url);
