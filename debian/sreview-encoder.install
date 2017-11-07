@@ -1,4 +1,4 @@
-#!/usr/bin/dh-exec
-scripts/cut_talk/generic => usr/bin/sreview-cut-talk
-scripts/transcode/generic => usr/bin/sreview-transcode
+usr/bin/sreview-cut
+usr/bin/sreview-transcode
+usr/bin/sreview-previews
 # TODO: add other scripts, once they're ready
