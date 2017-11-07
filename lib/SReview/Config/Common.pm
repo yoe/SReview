@@ -32,7 +32,8 @@ sub setup {
 	# Values for encoder scripts
 	$config->define('pubdir', 'The directory on the file system where files served by the webinterface should be stored', '/srv/sreview/web/public');
 	$config->define('workdir', 'A directory where encoder jobs can create a subdirectory for temporary files', '/tmp');
-	$config->define('outputdir', 'The directory under which SReview should place the final released files', '/srv/sreview/output');
+	$config->define('outputdir', 'The base directory under which SReview should place the final released files', '/srv/sreview/output');
+	$config->define('output_subdirs', 'An array of fields to be used to create subdirectories under the output directory.', ['event', 'room', 'startdate']);
 	$config->define('preroll_template', 'An SVG template to be used as opening credits. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
 	$config->define('postroll_template', 'An SVG template to be used as closing credits. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
 	$config->define('postroll', 'A PNG file to be used as closing credits. Will only be used if no postroll_template was defined. Should have the same dimensions as the video assets.', undef);

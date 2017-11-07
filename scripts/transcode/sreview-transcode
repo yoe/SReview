@@ -52,8 +52,10 @@ $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
 my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
-my $outputsub = $config->get('outputdir');
-my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
+my $outputdir = $config->get('outputdir');
+foreach my $subdir(@{$config->get('output_subdirs')) {
+	$outputdir = join('/', $outputdir, $drow->{$subdir});
+}
 make_path($outputdir);
 my $tmpdir = tempdir( "transXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
 
