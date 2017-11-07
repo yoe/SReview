@@ -13,7 +13,7 @@ sub get_default_cfile() {
 	return $cfile;
 }
 
-sub setup() {
+sub setup {
 	my $cfile = shift;
 	if(!defined($cfile)) {
 		$cfile = get_default_cfile();
