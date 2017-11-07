@@ -7,6 +7,7 @@ use DBI;
 use SReview::Video;
 use SReview::Videopipe;
 use SReview::Video::ProfileFactory;
+use SReview::Config::Common;
 
 sub convert($) {
 	my $basename = shift;
@@ -31,10 +32,9 @@ sub convert($) {
 	SReview::Videopipe->new(inputs => [$input], output => $output)->run();
 }
 
-our $config;
-require './config.pl';
+my $config = SReview::Config::Common::setup;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
 $dbh->prepare("UPDATE talks SET progress='running', state='generating_previews' WHERE id=?")->execute($talkid);
@@ -46,7 +46,7 @@ $talk_data->execute($talkid);
 
 my $row = $talk_data->fetchrow_hashref();
 
-my $outname = $config->{pubdir} . "/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
+my $outname = $config->get('pubdir') . "/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
 
 foreach my $suffix ("-pre.webm", "-post.webm", ".webm", "-pre.mp4", "-post.mp4", ".mp4") {
 	unlink($outname . $suffix);

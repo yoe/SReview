@@ -24,6 +24,7 @@ use utf8;
 use DBI;
 use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
+use SReview::Config::Common;
 use SReview::Video;
 use SReview::Video::PNGGen;
 use SReview::Video::Concat;
@@ -31,10 +32,9 @@ use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
 use Mojo::Util qw/xml_escape/;
 
-our $config;
-require "./config.pl";
+my $config = SReview::Config::Common::setup;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
 $dbh->begin_work;
 
@@ -51,11 +51,11 @@ my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startd
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
-my $pubdir = $config->{pubdir} . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
-my $outputsub = $config->{outputdir};
+my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
+my $outputsub = $config->get('outputdir');
 my $outputdir = &$outputsub($drow->{event}, $drow->{room}, $drow->{startdate});
 make_path($outputdir);
-my $tmpdir = tempdir( "transXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
+my $tmpdir = tempdir( "transXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
 
 sub process_template($$) {
 	my $input = shift;
@@ -88,18 +88,18 @@ sub process_template($$) {
 
 my $preroll = $pubdir . "/$slug-pre.png";
 if ( ! -f $preroll ) {
-	process_template($config->{preroll_template}, $preroll);
+	process_template($config->get('preroll_template'), $preroll);
 } else {
 	print "reusing $preroll\n";
 }
 
 my $postroll = $pubdir . "/$slug-post.png";
 if ( ! -f $postroll ) {
-	if(exists($config->{postroll_template})) {
+	if(defined($config->get('postroll_template'))) {
 		process_template($config->{postroll_template}, $postroll);
-	} elsif(exists($config->{postroll})) {
+	} elsif(defined($config->get('postroll'))) {
 		print "using $postroll from config\n";
-		$postroll = $config->{postroll};
+		$postroll = $config->get('postroll');
 	} else {
 		die "need postroll or postroll template!";
 	}
@@ -112,8 +112,8 @@ my $main_input = SReview::Video->new(url => "$pubdir/$slug.mkv");
 my $apology = $pubdir . "/$slug-sorry.png";
 my $sorry;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
-	die unless exists($config->{apology_template});
-	process_template($config->{apology_template}, $apology);
+	die unless defined($config->get('apology_template'));
+	process_template($config->get('apology_template'), $apology);
 	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $main_input);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
 }
@@ -131,7 +131,7 @@ if( -f "$tmpdir/$slug-sorry.mkv") {
 }
 push @$inputs, ( $main, $post );
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
-foreach my $profile_str(@$config->{output_profiles}) {
+foreach my $profile_str(@$config->get('output_profiles')) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
 	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
 }

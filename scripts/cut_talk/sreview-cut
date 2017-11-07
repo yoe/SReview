@@ -11,12 +11,12 @@ use SReview::Map;
 use SReview::Video;
 use SReview::Video::Concat;
 use SReview::Videopipe;
+use SReview::Config::Common;
 
-our $config;
-require './config.pl';
+my $config = SReview::Config::Common::setup;
 
-my $tempdir = tempdir("cutXXXXXX", DIR => $config->{workdir}, CLEANUP => 1);
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $tempdir = tempdir("cutXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
 $dbh->begin_work;
@@ -104,7 +104,7 @@ SReview::Videopipe->new(inputs => [$full_input], output => $full_output)->run();
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
-my $workdir = $config->{pubdir} . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+my $workdir = $config->get('pubdir') . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
 my $outname = "$workdir/" . $row->{slug};
 
