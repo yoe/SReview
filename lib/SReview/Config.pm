@@ -88,7 +88,11 @@ sub dump {
 	$Data::Dumper::Indent = 0;
 	foreach my $conf(sort(keys %{$self->{defs}})) {
 		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
-		$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
+		if(exists($SReview::Config::_private::{$conf}) && (${$SReview::Config::_private::{$conf}} ne $self->{defs}{$conf}{default})) {
+			$rv .= Data::Dumper->Dump([${$SReview::Config::_private::{$conf}}], [$conf]) . "\n";
+		} else {
+			$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
+		}
 		$rv .= "\n";
 	}
 	$rv .= "# Do not remove this, perl needs it\n1;\n";
