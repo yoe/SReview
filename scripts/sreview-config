@@ -18,7 +18,7 @@ GetOptions(
 	"config-file=s" => \$cfile,
 	"action=s" => \$action,
 	"help" => \$help,
-	"set" => \@extrasettings,
+	"set=s" => \@extrasettings,
 ) or pod2usage("command line invalid");
 
 =head1 NAME
@@ -102,7 +102,8 @@ my $config = SReview::Config::Common::setup($cfile);
 foreach my $setting(@extrasettings) {
 	die "Missing = in setting $setting" unless $setting =~ /.*=.*/;
 
-	$config->set($1 => $2);
+	my ($key, $value) = split(/=/, $setting, 2);
+	$config->set($key => $value);
 }
 
 if(!defined($action)) {
