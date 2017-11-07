@@ -17,11 +17,9 @@ SKIP: {
 	my $warn;
 	local $SIG{__WARN__} = sub { $warn = shift };
 
-	my $config = SReview::Config->new('config');
+	my $config = SReview::Config::Common::setup;
 
 	isa_ok($config, 'SReview::Config');
-
-	SReview::Config::Common::setup($config);
 
 	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
 
