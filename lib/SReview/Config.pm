@@ -85,9 +85,11 @@ sub describe {
 sub dump {
 	my $self = shift;
 	my $rv = "";
+	$Data::Dumper::Indent = 0;
 	foreach my $conf(sort(keys %{$self->{defs}})) {
 		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
 		$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
+		$rv .= "\n";
 	}
 	$rv .= "# Do not remove this, perl needs it\n1;\n";
 
