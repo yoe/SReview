@@ -23,10 +23,6 @@ sub startup {
 	my $config = SReview::Config->new($cfile);
 
 	SReview::Config::Common::setup($config);
-	$config->define("secret", "A random secret key, used to encrypt the cookies. Leaking this will break your security!", "_INSECURE_DEFAULT_REPLACE_ME_");
-	$config->define("event", "The default event to handle in the webinterface", undef);
-	$config->define("vid_prefix", "The URL prefix to be used for video data files", "");
-	$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
 
 	die "Need to configure secrets!" if $config->get("secret") eq "_INSECURE_DEFAULT_REPLACE_ME_";
 	$self->secrets([$config->get("secret")]);
