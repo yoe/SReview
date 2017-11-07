@@ -87,19 +87,7 @@ if($help) {
 	pod2usage(0);
 }
 
-if(!defined($cfile)) {
-	my $dir = $ENV{SREVIEW_WDIR};
-
-	$dir = "." unless defined($dir);
-	$cfile = join('/',$dir,'config.pm');
-	if(!-f $cfile) {
-		$cfile = join('/', '', 'etc', 'sreview', 'config.pm');
-	}
-}
-
-my $config = SReview::Config->new($cfile);
-
-SReview::Config::Common::setup($config);
+my $config = SReview::Config::Common::setup($cfile);
 if(!defined($action)) {
 	pod2usage("Need an action");
 }
@@ -108,6 +96,7 @@ if($action eq "dump") {
 } elsif($action eq "initdb") {
 	SReview::Db::init($config);
 } elsif($action eq "update") {
+	$cfile = SReview::Config::Common::get_default_cfile() unless defined($cfile);
 	open CFILE, ">$cfile";
 	print CFILE $config->dump();
 	close CFILE;

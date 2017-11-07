@@ -15,14 +15,7 @@ sub startup {
 
 	$self->config(hypnotoad => { pid_file => '/var/run/sreview/sreview.pid' });
 
-	$dir = '.' if (!defined($dir));
-	my $cfile = join('/', $dir, 'config.pm');
-	if(! -f $cfile) {
-		$cfile = join('/', '', 'etc', 'sreview', 'config.pm');
-	}
-	my $config = SReview::Config->new($cfile);
-
-	SReview::Config::Common::setup($config);
+	my $config = SReview::Config::Common::setup;
 
 	die "Need to configure secrets!" if $config->get("secret") eq "_INSECURE_DEFAULT_REPLACE_ME_";
 	$self->secrets([$config->get("secret")]);
