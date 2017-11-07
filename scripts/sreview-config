@@ -12,11 +12,13 @@ use Pod::Usage;
 my $cfile;
 my $action = undef;
 my $help = 0;
+my @extrasettings;
 
 GetOptions(
 	"config-file=s" => \$cfile,
 	"action=s" => \$action,
-	"help" => \$help
+	"help" => \$help,
+	"set" => \@extrasettings,
 ) or pod2usage("command line invalid");
 
 =head1 NAME
@@ -25,7 +27,7 @@ sreview-config - manage the SReview configuration
 
 =head1 SYNOPSIS
 
-sreview-config --help|--config-file=FILE|--action=ACTION
+sreview-config --help|--config-file=FILE|--action=ACTION|--set=KEY|VALUE
 
 =head1 DESCRIPTION
 
@@ -50,6 +52,14 @@ parameter is not specified, then sreview-config will try the file
 C<config.pm> in the directory pointed to by the C<SREVIEW_WDIR>
 environment variable, followed by C</etc/sreview/config.pm>, and then
 fall back on the builtin defaults.
+
+=head2 B<--set>=KEY=VALUE
+
+After reading the selected config file (see C<--config-file>) and before
+performing the requested action, set the value of configuration setting
+C<KEY> to C<VALUE>.
+
+This option can be repeated multiple times as needed.
 
 =head2 B<--action>=ACTION
 
@@ -88,6 +98,13 @@ if($help) {
 }
 
 my $config = SReview::Config::Common::setup($cfile);
+
+foreach my $setting(@extrasettings) {
+	die "Missing = in setting $setting" unless $setting =~ /.*=.*/;
+
+	$config->set($1 => $2);
+}
+
 if(!defined($action)) {
 	pod2usage("Need an action");
 }
