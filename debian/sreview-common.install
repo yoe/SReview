@@ -8,4 +8,5 @@ usr/share/perl5/SReview/Video/
 usr/share/perl5/SReview/Video.pm
 usr/share/perl5/SReview/Videopipe.pm
 usr/share/man/man3/SReview::Video*
+usr/share/man/man1/sreview-config*
 usr/bin/sreview-config
