@@ -2,4 +2,4 @@ usr/bin/sreview-cut
 usr/bin/sreview-transcode
 usr/bin/sreview-previews
 usr/bin/sreview-skip
-usr/share/man/man1/sreview-skip
+usr/share/man/man1/sreview-skip*
