@@ -1,4 +1,4 @@
 usr/share/perl5/SReview/Web.pm
-web/sreview-web usr/bin
+usr/bin/sreview-web
 web/templates usr/share/sreview
 web/public usr/share/sreview
