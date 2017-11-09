@@ -17,12 +17,10 @@ sub init {
 	$db->migrations->name('init')->from_string(<<'EOF');
 -- 1 up
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
-COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 -- 1 down
-DROP EXTENSION pgcrypto;
-DROP EXTENSION plpgsql;
+DROP EXTENSION IF EXISTS plpgsql;
+DROP EXTENSION IF EXISTS pgcrypto;
 -- 2 up
 CREATE TYPE talkstate AS ENUM (
     'waiting_for_files',
