@@ -150,6 +150,8 @@ sub create {
 	my $profile = shift;
 	my $ref = shift;
 
+	eval "require SReview::Video::Profile::$profile;";
+
 	return "SReview::Video::Profile::$profile"->new(url => '', reference => $ref);
 }
 

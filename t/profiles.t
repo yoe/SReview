@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 17;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 use_ok('SReview::Video::ProfileFactory');
@@ -35,6 +35,9 @@ $pipe->run();
 my $check = SReview::Video->new(url => $output->url);
 ok(-f $output->url, "Creating a profiled video creates output");
 ok($check->video_height eq $output->video_height, "Creating a scaled video produces smaller output") or diag($check->video_height, " is not the same as ", $output->video_height);
+
+my $fspr = SReview::Video::ProfileFactory->create("FOSDEM", $input);
+isa_ok($fspr, 'SReview::Video::Profile::Base');
 
 done_testing();
 
