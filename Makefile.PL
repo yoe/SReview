@@ -22,6 +22,7 @@ WriteMakefile(
 		'scripts/sreview-detect',
 		'scripts/sreview-dispatch',
 		'scripts/sreview-skip',
+		'scripts/sreview-user',
 		'scripts/transcode/sreview-transcode',
 		'scripts/previews/sreview-previews',
 		'web/sreview-web',
