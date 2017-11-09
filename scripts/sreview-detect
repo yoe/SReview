@@ -21,13 +21,14 @@ use strict;
 use warnings;
 
 use DBI;
+use SReview::Config::Common;
+use SReview::Video;
 
 use Net::Domain qw(hostname);
 
-our $config;
-require './config.pl';
+my $config = SReview::Config::Common::setup;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
 $dbh->begin_work;
 
@@ -35,24 +36,26 @@ my $exists = $dbh->prepare("SELECT count(*) FROM raw_files WHERE filename = ?");
 my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval WHERE filename = ?");
 
-my @files = glob($config->{inputglob});
+my @files = glob($config->get('inputglob'));
 
 my $host = hostname();
 
 foreach my $file(@files) {
 	next unless (-f $file);
-	my $parsesub = $config->{parse_raw};
-	my ($room, $start_day, $start_hour, $url) = &$parsesub($file, $host);
+	my $parse_re = $config->get('parse_re');
+	next unless $file =~ /$parse_re/;
+	my $room = $+{room};
+	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
+	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
 	next unless defined($room);
+	my $url_build = $config->get('url_re');
+	my $url = $file;
+	if(defined($url_build)) {
+		$url =~ s/$parse_re/$url_build/g;
+	}
 	$exists->execute($url);
 	my $row = $exists->fetchrow_hashref;
-	open INFO, "ffprobe $file 2>&1|";
-	my $length;
-	while(my $line = <INFO>) {
-		next unless $line =~ /Duration: ([0-9]+:[0-9]+:[0-9]+.[0-9]+)/;
-		$length = $1;
-	}
-	close INFO;
+	my $length = SReview::Video->new(url => $url)->duration;
 	if($row->{count} eq '0') {
 		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length);
 	} else {

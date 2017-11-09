@@ -40,6 +40,11 @@ sub setup {
 	$config->define('apology_template', 'An SVG template to be used as apology template (shown just after the opening credits when technical issues occurred. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
 	$config->define('output_profiles', 'An array of profiles, one for each encoding, to be used for output encodings', ['webm']);
 
+	# Values for detection script
+	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');
+	$config->define('parse_re', 'A regular expression to parse a filename into year, month, day, hour, minute, second, and room', '.*\/(?<room>[^\/]+)\/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\/(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})');
+	$config->define('url_re', 'If set, used with parse_re in an s///g command to produce a URL', undef);
+
 	return $config;
 }
 
