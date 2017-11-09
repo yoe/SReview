@@ -20,6 +20,7 @@ WriteMakefile(
 		'scripts/cut_talk/sreview-cut',
 		'scripts/sreview-config',
 		'scripts/sreview-detect',
+		'scripts/sreview-dispatch',
 		'scripts/transcode/sreview-transcode',
 		'scripts/previews/sreview-previews',
 	],
