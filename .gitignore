@@ -1,5 +1,5 @@
-config.pl
 MYMETA.json
+MYMETA.json.lock
 MYMETA.yml
 Makefile
 blib
