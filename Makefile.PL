@@ -19,6 +19,7 @@ WriteMakefile(
 	EXE_FILES => [
 		'scripts/cut_talk/sreview-cut',
 		'scripts/sreview-config',
+		'scripts/sreview-detect',
 		'scripts/transcode/sreview-transcode',
 		'scripts/previews/sreview-previews',
 	],

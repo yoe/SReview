@@ -8,7 +8,7 @@ Build-Depends: debhelper, ffmpeg, dh-exec
 Package: sreview-master
 Architecture: all
 Depends: sreview-common
-Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master
+Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect
 Description: SReview master
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -54,3 +54,15 @@ Description: SReview -- common code
  .
  This package contains the common code used by all the other SReview
  packages.
+
+Package: sreview-detect
+Architecture: all
+Depends: sreview-common
+Description: SReview input detection script
+ SReview is a video review and transcoding system. It allows users to
+ review videos, and will then (after the review has finished) transcode
+ them into archive-quality video files.
+ .
+ This package contains the sreview-detect script, which probes files in
+ the input directory and either adds them to the database if they're
+ new, or just updates their length if they're already known.
