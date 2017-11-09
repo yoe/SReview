@@ -8,8 +8,8 @@ eventually a fully transcoded quality video rolls out of the system.
 
 Note that while SReview has been used in production for [FOSDEM
 2017](https://fosdem.org/2017) and [DebConf
-2017](https://debconf17.debconf.org), it is still *very* rough around the
-edges.
+2017](https://debconf17.debconf.org), there is still some missing functionality
+in some areas. Patches welcome! :-)
 
 ## States
 
