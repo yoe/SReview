@@ -24,6 +24,45 @@ use DBI;
 use Mojo::Template;
 use SReview::Config::Common;
 
+=head1 NAME
+
+sreview-dispatch - Watch the database for talks that need work done, and schedule jobs for them
+
+=head1 SYNOPSIS
+
+sreview-dispatch
+
+=head1 DESCRITPION
+
+B<sreview-dispatch> is the central script for SReview. It can be used in two ways:
+
+=over
+
+=item 1.
+
+Either you run it with gridengine as the external scheduler. This is the
+recommended way of using SReview. In this mode of operation,
+C<sreview-dispatch> should be run once in the entire network.
+
+=item 2.
+
+Or you run it with no external scheduler. This has not been tested much.
+In this mode of operation, it is recommended that the C<query_limit>
+configuration parameter is set to a nonzero value, so that individual
+C<sreview-dispatch> instances do not take all the work, keeping all the
+other instances idle. In this mode of operation, one C<sreview-dispatch>
+instance should be run per CPU core on every machine that is used for
+transcoding.
+
+=back
+
+=head1 OPTIONS
+
+None. C<sreview-dispatch> uses the system-wide SReview configuration.
+For more information, see L<sreview-config>
+
+=cut
+
 my $config = SReview::Config::Common::setup;
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
