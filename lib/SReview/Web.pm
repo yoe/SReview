@@ -76,9 +76,6 @@ sub startup {
 		$c->stash(message => 'Update successful.');
 	});
 
-	my $template_dir = join('/', '.', $dir, 'templates');
-	push @{$self->renderer->paths}, $template_dir;
-
 	my $eventid = undef;
 	my $st = $self->dbh->prepare("SELECT id FROM events WHERE name = ?");
 	$st->execute($config->get("event")) or die "Could not find event!\n";
