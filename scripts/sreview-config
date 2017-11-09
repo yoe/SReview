@@ -85,11 +85,12 @@ startup.
 =head3 update
 
 Read the configuration file, then rewrite it with new settings that are
-not found in the current configuration file.
+not found in the current configuration file, as well as incorporating
+configuration settings that were set with C<--set>.
 
 This is useful on upgrade of SReview, so that new configuration
 options can be added to the configuration file without loss of old
-options.
+options. It can also be used as a way to configure C<sreview>.
 
 =cut
 
