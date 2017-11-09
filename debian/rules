@@ -1,4 +1,8 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@
+	dh $@ --with apache2,sysuser
+
+override_dh_installinit:
+	dh_installinit -psreview-master --name=sreview-dispatch
+	dh_installinit --remaining

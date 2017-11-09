@@ -13,7 +13,7 @@ sub startup {
 
 	my $dir = $ENV{SREVIEW_WDIR};
 
-	$self->config(hypnotoad => { pid_file => '/var/run/sreview/sreview.pid' });
+	$self->config(hypnotoad => { pid_file => '/var/run/sreview/sreview-web.pid' });
 
 	my $config = SReview::Config::Common::setup;
 

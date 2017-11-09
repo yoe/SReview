@@ -5,12 +5,12 @@ Standards-Version: 4.0.0
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: http://anonscm.debian.org/cgit/users/wouter/sreview.git
 Vcs-Git: git://anonscm.debian.org/users/wouter/sreview.git
-Build-Depends: debhelper, ffmpeg, dh-exec
+Build-Depends: debhelper, ffmpeg, dh-exec, dh-sysuser, dh-apache2
 
 Package: sreview-master
 Architecture: all
 Depends: sreview-common
-Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect
+Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect, ${misc:Depends}
 Description: SReview master
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -23,7 +23,7 @@ Description: SReview master
 
 Package: sreview-web
 Architecture: all
-Depends: sreview-common, libjs-bootstrap
+Depends: sreview-common, libjs-bootstrap, pwgen, ${misc:Depends}
 Recommends: httpd
 Description: SReview webinterface
  SReview is a video review and transcoding system. It allows users to
@@ -35,7 +35,7 @@ Description: SReview webinterface
 
 Package: sreview-encoder
 Architecture: all
-Depends: sreview-common
+Depends: sreview-common, ${misc:Depends}
 Recommends: gridengine-exec
 Description: SReview encoder code
  SReview is a video review and transcoding system. It allows users to
@@ -48,7 +48,7 @@ Description: SReview encoder code
 
 Package: sreview-common
 Architecture: all
-Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, ffmpeg
+Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, ffmpeg, ${misc:Depends}
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -59,7 +59,7 @@ Description: SReview -- common code
 
 Package: sreview-detect
 Architecture: all
-Depends: sreview-common
+Depends: sreview-common, ${misc:Depends}
 Description: SReview input detection script
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
