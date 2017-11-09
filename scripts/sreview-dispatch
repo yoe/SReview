@@ -21,11 +21,18 @@ use strict;
 use warnings;
 
 use DBI;
+use Mojo::Template;
+use SReview::Config::Common;
 
-our $config;
-require './config.pl';
+my $config = SReview::Config::Common::setup;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+
+my $state_actions = $config->get('state_actions');
+
+my $mt = Mojo::Template->new;
+
+$mt->vars(1);
 
 while(1) {
 	$dbh->begin_work;
@@ -34,10 +41,10 @@ while(1) {
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
 
 	my $st;
-	my $statelist = "'" . join("','", keys(%{$config->{state}})) . "'";
-	if($config->{query_limit} > 0) {
+	my $statelist = "'" . join("','", keys(%{$state_actions})) . "'";
+	if($config->get('query_limit') > 0) {
 		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' LIMIT ? FOR UPDATE");
-		$st->execute($config->{query_limit});
+		$st->execute($config->get('query_limit'));
 	} else {
 		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' FOR UPDATE");
 		$st->execute;
@@ -48,11 +55,11 @@ while(1) {
 			$next->execute($row->{id});
 			next;
 		}
-		if(exists($config->{state}{$row->{state}})) {
+		if(exists(${$state_actions}{$row->{state}})) {
 			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
-			my $statetranssub = $config->{state}{$row->{state}};
-			system &$statetranssub($row->{id}, $row->{room}, $row->{length});
+			my $statetrans = ${$state_actions}{$row->{state}};
+			system $mt->render(talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output'));
 		}
 	}
 	print "finished, waiting 10 seconds...\n";
