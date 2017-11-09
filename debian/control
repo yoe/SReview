@@ -3,6 +3,8 @@ Section: video
 Priority: extra
 Standards-Version: 4.0.0
 Maintainer: Wouter Verhelst <wouter@debian.org>
+Vcs-Browser: http://anonscm.debian.org/cgit/users/wouter/sreview.git
+Vcs-Git: git://anonscm.debian.org/users/wouter/sreview.git
 Build-Depends: debhelper, ffmpeg, dh-exec
 
 Package: sreview-master
