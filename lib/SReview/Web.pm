@@ -3,6 +3,7 @@ package SReview::Web;
 use Mojo::Base 'Mojolicious';
 use Mojo::Collection 'c';
 use Mojo::JSON qw(encode_json);
+use Mojo::Pg;
 use SReview;
 use SReview::Config;
 use SReview::Config::Common;
@@ -34,8 +35,8 @@ sub startup {
 	}
 
 	$self->helper(dbh => sub {
-		state $dbh = DBI->connect_cached($config->get("dbistring"), '', '', {AutoCommit => 1}) or die "Cannot connect to database!";
-		return $dbh;
+		state $pg = Mojo::Pg->new->dsn($config->get('dbistring'));
+		return $pg->db->dbh;
 	});
 	
 	$self->helper(talk_update => sub {
