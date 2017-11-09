@@ -17,6 +17,34 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
+=head1 NAME
+
+sreview-detect - detect new files for SReview
+
+=head1 SYNOPSIS
+
+sreview-detect
+
+=head1 DESCRIPTION
+
+sreview-detect is used to detect new files in the SReview input
+directory, and add them to the database. Additionally, sreview-detect
+will update the length (but not the other metadata) of files that
+already exist in the database. This makes it safe to run on input files
+that are still being written to.
+
+It is designed to be run from cron (or a similar scheduling system) on a
+regular basis. Care should be taken to not overload the server on which
+it runs; while at the same time it should run regularly enough so that
+review is not waiting for too long.
+
+=head1 OPTIONS
+
+None exist currently. Configuration should be done through the main
+configuration file; see L<sreview-config>.
+
+=cut
+
 use strict;
 use warnings;
 
