@@ -1,0 +1,8 @@
+[Unit]
+Description=SReview dispatch service
+Requires=postgresql.service
+Requires=gridengine-master.service
+[Service]
+ExecStart=/usr/bin/sreview-dispatch
+[Install]
+WantedBy=multi-user.target
