@@ -69,6 +69,7 @@ will be probed from ffprobe output unless noted otherwise.
 =cut
 
 use Mojo::JSON qw(decode_json);
+use SReview::CodecMap qw/detect_to_write/;
 
 use Moose;
 
@@ -529,7 +530,7 @@ sub writeopts {
 
 	if(!$pipe->vcopy) {
 		if(defined($self->video_codec)) {
-			push @opts, ('-c:v', $self->video_codec);
+			push @opts, ('-c:v', detect_to_write($self->video_codec));
 		}
 		if(defined($self->video_bitrate)) {
 			push @opts, ('-b:v', $self->video_bitrate . "k", '-minrate', $self->video_bitrate * .5 . "k", '-maxrate', $self->video_bitrate * 1.45 . "k");
@@ -547,7 +548,7 @@ sub writeopts {
 	}
 	if(!$pipe->acopy) {
 		if(defined($self->audio_codec)) {
-			push @opts, ('-c:a', $self->audio_codec);
+			push @opts, ('-c:a', detect_to_write($self->audio_codec));
 		}
 		if(defined($self->audio_bitrate)) {
 			push @opts, ('-b:a', $self->audio_bitrate);
