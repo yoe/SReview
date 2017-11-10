@@ -41,8 +41,8 @@ sreview_viddata.init = function() {
 	};
 	this.startpoints = {
 		"pre": 0,
-		"main": this.lengths.pre,
-		"post": this.lengths.pre + this.lengths.main_initial + this.current_length_adj
+		"main": this.lengths.pre + this.corrvals.offset_start,
+		"post": this.lengths.pre + this.corrvals.offset_start + this.lengths.main_initial + this.current_length_adj
 	};
 	this.newpoints = {
 		"start": this.startpoints.main,
@@ -61,7 +61,7 @@ sreview_viddata.abs_to_offset = function(abs) {
 };
 
 sreview_viddata.abs_to_adj = function(abs) {
-	return abs - this.startpoints.post + this.current_length_adj;
+	return abs - this.startpoints.post + this.current_length_adj - this.newpoints.start;
 };
 
 sreview_viddata.set_point = function(which, what, where) {
