@@ -116,6 +116,18 @@ sub _probe_audiobitrate {
 
 no Moose;
 
+package SReview::Video::Profile::webm;
+
+use Moose;
+
+extends 'SReview::Video::Profile::vp9';
+
+has '+exten' => (
+	default => 'webm',
+);
+
+no Moose;
+
 package SReview::Video::Profile::vp8_lq;
 
 use Moose;
