@@ -86,3 +86,5 @@ sreview_viddata.set_start_offset = function(off) {
 sreview_viddata.set_length_adj = function(adj) {
 	this.newpoints.end = this.newpoints.start + this.lengths.main_initial + adj;
 };
+
+sreview_viddata.init();
