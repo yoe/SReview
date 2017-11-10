@@ -1,5 +1,5 @@
-sreview (0.1-1) UNRELEASED; urgency=medium
+sreview (0.1-1) experimental; urgency=medium
 
   * Initial release.
 
- -- Wouter Verhelst <wouter@debian.org>  Tue, 26 Sep 2017 21:56:00 +0200
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 10 Nov 2017 10:14:20 +0100
