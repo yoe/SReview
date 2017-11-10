@@ -53,7 +53,7 @@ my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
 my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
 my $outputdir = $config->get('outputdir');
-foreach my $subdir(@{$config->get('output_subdirs')) {
+foreach my $subdir(@{$config->get('output_subdirs')}) {
 	$outputdir = join('/', $outputdir, $drow->{$subdir});
 }
 make_path($outputdir);
@@ -98,7 +98,7 @@ if ( ! -f $preroll ) {
 my $postroll = $pubdir . "/$slug-post.png";
 if ( ! -f $postroll ) {
 	if(defined($config->get('postroll_template'))) {
-		process_template($config->{postroll_template}, $postroll);
+		process_template($config->get('postroll_template'), $postroll);
 	} elsif(defined($config->get('postroll'))) {
 		print "using $postroll from config\n";
 		$postroll = $config->get('postroll');
@@ -131,9 +131,9 @@ my $inputs = [ $pre ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
 }
-push @$inputs, ( $main, $post );
+push @$inputs, ( SReview::Video->new(url => $main->url), $post );
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
-foreach my $profile_str(@$config->get('output_profiles')) {
+foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
 	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
 }
