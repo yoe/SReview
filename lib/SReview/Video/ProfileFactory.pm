@@ -63,6 +63,10 @@ sub _probe_videobitrate {
 	}
 }
 
+sub _probe_audiorate {
+	return "48000";
+}
+
 sub _probe_audiobitrate {
 	return "128k";
 }
