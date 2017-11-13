@@ -12,7 +12,7 @@ sudo: true
 env:
   - SREVIEW_TESTDB=sreview
 install:
-  - sudo add-apt-repository ppa:mc3man/trusty-media -y && sudo apt-get update && sudo apt-get install ffmpeg inkscape bs1770gain
+  - sudo add-apt-repository ppa:mc3man/trusty-media -y && sudo add-apt-repository ppa:wouter-debian/new4trusty -y && sudo apt-get update && sudo apt-get install ffmpeg inkscape bs1770gain
   - cpanm --quiet --installdeps --notest .
 before_script:
   - psql -c "create database $SREVIEW_TESTDB;" -U postgres
