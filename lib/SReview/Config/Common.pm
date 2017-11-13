@@ -2,12 +2,13 @@ package SReview::Config::Common;
 
 use SReview::Config;
 
-sub get_default_cfile() {
+sub get_default_cfile {
 	my $dir = $ENV{SREVIEW_WDIR};
+	my $write = shift;
 
 	$dir = "." unless defined($dir);
 	my $cfile = join('/', $dir, 'config.pm');
-	if(!-f $cfile) {
+	if(!-f $cfile && !exists($ENV{SREVIEW_WDIR})) {
 		$cfile = join('/', '', 'etc', 'sreview', 'config.pm');
 	}
 	return $cfile;
