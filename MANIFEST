@@ -50,7 +50,6 @@ t/reporting.t
 t/test.cf
 t/testvids/7184709189_sd.mp4
 t/testvids/README.md
-web/config.pm
 web/public/mangler.js
 web/public/style.css
 web/public/timeline.js
