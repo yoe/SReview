@@ -174,7 +174,7 @@ my $flac = SReview::Video->new(url => "$tempdir/audio.flac");
 $map_v->input($preaudio);
 $map_a->input($flac);
 unlink("$outname.mkv");
-SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => "$outname.mkv"), vcopy => 1, acopy => 0, audio_codec => detect_to_write($full->audio_codec), "map" => [$map_v, $map_a])->run();
+SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => "$outname.mkv", audio_codec => detect_to_write($full->audio_codec)), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a])->run();
 
 # Ensure the durations get probed from the actual file to remove any computation inaccuracies
 if($prelen > 0) {
