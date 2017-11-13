@@ -343,15 +343,15 @@ begin
 end $_$;
 CREATE TRIGGER corr_redirect_conflict BEFORE INSERT ON corrections FOR EACH ROW EXECUTE PROCEDURE corrections_redirect();
 -- 4 down
-DROP TRIGGER corr_redirect_conflict;
+DROP TRIGGER corr_redirect_conflict ON corrections;
+DROP VIEW talk_list;
+DROP VIEW mailers;
+DROP VIEW last_room_files;
 DROP FUNCTION state_next(talkstate);
 DROP FUNCTION corrections_redirect();
 DROP FUNCTION adjusted_raw_talks(integer, interval, interval);
 DROP FUNCTION speakeremail(integer);
 DROP FUNCTION speakerlist(integer);
-DROP VIEW talk_list;
-DROP VIEW mailers;
-DROP VIEW last_room_files;
 DROP VIEW raw_talks;
 -- 5 up
 INSERT INTO properties(name, description, helptext) VALUES('length_adj', 'Length adjustment', 'Set a relative adjustment value for the talk here, specified in seconds. To shorten the talk length, enter a negative value; to increase the talk length, enter a positive value');
