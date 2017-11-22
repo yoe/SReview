@@ -8,9 +8,11 @@ my %writemap = (
 	'vorbis' => 'libvorbis',
 );
 
-sub enable_nonfree {
+open CHECK_FDK, "ffmpeg -hide_banner -h encoder=libfdk_aac|";
+if(<CHECK_FDK> !~ /is not recognized/) {
 	$writemap{aac} = 'libfdk_aac';
 }
+close CHECK_FDK;
 
 sub detect_to_write($) {
 	my $detected = shift;
@@ -20,3 +22,5 @@ sub detect_to_write($) {
 		return $detected;
 	}
 }
+
+1;
