@@ -8,7 +8,7 @@ use Test::More tests => 7;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 
-my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
+my $input = SReview::Video->new(url => 't/testvids/bbb.mp4');
 my $output = SReview::Video->new(url => 't/testvids/out.ts', video_codec => 'mpeg2video');
 
 my $old_perc;

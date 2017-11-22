@@ -26,7 +26,7 @@ SKIP: {
 
 	# Prepare an input directory
 	make_path('t/inputdir/room1/2017-11-10');
-	symlink('../../../testvids/7184709189_sd.mp4', 't/inputdir/room1/2017-11-10/17:00:00.mp4');
+	symlink('../../../testvids/bbb.mp4', 't/inputdir/room1/2017-11-10/17:00:00.mp4');
 
 	# Prepare the configuration
 	system("perl", "-I./blib/lib", "blib/script/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEW_TESTDB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "pubdir=" . abs_path('t/pubdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"));
@@ -53,7 +53,7 @@ SKIP: {
 
 	my $row = $st->fetchrow_hashref();
 
-	my $input = SReview::Video->new(url => abs_path("t/testvids/7184709189_sd.mp4"));
+	my $input = SReview::Video->new(url => abs_path("t/testvids/bbb.mp4"));
 	# perform cut
 	run("perl", "-I./blib/lib", "blib/script/sreview-cut", $row->{talkid});
 

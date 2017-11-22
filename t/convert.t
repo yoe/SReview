@@ -7,7 +7,7 @@ use Test::More tests => 10;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 
-my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
+my $input = SReview::Video->new(url => 't/testvids/bbb.mp4');
 isa_ok($input, 'SReview::Video');
 my $output = SReview::Video->new(url => 't/testvids/1sec.webm', video_codec => 'libvpx-vp9', audio_codec => 'libopus', duration => 1, audio_bitrate => '128k');
 isa_ok($output, 'SReview::Video');

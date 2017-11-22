@@ -8,7 +8,7 @@ use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 use_ok('SReview::Video::ProfileFactory');
 
-my $input = SReview::Video->new(url => 't/testvids/7184709189_sd.mp4');
+my $input = SReview::Video->new(url => 't/testvids/bbb.mp4');
 ok(defined($input), "Could create the input video");
 ok($input->video_codec eq "h264", "video codec of input file is what we expected");
 
