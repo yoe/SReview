@@ -1,3 +1,14 @@
+sreview (0.2.0-1) experimental; urgency=medium
+
+  * New upstream release
+    - Uses a test video that is CC BY 3.0 instead of the one that was CC
+      BY 2.0, which is not DFSG-free
+    - Autodetects whether to use libfdk_aac based on whether ffmpeg
+      supports it, rather than depending on the user to manually set it.
+  * Add various fixes to the debian/ directory to make lintian slightly happier
+
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 22 Nov 2017 21:46:04 +0100
+
 sreview (0.1.1-1) experimental; urgency=medium
 
   * New upstream release
