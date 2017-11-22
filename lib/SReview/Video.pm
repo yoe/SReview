@@ -1,6 +1,8 @@
 package SReview::Video;
 
-our $VERSION = "0.1";
+our $VERSION;
+
+use SReview;
 
 =head1 NAME
 
