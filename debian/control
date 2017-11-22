@@ -1,17 +1,17 @@
 Source: sreview
 Section: video
-Priority: extra
-Standards-Version: 4.0.0
+Priority: optional
+Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: http://anonscm.debian.org/cgit/users/wouter/sreview.git
 Vcs-Git: git://anonscm.debian.org/users/wouter/sreview.git
-Build-Depends: debhelper, ffmpeg, dh-exec, dh-sysuser, dh-apache2
+Build-Depends: debhelper (>= 10), ffmpeg, dh-exec, dh-sysuser, dh-apache2
 
 Package: sreview-master
 Architecture: all
-Depends: sreview-common
-Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect, ${misc:Depends}
-Description: SReview master
+Depends: sreview-common, ${misc:Depends}
+Recommends: libxml-rss-perl, postgresql-server, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect
+Description: SReview components for master host
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
  them into archive-quality video files.
