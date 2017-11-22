@@ -59,21 +59,20 @@ SKIP: {
 
 	my $check = SReview::Video->new(url => abs_path("t/pubdir/1/r/test-talk.mkv"));
 	my $length = $check->duration;
-	ok($length > 9.9 && $length < 10.1, "The generated cut video is of approximately the right length");
+	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
 	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
 
 	run("perl", "-I./blib/lib", "blib/script/sreview-previews", $row->{talkid});
 
 	$check = SReview::Video->new(url => abs_path("t/pubdir/1/r/test-talk.mkv"));
-	$length = $check->duration;
-	ok($length > 9.9 && $length < 10.1, "The preview video is of approximately the right length");
+	ok($length == $check->duration, "The preview video is of the right length");
 
 	# perform transcode
 	run("perl", "-I./blib/lib", "blib/script/sreview-transcode", $row->{talkid});
-	my $final = SReview::Video->new(url => abs_path("t/outputdir/Test event/room1/test-talk.webm"));
-	#ok($final->video_codec eq "vp9", "The transcoded video has the right codec");
-	#ok($final->audio_codec eq "opus", "The transcoded audio has the right codec");
+	my $final = SReview::Video->new(url => abs_path("t/outputdir/Test event/room1/2017-11-10/test-talk.webm"));
+	ok($final->video_codec eq "vp9", "The transcoded video has the right codec");
+	ok($final->audio_codec eq "opus", "The transcoded audio has the right codec");
 }
 
 remove_tree("t/inputdir", "t/outputdir", "t/pubdir");
