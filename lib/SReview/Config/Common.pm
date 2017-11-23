@@ -48,7 +48,7 @@ sub setup {
 	$config->define('url_re', 'If set, used with parse_re in an s///g command to produce a URL', undef);
 
 	# Values for dispatch script
-	$config->define('state_actions', 'An anonymous hash that tells SReview what to do with a talk when it is in a given state. Mojo::Template is used to transform these.', {
+	$config->define('state_actions', 'A hash that tells SReview what to do with a talk when it is in a given state. Mojo::Template is used to transform these.', {
 		cutting => 'qsub -V -l input -l output -b y -pe smp 2 -N cut_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-cut <%== $talkid %>',
 		generating_previews => 'qsub -V -l output -b y -N previews_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-previews <%== $talkid %>',
 		transcoding => 'qsub -V -l output -b y -N transcode_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-transcode <%== $talkid %>',
