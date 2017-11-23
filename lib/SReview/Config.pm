@@ -93,7 +93,7 @@ sub dump {
 			$Data::Dumper::Pad = "";
 			$rv .= Data::Dumper->Dump([${$SReview::Config::_private::{$conf}}], [$conf]) . "\n";
 		} else {
-			$Data::Dumper::Pad = "# ";
+			$Data::Dumper::Pad = "#";
 			$rv .= Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
 		}
 	}
