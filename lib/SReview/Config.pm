@@ -85,16 +85,17 @@ sub describe {
 sub dump {
 	my $self = shift;
 	my $rv = "";
-	$Data::Dumper::Indent = 0;
+	$Data::Dumper::Indent = 1;
 	$Data::Dumper::Sortkeys = 1;
 	foreach my $conf(sort(keys %{$self->{defs}})) {
 		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
 		if(exists($SReview::Config::_private::{$conf}) && (!defined($self->{defs}{$conf}{default}) || ${$SReview::Config::_private::{$conf}} ne $self->{defs}{$conf}{default})) {
+			$Data::Dumper::Pad = "";
 			$rv .= Data::Dumper->Dump([${$SReview::Config::_private::{$conf}}], [$conf]) . "\n";
 		} else {
-			$rv .= "#" . Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
+			$Data::Dumper::Pad = "# ";
+			$rv .= Data::Dumper->Dump([$self->{defs}{$conf}{default}], [$conf]) . "\n";
 		}
-		$rv .= "\n";
 	}
 	$rv .= "# Do not remove this, perl needs it\n1;\n";
 
