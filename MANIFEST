@@ -44,7 +44,6 @@ t/db.t
 t/probe.t
 t/profiles.t
 t/reporting.t
-t/test.cf
 t/zz-runthrough.t
 t/testvids/bbb.mp4
 t/testvids/just-title.svg
