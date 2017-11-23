@@ -86,6 +86,7 @@ sub dump {
 	my $self = shift;
 	my $rv = "";
 	$Data::Dumper::Indent = 0;
+	$Data::Dumper::Sortkeys = 1;
 	foreach my $conf(sort(keys %{$self->{defs}})) {
 		$rv .= "# " . $self->{defs}{$conf}{doc} . "\n";
 		if(exists($SReview::Config::_private::{$conf}) && (!defined($self->{defs}{$conf}{default}) || ${$SReview::Config::_private::{$conf}} ne $self->{defs}{$conf}{default})) {
