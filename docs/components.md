@@ -42,9 +42,9 @@ instances of the web interface, although this has not been tested.
 
 ## Job dispatcher
 
-The `dispatch` script watches the database for new work, and submits
-jobs in the scheduler that will handle them. It needs to run for as long
-as work is being performed.
+The `sreview-dispatch` script watches the database for new work, and submits
+jobs in the scheduler that will handle them. It needs to run for as long as
+work is being performed.
 
 Currently it polls the database every 10 seconds, but long-term plans
 are for it to use [Mojo::Pg](https://metacpan.org/pod/Mojo::Pg) and
@@ -53,7 +53,7 @@ notification](https://www.postgresql.org/docs/9.6/static/sql-listen.html).
 
 ## File detection
 
-The `detect_files` script needs to be run from cron every so often. It
+The `sreview-detect` script needs to be run from cron every so often. It
 will run `ffprobe` on all files it finds (new as well as old files), and
 call a sub from the configuration file with the full filename to figure
 out what the start time of the file is, and in which room it was
@@ -72,7 +72,7 @@ After files are added to the database, the script will run a few SQL
 `UPDATE` statements so the review process will be started for talks for
 which all recordings are available.
 
-Future plans are for `detect_files` to be rewritten so it (optionally)
+Future plans are for `sreview-detect` to be rewritten so it (optionally)
 uses the Linux `inotify` API to detect when file contents is modified.
 
 ## Per-state scripts
@@ -84,7 +84,7 @@ expected to search for the information that it needs in the databse.
 
 The following scripts exist:
 
-### skip
+### sreview-skip
 
 This script simply sets the progress to "done". It should be used when a
 state is not useful for a particular instance of SReview.
@@ -92,7 +92,7 @@ state is not useful for a particular instance of SReview.
 It does not assume anything about the particular state that the talk is
 in, and can therefore be used for pretty much any state.
 
-### cut\_talk
+### sreview-cut
 
 This script takes the raw recordings, extracts the useful data of the
 talk itself as scheduled and/or corrected by reviewers into a "main"
@@ -104,10 +104,10 @@ by way of specifying the `-c copy` parameter to ffmpeg).
 However, this script also performs a BS.1770-compliant audio
 normalisation.
 
-There are currently two versions: the one used at FOSDEM 2017, and the
-one used at DebConf17. Future plans include making this more easily
-parametrized, so that multiple versions of the same script are not
-required.
+There are two older versions of this script: the one used at FOSDEM
+2017, and the one used at DebConf17. The `sreview-cut` script is
+generic, however, and should not need to be modified for different
+conferences.
 
 This script is designed for talks in the `cutting` state.
 
@@ -120,7 +120,9 @@ sending out an email to the speakers and/or designated reviewers.
 
 This script is designed for talks in the `notification` state.
 
-### previews
+There is no genericized version of this script.
+
+### sreview-previews
 
 This script should do whatever is required to convert the output of the
 `cut_talk` script to something HTML5-compatible so that it can be viewed
@@ -134,15 +136,21 @@ other so that they are available over HTTP.
 
 While there is a fosdem version of the `previews` script, that is simply
 an older version of the skip script, since FOSDEM recorded in H.264
-which is already HTML5-compatible.
+which is already HTML5-compatible. The debconf version of this script
+would transcode to low-quality VP8, however, since DebConf records in
+MPEG2, which is not HTML5-compatible.
+
+The genericized version of this script verifies whether the output of
+sreview-cut is HTML5-compatible, and will transcode to low-quality VP8
+if not, or just copy from one container file to the other if it is.
 
 This script is designed to be run in the `generating_previews` state;
 *not* in the `preview` state (the latter is meant as the state where the
 web-based review is done).
 
-### transcode
+### sreview-transcode
 
-This script takes the output of the `cut_talk` script, prepends opening
+This script takes the output of the `sreview-cut` script, prepends opening
 credits (based on an SVG template after a simple sed-like replacement of
 a few key words), appends closing credits (based on either a similar SVG
 template or a static PNG file), and then transcodes the whole resulting
@@ -159,18 +167,21 @@ per second of recorded time), and usually does a two-pass transcode.
 
 It is designed to be run in the `transcoding` state.
 
-Similar to the `cut_talk` script, there are two versions of the
-`transcode` script, too, with future plans to merging them.
+Similar to the `sreview-cut` script, there are two older versions of the
+`sreview-transcode` script, too.
 
 ### upload
 
-This script takes the output of the `transcode` script, and publishes it
-by whatever method is required. It then also removes all intermediate
-files that were created by the `cut_talk` and/or `transcode` scripts; if
-a change is required after a talk has already been published, then the
-talk needs to be put back through the `cut_talk` script.
+This script should take the output of the `sreview-transcode` script,
+and publishes it by whatever method is required. It then also removes
+all intermediate files that were created by the `sreview-cut` and/or
+`sreview-transcode` scripts; if a change is required after a talk has
+already been published, then the talk needs to be put back through the
+`sreview-cut` script.
 
 Two versions exist here too, but they are very similar.
+
+No genericized version of this script exists, yet.
 
 # Examples
 
@@ -213,3 +224,6 @@ through `transcoding` states, no files were copied to vittoria. Only
 when the transcodes had finished were they copied (by the `uploads`
 script that ran on vittoria) to vittoria, and then pushed from vittoria
 to the DebConf [video archive](https://video.debian.net).
+
+It is possible to run all components of SReview on a single host; for
+small conferences, doing so is recommended.
