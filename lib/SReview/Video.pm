@@ -21,6 +21,7 @@ SReview::Video - SReview internal representation of an asset
   SReview::Videopipe->new(inputs => [$input], output => $output)->run();
 
   # do that again; but this time, force vorbis audio:
+  $output = SReview::Video->new(url => $other_filename, reference => $profile);
   $output->audio_codec("libvorbis");
   SReview::Videopipe->new(inputs => [$input], output => $output)->run();
 
