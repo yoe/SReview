@@ -79,6 +79,6 @@ Thanks for reviewing!
 
 ## Further documentation
 
-There is a document about the [components](components) of SReview. It
-should only be necessary to read it if you want to install your own copy
-of SReview, not for reviewing.
+There is a document about the [components](components) of SReview, which
+explains how the system works. If you want to install, read the
+[installation](installation) document.
