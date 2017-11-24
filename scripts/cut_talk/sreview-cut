@@ -13,9 +13,85 @@ use SReview::Video::Concat;
 use SReview::Videopipe;
 use SReview::Config::Common;
 
+=head1 NAME
+
+sreview-cut - cut a talk out of the raw recording data
+
+=head1 SYNOPSIS
+
+sreview-cut TALKID
+
+=head1 DESCRIPTION
+
+C<sreview-cut> performs the following actions:
+
+=over
+
+=item *
+
+Look up the talk with id TALKID in the database.
+
+=item *
+
+From the raw files, extract the amount of video that, according to the
+schedule, is part of the talk of which the event was given as the main video
+(with adjustments as specified by the reviewer, if any, applied).
+
+=item *
+
+Extract the 20 minutes just before and the 20 minutes just after the
+main video into the pre and post videos.
+
+=item *
+
+Apply A/V sync correction values if any exist by removing either some
+video or some audio from the beginning of the extracted region.
+
+=item *
+
+Run C<bs1770gain> over the audio of the main video, and re-integrate it
+with that main video.
+
+=item *
+
+Set the C<progress> field of the talk in the database to C<done>,
+provided its C<state> field is still at C<cutting>.
+
+=back
+
+sreview-cut will B<never> re-encode the original video, and will
+re-encode the original audio of the main video precisely once, after the
+C<bs1770gain> call.
+
+Any re-transcodes should be performed by C<sreview-transcode> (for
+production) and/or C<sreview-previews> (for reviewers).
+
+=head1 CONFIGURATION
+
+C<sreview-cut> considers the following configuration values:
+
+=over
+
+=cut
+
 my $config = SReview::Config::Common::setup;
 
+=item workdir
+
+The location where any temporary files are stored. Defaults to C</tmp>,
+but can be overriden if necessary. These temporary files are removed
+when C<sreview-cut> finishes.
+
+=cut
+
 my $tempdir = tempdir("cutXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
+
+=item dbistring
+
+The DBI string used to connect to the database.
+
+=cut
+
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
@@ -104,6 +180,15 @@ SReview::Videopipe->new(inputs => [$full_input], output => $full_output)->run();
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
 my $row = $eventname->fetchrow_hashref();
+
+=item pubdir
+
+The directory where files available to the review system should be
+stored. It should be made available to users as C</video/> under the
+virtual host top level.
+
+=cut
+
 my $workdir = $config->get('pubdir') . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
 my $outname = "$workdir/" . $row->{slug};
@@ -188,3 +273,11 @@ my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interv
 $update->execute("$prelen seconds", "$postlen seconds", $talkid);
 
 $dbh->commit;
+
+=back
+
+=head1 SEE ALSO
+
+L<sreview-transcode>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>
+
+=cut

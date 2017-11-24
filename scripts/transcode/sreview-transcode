@@ -32,7 +32,71 @@ use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
 use Mojo::Util qw/xml_escape/;
 
+=head1 NAME
+
+sreview-transcode - transcode the output of L<sreview-cut> into production-quality media files
+
+=head1 SYNOPSIS
+
+sreview-transcode TALKID
+
+=head1 DESCRIPTION
+
+C<sreview-transcode> performs the following actions:
+
+=over
+
+=item *
+
+Look up the talk with id TALKID in the database.
+
+=item *
+
+Create the preroll slide from the preroll template, after applying template
+changes to it
+
+=item *
+
+If a postroll template is defined, create the postroll slide using the same
+process as for the preroll slide. If no postroll template is defined, use the
+statically configured preroll
+
+=item *
+
+If an apology template is defined and the current talk has an apology
+note that is not zero length and not NULL, create the apology slide for
+this talk
+
+=item *
+
+Convert the preroll slide, postroll slide, and (if any) apology slide to
+a 5-second video with the same properties as the main raw video
+
+=item *
+
+For each of the configured profiles, do a two-pass transcode of the
+concatenated version of preroll, apology (if available), main, and
+postroll videos to a production video
+
+=back
+
+=back
+
+=head1 CONFIGURATION
+
+C<sreview-transcode> considers the following configuration values:
+
+=over
+
+=cut
+
 my $config = SReview::Config::Common::setup;
+
+=item dbistring
+
+The DBI string used to connect to the database
+
+=cut
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
@@ -51,12 +115,63 @@ my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startd
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
+
+=item pubdir
+
+The directory in which to find the output of C<sreview-cut>
+
+=cut
+
 my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . substr($drow->{room}, 0, 1);
+
+=item outputdir
+
+The top-level directory in which to store production output data
+
+=cut
+
 my $outputdir = $config->get('outputdir');
+
+=item output_subdirs
+
+Array of fields on which to base subdirectories to be created under
+C<outputdir>. The fields can be one or more of:
+
+=over
+
+=item eventid
+
+The ID number of the event that this talk was recorded at
+
+=item event
+
+The name of the event that this talk was recorded at
+
+=item room
+
+The name of the room in which this talk was recorded
+
+=item startdate
+
+The date on which this talk occurred
+
+=back
+
+=cut
+
 foreach my $subdir(@{$config->get('output_subdirs')}) {
 	$outputdir = join('/', $outputdir, $drow->{$subdir});
 }
 make_path($outputdir);
+
+=item workdir
+
+The location where any temporary files are stored. Defaults to C</tmp>,
+but can be overridden if necessary. These temporary files are removed
+when C<sreview-transcode> finishes.
+
+=cut
+
 my $tmpdir = tempdir( "transXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
 
 sub process_template($$) {
@@ -89,6 +204,14 @@ sub process_template($$) {
 }
 
 my $preroll = $pubdir . "/$slug-pre.png";
+
+=item preroll_template
+
+The name of an SVG template to be used for the preroll (i.e., opening
+credits). Required.
+
+=cut
+
 if ( ! -f $preroll ) {
 	process_template($config->get('preroll_template'), $preroll);
 } else {
@@ -96,6 +219,19 @@ if ( ! -f $preroll ) {
 }
 
 my $postroll = $pubdir . "/$slug-post.png";
+
+=item postroll_template
+
+The name of an SVG template to be used for the postroll (i.e., closing
+credits). Either this option or C<postroll> is required.
+
+=item postroll
+
+The name of a PNG file to be used for the postroll (i.e., closing
+credits). Either this option or C<postroll_template> is required.
+
+=cut
+
 if ( ! -f $postroll ) {
 	if(defined($config->get('postroll_template'))) {
 		process_template($config->get('postroll_template'), $postroll);
@@ -113,6 +249,15 @@ my $main_input = SReview::Video->new(url => "$pubdir/$slug.mkv");
 
 my $apology = $pubdir . "/$slug-sorry.png";
 my $sorry;
+
+=item apology_template
+
+The name of an SVG template to be used for the apology slide (shown
+right after the opening credits if an apology was entered). Only
+required if at least one talk has an apology entered.
+
+=cut
+
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	die unless defined($config->get('apology_template'));
 	process_template($config->get('apology_template'), $apology);
@@ -133,6 +278,16 @@ if( -f "$tmpdir/$slug-sorry.mkv") {
 }
 push @$inputs, ( SReview::Video->new(url => $main->url), $post );
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
+
+=item output_profiles
+
+An array of profile names to be produced (see above for the details).
+Defaults to C<webm>.
+
+=back
+
+=cut
+
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
 	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
@@ -140,3 +295,53 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
 $update->execute($talkid);
 $dbh->commit;
+
+=head1 SVG TRANSFORMATIONS
+
+The transformation performed over the SVG files is a simple C<sed>-like
+replacement of input tags in the template file. All data is XML-escaped
+first, however.
+
+The following tags can be set inside the SVG file:
+
+=over
+
+=item @SPEAKERS@
+
+The names of the speakers, in this format:
+
+=over
+
+Firstname Lastname, Firstname Lastname and Firstname Lastname
+
+=back
+
+=item @ROOM@
+
+The name of the room where the talk was held.
+
+=item @TITLE@
+
+The title of the talk.
+
+=item @SUBTITLE@
+
+The subtitle of the talk.
+
+=item @STARTTIME@
+
+The date on which the talk was held.
+
+=item @APOLOGY@
+
+The apology note defined for this talk.
+
+=back
+
+If one of these fields has no data for the given talk, then the tag will
+be replaced by the empty string instead.
+
+=head1 SEE ALSO
+
+L<sreview-cut>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>,
+L<SReview::Video::ProfileFactory>

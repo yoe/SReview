@@ -9,6 +9,49 @@ use SReview::Videopipe;
 use SReview::Video::ProfileFactory;
 use SReview::Config::Common;
 
+=head1 NAME
+
+sreview-previews - create previews from the C<sreview-cut> output
+
+=head1 SYNOPSIS
+
+sreview-previews TALKID
+
+=head1 DESCRIPTION
+
+C<sreview-previews> performs the following actions:
+
+=over
+
+=item *
+
+Look up the talk with id TALKID in the database.
+
+=item *
+
+Verify if the codecs in the pre, main, and post videos as produced by
+L<sreview-cut> are HTML5-compatible. If they are, copy them to a MP4
+or WebM container from the Matroska one.
+
+=item *
+
+If they are not, convert them to the C<vp8_lq> profile
+
+=item *
+
+Update the database to set the current talk's C<progress> field to
+C<done>.
+
+=back
+
+=head1 CONFIGURATION
+
+C<sreview-previews> considers the following configuration values:
+
+=over
+
+=cut
+
 sub convert($) {
 	my $basename = shift;
 	my $filename = $basename . ".mkv";
@@ -34,6 +77,12 @@ sub convert($) {
 
 my $config = SReview::Config::Common::setup;
 
+=item dbistring
+
+The DBI string used to connect to the database.
+
+=cut
+
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
@@ -45,6 +94,13 @@ my $talk_data = $dbh->prepare("SELECT talks.event, talks.slug, rooms.name FROM t
 $talk_data->execute($talkid);
 
 my $row = $talk_data->fetchrow_hashref();
+
+=item pubdir
+
+The directory in which to find the output of C<sreview-cut>, and in
+which to write the previews
+
+=cut
 
 my $outname = $config->get('pubdir') . "/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
 
@@ -58,3 +114,11 @@ convert($outname . "-post");
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='generating_previews'")->execute($talkid);
 
 $dbh->commit;
+
+=back
+
+=head1 SEE ALSO
+
+C<sreview-cut>, C<sreview-transcode>, C<sreview-skip>, C<sreview-config>
+
+=cut
