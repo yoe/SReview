@@ -86,6 +86,8 @@ package SReview::Video::Profile::Base;
 This profile serves as a base class for the other profiles. It should
 not be used directly.
 
+It adds the extension, and defaults the pixel format to yuv420p.
+
 =cut
 
 use Moose;
@@ -100,6 +102,10 @@ has 'exten' => (
 	lazy => 1,
 	is => 'ro',
 	default => 'IEK -- extension not defined',
+);
+
+has '+pix_fmt' => (
+	default => 'yuv420p',
 );
 
 package SReview::Video::Profile::vp9;
