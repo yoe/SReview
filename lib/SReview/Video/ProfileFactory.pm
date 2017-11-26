@@ -105,8 +105,12 @@ has 'exten' => (
 );
 
 has '+pix_fmt' => (
-	default => 'yuv420p',
+	builder => '_build_pixfmt',
 );
+
+sub _build_pixfmt {
+	return 'yuv420p';
+}
 
 package SReview::Video::Profile::vp9;
 
