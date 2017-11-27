@@ -57,6 +57,13 @@ sub setup {
 	});
 	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 0);
 
+	# Values for notification script
+	$config->define('notify_actions', 'An array of things to do when notifying. Can contain one or more of: email, command.', []);
+	$config->define('email_template', 'A filename of a Mojo::Template template to process, returning the email body. Required if notify_actions includes email.', '');
+	$config->define('email_from', 'The data for the From: header in the email. Required if notify_actions includes email.', '');
+	$config->define('urlbase', 'The URL on which SReview runs. Note that this is used by sreview-notify to generate URLs, not by sreview-web.', '');
+	$config->define('notify_commands', 'A two-dimensional array to be passed to system(). Each component is passed through Mojo::Template before processing. No shell is called to execute this (unless the command is a shellscript...)', [['echo', '<%== $title %>', 'is', 'available', 'at', '<%== url %>']]);
+
 	return $config;
 }
 
