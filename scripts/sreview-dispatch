@@ -98,7 +98,7 @@ while(1) {
 			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
 			my $statetrans = ${$state_actions}{$row->{state}};
-			system $mt->render(talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output'));
+			system $mt->render($statetrans, {talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output')});
 		}
 	}
 	print "finished, waiting 10 seconds...\n";
