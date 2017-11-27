@@ -31,7 +31,7 @@ It can also be useful when no notification is to be used.
 
 my $config = SReview::Config::Common::setup;
 
-my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to databse!";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
 my $talkid = $ARGV[0];
 
