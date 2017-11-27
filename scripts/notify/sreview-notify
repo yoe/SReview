@@ -101,3 +101,5 @@ foreach my $action(@$actions) {
 		die "Unknown notification action $action!";
 	}
 }
+
+$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
