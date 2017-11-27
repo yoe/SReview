@@ -125,8 +125,8 @@ has 'duration_style' => (
 The codec in use for the video stream. Note that C<ffprobe> will
 sometimes use a string (e.g., "vp8") that is not the best choice when
 instructing C<ffmpeg> to transcode video to the said codec (for vp8, the
-use of "libvpx" is recommended). No attempt is made (yet?) by
-C<SReview::Video> to filter this out.
+use of "libvpx" is recommended). C<SReview::CodecMap> is used to map
+detected codecs to output codecs and resolve this issue.
 
 =cut
 
@@ -149,8 +149,8 @@ sub _probe_videocodec {
 The codec in use for the audio stream. Note that C<ffprobe> will
 sometimes use a string (e.g., "vorbis") that is not the best choice when
 instructing C<ffmpeg> to transcode audio to the said codec (for vorbis,
-the use of "libvorbis" is recommended). No attempt is made (yet?) by
-C<SReview::Video> to filter this out.
+the use of "libvorbis" is recommended). C<SReview::CodecMap> is used to
+map detected codecs to output codecs and resolve this issue.
 
 =cut
 
