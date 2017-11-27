@@ -51,8 +51,8 @@ function formitems(which) {
 	}
 	$('#comment_text').prop("disabled", disableval);
 	if(which === 'standard') {
-		$('#length_adj').value = sreview_viddata.get_length_adjust();
-		$('#offset_start').value = sreview_viddata.get_start_offset();
+		$('#length_adj').val(sreview_viddata.get_length_adjust());
+		$('#offset_start').val(sreview_viddata.get_start_offset());
 	}
 }
 function setPoint(vid, startstop, time) {
