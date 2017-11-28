@@ -38,6 +38,7 @@ scripts/transcode/fosdem
 scripts/transcode/sreview-transcode
 scripts/upload/debconf
 scripts/upload/fosdem
+scripts/upload/sreview-upload
 t/config.t
 t/convert.t
 t/copy.t

@@ -64,6 +64,9 @@ sub setup {
 	$config->define('urlbase', 'The URL on which SReview runs. Note that this is used by sreview-notify to generate URLs, not by sreview-web.', '');
 	$config->define('notify_commands', 'A two-dimensional array to be passed to system(). Each component is passed through Mojo::Template before processing. No shell is called to execute this (unless the command is a shellscript...)', [['echo', '<%== $title %>', 'is', 'available', 'at', '<%== url %>']]);
 
+	# Values for upload script
+	$config->define('upload_actions', 'An array of commands to run on each file to be uploaded. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $file %>', 'ready for upload']]);
+
 	return $config;
 }
 

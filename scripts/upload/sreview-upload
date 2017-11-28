@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use DBI;
+use Mojo::Template;
+use SReview::Config::Common;
+use SReview::Video::ProfileFactory;
+
+my $config = SReview::Config::Common::setup;
+
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+
+my $talkid = $ARGV[0];
+
+$dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid);
+
+my $mt = Mojo::Template->new;
+$mt->vars(1);
+
+sub run_command($) {
+	my $file = shift;
+
+	foreach my $command(@{$config->get('upload_actions')}) {
+		my @run;
+		foreach my $component(@$command) {
+			my $rendered = $mt->render($component, {file => $file});
+			chomp($rendered);
+			push @run, $rendered;
+		}
+		system(@run);
+	}
+}
+
+my $actions = $config->get('upload_actions');
+
+exit 0 if(scalar(@$actions) < 1);
+
+my $talk = $dbh->prepare("SELECT event, room, starttime::date AS startdate, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
+$talk->execute($talkid);
+my $talkdata = $talk->fetchrow_hashref;
+my $outputdir = $config->get('outputdir');
+my $subdirs = $config->get('output_subdirs');
+
+foreach my $subdir(@$subdirs) {
+	$outputdir = join('/', $outputdir, $talkdata->{$subdir});
+}
+
+foreach my $profile(@{$config->get('output_profiles')}) {
+	my $basename = join('.', $talkdata->{slug}, SReview::Video::ProfileFactory->create($profile, SReview::Video->new(url => ''))->exten());
+	my $file = join('/', $outputdir, $basename);
+	run_command($file);
+}
+
+$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
