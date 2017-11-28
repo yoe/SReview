@@ -6,6 +6,34 @@ package SReview::Config;
 use Data::Dumper;
 use Carp;
 
+=head1 NAME
+
+SReview::Config - Self-reproducing and self-documentating configuration file system
+
+=head1 SYNOPSIS
+
+  use SReview::Config;
+
+  my $config = SReview::Config->new('/etc/sreview/config.pm');
+  $config->define('name', 'The name of this element', 'default');
+  ...
+  print "You configured " . $config->get('name') . " as the name\n";
+  print "Full configuration: \n" . $config->dump;
+
+=head1 DESCRIPTION
+
+SReview::Config is a class to easily manage self-reproducing and
+self-documenting configuration. You create an SReview::Config object,
+populate it with possible configuration values, and then retrieve them.
+
+=head1 METHODS
+
+=head2 SReview::Config->new('path/to/filename');
+
+Create a new SReview::Config object.
+
+=cut
+
 sub new {
 	my $self = {defs => {}};
 	my $class = shift;
@@ -31,6 +59,17 @@ sub new {
 	return $self;
 };
 
+=head2 $config->define(name, doc, default)
+
+Define a new configuration value. Not legal after C<get> has already
+been called.
+
+Name should be the name of the configuration value. Apart from the fact
+that it should not have a sigil, it should be a valid name for a perl
+scalar variable.
+
+=cut
+
 sub define {
 	my $self = shift;
 	my $name = shift;
@@ -42,6 +81,17 @@ sub define {
 	$self->{defs}{$name}{doc} = $doc;
 	$self->{defs}{$name}{default} = $default;
 };
+
+=head2 $config->get('name')
+
+Return the value of the given configuration item. Also finalizes the
+definitions of this configuration file; that is, once this method has
+been called, the C<define> method above will croak.
+
+The returned value will either be the default value configured at
+C<define> time, or the value configured in the configuration file.
+
+=cut
 
 sub get {
 	my $self = shift;
@@ -60,6 +110,14 @@ sub get {
 	}
 };
 
+=head2 $config->set('name', value);
+
+Change the current value of the given configuration item.
+
+Note, this does not change the defaults, only the configured value.
+
+=cut
+
 sub set {
 	my $self = shift;
 	my %vals = @_;
@@ -75,12 +133,44 @@ sub set {
 	}
 }
 
+=head2 $config->describe('name');
+
+Return the documentation string for the given name
+
+=cut
+
 sub describe {
 	my $self = shift;
 	my $conf = shift;
 
 	return $self->{defs}{$conf}{doc};
 }
+
+=head2 $config->dump
+
+Return a string describing the whole configuration.
+
+Each configuration item will produced in one of the following two
+formats:
+
+=over
+
+=item *
+
+For an item that only has a default set:
+
+  # Documentation value given to define
+  #$name = "default value";
+
+=item *
+
+For an item that has a different value configured (either through the
+configuration file, or through C<set>):
+
+  # Documentation value given to define
+  $name = "current value";
+
+=cut
 
 sub dump {
 	my $self = shift;
@@ -101,5 +191,12 @@ sub dump {
 
 	return $rv;
 };
+
+=head1 BUGS
+
+It is currently not possible to load more than one configuration file in
+the same process space. This will be fixed at some point in the future.
+
+=cut
 
 1;
