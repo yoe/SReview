@@ -21,6 +21,7 @@ scripts/cut_talk/debconf
 scripts/cut_talk/fosdem
 scripts/cut_talk/sreview-cut
 scripts/notify/notify_email
+scripts/notify/sreview-notify
 scripts/previews/debconf
 scripts/previews/fosdem
 scripts/previews/sreview-previews
