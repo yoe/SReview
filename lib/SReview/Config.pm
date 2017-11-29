@@ -82,6 +82,14 @@ sub define {
 	$self->{defs}{$name}{default} = $default;
 };
 
+sub define_computed {
+	my $self = shift;
+	my $name = shift;
+	my $sub = shift;
+
+	$self->{defs}{$name}{sub} = $sub;
+}
+
 =head2 $config->get('name')
 
 Return the value of the given configuration item. Also finalizes the
@@ -96,8 +104,14 @@ C<define> time, or the value configured in the configuration file.
 sub get {
 	my $self = shift;
 	my $name = shift;
+	my $talk = shift;
+
 	if(!exists($self->{defs}{$name})) {
 		die "e: definition for config file item $name does not exist!";
+	}
+
+	if(exists($self->{defs}{$name}{sub})) {
+		return &{$self->{defs}{$name}{sub}}($self, $talk);
 	}
 	$self->{fixed} = 1;
 	if(exists($SReview::Config::_private::{$name})) {
