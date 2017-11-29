@@ -15,6 +15,7 @@ lib/SReview/Video/ProfileFactory.pm
 lib/SReview/Video/Profile/FOSDEM.pm
 lib/SReview/Videopipe.pm
 lib/SReview/Web.pm
+lib/SReview/Web/Controller/Schedule.pm
 Makefile.PL
 MANIFEST			This list of files
 README.md
@@ -67,3 +68,4 @@ web/templates/table.html.ep
 web/templates/talk.html.ep
 web/templates/talk_update.html.ep
 web/templates/volunteer/list.html.ep
+web/templates/schedule/index.html.ep

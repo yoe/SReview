@@ -83,6 +83,10 @@ sub startup {
 		die if defined($eventid);
 		$eventid = $row->{id};
 	}
+	$self->helper(eventid => sub {
+		return $eventid;
+	});
+
 	$self->helper(version => sub {
 		state $rv;
 		if(defined $rv) {
@@ -325,6 +329,10 @@ sub startup {
 		$c->stash(admin => $c->session->{admin});
 		return 1;
 	});
+
+	$admin->any('/schedule/list')->to(controller => 'schedule', action => 'talks');
+	$admin->any('/schedule/talk/')->to(controller => 'schedule', action => 'mod_talk');
+	$admin->any('/schedule/')->to(controller => 'schedule', action => 'index');
 
 	$admin->get('/' => sub {
 		my $c = shift;
