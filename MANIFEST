@@ -12,6 +12,7 @@ lib/SReview/Video/Concat.pm
 lib/SReview/Video/NGinX.pm
 lib/SReview/Video/PNGGen.pm
 lib/SReview/Video/ProfileFactory.pm
+lib/SReview/Video/Profile/FOSDEM.pm
 lib/SReview/Videopipe.pm
 lib/SReview/Web.pm
 Makefile.PL
