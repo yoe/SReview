@@ -1,3 +1,9 @@
+sreview (0.2.1-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 29 Nov 2017 17:15:47 +0100
+
 sreview (0.2.0-1) experimental; urgency=medium
 
   * New upstream release
