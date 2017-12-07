@@ -296,7 +296,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 			$output->add_metadata($field, $drow->{field});
 		}
 	}
-	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
+	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
 }
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
 $update->execute($talkid);
