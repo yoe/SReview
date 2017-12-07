@@ -111,7 +111,7 @@ $talk->execute($talkid);
 my $row = $talk->fetchrow_hashref();
 my $slug = $row->{slug};
 
-my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS startdate, speakers, name, subtitle, apologynote FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, room, starttime::date AS date, speakers, name AS title, subtitle, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 my $eid = $drow->{eventid};
@@ -151,7 +151,7 @@ The name of the event that this talk was recorded at
 
 The name of the room in which this talk was recorded
 
-=item startdate
+=item date
 
 The date on which this talk occurred
 
@@ -180,9 +180,9 @@ sub process_template($$) {
 	my $outputsvg = "$tmpdir/tmp.svg";
 	my $speakers = xml_escape($drow->{speakers});
 	my $room = xml_escape($drow->{room});
-	my $title = xml_escape($drow->{name});
+	my $title = xml_escape($drow->{title});
 	my $subtitle = xml_escape($drow->{subtitle});
-	my $startdate = xml_escape($drow->{startdate});
+	my $startdate = xml_escape($drow->{date});
 	my $apology = xml_escape($drow->{apologynote});
 
 	open INPUT, "<$input";
@@ -290,6 +290,12 @@ Defaults to C<webm>.
 
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
+	my $output = SReview::Video->new( url => "$outputdir/$slug." . $profile->exten, reference => $profile);
+	foreach my $field("title", "event", "speakers", "track", "date") {
+		if(defined($drow->{$field})) {
+			$output->add_metadata($field, $drow->{field});
+		}
+	}
 	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => "$outputdir/$slug." . $profile->exten, reference => $profile), vcopy => 0, acopy => 0, multipass => 1)->run();
 }
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
