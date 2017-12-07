@@ -194,7 +194,7 @@ sub process_template($$) {
 		s/\@ROOM@/$room/g;
 		s/\@TITLE@/$title/g;
 		s/\@SUBTITLE@/$subtitle/g;
-		s/\@STARTTIME@/$startdate/g;
+		s/\@DATE@/$startdate/g;
 		s/\@APOLOGY@/$apology/g;
 		print $fh $_;
 	}
@@ -334,7 +334,7 @@ The title of the talk.
 
 The subtitle of the talk.
 
-=item @STARTTIME@
+=item @DATE@
 
 The date on which the talk was held.
 
