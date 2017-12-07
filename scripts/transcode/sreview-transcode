@@ -293,7 +293,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $output = SReview::Video->new( url => "$outputdir/$slug." . $profile->exten, reference => $profile);
 	foreach my $field("title", "event", "speakers", "track", "date") {
 		if(defined($drow->{$field})) {
-			$output->add_metadata($field, $drow->{field});
+			$output->add_metadata($field, $drow->{$field});
 		}
 	}
 	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
