@@ -2,6 +2,9 @@ package SReview::Config::Common;
 
 use SReview::Config;
 
+use strict;
+use warnings;
+
 sub get_default_cfile {
 	my $dir = $ENV{SREVIEW_WDIR};
 	my $write = shift;

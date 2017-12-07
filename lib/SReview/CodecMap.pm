@@ -1,5 +1,8 @@
 package SReview::CodecMap;
 
+use strict;
+use warnings;
+
 use Exporter 'import';
 
 our @EXPORT_OK=qw/detect_to_write/;

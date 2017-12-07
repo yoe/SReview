@@ -1,5 +1,8 @@
 package SReview::Db;
 
+use strict;
+use warnings;
+
 use Mojo::Pg;
 use SReview::Config;
 
