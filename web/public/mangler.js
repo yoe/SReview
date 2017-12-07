@@ -1,13 +1,3 @@
-//sreview_viddata = {
-//	"current_length_adj": -6.5,
-//	"current_offset": 30.2,
-//	"lengths": {
-//		"pre": 1200,
-//		"main_initial": 2700,
-//		"post": 1200
-//	}
-//};
-
 /* @licstart The following is the entire license notice for this
  * project, including all its JavaScript.
  *
