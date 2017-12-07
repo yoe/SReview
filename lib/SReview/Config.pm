@@ -206,6 +206,8 @@ sub dump {
 	return $rv;
 };
 
+=back
+
 =head1 BUGS
 
 It is currently not possible to load more than one configuration file in
