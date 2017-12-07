@@ -292,7 +292,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
 	my $output = SReview::Video->new( url => "$outputdir/$slug." . $profile->exten, reference => $profile);
 	foreach my $field("title", "event", "speakers", "track", "date") {
-		if(defined($drow->{$field})) {
+		if(defined($drow->{$field}) && length($drow->{$field}) > 0) {
 			$output->add_metadata($field, $drow->{$field});
 		}
 	}
