@@ -1,3 +1,10 @@
+sreview (0.2.2-1) experimental; urgency=medium
+
+  * New upstream release (with only a few minor changes)
+  * debian/copyright: add text of the CC "by" license, too.
+
+ -- Wouter Verhelst <wouter@debian.org>  Mon, 11 Dec 2017 22:25:31 +0100
+
 sreview (0.2.1-1) experimental; urgency=medium
 
   * New upstream release
