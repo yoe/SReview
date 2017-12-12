@@ -67,11 +67,50 @@ nodes.
 None. C<sreview-dispatch> uses the system-wide SReview configuration.
 For more information, see L<sreview-config>
 
+=head1 CONFIGURATION
+
+C<sreview-dispatch> considers the following configuration values:
+
+=over
+
 =cut
 
 my $config = SReview::Config::Common::setup;
 
+=item dbistring
+
+The database connection string
+
+=cut
+
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+
+=item state_actions
+
+A hash table of shell commands to execute when a talk is found in a
+particular state with the C<waiting> progress value. The hash key should
+be the state name.
+
+If a state is not specified in the C<state_actions> hash, then
+C<sreview-dispatch> will I<ignore> that state. This allows for handling
+particular states on particular hosts, if necessary.
+
+The shell commands can use the following template variables:
+
+=over
+
+=item <%== $talkid %>
+
+The database ID of the talk to work on
+
+=item <%== $output_dir %>
+
+The value of the C<script_output> configuration item, i.e., where to
+redirect output to.
+
+=back
+
+=cut
 
 my $state_actions = $config->get('state_actions');
 
@@ -87,6 +126,15 @@ while(1) {
 
 	my $st;
 	my $statelist = "'" . join("','", keys(%{$state_actions})) . "'";
+
+=item query_limit
+
+The maximum number of requests that should be handled per loop. Should
+be set to 0 (meaning infinity) when using an external scheduler;
+should probably be set to 1 when not.
+
+=cut
+
 	if($config->get('query_limit') > 0) {
 		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' LIMIT ? FOR UPDATE");
 		$st->execute($config->get('query_limit'));
@@ -104,6 +152,17 @@ while(1) {
 			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
 			my $statetrans = ${$state_actions}{$row->{state}};
+
+=item script_output
+
+The location where stderr and stdout output should be written to. This
+is supposed to be a directory; it is reasonable to create a file for
+stderr and a file for stdout for each script run.
+
+=back
+
+=cut
+
 			system $mt->render($statetrans, {talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output')});
 		}
 	}
@@ -112,3 +171,12 @@ while(1) {
 
 	sleep 10;
 }
+
+=head1 BUGS
+
+C<sreview-dispatch> currently polls the database every 10 seconds. This
+should be changed to an event-based system based on PostgreSQL
+asynchronous notifications.
+
+=cut
+
