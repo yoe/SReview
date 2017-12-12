@@ -40,19 +40,25 @@ B<sreview-dispatch> is the central script for SReview. It can be used in two way
 
 =item 1.
 
-Either you run it with gridengine as the external scheduler. This is the
-recommended way of using SReview. In this mode of operation,
-C<sreview-dispatch> should be run once in the entire network.
+Either you run it with an external scheduler (e.g., gridengine, slurm,
+PBS, torque). This is the recommended way of using SReview for large
+installations. In this mode of operation, C<sreview-dispatch> should be
+run once in the entire network, and the C<query_limit> configuration
+value should be set to 0.
 
 =item 2.
 
-Or you run it with no external scheduler. This has not been tested much.
-In this mode of operation, it is recommended that the C<query_limit>
+Or you run it with no external scheduler. This is the default. In this
+mode of operation, it is recommended that the C<query_limit>
 configuration parameter is set to a nonzero value, so that individual
 C<sreview-dispatch> instances do not take all the work, keeping all the
 other instances idle. In this mode of operation, one C<sreview-dispatch>
 instance should be run per CPU core on every machine that is used for
-transcoding.
+performing work.
+
+This mode works, but using an external scheduler allows for operating
+more flexibly on pending jobs, and on the addition or removal of extra
+nodes.
 
 =back
 

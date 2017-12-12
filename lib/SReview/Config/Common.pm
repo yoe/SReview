@@ -52,13 +52,13 @@ sub setup {
 
 	# Values for dispatch script
 	$config->define('state_actions', 'A hash that tells SReview what to do with a talk when it is in a given state. Mojo::Template is used to transform these.', {
-		cutting => 'qsub -V -l input -l output -b y -pe smp 2 -N cut_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-cut <%== $talkid %>',
-		generating_previews => 'qsub -V -l output -b y -N previews_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-previews <%== $talkid %>',
-		transcoding => 'qsub -V -l output -b y -N transcode_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-transcode <%== $talkid %>',
-		uploading => 'qsub -V -l output -b y -N upload_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-skip <%== $talkid %>',
-		notification => 'qsub -V -l output -b y -N notify_<%== $talkid %> -o <%== $output_dir %> -e <%== $output_dir %> sreview-skip <%== $talkid %>',
+		cutting => 'sreview-cut <%== $talkid %> > <%== $output_dir %>/cut.<%== $talkid %>.out 2> <%== $output_dir %>/cut.<%== $talkid %>.err',
+		generating_previews => 'sreview-previews <%== $talkid %> > <%== $output_dir %>/preview.<%== $talkid %>.out 2> <%== $output_dir %>/preview.<%== $talkid %>.err',
+		transcoding => 'sreview-transcode <%== $talkid %> > <%== $output_dir %>/trans.<%== $talkid %>.out 2> <%== $output_dir%>/trans.<%== $talkid %>.err',
+		uploading => 'sreview-skip <%== $talkid %>',
+		notification => 'sreview-skip <%== $talkid %>',
 	});
-	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 0);
+	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 1);
 
 	# Values for notification script
 	$config->define('notify_actions', 'An array of things to do when notifying. Can contain one or more of: email, command.', []);
