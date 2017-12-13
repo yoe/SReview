@@ -80,12 +80,21 @@ SReview consists of two major components: a webinterface (written in
 Perl with Mojolicious), and a backend which consists of another set of
 perl scripts.
 
-To run the webinterface in a test environment, copy the
-`config.pl.template` file in the web directory to `config.pl`, edit it,
-run "./sreview daemon", and browse to the URL given. To run the
+To run the webinterface in a test environment, run:
+
+    export SREVIEW_WDIR=$(pwd)
+    sreview-config --action=update
+
+and review the `config.pm` file that this creates. Edit it, either by
+way of an editor, or by using
+
+    sreview-config --set=key=value --action=update
+
+then run `sreview-web daemon`, and browse to the URL given. To run the
 webinterface in production, see
 [Mojo::Server::Hypnotoad](http://mojolicious.org/perldoc/Mojo/Server/Hypnotoad)
-(or some of the other guides over there).
+(or some of the other guides over there), or use the Debian packages
+provided (which should make `sreview-web` start at system boot time).
 
 To run the backend, it is recommended that you install gridengine first.
 In theory, the backend *should* work without gridengine, but that is not
@@ -93,15 +102,7 @@ tested. Additionally, you will then need to run a dispatcher per CPU,
 rather than having just one dispatcher in the whole network (which is
 annoying).
 
-Once gridengine has been installed, copy the `config.pl.template` file
-in the scripts directory to `config.pl`, edit it, and run `perl
-dispatch`.
-
-If you want to modify the output formats, you should edit the
-`transcode` script where you can add and/or remove ffmpeg command lines.
-
-If you want to modify the look and feel of the webinterface, you should
-edit the files in the web/templates directory.
+Once gridengine has been installed, run `sreview-dispatch`.
 
 If you have any issues with SReview, please file an issue (or better
 yet, a pull request) on the github issue tracker.
