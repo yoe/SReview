@@ -363,6 +363,10 @@ INSERT INTO properties(name, description, helptext) VALUES('audio_channel', 'Aud
 INSERT INTO properties(name, description, helptext) VALUES('offset_start', 'Time offset', 'Use to adjust the time position of this talk. Negative values move the start to earlier in time, positive to later. Note that both start and end position are updated; if the end should not be updated, make sure to also set the "Length adjustment" value. Seconds; may be fractional.');
 -- 5 down
 DELETE FROM properties WHERE name IN ('length_adj', 'offset_audio', 'audio_channel', 'offset_start');
+-- 6 up
+ALTER TABLE speakers ADD upstreamid VARCHAR;
+-- 6 down
+ALTER TABLE speakers DROP upstreamid;
 EOF
 
 	return $db->migrations->migrate;
