@@ -3,6 +3,10 @@
 %:
 	dh $@ --with apache2,sysuser
 
+override_dh_install:
+	chmod +x debian/sreview-master.install debian/sreview-master.dbc
+	dh_install
+
 override_dh_installinit:
 	dh_installinit -psreview-master --name=sreview-dispatch
 	dh_installinit --remaining
