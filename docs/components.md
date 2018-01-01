@@ -55,10 +55,13 @@ notification](https://www.postgresql.org/docs/9.6/static/sql-listen.html).
 
 The `sreview-detect` script needs to be run from cron every so often. It
 will run `ffprobe` on all files it finds (new as well as old files), and
-call a sub from the configuration file with the full filename to figure
+use a regex from the configuration file on the full filename to figure
 out what the start time of the file is, and in which room it was
 recorded. It then stores that information, along with the filename, in
 the database.
+
+This means that the start time and room name needs to be encoded in the
+file and/or path name.
 
 If the file already exists in the database, it will then instead update
 the length (and *only* the lenght), as specified in time rather than
