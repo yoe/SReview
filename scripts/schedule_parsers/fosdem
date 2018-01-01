@@ -20,11 +20,13 @@
 use XML::Simple qw(:strict);
 use DBI;
 
-require './config.pl';
+use SReview::Config::Common;
 
-my $dbh = DBI->connect($config->{dbistring}, '', '') or die "Cannot connect to database!";
+my $config = SReview::Config::Common::setup;
 
-open SCHEDULE, "curl -s https://fosdem.org/2017/schedule/xml|";
+my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+
+open SCHEDULE, "curl -s https://fosdem.org/2018/schedule/xml|";
 
 my $schedule = "";
 
