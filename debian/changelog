@@ -1,3 +1,9 @@
+sreview (0.2.3-3) unstable; urgency=medium
+
+  * Re-upload to unstable, now that the first major issues are fixed.
+
+ -- Wouter Verhelst <wouter@debian.org>  Thu, 04 Jan 2018 18:18:13 +0100
+
 sreview (0.2.3-2) experimental; urgency=medium
 
   * debian/rules: ensure sreview-master.install and sreview-master.dbc
