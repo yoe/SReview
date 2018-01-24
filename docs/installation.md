@@ -204,3 +204,12 @@ the master:
           'transcoding' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N transcode_<%== $talkid %> sreview-transcode <%== $talkid %>',
           'uploading' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N upload_<%== $talkid %> sreview-upload <%== $talkid %>',
       };
+
+Help!
+=====
+
+If you need more help, contact wouter:
+
+- IRC: wouter on OFTC or Freenode
+- email: wouter on the debian.org domain
+
