@@ -165,6 +165,7 @@ function edit_length_adj(val) {
     <%= $comments =%>
     % end
     <div class="well">Note: if you choose this option, your video will be marked as <q>broken</q> until the video team has had time to look at it or you set it back to preview by choosing the first option in this form.</div>
+    <div class="small">this talk's nonce is <%= $talk_nonce %></div>
   </div>
   </fieldset>
   %= submit_button 'ok' => (class => 'btn btn-primary');

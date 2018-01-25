@@ -178,6 +178,7 @@ sub startup {
 		$c->stash(talk_speakers => $row->{speakers});
 		$c->stash(talk_start => $row->{starttime});
 		$c->stash(talk_end => $row->{endtime});
+		$c->stash(talk_nonce => $c->param("nonce"));
 		$c->stash(slug => $row->{slug});
 		$c->stash(event => $config->get("event"));
 		$c->stash(eventid => $eventid);
@@ -380,10 +381,10 @@ sub startup {
 		my $st;
 
 		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote FROM talk_list WHERE id = ? AND roomid = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote, nonce FROM talk_list WHERE id = ? AND roomid = ?');
 			$st->execute($id, $c->session->{room});
 		} else {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote FROM talk_list WHERE id = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynot, nonce  FROM talk_list WHERE id = ?');
 			$st->execute($id);
 		}
 		my $row = $st->fetchrow_hashref("NAME_lc");
@@ -412,6 +413,7 @@ sub startup {
 		$c->stash(talk_speakers => $row->{speakers});
 		$c->stash(talk_start => $row->{starttime});
 		$c->stash(talk_end => $row->{endtime});
+		$c->stash(talk_nonce => $row->{nonce});
 		$c->stash(slug => $row->{slug});
 		$c->stash(event => $config->get("event"));
 		$c->stash(eventid => $eventid);
