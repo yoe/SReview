@@ -66,7 +66,7 @@ sub startup {
 			$sth->execute($talk) or die;
 		} elsif($choice eq "comments") {
 			my $sth = $c->dbh->prepare("UPDATE talks SET state='broken', progress='failed', comments = ? WHERE id = ?");
-			my $comments = $c->param->("comment_text");
+			my $comments = $c->param("comment_text");
 			$sth->execute($comments, $talk) or die;
 		} else {
 			$c->stash(message => "Unknown action.");
