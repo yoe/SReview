@@ -1,5 +1,5 @@
 use SReview::Video::ProfileFactory;
-package SReview::Video::Profile::FOSDEM;
+package SReview::Video::Profile::mp4;
 
 use Moose;
 
@@ -10,15 +10,11 @@ has '+exten' => (
 );
 
 sub _probe_videocodec {
-	return "libx264";
+	return "h264";
 }
 
 sub _probe_audiocodec {
-	return "libfdk_aac";
-}
-
-sub _probe_audiobitrate {
-	return "128k";
+	return "aac";
 }
 
 1;

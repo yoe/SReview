@@ -11,6 +11,8 @@ my %writemap = (
 	'vorbis' => 'libvorbis',
 	'vp8' => 'libvpx',
 	'vp9' => 'libvpx-vp9',
+	'h264' => 'libx264',
+	'hevc' => 'libx265',
 );
 
 open CHECK_FDK, "ffmpeg -hide_banner -h encoder=libfdk_aac|";
