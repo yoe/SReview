@@ -384,7 +384,7 @@ sub startup {
 			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote, nonce FROM talk_list WHERE id = ? AND roomid = ?');
 			$st->execute($id, $c->session->{room});
 		} else {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynot, nonce  FROM talk_list WHERE id = ?');
+			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote, nonce FROM talk_list WHERE id = ?');
 			$st->execute($id);
 		}
 		my $row = $st->fetchrow_hashref("NAME_lc");
