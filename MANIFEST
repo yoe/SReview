@@ -13,6 +13,7 @@ lib/SReview/Video/NGinX.pm
 lib/SReview/Video/PNGGen.pm
 lib/SReview/Video/ProfileFactory.pm
 lib/SReview/Video/Profile/FOSDEM.pm
+lib/SReview/Video/Profile/copy.pm
 lib/SReview/Videopipe.pm
 lib/SReview/Web.pm
 lib/SReview/Web/Controller/Schedule.pm
