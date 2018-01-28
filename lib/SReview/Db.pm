@@ -367,6 +367,59 @@ DELETE FROM properties WHERE name IN ('length_adj', 'offset_audio', 'audio_chann
 ALTER TABLE speakers ADD upstreamid VARCHAR;
 -- 6 down
 ALTER TABLE speakers DROP upstreamid;
+-- 7 up
+ALTER TABLE tracks ADD is_recorded BOOLEAN;
+CREATE OR REPLACE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    rooms.name AS room,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM (((rooms
+     LEFT JOIN talks ON ((rooms.id = talks.room)))
+     LEFT JOIN events ON ((talks.event = events.id)))
+     LEFT JOIN tracks ON ((talks.track = tracks.id)))
+   WHERE tracks.is_recorded;
+-- 7 down
+CREATE OR REPLACE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    rooms.name AS room,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM (((rooms
+     LEFT JOIN talks ON ((rooms.id = talks.room)))
+     LEFT JOIN events ON ((talks.event = events.id)))
+     LEFT JOIN tracks ON ((talks.track = tracks.id)));
+ALTER TABLE tracks DROP is_recorded;
 EOF
 
 	return $db->migrations->migrate;
