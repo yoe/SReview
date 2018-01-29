@@ -1,3 +1,9 @@
+sreview (0.2.4-2) unstable; urgency=medium
+
+  * Fixes
+
+ -- Wouter Verhelst <wouter@debian.org>  Mon, 29 Jan 2018 17:13:28 +0100
+
 sreview (0.2.4-1) unstable; urgency=medium
 
   * New upstream release
