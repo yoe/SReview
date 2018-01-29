@@ -24,6 +24,7 @@ WriteMakefile(
 		'scripts/sreview-skip',
 		'scripts/sreview-user',
 		'scripts/notify/sreview-notify',
+		'scripts/upload/sreview-upload',
 		'scripts/transcode/sreview-transcode',
 		'scripts/previews/sreview-previews',
 		'web/sreview-web',
