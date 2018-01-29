@@ -114,7 +114,7 @@ conferences.
 
 This script is designed for talks in the `cutting` state.
 
-### notify
+### sreview-notify
 
 This script should perform whatever is required to send out a
 notification to reviewers that a particular talk is now ready for
@@ -123,7 +123,8 @@ sending out an email to the speakers and/or designated reviewers.
 
 This script is designed for talks in the `notification` state.
 
-There is no genericized version of this script.
+The genericized version of this script allows you to run commands,
+and also has support for sending out emails from a template.
 
 ### sreview-previews
 
@@ -173,7 +174,7 @@ It is designed to be run in the `transcoding` state.
 Similar to the `sreview-cut` script, there are two older versions of the
 `sreview-transcode` script, too.
 
-### upload
+### sreview-upload
 
 This script should take the output of the `sreview-transcode` script,
 and publishes it by whatever method is required. It then also removes
@@ -184,7 +185,8 @@ already been published, then the talk needs to be put back through the
 
 Two versions exist here too, but they are very similar.
 
-No genericized version of this script exists, yet.
+The genericized version of this script is only able to run a few
+commands, but you can easily write your own version if needs be...
 
 # Examples
 

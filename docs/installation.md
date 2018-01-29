@@ -35,9 +35,10 @@ conference. That is, you expect to have no more than a handful of talks.
       coordination between reviewers will be required. Note that review
       for talks not in the `previews` state will not be possible.
     - If you do *not* set that option, but create review volunteer users
-      through the webinterface, then these users can go to the `/list`
-      URL, where they will receive a number of talks. These talks will
-      be locked to them; the reviewers will have to finish the review.
+      through the webinterface, then these users can go to the
+      `/volunteer/list` URL, where they will receive a number of talks. These
+      talks will be locked to them; the reviewers will have to finish the
+      review.
     - If you add email addresses to speakers and/or track managers in
       the SReview database, and set the `notify_actions` configuration
       value to an array including `email`, the `email_template` variable
