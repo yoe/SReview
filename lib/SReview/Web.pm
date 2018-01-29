@@ -189,6 +189,7 @@ sub startup {
 		$c->stash(target => "talk_update");
 		$c->stash(layout => 'default');
 		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
+		$c->stash(exten => $config->get('preview_exten'));
 		$c->stash(vid_hostname => $config->get("vid_prefix"));
 	} => 'talk');
 
@@ -426,6 +427,7 @@ sub startup {
 		$c->stash(type => "admin");
 		$c->stash(apology => $row->{apologynote});
 		$c->stash(vid_hostname => $config->get("vid_prefix"));
+		$c->stash(exten => $config->get('preview_exten'));
 		$c->render(template => 'talk');
 	} => 'admin_talk');
 
