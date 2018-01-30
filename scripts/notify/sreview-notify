@@ -6,6 +6,8 @@ use warnings;
 use DBI;
 use Mojo::Template;
 use SReview::Config::Common;
+use Email::Simple;
+use Email::Sender::Simple qw/sendmail/;
 
 my $config = SReview::Config::Common::setup;
 
