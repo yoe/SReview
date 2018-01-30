@@ -299,6 +299,8 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 		}
 	}
 	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
+	# XXX: this should really be done by SReview::Video::Concat, not by us
+	unlink($input->url);
 }
 my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
 $update->execute($talkid);
