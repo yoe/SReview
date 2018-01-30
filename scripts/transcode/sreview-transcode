@@ -100,6 +100,8 @@ The DBI string used to connect to the database
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
+$dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?")->execute($talkid);
+
 $dbh->begin_work;
 
 my $talkid = $ARGV[0];
@@ -351,3 +353,7 @@ be replaced by the empty string instead.
 
 L<sreview-cut>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>,
 L<SReview::Video::ProfileFactory>
+
+=cut
+
+$dbh->prepare("UPDATE talk SET progress = 'done' WHERE id = ?")->execute($talkid);
