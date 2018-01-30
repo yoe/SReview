@@ -98,13 +98,13 @@ The DBI string used to connect to the database
 
 =cut
 
+my $talkid = $ARGV[0];
+
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?")->execute($talkid);
 
 $dbh->begin_work;
-
-my $talkid = $ARGV[0];
 
 my $talk = $dbh->prepare("SELECT * FROM talks WHERE id = ?");
 
@@ -356,4 +356,4 @@ L<SReview::Video::ProfileFactory>
 
 =cut
 
-$dbh->prepare("UPDATE talk SET progress = 'done' WHERE id = ?")->execute($talkid);
+$dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ?")->execute($talkid);
