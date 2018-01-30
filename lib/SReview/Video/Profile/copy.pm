@@ -7,11 +7,6 @@ use Moose;
 
 extends 'SReview::Video::Profile::Base';
 
-has '+exten' => (
-	builder => '_probe_exten',
-	lazy => 1,
-);
-
 sub _probe_exten {
 	my $self = shift;
 	my $ref = $self->reference;

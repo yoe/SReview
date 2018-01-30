@@ -12,10 +12,6 @@ SReview::Video::ProfileFactory - Create an output profile from an input video.
     use Moose;
     extends SReview::Video::Profile::webm;
 
-    has '+exten' => (
-        default => 'my.webm',
-    );
-
     has '+audio_samplerate' => (
         builder => '_probe_my_audiorate',
     );
@@ -23,6 +19,10 @@ SReview::Video::ProfileFactory - Create an output profile from an input video.
     has '+audio_codec' => (
         default => 'vorbis',
     );
+
+    sub _probe_exten {
+        return 'my.webm',
+    }
 
     sub _probe_my_audiorate {
         my $self = shift;
@@ -101,7 +101,7 @@ has '+reference' => (
 has 'exten' => (
 	lazy => 1,
 	is => 'ro',
-	default => 'IEK -- extension not defined',
+	builder => '_probe_exten',
 );
 
 has '+pix_fmt' => (
@@ -110,6 +110,10 @@ has '+pix_fmt' => (
 
 sub _build_pixfmt {
 	return 'yuv420p';
+}
+
+sub _probe_exten {
+	return 'IEK - extension not defined';
 }
 
 package SReview::Video::Profile::vp9;
@@ -129,9 +133,9 @@ use Moose;
 
 extends 'SReview::Video::Profile::Base';
 
-has '+exten' => (
-	default => 'vp9.webm'
-);
+sub _probe_exten {
+	return 'vp9.webm'
+}
 
 my %rates_30 = (
 	240 => 150,
@@ -223,9 +227,9 @@ use Moose;
 
 extends 'SReview::Video::Profile::Base';
 
-has '+exten' => (
-	default => 'vp8.webm',
-);
+sub _probe_exten {
+	return 'vp8.webm',
+}
 
 sub _probe_videocodec {
 	return "libvpx";
@@ -258,9 +262,9 @@ use Moose;
 
 extends 'SReview::Video::Profile::vp9';
 
-has '+exten' => (
-	default => 'webm',
-);
+sub _probe_exten {
+	return 'webm',
+}
 
 no Moose;
 
@@ -279,9 +283,9 @@ use Moose;
 
 extends 'SReview::Video::Profile::vp8';
 
-has '+exten' => (
-	default => 'lq.webm',
-);
+sub _probe_exten {
+	return 'lq.webm',
+}
 
 sub _probe_height {
 	my $self = shift;
