@@ -57,7 +57,7 @@ function formitems(which) {
 }
 function setPoint(vid, startstop, time) {
 	sreview_viddata.set_point(vid, startstop, time);
-	$('standard').checked = true;
+	$('#standard').prop("checked", true);
 	formitems('standard');
 };
 function edit_offset_start(val) {
