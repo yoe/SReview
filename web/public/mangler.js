@@ -51,7 +51,8 @@ sreview_viddata.abs_to_offset = function(abs) {
 };
 
 sreview_viddata.abs_to_adj = function(abs) {
-	return abs - this.startpoints.post + this.current_length_adj - this.newpoints.start;
+	let newlen = abs - this.newpoints.start;
+	return newlen - this.lengths.main_initial;
 };
 
 sreview_viddata.set_point = function(which, what, where) {
