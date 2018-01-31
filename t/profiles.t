@@ -26,7 +26,7 @@ unlink($output->url);
 $output = SReview::Video->new(url => "t/testvids/foo.webm", reference => $profile);
 ok(defined($output), "Could create an output video from the LQ profile");
 ok($output->video_height < $input->video_height, "The LQ profile creates smaller videos");
-ok($output->video_codec eq "libvpx", "A VP8 video has the correct video codec");
+ok($output->video_codec eq "vp8", "A VP8 video has the correct video codec");
 
 my $pipe = SReview::Videopipe->new(inputs => [$input], output => $output);
 ok(defined($pipe), "We can create a video pipe from a profiled output file");
