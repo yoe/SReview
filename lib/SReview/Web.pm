@@ -183,7 +183,7 @@ sub startup {
 		$c->stash(talk_nonce => $c->param("nonce"));
 		$c->stash(slug => $row->{slug});
 		$c->stash(event => $config->get("event"));
-		$c->stash(eventid => $eventid);
+		$c->stash(eventid => $c->eventid);
 		$c->stash(room => $row->{room});
 		$c->stash(state => $row->{state});
 		$c->stash(corrections => $viddata);
@@ -289,8 +289,8 @@ sub startup {
 		$expls{'broken'} = 'Review found problems, administrator required';
 		$expls{'needs_work'} = 'Fixable problems exist, manual intervention required';
 		$expls{'lost'} = 'Nonfixable problems exist, talk lost';
-		$st->execute($eventid) or die;
-		$tot->execute($eventid) or die;
+		$st->execute($c->eventid) or die;
+		$tot->execute($c->eventid) or die;
 		$c->stash(title => 'Video status overview');
 		$c->stash(titlerow => [ 'Talk', 'Speakers', 'Room', 'Start time', 'End time', 'State', 'Progress' ]);
 		$c->stash(tottitrow => [ 'State', 'Count', 'State meaning']);
@@ -406,10 +406,10 @@ sub startup {
 
 		if(defined($c->session->{room})) {
 			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
-			$st->execute($eventid, $c->session->{room});
+			$st->execute($c->eventid, $c->session->{room});
 		} else {
 			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
-			$st->execute($eventid);
+			$st->execute($c->eventid);
 		}
 		while(my $row = $st->fetchrow_hashref("NAME_lc")) {
 			if ($row->{'room'} ne $lastroom) {
@@ -478,7 +478,7 @@ sub startup {
 		$c->stash(talk_nonce => $row->{nonce});
 		$c->stash(slug => $row->{slug});
 		$c->stash(event => $config->get("event"));
-		$c->stash(eventid => $eventid);
+		$c->stash(eventid => $c->eventid);
 		$c->stash(room => $row->{room});
 		$c->stash(state => $row->{state});
 		$c->stash(comments => $row->{comments});
@@ -550,7 +550,7 @@ sub startup {
 		my $c = shift;
 		$c->stash(email => $c->session->{email});
 		my $st = $c->dbh->prepare("SELECT DISTINCT rooms.id, rooms.name FROM rooms LEFT JOIN talks ON rooms.id = talks.room WHERE talks.event = ?");
-		$st->execute($eventid);
+		$st->execute($c->eventid);
 		my $rooms = [['All rooms' => '', selected => 'selected']];
 		while(my $row = $st->fetchrow_arrayref) {
 			push @$rooms, [$row->[1] => $row->[0]];
