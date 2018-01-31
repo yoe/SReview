@@ -33,6 +33,7 @@ sub setup {
 	$config->define("vid_prefix", "The URL prefix to be used for video data files", "");
 	$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
 	$config->define("preview_exten", "The extension used by previews (webm or mp4). Should be autodetected in the future, but...", "webm");
+	$config->define("eventurl_format", "A Mojo::Template that generates an event URL. Used by the /released metadata URL", undef);
 
 	# Values for encoder scripts
 	$config->define('pubdir', 'The directory on the file system where files served by the webinterface should be stored', '/srv/sreview/web/public');

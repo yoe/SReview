@@ -8,6 +8,8 @@ use SReview;
 use SReview::Config;
 use SReview::Config::Common;
 use SReview::Db;
+use SReview::Video;
+use SReview::Video::ProfileFactory;
 
 sub startup {
 	my $self = shift;
@@ -195,13 +197,72 @@ sub startup {
 
 	$r->get('/released' => sub {
 		my $c = shift;
-		my $st = $c->dbh->prepare("SELECT slug, upstreamid FROM talks WHERE state='done'");
-		$st->execute;
+		my $st;
+		my $conference = {};
+		my $videos = [];
 		my @json = ();
-		while (my $row = $st->fetchrow_hashref()) {
-			my $slug = $row->{slug};
-			push @json, { publicurl => "https://ftp.acc.umu.se/pub/debian-meetings/2017/debconf17/$slug.vp8.webm", waferurl => $row->{upstreamid} };
+		my %formats;
+		my $have_default = 0;
+		$st = $c->dbh->prepare("SELECT MIN(starttime::date), MAX(endtime::date) FROM talks WHERE event = ?");
+		$st->execute($c->eventid);
+		$conference->{title} = $config->get("event");
+		my $row = $st->fetchrow_hashref();
+		$conference->{date} = [ $row->{min}, $row->{max} ];
+		$conference->{video_formats} = [];
+		$st = $c->dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room WHERE talks.event = ? LIMIT 1");
+		$st->execute($c->eventid);
+		if($st->rows < 1) {
+			$c->render(json => []);
+			return;
 		}
+		$row = $st->fetchrow_hashref;
+		my $vid = SReview::Video->new(url => $row->{filename});
+		foreach my $format(@{$config->get("output_profiles")}) {
+			my $nf;
+			$self->log->debug("profile $format");
+			my $prof = SReview::Video::ProfileFactory->create($format, $vid);
+			if(!$have_default) {
+				$nf = "default";
+				$have_default = 1;
+			} else {
+				$nf = $format;
+			}
+			push @{$conference->{video_formats}}, { $nf => { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate } };
+			$formats{$nf} = $prof;
+		}
+		push @json, $conference;
+		$st = $c->dbh->prepare("SELECT title, subtitle, speakerlist(talks.id), description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, upstreamid, events.name AS event, slug FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
+		$st->execute($c->eventid);
+		if($st->rows < 1) {
+			$c->render(json => []);
+			return;
+		}
+		my $mt = Mojo::Template->new;
+		$mt->vars(1);
+		while (my $row = $st->fetchrow_hashref()) {
+			my $video = {};
+			my $subtitle = defined($row->{subtitle}) ? $row->subtitle : "";
+			$video->{title} = $row->{title} . $subtitle;
+			$video->{speakers} = [ $row->{speakerlist} ];
+			$video->{description} = $row->{description};
+			$video->{start} = $row->{starttime};
+			$video->{end} = $row->{endtime};
+			$video->{room} = $row->{room};
+			my $outputdir = "";
+			foreach my $subdir(@{$config->get('output_subdirs')}) {
+				$outputdir = join('/', $outputdir, $row->{$subdir});
+			}
+			if(defined($config->get('eventurl_format'))) {
+				$video->{details_url} = $mt->render($config->get('eventurl_format'), {
+					slug => $row->{slug},
+					room => $row->{room},
+					date => $row->{date},
+					year => $row->{year} });
+			}
+			$video->{video} = join('/',$outputdir, $row->{slug}) . "." . $formats{default}->exten;
+			push @$videos, $video;
+		}
+		push @json, $videos;
 		$c->render(json => \@json);
 	});
 
