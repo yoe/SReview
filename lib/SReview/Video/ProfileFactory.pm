@@ -200,11 +200,11 @@ sub speed {
 }
 
 sub _probe_videocodec {
-	return "libvpx-vp9";
+	return "vp9";
 }
 
 sub _probe_audiocodec {
-	return "libopus";
+	return "opus";
 }
 
 no Moose;
@@ -232,11 +232,11 @@ sub _probe_exten {
 }
 
 sub _probe_videocodec {
-	return "libvpx";
+	return "vp8";
 }
 
 sub _probe_audiocodec {
-	return "libvorbis";
+	return "vorbis";
 }
 
 sub _probe_audiobitrate {
