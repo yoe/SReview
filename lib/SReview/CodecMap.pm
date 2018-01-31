@@ -13,6 +13,7 @@ my %writemap = (
 	'vp9' => 'libvpx-vp9',
 	'h264' => 'libx264',
 	'hevc' => 'libx265',
+	'opus' => 'libopus',
 );
 
 open CHECK_FDK, "ffmpeg -hide_banner -h encoder=libfdk_aac|";
