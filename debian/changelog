@@ -1,14 +1,8 @@
-sreview (0.2.4-3) unstable; urgency=medium
+sreview (0.2.5-1) unstable; urgency=medium
 
-  * Moar fixes
+  * New upstream release (sortof)
 
- -- Wouter Verhelst <wouter@debian.org>  Tue, 30 Jan 2018 16:46:11 +0100
-
-sreview (0.2.4-2) unstable; urgency=medium
-
-  * Fixes
-
- -- Wouter Verhelst <wouter@debian.org>  Mon, 29 Jan 2018 17:13:28 +0100
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 31 Jan 2018 17:45:03 +0100
 
 sreview (0.2.4-1) unstable; urgency=medium
 
