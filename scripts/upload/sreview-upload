@@ -37,7 +37,7 @@ my $actions = $config->get('upload_actions');
 
 exit 0 if(scalar(@$actions) < 1);
 
-my $talk = $dbh->prepare("SELECT event, room, starttime::date AS date, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
+my $talk = $dbh->prepare("SELECT event, room, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk->execute($talkid);
 my $talkdata = $talk->fetchrow_hashref;
 my $outputdir = $config->get('outputdir');
