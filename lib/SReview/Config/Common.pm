@@ -32,7 +32,7 @@ sub setup {
 	$config->define('secret', 'A random secret key, used to encrypt the cookies.', '_INSECURE_DEFAULT_REPLACE_ME_');
 	$config->define("vid_prefix", "The URL prefix to be used for video data files", "");
 	$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
-	$config->define("preview_exten", "The extension used by previews (webm or mp4). Should be autodetected in the future, but...");
+	$config->define("preview_exten", "The extension used by previews (webm or mp4). Should be autodetected in the future, but...", "webm");
 
 	# Values for encoder scripts
 	$config->define('pubdir', 'The directory on the file system where files served by the webinterface should be stored', '/srv/sreview/web/public');
