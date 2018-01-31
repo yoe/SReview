@@ -83,9 +83,9 @@ foreach my $day(@{$xml->{day}}) {
 			my $talk_st = $dbh->prepare("SELECT id FROM talks WHERE upstreamid = ? AND event = ?");
 			$talk_st->execute($talk_upid, $eventid);
 			if($talk_st->rows < 1) {
-				$talk_st = $dbh->prepare("INSERT INTO talks (room, slug, starttime, endtime, title, subtitle, event, track, upstreamid) VALUES (?, ?, ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, ?, ?, ?)");
+				$talk_st = $dbh->prepare("INSERT INTO talks (room, slug, starttime, endtime, title, subtitle, event, track, description, upstreamid) VALUES (?, ?, ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, ?, ?, ?, ?)");
 			} else {
-				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, event = ?, track = ? WHERE upstreamid = ?");
+				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, event = ?, track = ?, description = ? WHERE upstreamid = ?");
 			}
 			my $starttime = $day->{date} . " " . $talk->{start} . ":00+01";
 			my $trackid = $track_row->[0];
@@ -94,8 +94,15 @@ foreach my $day(@{$xml->{day}}) {
 				$subtitle = undef;
 			}
 			my $title = $talk->{title};
+			my $description = "";
+			if(ref(\$talk->{abstract}) eq 'SCALAR') {
+				$description .= $talk->{abstract};
+			}
+			if(ref(\$talk->{description}) eq 'SCALAR') {
+				$description .= $talk->{description};
+			}
 			$title =~ s/AMENDMENT\s*//;
-			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $title, $subtitle, $eventid, $trackid, $talk_upid);
+			$talk_st->execute($roomid, $talk->{slug}, $starttime, $starttime, $talk->{duration}, $title, $subtitle, $eventid, $trackid, $description, $talk_upid);
 			my $clean = $dbh->prepare("DELETE FROM speakers_talks WHERE talk IN (SELECT id FROM talks WHERE upstreamid = ?)");
 			$clean->execute($talk_upid);
 			foreach my $person(@{$talk->{persons}{person}}) {

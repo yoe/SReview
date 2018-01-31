@@ -367,6 +367,10 @@ DELETE FROM properties WHERE name IN ('length_adj', 'offset_audio', 'audio_chann
 ALTER TABLE speakers ADD upstreamid VARCHAR;
 -- 6 down
 ALTER TABLE speakers DROP upstreamid;
+-- 7 up
+ALTER TABLE talks ADD description TEXT;
+-- 7 down
+ALTER TABLE talks DROP description;
 EOF
 
 	return $db->migrations->migrate;
