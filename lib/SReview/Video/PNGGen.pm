@@ -13,7 +13,7 @@ sub readopts {
 		carp "Video resolution does not match image resolution. Will scale, but the result may be suboptimal...";
 
 	}
-	return ('-loop', '1', '-framerate', $output->video_framerate, '-i', $self->url, '-f', 'lavfi', '-i', 'anullsrc=channel_layout=mono,r=' . $self->audio_samplerate);
+	return ('-loop', '1', '-framerate', $output->video_framerate, '-i', $self->url, '-f', 'lavfi', '-i', 'anullsrc=channel_layout=mono');
 }
 
 no Moose;
