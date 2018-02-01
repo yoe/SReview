@@ -514,7 +514,7 @@ sub _probe_extra_params {
 	if($self->has_reference) {
 		return $self->reference->extra_params;
 	}
-	return undef;
+	return {};
 }
 
 # Only to be used by the Videopipe class when doing multiple passes
@@ -610,7 +610,7 @@ sub writeopts {
 		push @opts, '-shortest';
 	}
 
-	if(defined($self->extra_params)) {
+	if(scalar(keys(%{$self->extra_params}))>0) {
 		foreach my $param(keys %{$self->extra_params}) {
 			push @opts, ("-$param", $self->extra_params->{$param});
 		}
