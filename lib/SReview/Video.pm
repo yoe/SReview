@@ -505,8 +505,17 @@ has 'extra_params' => (
 		add_param => 'set',
 		drop_param => 'delete',
 	},
-	predicate => 'has_extra_params',
+	builder => "_probe_extra_params",
+	lazy => 1,
 );
+
+sub _probe_extra_params {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->extra_params;
+	}
+	return undef;
+}
 
 # Only to be used by the Videopipe class when doing multiple passes
 has 'pass' => (
@@ -601,7 +610,7 @@ sub writeopts {
 		push @opts, '-shortest';
 	}
 
-	if($self->has_extra_params) {
+	if(defined($self->extra_params)) {
 		foreach my $param(keys %{$self->extra_params}) {
 			push @opts, ("-$param", $self->extra_params->{$param});
 		}
