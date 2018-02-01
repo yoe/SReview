@@ -601,6 +601,12 @@ sub writeopts {
 		push @opts, '-shortest';
 	}
 
+	if($self->has_extra_params) {
+		foreach my $param(keys %{$self->extra_params}) {
+			push @opts, ("-$param", $self->extra_params->{$param});
+		}
+	}
+
 	push @opts, $self->url;
 
 	return @opts;
