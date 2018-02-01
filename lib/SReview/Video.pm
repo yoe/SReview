@@ -571,7 +571,9 @@ sub writeopts {
 		if(defined($self->quality)) {
 			push @opts, ('-crf', $self->quality);
 		}
-		push @opts, ('-speed', $self->speed);
+		if(defined($self->speed)) {
+			push @opts, ('-speed', $self->speed);
+		}
 		if($self->has_pass) {
 			push @opts, ('-pass', $self->pass, '-passlogfile', $self->url . '-multipass');
 		}
@@ -661,6 +663,10 @@ sub _probe_videodata {
 }
 
 sub speed {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->speed;
+	}
 	return 4;
 }
 
