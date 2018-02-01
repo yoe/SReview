@@ -21,10 +21,10 @@ has '+duration' => (
 sub readopts {
 	my $self = shift;
 
-	print "Writing " . $self->url . " with content:\n";
 	if(($self->has_pass && $self->pass < 2) || !$self->has_pass) {
 		die "refusing to overwrite file " . $self->url . "!\n" if (-f $self->url);
 
+		print "Writing " . $self->url . " with content:\n";
 		open CONCAT, ">" . $self->url;
 		foreach my $component(@{$self->components}) {
 			my $input = $component->url;
