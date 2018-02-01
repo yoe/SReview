@@ -200,7 +200,7 @@ sub startup {
 		my $st;
 		my $conference = {};
 		my $videos = [];
-		my @json = ();
+		my %json;
 		my %formats;
 		my $have_default = 0;
 		$st = $c->dbh->prepare("SELECT MIN(starttime::date), MAX(endtime::date) FROM talks WHERE event = ?");
@@ -212,7 +212,7 @@ sub startup {
 		$st = $c->dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room WHERE talks.event = ? LIMIT 1");
 		$st->execute($c->eventid);
 		if($st->rows < 1) {
-			$c->render(json => []);
+			$c->render(json => {});
 			return;
 		}
 		$row = $st->fetchrow_hashref;
@@ -230,11 +230,11 @@ sub startup {
 			push @{$conference->{video_formats}}, { $nf => { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate } };
 			$formats{$nf} = $prof;
 		}
-		push @json, $conference;
+		$json{conference} = $conference;
 		$st = $c->dbh->prepare("SELECT title, subtitle, speakerlist(talks.id), description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, upstreamid, events.name AS event, slug FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
 		$st->execute($c->eventid);
 		if($st->rows < 1) {
-			$c->render(json => []);
+			$c->render(json => {});
 			return;
 		}
 		my $mt = Mojo::Template->new;
@@ -248,10 +248,11 @@ sub startup {
 			$video->{start} = $row->{starttime};
 			$video->{end} = $row->{endtime};
 			$video->{room} = $row->{room};
-			my $outputdir = "";
+			my @outputdirs;
 			foreach my $subdir(@{$config->get('output_subdirs')}) {
-				$outputdir = join('/', $outputdir, $row->{$subdir});
+				push @outputdirs, $row->{$subdir};
 			}
+			my $outputdir = join('/', @outputdirs);
 			if(defined($config->get('eventurl_format'))) {
 				$video->{details_url} = $mt->render($config->get('eventurl_format'), {
 					slug => $row->{slug},
@@ -262,8 +263,8 @@ sub startup {
 			$video->{video} = join('/',$outputdir, $row->{slug}) . "." . $formats{default}->exten;
 			push @$videos, $video;
 		}
-		push @json, $videos;
-		$c->render(json => \@json);
+		$json{videos} = $videos;
+		$c->render(json => \%json);
 	});
 
 	$r->get('/overview' => sub {
