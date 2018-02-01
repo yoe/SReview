@@ -166,7 +166,7 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 		$output->fragment_start($row->{fragment_start});
 	}
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
-		$output->duration($row->{raw_length});
+		$output->duration($row->{raw_length_corrected});
 	}
 	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
 	push @$segments, SReview::Video->new(url => $output->url);
