@@ -264,19 +264,21 @@ required if at least one talk has an apology entered.
 
 =cut
 
+my $png_profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $main_input);
+
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	die unless defined($config->get('apology_template'));
 	process_template($config->get('apology_template'), $apology);
-	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $main_input);
+	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
 }
 
 # concatenate preroll, main video, postroll
-my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.mkv", reference => $main_input, duration => 5);
+my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
 my $main = SReview::Video->new(url => "$tmpdir/$slug.mkv");
 SReview::Videopipe->new(inputs => [$main_input], output => $main)->run();
-my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.mkv", reference => $main_input, duration => 5);
+my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
 my $inputs = [ $pre ];
 if( -f "$tmpdir/$slug-sorry.mkv") {

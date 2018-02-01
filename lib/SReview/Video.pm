@@ -490,6 +490,24 @@ sub _probe_vstream_id {
 	return $self->_get_videodata->{index};
 }
 
+=head2 extra_params
+
+Add extra parameters. This should be used sparingly, rather add some
+abstraction.
+
+=cut
+
+has 'extra_params' => (
+	traits => ['Hash'],
+	isa => 'HashRef[Str]',
+	is => 'ro',
+	handles => {
+		add_param => 'set',
+		drop_param => 'delete',
+	},
+	predicate => 'has_extra_params',
+);
+
 # Only to be used by the Videopipe class when doing multiple passes
 has 'pass' => (
 	is => 'rw',
