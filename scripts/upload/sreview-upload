@@ -19,7 +19,7 @@ $dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid
 my $mt = Mojo::Template->new;
 $mt->vars(1);
 
-sub run_command($) {
+sub run_command($$) {
 	my $file = shift;
 	my $relative = shift;
 
@@ -41,21 +41,23 @@ exit 0 if(scalar(@$actions) < 1);
 my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room JOIN events ON talks.event = events.id WHERE events.name = ? LIMIT 1");
 $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
-$raw_file = SReview::Video->new(url => $raw_file);
+$raw_file = SReview::Video->new(url => $raw_file->{filename});
 my $talk = $dbh->prepare("SELECT event, room, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk->execute($talkid);
 my $talkdata = $talk->fetchrow_hashref;
 my $outputdir = $config->get('outputdir');
 my $subdirs = $config->get('output_subdirs');
+my $reldir = "";
 
 foreach my $subdir(@$subdirs) {
-	$outputdir = join('/', $outputdir, $talkdata->{$subdir});
+	$reldir = join('/', $reldir, $talkdata->{$subdir});
 }
 
 foreach my $profile(@{$config->get('output_profiles')}) {
-	my $basename = join('.', $talkdata->{slug}, SReview::Video::ProfileFactory->create($profile, $raw_file);
-	my $file = join('/', $outputdir, $basename);
-	run_command($file, $basename);
+	my $basename = join('.', $talkdata->{slug}, SReview::Video::ProfileFactory->create($profile, $raw_file)->exten());
+	my $relfile = join('/', $reldir, $basename);
+	my $fullfile = join('/', $outputdir, $relfile);
+	run_command($fullfile, $relfile);
 }
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
