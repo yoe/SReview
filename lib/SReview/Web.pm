@@ -248,6 +248,7 @@ sub startup {
 			$video->{start} = $row->{starttime};
 			$video->{end} = $row->{endtime};
 			$video->{room} = $row->{room};
+			$video->{eventid} = $row->{upstreamid};
 			my @outputdirs;
 			foreach my $subdir(@{$config->get('output_subdirs')}) {
 				push @outputdirs, $row->{$subdir};
