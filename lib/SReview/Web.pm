@@ -288,6 +288,7 @@ sub startup {
 		$expls{'uploading'} = 'Publishing results';
 		$expls{'done'} = 'Videos published, all done';
 		$expls{'broken'} = 'Review found problems, administrator required';
+		$expls{'ignored'} = 'Talk will not be/was not recorded, ignored for review';
 		$expls{'needs_work'} = 'Fixable problems exist, manual intervention required';
 		$expls{'lost'} = 'Nonfixable problems exist, talk lost';
 		$st->execute($c->eventid) or die;

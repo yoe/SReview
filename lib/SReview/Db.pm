@@ -371,8 +371,118 @@ ALTER TABLE speakers DROP upstreamid;
 ALTER TABLE talks ADD description TEXT;
 -- 7 down
 ALTER TABLE talks DROP description;
+-- 8 up
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'done',
+    'broken',
+    'ignored',
+    'needs_work',
+    'lost'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+DROP VIEW talk_list;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING (state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+CREATE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    rooms.name AS room,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM (((rooms
+     LEFT JOIN talks ON ((rooms.id = talks.room)))
+     LEFT JOIN events ON ((talks.event = events.id)))
+     LEFT JOIN tracks ON ((talks.track = tracks.id)));
+DROP FUNCTION state_next(talkstate);
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+CREATE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+declare
+  enumvals talkstate[];
+  startval alias for $1;
+begin
+  enumvals := enum_range(startval, NULL);
+  return enumvals[2];
+end $_$;
+-- 8 down
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'done',
+    'broken',
+    'needs_work',
+    'lost'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+DROP VIEW talk_list;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING (state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+CREATE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    rooms.name AS room,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM (((rooms
+     LEFT JOIN talks ON ((rooms.id = talks.room)))
+     LEFT JOIN events ON ((talks.event = events.id)))
+     LEFT JOIN tracks ON ((talks.track = tracks.id)));
+DROP FUNCTION state_next(talkstate);
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+CREATE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+declare
+  enumvals talkstate[];
+  startval alias for $1;
+begin
+  enumvals := enum_range(startval, NULL);
+  return enumvals[2];
+end $_$;
 EOF
-
 	return $db->migrations->migrate;
 }
 
