@@ -57,7 +57,7 @@ SKIP: {
 	# perform cut
 	run("perl", "-I./blib/lib", "blib/script/sreview-cut", $row->{talkid});
 
-	my $check = SReview::Video->new(url => abs_path("t/pubdir/1/r/test-talk.mkv"));
+	my $check = SReview::Video->new(url => abs_path("t/pubdir/1/2017-11-10/r/test-talk.mkv"));
 	my $length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
@@ -65,7 +65,7 @@ SKIP: {
 
 	run("perl", "-I./blib/lib", "blib/script/sreview-previews", $row->{talkid});
 
-	$check = SReview::Video->new(url => abs_path("t/pubdir/1/r/test-talk.mkv"));
+	$check = SReview::Video->new(url => abs_path("t/pubdir/1/2017-11-10/r/test-talk.mkv"));
 	ok($length == $check->duration, "The preview video is of the right length");
 
 	# perform transcode
