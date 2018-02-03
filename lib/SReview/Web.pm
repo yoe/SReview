@@ -241,7 +241,7 @@ sub startup {
 		$mt->vars(1);
 		while (my $row = $st->fetchrow_hashref()) {
 			my $video = {};
-			my $subtitle = defined($row->{subtitle}) ? $row->subtitle : "";
+			my $subtitle = defined($row->{subtitle}) ? $row->{subtitle} : "";
 			$video->{title} = $row->{title} . $subtitle;
 			$video->{speakers} = [ $row->{speakerlist} ];
 			$video->{description} = $row->{description};
