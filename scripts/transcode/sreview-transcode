@@ -313,8 +313,9 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	# XXX: this should really be done by SReview::Video::Concat, not by us
 	unlink($input->url);
 }
-my $update = $dbh->prepare("UPDATE talks SET state = state_next(state) WHERE id = ? AND state = 'transcoding'");
-$update->execute($talkid);
+
+$dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ?")->execute($talkid);
+
 $dbh->commit;
 
 =head1 SVG TRANSFORMATIONS
@@ -368,5 +369,3 @@ L<sreview-cut>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>,
 L<SReview::Video::ProfileFactory>
 
 =cut
-
-$dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ?")->execute($talkid);
