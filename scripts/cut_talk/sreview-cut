@@ -189,7 +189,7 @@ virtual host top level.
 
 =cut
 
-my $workdir = $config->get('pubdir') . "/" . $row->{eventid} . "/" . substr($row->{room}, 0, 1);
+my $workdir = $config->get('pubdir') . "/" . $row->{eventid} . "/" . $row->{starttime} . "/" . substr($row->{room}, 0, 1);
 make_path($workdir);
 my $outname = "$workdir/" . $row->{slug};
 

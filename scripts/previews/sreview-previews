@@ -90,7 +90,7 @@ $dbh->prepare("UPDATE talks SET progress='running', state='generating_previews' 
 
 $dbh->begin_work;
 
-my $talk_data = $dbh->prepare("SELECT talks.event, talks.slug, rooms.name FROM talks JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+my $talk_data = $dbh->prepare("SELECT talks.event, talks.slug, rooms.name, talks.starttime::date FROM talks JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $talk_data->execute($talkid);
 
 my $row = $talk_data->fetchrow_hashref();
@@ -102,7 +102,7 @@ which to write the previews
 
 =cut
 
-my $outname = $config->get('pubdir') . "/" . $row->{event} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
+my $outname = $config->get('pubdir') . "/" . $row->{event} . "/" . $row->{starttime} . "/" . substr($row->{name}, 0, 1) . "/" . $row->{slug};
 
 foreach my $suffix ("-pre.webm", "-post.webm", ".webm", "-pre.mp4", "-post.mp4", ".mp4") {
 	unlink($outname . $suffix);
