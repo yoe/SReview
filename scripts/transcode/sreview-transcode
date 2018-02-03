@@ -124,7 +124,7 @@ The directory in which to find the output of C<sreview-cut>
 
 =cut
 
-my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . $row->{date} . "/" . substr($drow->{room}, 0, 1);
+my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . $drow->{date} . "/" . substr($drow->{room}, 0, 1);
 
 =item outputdir
 
