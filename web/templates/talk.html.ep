@@ -130,14 +130,14 @@ function edit_length_adj(val) {
     <legend>OK</legend>
     <div class="form-group">
       %= radio_button choice => 'ok', id => 'ok', $disabled => $disabled, onchange => "formitems('ok')";
-      %= label_for ok => 'This preview looks OK, please transcode it at high quality and release it.'
+      %= label_for ok => 'The current representation of the "main" video above looks OK and contains all content which it should contain; please transcode that at high quality and release it.'
     </div>
   </fieldset>
   <fieldset>
     <legend>Common fixes</legend>
     <div class="form-group">
       %= radio_button choice => 'standard', id => 'standard', $disabled => $disabled, onchange => "formitems('standard')";
-      %= label_for standard => 'This preview has some issues. Please fix the following and generate a new preview:'
+      %= label_for standard => 'This preview has some issues. Please fix the following and generate all three video above anew:'
     </div>
     % foreach my $correction(sort (keys %{$viddata->{corrvals}})) {
     <div class="form-group">
