@@ -28,6 +28,7 @@ sub startup {
 	if($self->mode eq "production") {
 		push @{$self->renderer->paths}, "/usr/share/sreview/templates";
 		push @{$self->static->paths}, "/usr/share/sreview/public";
+		push @{$self->static->paths}, "/usr/share/javascript";
 	} else {
 		push @{$self->static->paths}, "./public";
 		push @{$self->renderer->paths}, "./templates";
@@ -190,7 +191,8 @@ sub startup {
 		$c->stash(comments => $row->{comments});
 		$c->stash(target => "talk_update");
 		$c->stash(layout => 'default');
-		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
+		$c->stash(scripts_raw => ['sreview_viddata = ' . encode_json($viddata) . ';']);
+		$c->stash(scripts_extra => ['/mangler.js']);
 		$c->stash(exten => $config->get('preview_exten'));
 		$c->stash(vid_hostname => $config->get("vid_prefix"));
 	} => 'talk');
@@ -487,7 +489,8 @@ sub startup {
 		$c->stash(comments => $row->{comments});
 		$c->stash(corrections => $viddata);
 		$c->stash(target => "talk_update_admin");
-		$c->stash(script_raw => 'sreview_viddata = ' . encode_json($viddata) . ';');
+		$c->stash(scripts_raw => ['sreview_viddata = ' . encode_json($viddata) . ';']);
+		$c->stash(scripts_extra => ['/mangler.js']);
 		$c->stash(type => "admin");
 		$c->stash(apology => $row->{apologynote});
 		$c->stash(vid_hostname => $config->get("vid_prefix"));
