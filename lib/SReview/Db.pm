@@ -494,8 +494,8 @@ CREATE TYPE talkstate_new AS ENUM (
     'done',
     'broken',
     'needs_work',
-    'lost'
-    'ignored',
+    'lost',
+    'ignored'
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
 DROP VIEW talk_list;
