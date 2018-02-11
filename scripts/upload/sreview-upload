@@ -42,7 +42,7 @@ my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_f
 $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
 $raw_file = SReview::Video->new(url => $raw_file->{filename});
-my $talk = $dbh->prepare("SELECT event, room, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
+my $talk = $dbh->prepare("SELECT event, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk->execute($talkid);
 my $talkdata = $talk->fetchrow_hashref;
 my $outputdir = $config->get('outputdir');
