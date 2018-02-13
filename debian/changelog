@@ -1,3 +1,22 @@
+sreview (0.3.0-1) unstable; urgency=medium
+
+  * The "FOSDEM worked" release.
+  * New upstream release, featuring:
+    - Much less bugs (which were discovered after a production run at
+      FOSDEM)
+    - More flexibility in certain areas, needed by the above production
+      run
+    - Better documentation (thanks Nattie!)
+    - Working support for JSON export to Stefano Rivera's youtube upload
+      tool
+    - A new state for "ignored" talks (i.e., content that is not
+      interesting)
+    - Default to self-installed jQuery and bootstrap libraries, rather
+      than using CDN-provided ones
+    - ... and much more!
+
+ -- Wouter Verhelst <wouter@debian.org>  Tue, 13 Feb 2018 12:39:41 +0100
+
 sreview (0.2.6-1) unstable; urgency=medium
 
   * New upstream release (sortof)
