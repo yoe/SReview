@@ -5,11 +5,11 @@ This will install SReview in a way that is useful for a small
 conference. That is, you expect to have no more than a handful of talks.
 
 * Install the packages
-  [sreview-detect](https://packages.debian.org/experimental/sreview-detect),
-  [sreview-master](https://packages.debian.org/experimental/sreview-master),
-  [sreview-encoder](https://packages.debian.org/experimental/sreview-encoder),
+  [sreview-detect](https://packages.debian.org/unstable/sreview-detect),
+  [sreview-master](https://packages.debian.org/unstable/sreview-master),
+  [sreview-encoder](https://packages.debian.org/unstable/sreview-encoder),
   and
-  [sreview-web](https://packages.debian.org/experimental/sreview-web) on
+  [sreview-web](https://packages.debian.org/unstable/sreview-web) on
   a *single* machine.
 * The installation will create an sreview user and database, and will
   start the `sreview-web` service on port 8080, listening only to
