@@ -37,6 +37,16 @@ sub startup {
 		push @{$self->static->paths}, $config->get("pubdir");
 	}
 
+	$self->hook(before_dispatch => sub {
+		my $c = shift;
+		my $vpr = $config->get('vid_prefix');
+		my $media = "";
+		if(defined($vpr) && length($vpr) > 0) {
+			$media = " media-src $vpr;";
+		}
+		$c->res->headers->content_security_policy("default-src 'self';$media");
+	});
+
 	$self->helper(dbh => sub {
 		state $pg = Mojo::Pg->new->dsn($config->get('dbistring'));
 		return $pg->db->dbh;
