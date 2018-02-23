@@ -44,7 +44,7 @@ sub startup {
 		if(defined($vpr) && length($vpr) > 0) {
 			$media = "media-src $vpr;";
 		}
-		$c->res->headers->content_security_policy("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
+		$c->res->headers->content_security_policy("default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
 	});
 
 	$self->helper(dbh => sub {
