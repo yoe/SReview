@@ -40,11 +40,11 @@ sub startup {
 	$self->hook(before_dispatch => sub {
 		my $c = shift;
 		my $vpr = $config->get('vid_prefix');
-		my $media = "";
+		my $media = "media-src 'self'";
 		if(defined($vpr) && length($vpr) > 0) {
-			$media = " media-src $vpr;";
+			$media = "media-src $vpr;";
 		}
-		$c->res->headers->content_security_policy("default-src 'self';$media");
+		$c->res->headers->content_security_policy("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; $media");
 	});
 
 	$self->helper(dbh => sub {
