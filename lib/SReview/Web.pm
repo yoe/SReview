@@ -388,38 +388,7 @@ sub startup {
 	$admin->any('/schedule/talk/')->to(controller => 'schedule', action => 'mod_talk');
 	$admin->any('/schedule/')->to(controller => 'schedule', action => 'index');
 
-	$admin->get('/' => sub {
-		my $c = shift;
-		my $st;
-		my $talks = ();
-		my $room;
-		my $lastroom = '';
-
-		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
-			$st->execute($c->eventid, $c->session->{room});
-		} else {
-			$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
-			$st->execute($c->eventid);
-		}
-		while(my $row = $st->fetchrow_hashref("NAME_lc")) {
-			if ($row->{'room'} ne $lastroom) {
-				if(defined($room)) {
-					push @$talks, c($lastroom => $room);
-				}
-				$room = [];
-			}
-			$lastroom = $row->{'room'};
-			next unless defined($row->{id});
-			push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'id'}];
-		}
-		if(defined($room)) {
-			push @$talks, c($lastroom => $room);
-		}
-		$c->stash(email => $c->session->{email});
-		$c->stash(talks => $talks);
-		$c->render;
-	} => 'admin/main');
+	$admin->get('/')->to('admin#main');
 
 	$admin->get('/logout' => sub {
 		my $c = shift;
