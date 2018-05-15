@@ -1,5 +1,8 @@
 package SReview::Web::Controller::Admin;
 
+use Mojo::Base 'Mojolicious::Controller';
+use Mojo::Collection 'c';
+
 sub main {
 	my $c = shift;
 	my $st;
@@ -32,3 +35,5 @@ sub main {
 	$c->stash(talks => $talks);
 	$c->render;
 }
+
+1;
