@@ -1,4 +1,4 @@
-sreview (0.3.0-2~bpo.1) stretch-backports; urgency=medium
+sreview (0.3.0-1~bpo.1) stretch-backports; urgency=medium
 
   * Reupload to backports.
 
