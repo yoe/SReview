@@ -1,3 +1,9 @@
+sreview (0.3.0-2~bpo.1) stretch-backports; urgency=medium
+
+  * Reupload to backports.
+
+ -- Wouter Verhelst <wouter@debian.org>  Thu, 17 May 2018 16:44:29 +0200
+
 sreview (0.3.0-1) unstable; urgency=medium
 
   * The "FOSDEM worked" release.
