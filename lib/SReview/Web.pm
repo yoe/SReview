@@ -284,9 +284,9 @@ sub startup {
 		my $c = shift;
 		my $st;
 		if($config->get("anonreviews")) {
-			$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
+			$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
 		} else {
-			$st = $c->dbh->prepare('SELECT name, speakers, room, starttime, endtime, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
+			$st = $c->dbh->prepare('SELECT name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
 		}
 		my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 		my %expls;
