@@ -74,6 +74,9 @@ sub setup {
 	# Values for upload script
 	$config->define('upload_actions', 'An array of commands to run on each file to be uploaded. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $file %>', 'ready for upload']]);
 
+	# for sreview-keys
+	$config->define('authkeyfile', 'The authorized_keys file that sreview-keys should manage. If set to undef, the default authorized_keys file will be used.');
+
 	return $config;
 }
 
