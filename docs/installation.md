@@ -198,13 +198,13 @@ the master:
   your `sreview-*` commands, they are submitted into the `gridengine`
   system. e.g., the following would work:
 
-      $state_actions = {
-          'cutting' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N cut_<%== $talkid %> sreview-cut <%== $talkid %>',
-          'generating_previews' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N preview_<%== $talkid %> sreview-previews <%== $talkid %>',
-          'notification' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N notify_<%== $talkid %> sreview-notify <%== $talkid %>',
-          'transcoding' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N transcode_<%== $talkid %> sreview-transcode <%== $talkid %>',
-          'uploading' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N upload_<%== $talkid %> sreview-upload <%== $talkid %>',
-      };
+          $state_actions = {
+              'cutting' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N cut_<%== $talkid %> sreview-cut <%== $talkid %>',
+              'generating_previews' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N preview_<%== $talkid %> sreview-previews <%== $talkid %>',
+              'notification' => 'qsub -cwd -pe smp 1 -b y -V -q hiprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N notify_<%== $talkid %> sreview-notify <%== $talkid %>',
+              'transcoding' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N transcode_<%== $talkid %> sreview-transcode <%== $talkid %>',
+              'uploading' => 'qsub -cwd -pe smp 1 -b y -V -q lowprio.q -e <%== $output_dir %> -o <%== $output_dir %> -N upload_<%== $talkid %> sreview-upload <%== $talkid %>',
+          };
 
 Help!
 =====
