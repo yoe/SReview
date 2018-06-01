@@ -26,7 +26,11 @@ sub _get_inputdir {
 	if($st->rows == 0) {
 		return $self->name;
 	}
-	return $st->fetchrow_hashref()->{inputdir};
+	my $dir = $st->fetchrow_hashref()->{inputdir};
+	if(!defined($dir)) {
+		return $self->name;
+	}
+	return $dir;
 }
 
 no Moose;
