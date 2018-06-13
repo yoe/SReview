@@ -70,7 +70,7 @@ The job states, then, mean:
   will be started almost immediately; if not, it may need to wait until
   that's done.
 - `running`: the script is now active and running.
-- `done : the script finished successfully
+- `done`: the script finished successfully
 - `failed`: the script did *not* finish successfully (note: when that
   hapens, it doesn't always go into this state, currently).
 
