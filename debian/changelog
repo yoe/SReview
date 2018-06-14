@@ -1,3 +1,11 @@
+sreview (0.3.1-1) unstable; urgency=medium
+
+  * New upstream release (minor updates)
+  * Drop dh_sysuser usage, it hasn't been tested with NSS modules, just
+    add an adduser call instead. Closes: 901136.
+
+ -- Wouter Verhelst <wouter@debian.org>  Thu, 14 Jun 2018 08:38:56 +0200
+
 sreview (0.3.0-1) unstable; urgency=medium
 
   * The "FOSDEM worked" release.
