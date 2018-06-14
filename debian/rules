@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --with apache2,sysuser
+	dh $@ --with apache2
 
 override_dh_install:
 	chmod +x debian/sreview-master.install debian/sreview-master.dbc
