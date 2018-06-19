@@ -1,3 +1,10 @@
+sreview (0.3.1-2) unstable; urgency=medium
+
+  * Actually drop dh_sysuser usage, also from debian/rules -- whoops.
+    Closes: #901542
+
+ -- Wouter Verhelst <wouter@debian.org>  Tue, 19 Jun 2018 08:36:43 +0200
+
 sreview (0.3.1-1) unstable; urgency=medium
 
   * New upstream release (minor updates)
