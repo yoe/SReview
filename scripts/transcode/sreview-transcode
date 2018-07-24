@@ -80,8 +80,6 @@ postroll videos to a production video
 
 =back
 
-=back
-
 =head1 CONFIGURATION
 
 C<sreview-transcode> considers the following configuration values:
@@ -261,6 +259,12 @@ my $sorry;
 The name of an SVG template to be used for the apology slide (shown
 right after the opening credits if an apology was entered). Only
 required if at least one talk has an apology entered.
+
+=item input_profile
+
+A profile that generates videos which can be concatenated with input
+videos without re-transcoding anything. If not specified, uses the input
+video as a "profile".
 
 =cut
 
