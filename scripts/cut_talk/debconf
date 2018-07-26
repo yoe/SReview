@@ -3,11 +3,11 @@
 # Extract the "interesting" parts of one or more raw input file(s)
 # into a single "work" file named after the talk slug.
 
-# This file is part of Sreview, a web-based video review and transcoding
+# This file is part of SReview, a web-based video review and transcoding
 # system
 # Copyright (c) 2016-2017, Wouter Verhelst <w@uter.be>
 #
-# Sreview is free software: you can redistribute it and/or modify it
+# SReview is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.

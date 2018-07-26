@@ -1,10 +1,10 @@
 /* @licstart The following is the entire license notice for this
  * project, including all its JavaScript.
  *
- * Sreview, a web-based video review and transcoding system.
+ * SReview, a web-based video review and transcoding system.
  * Copyright (c) 2016-2017 Wouter Verhelst <w@uter.be>
  *
- * Sreview is free software; you can redistribute it and/or modify it
+ * SReview is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
@@ -15,7 +15,7 @@
  * Affero General Public License for more detilas.
  *
  * You should have received a copy of the GNU Affero General Public
- * License along with Sreview. If not, see
+ * License along with SReview. If not, see
  * <http://www.gnu.org/licenses/>.
  *
  * @licend The above is the entire license notice for this project,
