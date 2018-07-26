@@ -1,6 +1,6 @@
 # SReview
 
-This SReview, a video review system. It takes input files, stores
+This is SReview, a video review system. It takes input files, stores
 their lengths in a database, combines those lengths and their starttime
 with a schedule it has of an event to see which talks are fully
 recorded, and creates a preview. After that, magic happens, and
