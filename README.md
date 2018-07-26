@@ -28,6 +28,7 @@ aware of. First, there is the main state:
     broken
     needs_work
     lost
+    ignored
 
 Next, there is the job state:
 
@@ -61,6 +62,10 @@ following list explains what each of the main states means:
   fixed eventually.
 - `lost`: Refinement of `broken`. Can be used by an administrator to
   confirm that a recording is broken and cannot be usefully released.
+- `ignored`: Can be used by an administrator to mark recordings for
+  talks that never happened, or that appeared on the schedule but don't
+  include interesting content, or that appeared on the schedule but for
+  which speakers requested that no recordings would be made available.
 
 The job states, then, mean:
 
