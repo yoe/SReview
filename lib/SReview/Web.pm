@@ -331,10 +331,30 @@ sub startup {
 		$c->render;
 	} => 'table');
 
-	$r->post('/talk_update')->to(controller => 'talk', action => 'update',
-			layout => 'default', name => 'talk_update',
-			notfound_message => "Unauthorized.",
-			notfound_code => 403);
+	$r->post('/talk_update' => sub {
+		my $c = shift;
+		my $nonce = $c->param("nonce");
+		if(!defined($nonce)) {
+			$c->stash(message=>"Unauthorized.");
+			$c->res->code(403);
+			$c->render('error');
+			return undef;
+		}
+		my $sth = $c->dbh->prepare("SELECT id FROM talks WHERE nonce = ? AND state IN ('preview', 'broken')");
+		$sth->execute($nonce);
+		my $row = $sth->fetchrow_arrayref;
+		if(scalar($row) == 0) {
+			$c->stash(message=>"Change not allowed. If this talk exists, it was probably reviewed by someone else while you were doing so too. Please try again later, or check the overview page.");
+			$c->res->code(403);
+			$c->render('error');
+			return undef;
+		}
+		$c->stash(layout => 'default');
+		$c->stash(template => 'talk');
+		$c->flash(completion_message => 'Your change has been accepted. Thanks for your help!');
+		$c->talk_update($row->[0]);
+		$c->redirect_to("/review/$nonce");
+	} => 'talk_update');
 
 	my $vol = $r->under('/volunteer' => sub {
 		my $c = shift;
@@ -433,10 +453,19 @@ sub startup {
 		$c->render(template => 'talk');
 	} => 'admin_talk');
 
-	$admin->post('/talk_update')->to(controller => 'talk', action => 'update',
-			name => 'talk_update_admin',
-			notfound_message => "Required parameter talk missing",
-			notfound_code => 404);
+	$admin->post('/talk_update' => sub {
+		my $c = shift;
+		my $talk = $c->param("talk");
+		if(!defined($talk)) {
+			$c->stash(message => "Required parameter talk missing.");
+			$c->render("error");
+			return undef;
+		}
+		$c->stash(template => 'talk');
+		$c->flash(completion_message => 'Your change has been accepted. Thanks for your help!');
+		$c->talk_update($talk);
+		$c->redirect_to("/admin/talk?talk=$talk");
+	} => 'talk_update_admin');
 
 	$admin->get('/brokens' => sub {
 		my $c = shift;
