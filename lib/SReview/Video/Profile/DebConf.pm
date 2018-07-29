@@ -1,5 +1,5 @@
 use SReview::Video::ProfileFactory;
-package SReview::Video::Profile::FOSDEM;
+package SReview::Video::Profile::DebConf;
 
 use Moose;
 
