@@ -60,16 +60,22 @@ sub setup {
 		transcoding => 'sreview-transcode <%== $talkid %> > <%== $output_dir %>/trans.<%== $talkid %>.out 2> <%== $output_dir%>/trans.<%== $talkid %>.err',
 		uploading => 'sreview-skip <%== $talkid %>',
 		notification => 'sreview-skip <%== $talkid %>',
+		announcing => 'sreview-skip <%== $talkid %>',
 	});
 	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 1);
 
 	# Values for notification script
-	$config->define('notify_actions', 'An array of things to do when notifying. Can contain one or more of: email, command.', []);
-	$config->define('email_template', 'A filename of a Mojo::Template template to process, returning the email body. Required if notify_actions includes email.', undef);
-	$config->define('email_from', 'The data for the From: header in the email. Required if notify_actions includes email.', undef);
-	$config->define('email_subject', 'The data for the Subject: header in the email. Required if notify_actions includes email.', undef);
+	$config->define('notify_actions', 'An array of things to do when notifying the readyness of a preview video. Can contain one or more of: email, command.', []);
+	$config->define('announce_actions', 'An array of things to do when announcing the completion of a transcode. Can contain one or more of: email, command.', []);
+	$config->define('email_template', 'A filename of a Mojo::Template template to process, returning the email body used in notifications or announcements. Can be overridden by announce_email_template or notify_email_template.', undef);
+	$config->define('notify_email_template', 'A filename of a Mojo::Template template to process, returning the email body used in notifications. Required, but defaults to the value of email_template', undef);
+	$config->define('announce_email_template', 'A filename of a Mojo::Template template to process, returning the email body used in announcements. Required, but defaults to the value of email_template', undef);
+	$config->define('email_from', 'The data for the From: header in any email. Required if notify_actions or announce_actions includes email.', undef);
+	$config->define('notify_email_subject', 'The data for the Subject: header in the email. Required if notify_actions includes email.', undef);
+	$config->define('announce_email_subject', 'The data for the Subject: header in the email. Required if announc_actions includes email.', undef);
 	$config->define('urlbase', 'The URL on which SReview runs. Note that this is used by sreview-notify to generate URLs, not by sreview-web.', '');
-	$config->define('notify_commands', 'An array of commands to run. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $title %>', 'is', 'available', 'at', '<%== $url %>']]);
+	$config->define('notify_commands', 'An array of commands to run to perform notifications. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $title %>', 'is', 'available', 'at', '<%== $url %>']]);
+	$config->define('announce_commands', 'An array of commands to run to perform announcements. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $title %>', 'is', 'available', 'at', '<%== $url %>']]);
 
 	# Values for upload script
 	$config->define('upload_actions', 'An array of commands to run on each file to be uploaded. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $file %>', 'ready for upload']]);

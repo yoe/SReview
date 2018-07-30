@@ -299,6 +299,7 @@ sub startup {
 		$expls{'preview'} = 'Talk ready for review, waiting for reviewer';
 		$expls{'transcoding'} = 'High-quality transcodes running';
 		$expls{'uploading'} = 'Publishing results';
+		$expls{'announcing'} = 'Announcing completion of publication';
 		$expls{'done'} = 'Videos published, all done';
 		$expls{'broken'} = 'Review found problems, administrator required';
 		$expls{'ignored'} = 'Talk will not be/was not recorded, ignored for review';

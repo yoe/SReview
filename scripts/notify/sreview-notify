@@ -13,7 +13,12 @@ my $config = SReview::Config::Common::setup;
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
-my $talkid = $ARGV[0];
+my $talkid = shift;
+
+die "need talk ID!" unless defined($talkid);
+
+my $configprefix = shift;
+$configprefix = 'notify' unless defined($configprefix);
 
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid);
 
@@ -52,11 +57,15 @@ sub notify_email() {
 		return;
 	}
 	
-	my $body = $mt->render_file($config->get('email_template'), {title => $title, url => $url, overview => $overview});
+	my $file = $config->get("${configprefix}_email_template");
+	$file = $config->get("email_template") unless defined($file);
+	my $body = $mt->render_file($file, {title => $title, url => $url, overview => $overview});
+	my $subject = $config->get("${configprefix}_email_subject");
+	$subject = $config->get("email_subject") unless defined($subject);
 	my $email = Email::Simple->create(header => [
 			From => $config->get('email_from'),
 			To => join(',', @to_recips),
-			Subject => $mt->render($config->get("email_subject"), {title => $title}),
+			Subject => $mt->render($subject, {title => $title}),
 			Cc => join(',', @cc_recips),
 		], body => $body);
 	sendmail($email);
@@ -67,7 +76,7 @@ sub notify_command() {
 	$data->execute($talkid);
 	my $row = $data->fetchrow_hashref;
 
-	foreach my $command(@{$config->get('notify_commands')}) {
+	foreach my $command(@{$config->get("${configprefix}_commands")}) {
 		my @run;
 		foreach my $component(@$command) {
 			my $rendered = $mt->render($component, {title => $title, url => $url, overview => $overview});
@@ -78,7 +87,7 @@ sub notify_command() {
 	}
 }
 
-my $actions = $config->get('notify_actions');
+my $actions = $config->get("${configprefix}_actions");
 
 exit 0 if(scalar(@$actions) < 1);
 
