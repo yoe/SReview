@@ -670,7 +670,6 @@ CREATE TYPE talkstate_new AS ENUM (
     'announcing',
     'done',
     'broken',
-    'ignored',
     'needs_work',
     'lost',
     'ignored'
@@ -728,7 +727,6 @@ CREATE TYPE talkstate_new AS ENUM (
     'uploading',
     'done',
     'broken',
-    'ignored',
     'needs_work',
     'lost',
     'ignored'
