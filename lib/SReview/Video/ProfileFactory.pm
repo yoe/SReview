@@ -289,16 +289,22 @@ sub _probe_exten {
 
 sub _probe_height {
 	my $self = shift;
+	return undef unless defined ($self->reference->video_height);
 	return int($self->reference->video_height / 8);
 }
 
 sub _probe_width {
 	my $self = shift;
+	return undef unless defined ($self->reference->video_width);
 	return int($self->reference->video_width / 8);
 }
 
 sub _probe_videosize {
 	my $self = shift;
+	my $width = $self->video_width;
+	my $height = $self->video_height;
+	return undef unless defined($width) && defined($height);
+	return undef unless $width && $height;
 	return $self->video_width . "x" . $self->video_height;
 }
 
