@@ -558,7 +558,7 @@ sub writeopts {
 	my $pipe = shift;
 	my @opts = ();
 
-	if(!$pipe->vcopy) {
+	if(!$pipe->vcopy && !$pipe->vskip) {
 		if(defined($self->video_codec)) {
 			push @opts, ('-c:v', detect_to_write($self->video_codec));
 		}
@@ -578,7 +578,7 @@ sub writeopts {
 			push @opts, ('-pass', $self->pass, '-passlogfile', $self->url . '-multipass');
 		}
 	}
-	if(!$pipe->acopy) {
+	if(!$pipe->acopy && !$pipe->askip) {
 		if(defined($self->audio_codec)) {
 			push @opts, ('-c:a', detect_to_write($self->audio_codec));
 		}

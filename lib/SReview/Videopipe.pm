@@ -43,6 +43,18 @@ has 'acopy' => (
 	default => 1,
 );
 
+has 'vskip' => (
+	isa => 'Bool',
+	is => 'rw',
+	default => 0,
+);
+
+has 'askip' => (
+	isa => 'Bool',
+	is => 'rw',
+	default => 0,
+);
+
 has 'multipass' => (
 	isa => 'Bool',
 	is => 'rw',
@@ -129,7 +141,7 @@ sub run {
 			}
 			push @command, $input->readopts($self->output);
 		}
-		if(!$self->vcopy()) {
+		if(!$self->vcopy() && !$self->vskip()) {
 			my $isize = $self->inputs->[0]->video_size;
 			my $osize = $self->output->video_size;
 			if(defined($isize) && defined($osize) && $isize ne $osize) {
@@ -151,6 +163,12 @@ sub run {
 		}
 		if($self->acopy) {
 			push @command, ('-c:a', 'copy');
+		}
+		if($self->vskip) {
+			push @command, ('-vn');
+		}
+		if($self->askip) {
+			push @command, ('-an');
 		}
 		push @command, $self->output->writeopts($self);
 
