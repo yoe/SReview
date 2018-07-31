@@ -648,6 +648,7 @@ sub _probe_audiodata {
 			return $stream;
 		}
 	}
+	return {};
 }
 
 sub _probe_videodata {
@@ -660,6 +661,7 @@ sub _probe_videodata {
 			return $stream;
 		}
 	}
+	return {};
 }
 
 sub speed {
