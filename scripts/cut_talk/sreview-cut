@@ -8,6 +8,7 @@ use File::Temp qw/tempdir/;
 use File::Path qw/make_path/;
 use SReview::CodecMap qw/detect_to_write/;
 use SReview::Map;
+use SReview::Talk;
 use SReview::Video;
 use SReview::Video::Concat;
 use SReview::Videopipe;
@@ -104,38 +105,20 @@ $dbh->commit;
 
 $dbh->begin_work;
 
-my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
-my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
-$corrections_data->execute($talkid);
+my $talk = SReview::Talk->new(talkid => $talkid);
 
-my %corrections;
+my $corrections = $talk->corrections;
+
 my @segments_pre;
 my @segments_main;
 my @segments_post;
 
-while(my $row = $corrections_data->fetchrow_hashref()) {
-	my $name = $row->{property};
-	my $val = $row->{property_value};
-	$corrections{$name} = $val;
-}
-
-foreach my $prop ("offset_start", "length_adj", "offset_audio") {
-	if(!exists($corrections{$prop})) {
-		$corrections{$prop} = 0;
-	}
-}
-
-if(!exists($corrections{audio_channel})) {
-	$corrections{audio_channel} = 0;
-}
-
-$talk_data->execute($talkid, $corrections{"offset_start"}, $corrections{"length_adj"});
 
 my $prelen = 0;
 my $mainlen = 0;
 my $postlen = 0;
 
-while(my $row = $talk_data->fetchrow_hashref()) {
+foreach my $row (@{$talk->video_fragments}) {
 	my $start;
 	my $stop;
 	my $target;
@@ -145,9 +128,9 @@ while(my $row = $talk_data->fetchrow_hashref()) {
 	if($row->{talkid} == -1) {
 		$target = "pre";
 		$segments = \@segments_pre;
-		if($prelen == 0 && $corrections{offset_audio} > 0) {
+		if($prelen == 0 && $corrections->{offset_audio} > 0) {
 			if($row->{fragment_start} > 0) {
-				$row->{fragment_start} -= ($corrections{offset_audio} > $row->{fragment_start} ? $row->{fragment_start} : $corrections{offset_audio});
+				$row->{fragment_start} -= ($corrections->{offset_audio} > $row->{fragment_start} ? $row->{fragment_start} : $corrections->{offset_audio});
 			}
 		}
 		$prelen += $row->{raw_length_corrected};
@@ -189,18 +172,18 @@ virtual host top level.
 
 =cut
 
-my $workdir = $config->get('pubdir') . "/" . $row->{eventid} . "/" . $row->{starttime} . "/" . substr($row->{room}, 0, 1);
+my $workdir = $talk->workdir;
 make_path($workdir);
-my $outname = "$workdir/" . $row->{slug};
+my $outname = $talk->outname;
 
 # Extract the correct audio
 my $full = SReview::Video->new(url => $full_output->url);
 my $map = SReview::Map->new(input => $full);
 
-if(exists($corrections{audio_channel})) {
-	if($corrections{audio_channel} == 1) {
+if(exists($corrections->{audio_channel})) {
+	if($corrections->{audio_channel} == 1) {
 		$map->choice('right');
-	} elsif($corrections{audio_channel} == 2) {
+	} elsif($corrections->{audio_channel} == 2) {
 		$map->choice('both');
 	}
 }
@@ -209,11 +192,11 @@ my $full_wav = SReview::Video->new(url => "$tempdir/full.wav");
 SReview::Videopipe->new(inputs => [$full], output => $full_wav, "map" => [$map], acopy => 0, vcopy => 0)->run();
 
 # If necessary, fickle with A/V sync values
-if($corrections{offset_audio} != 0) {
-	if($corrections{offset_audio} > 0) {
+if($corrections->{offset_audio} != 0) {
+	if($corrections->{offset_audio} > 0) {
 		# Delay audio by cutting off some of the video at the start
-		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.mkv", fragment_start => $corrections{offset_audio});
-		$prelen -= $corrections{offset_audio};
+		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.mkv", fragment_start => $corrections->{offset_audio});
+		$prelen -= $corrections->{offset_audio};
 		if($prelen < 0) {
 			$mainlen -= abs($prelen);
 			$prelen = 0;
@@ -223,8 +206,8 @@ if($corrections{offset_audio} != 0) {
 		rename("$tempdir/full-new.mkv", "$tempdir/full.mkv");
 	} else {
 		# Delay video by cutting off some of the audio at the start
-		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.wav", fragment_start => abs($corrections{offset_audio}));
-		$postlen -= abs($corrections{offset_audio});
+		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.wav", fragment_start => abs($corrections->{offset_audio}));
+		$postlen -= abs($corrections->{offset_audio});
 		if($postlen < 0) {
 			$mainlen -= abs($postlen);
 			$postlen = 0;
