@@ -96,9 +96,8 @@ The DBI string used to connect to the database
 
 =cut
 
-my $talkid = $ARGV[0];
-
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+my $talkid = $ARGV[0];
 
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?")->execute($talkid);
 
@@ -122,7 +121,7 @@ The directory in which to find the output of C<sreview-cut>
 
 =cut
 
-my $pubdir = $config->get('pubdir') . "/" . $eid . "/" . $drow->{date} . "/" . substr($drow->{room}, 0, 1);
+my $workdir = $config->get('pubdir') . "/" . $eid . "/" . $drow->{date} . "/" . substr($drow->{room}, 0, 1);
 
 =item outputdir
 
@@ -207,7 +206,7 @@ sub process_template($$) {
 	system("inkscape --export-png=$output $outputsvg");
 }
 
-my $preroll = $pubdir . "/$slug-pre.png";
+my $preroll = $workdir . "/$slug-pre.png";
 
 =item preroll_template
 
@@ -222,7 +221,7 @@ if ( ! -f $preroll ) {
 	print "reusing $preroll\n";
 }
 
-my $postroll = $pubdir . "/$slug-post.png";
+my $postroll = $workdir . "/$slug-post.png";
 
 =item postroll_template
 
@@ -249,9 +248,9 @@ if ( ! -f $postroll ) {
 	print "reusing $postroll\n";
 }
 
-my $main_input = SReview::Video->new(url => "$pubdir/$slug.mkv");
+my $main_input = SReview::Video->new(url => "$workdir/$slug.mkv");
 
-my $apology = $pubdir . "/$slug-sorry.png";
+my $apology = $workdir . "/$slug-sorry.png";
 my $sorry;
 
 =item apology_template
