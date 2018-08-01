@@ -25,6 +25,7 @@ use DBI;
 use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
+use SReview::Talk;
 use SReview::Video;
 use SReview::Video::PNGGen;
 use SReview::Video::Concat;
@@ -103,17 +104,13 @@ $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?")->execute($talk
 
 $dbh->begin_work;
 
-my $talk = $dbh->prepare("SELECT * FROM talks WHERE id = ?");
+my $talk = SReview::Talk->new(talkid => $talkid);
 
-$talk->execute($talkid);
-
-my $row = $talk->fetchrow_hashref();
-my $slug = $row->{slug};
+my $slug = $talk->slug;
 
 my $data = $dbh->prepare("SELECT eventid, event, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, speakers, name AS title, subtitle, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
-my $eid = $drow->{eventid};
 
 =item pubdir
 
@@ -121,7 +118,7 @@ The directory in which to find the output of C<sreview-cut>
 
 =cut
 
-my $workdir = $config->get('pubdir') . "/" . $eid . "/" . $drow->{date} . "/" . substr($drow->{room}, 0, 1);
+my $workdir = $talk->workdir;
 
 =item outputdir
 
