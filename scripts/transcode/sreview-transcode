@@ -281,15 +281,14 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 # concatenate preroll, main video, postroll
 my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
-my $main = SReview::Video->new(url => "$tmpdir/$slug.mkv");
-SReview::Videopipe->new(inputs => [$main_input], output => $main)->run();
 my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
 my $inputs = [ $pre ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
 }
-push @$inputs, ( SReview::Video->new(url => $main->url), $post );
+push @$inputs, ( $main_input, $post );
+
 my $input = SReview::Video::Concat->new(components => $inputs, url => "$tmpdir/concat.txt");
 
 =item output_profiles
