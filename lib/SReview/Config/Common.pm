@@ -87,6 +87,9 @@ sub setup {
 	# for sreview-keys
 	$config->define('authkeyfile', 'The authorized_keys file that sreview-keys should manage. If set to undef, the default authorized_keys file will be used.');
 
+	# for extending profiles
+	$config->define('extra_profiles', 'Any extra custom profiles you want to use. This hash should have two keys: the "parent" should be a name of a profile to subclass from, and the "settings" should contain a hash reference with attributes for the new profile to set', {});
+
 	return $config;
 }
 

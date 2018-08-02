@@ -3,10 +3,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 use_ok('SReview::Video::ProfileFactory');
+
+$ENV{SREVIEW_WDIR} = './t';
+
+open CONFIG, '>t/config.pm';
+print CONFIG "\$extra_profiles={test => { parent => 'mp4' }};\n1;\n";
+close CONFIG;
 
 my $input = SReview::Video->new(url => 't/testvids/bbb.mp4');
 ok(defined($input), "Could create the input video");
@@ -47,6 +53,7 @@ SReview::Videopipe->new(inputs => [$input], output => $output)->run();
 
 ok(-f $output->url, "copying data by profile creates output");
 
-done_testing();
+my $testprof = SReview::Video::ProfileFactory->create("test", $input);
+ok(defined($testprof), "Can create a profile from config");
 
 unlink($output->url);
