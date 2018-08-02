@@ -4,6 +4,7 @@ use SReview::Config;
 
 use strict;
 use warnings;
+use feature 'state';
 
 sub get_default_cfile {
 	my $dir = $ENV{SREVIEW_WDIR};
@@ -22,8 +23,11 @@ sub setup {
 	if(!defined($cfile)) {
 		$cfile = get_default_cfile();
 	}
-	my $config = SReview::Config->new($cfile);
+	state $config;
 
+	return $config if(defined $config);
+
+	$config = SReview::Config->new($cfile);
 	# common values
 	$config->define('dbistring', 'The DBI connection string used to connect to the database', 'dbi:Pg:dbname=sreview');
 
