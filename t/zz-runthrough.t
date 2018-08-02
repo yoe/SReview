@@ -18,7 +18,7 @@ sub run {
 	my @command = @_;
 
 	print "running: '", join("' '", @command), "'\n";
-	system(@command);
+	system(@command) == 0 or die "system @command failed: $?";
 }
 
 SKIP: {
