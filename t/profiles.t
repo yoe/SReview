@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use_ok('SReview::Video');
 use_ok('SReview::Videopipe');
 use_ok('SReview::Video::ProfileFactory');
@@ -52,6 +52,9 @@ $output = SReview::Video->new(url => 't/testvids/foo.mp4', reference => $copypr)
 SReview::Videopipe->new(inputs => [$input], output => $output)->run();
 
 ok(-f $output->url, "copying data by profile creates output");
+
+eval { my $val = SReview::Video::ProfileFactory->create("unknown", $input); };
+ok($@, "Creating a nonexisting profile dies");
 
 my $testprof = SReview::Video::ProfileFactory->create("test", $input);
 ok(defined($testprof), "Can create a profile from config");
