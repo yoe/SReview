@@ -82,7 +82,6 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			my $title = $talk->child('title')->value();
 			next unless defined($title);
 			my $released = $talk->child('released')->value();
-			next unless $released eq 'True';
 			do {
 				$track_ex->execute($talk->child('track')->value()) or die;
 
@@ -94,8 +93,13 @@ foreach my $day($xml->child('schedule')->children('day')) {
 			my $talk_st = $dbh->prepare("SELECT id FROM talks WHERE upstreamid = ? AND event = ?");
 			$talk_st->execute($talk_upid, $eventid) or die;
 			if($talk_st->rows < 1) {
+				next unless $released eq 'True';
 				$talk_st = $dbh->prepare("INSERT INTO talks (room, slug, starttime, endtime, title, subtitle, track, event, upstreamid) VALUES (?, ?, ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, ?, ?, ?)");
 			} else {
+				if($released ne 'True') {
+					$dbh->prepare("UPDATE talks SET state='ignored' WHERE upstreamid = ? AND event = ?")->execute($talk_upid, $eventid);
+					next;
+				}
 				$talk_st = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz + ?::interval, title = ?, subtitle = ?, track = ? WHERE event = ? AND upstreamid = ?");
 			}
 			my $starttime = $day->attribute('date') . " " . $talk->child('start')->value() . ":00+00";
