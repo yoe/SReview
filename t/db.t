@@ -24,7 +24,7 @@ SKIP: {
 	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
 
 	ok(SReview::Db::init($config), "Initializing the database was successful");
-	ok(SReview::Db::selfdestruct(0), "Clobbering the database works");
+	ok(SReview::Db::selfdestruct(code => 0, init => 0), "Clobbering the database works");
 	ok(SReview::Db::init($config), "Re-initializing the database after clobbering it was successful");
 	my $db = DBI->connect($config->get('dbistring'), '', '', {AutoCommit => 1});
 	ok(defined($db), "connecting to the database was successful");
