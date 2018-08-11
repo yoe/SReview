@@ -228,7 +228,7 @@ use Moose;
 extends 'SReview::Video::Profile::Base';
 
 sub _probe_exten {
-	return 'vp8.webm',
+	return 'vp8.webm';
 }
 
 sub _probe_videocodec {
