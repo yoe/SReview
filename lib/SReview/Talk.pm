@@ -39,9 +39,8 @@ has 'slug' => (
 
 has 'corrections' => (
 	lazy => 1,
-	is => 'bare',
+	is => 'rw',
 	builder => '_load_corrections',
-	reader => '_get_corrections',
 );
 
 has 'video_fragments' => (
@@ -110,7 +109,7 @@ sub _load_corrections {
 
 sub _load_video_fragments {
 	my $self = shift;
-	my $corrections = $self->_get_corrections;
+	my $corrections = $self->corrections;
 
 	my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
 	$talk_data->execute($self->talkid, $corrections->{"offset_start"}, $corrections->{"length_adj"});
