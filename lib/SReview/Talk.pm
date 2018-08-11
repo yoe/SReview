@@ -14,7 +14,7 @@ has 'talkid' => (
 
 has 'pathinfo' => (
 	lazy => 1,
-	is => 'rw',
+	is => 'bare',
 	builder => '_load_pathinfo',
 	reader => '_get_pathinfo',
 );
@@ -39,7 +39,7 @@ has 'slug' => (
 
 has 'corrections' => (
 	lazy => 1,
-	is => 'rw',
+	is => 'bare',
 	builder => '_load_corrections',
 	reader => '_get_corrections',
 );
