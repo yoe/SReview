@@ -61,7 +61,7 @@ my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect
 $dbh->begin_work;
 
 my $exists = $dbh->prepare("SELECT count(*) FROM raw_files WHERE filename = ?");
-my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval)");
+my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval WHERE filename = ?");
 
 my @files = glob($config->get('inputglob'));
@@ -75,6 +75,7 @@ foreach my $file(@files) {
 	my $room = $+{room};
 	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
 	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
+	my $stream = $+{stream};
 	next unless defined($room);
 	my $url_build = $config->get('url_re');
 	my $url = $file;
@@ -85,7 +86,7 @@ foreach my $file(@files) {
 	my $row = $exists->fetchrow_hashref;
 	my $length = SReview::Video->new(url => $url)->duration;
 	if($row->{count} eq '0') {
-		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length);
+		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream);
 	} else {
 		$update->execute("$length", $url);
 	}

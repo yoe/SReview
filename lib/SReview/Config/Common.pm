@@ -54,7 +54,7 @@ sub setup {
 
 	# Values for detection script
 	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');
-	$config->define('parse_re', 'A regular expression to parse a filename into year, month, day, hour, minute, second, and room', '.*\/(?<room>[^\/]+)\/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\/(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})');
+	$config->define('parse_re', 'A regular expression to parse a filename into year, month, day, hour, minute, second, room, and stream', '.*\/(?<stream>[^\/]+)\/(?<room>[^\/]+)\/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\/(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})');
 	$config->define('url_re', 'If set, used with parse_re in an s///g command to produce an input URL', undef);
 
 	# Values for dispatch script
