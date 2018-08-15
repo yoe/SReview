@@ -331,12 +331,12 @@ sub create {
 	} else {
 		my $parent = $profiles->{$profile}{parent};
 		eval "require SReview::Video::Profile::$parent;";
-		my $profile = "SReview::Video::Profile::$parent"->new(url => '', reference => $ref);
+		my $rv = "SReview::Video::Profile::$parent"->new(url => '', reference => $ref);
 		foreach my $param(keys %{$profiles->{$profile}{settings}}) {
 			next if($param eq 'parent');
-			$profile->meta->get_attribute($param)->set_value($profile, $profiles->{$param});
+			$rv->meta->get_attribute($param)->set_value($profile, $profiles->{$param});
 		}
-		return $profile;
+		return $rv;
 	}
 	die "Unknown profile $profile requested!";
 }
