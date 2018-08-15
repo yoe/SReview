@@ -68,10 +68,13 @@ C<myprofile> profile in the above example shows how to do so. Any
 property that is known by L<SReview::Video> can be overridden in the
 manner given.
 
-To create a profile that just changes a minor detail of an existing
-profile, extend that profile and change the detail which you want to
-change. To create a new profile from scratch, extend the C<Base> profile
-(see below).
+To create a new profile, one can use the C<extra_profiles> configuration
+setting; however, profiles created in this manner can only hardcode
+values, and cannot vary any parameters based on the input file. To
+create a profile that can do so, when the new profile just changes a
+minor detail of an existing profile, extend that profile and change the
+detail which you want to change. To create a new profile from scratch,
+extend the C<Base> profile (see below).
 
 =head1 PRE-EXISTING PROFILES
 
