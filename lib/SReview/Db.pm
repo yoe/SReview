@@ -1323,7 +1323,7 @@ BEGIN
             OR (talks.endtime + start_off + end_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off + '00:20:00'::interval) >= raw_files.endtime);
 END $_$;
 -- 2 down
-CREATE VIEW raw_talks AS
+CREATE OR REPLACE VIEW raw_talks AS
  SELECT talks.id AS talkid,
     talks.slug,
     raw_files.id AS rawid,
@@ -1343,7 +1343,7 @@ CREATE VIEW raw_talks AS
    FROM talks,
     raw_files
   WHERE (talks.starttime >= raw_files.starttime AND talks.starttime <= raw_files.endtime OR talks.endtime >= raw_files.starttime AND talks.endtime <= raw_files.endtime OR talks.starttime <= raw_files.starttime AND talks.endtime >= raw_files.endtime) AND talks.room = raw_files.room;
-CREATE FUNCTION adjusted_raw_talks(integer, interval, interval) RETURNS SETOF raw_talks LANGUAGE plpgsql AS $_$
+CREATE OR REPLACE FUNCTION adjusted_raw_talks(integer, interval, interval) RETURNS SETOF raw_talks LANGUAGE plpgsql AS $_$
 DECLARE
   talk_id ALIAS FOR $1;
   start_off ALIAS FOR $2;
