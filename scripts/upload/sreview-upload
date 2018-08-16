@@ -66,9 +66,11 @@ if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'previews') {
 		join('/', $talk->workdir, $talk->slug . "-post.mkv"),
 		join('/', $talk->workdir, $talk->slug . "-post.webm"),
 		join('/', $talk->workdir, $talk->slug . "-post.mp4"),
+		join('/', $talk->workdir, $talk->slug . "-post.png"),
 		join('/', $talk->workdir, $talk->slug . "-pre.mkv"),
 		join('/', $talk->workdir, $talk->slug . "-pre.webm"),
 		join('/', $talk->workdir, $talk->slug . "-pre.mp4"),
+		join('/', $talk->workdir, $talk->slug . "-pre.png"),
 	)
 }
 
