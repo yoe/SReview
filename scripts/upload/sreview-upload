@@ -7,6 +7,7 @@ use DBI;
 use Mojo::Template;
 use SReview::Config::Common;
 use SReview::Video::ProfileFactory;
+use SReview::Talk;
 
 my $config = SReview::Config::Common::setup;
 
@@ -53,11 +54,37 @@ foreach my $subdir(@$subdirs) {
 	$reldir = join('/', $reldir, $talkdata->{$subdir});
 }
 
+my $talk = SReview::Talk->new($talkid);
+
+my @files = ();
+
+if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'previews') {
+	push @files, (
+		join('/', $talk->workdir, $talk->slug . ".mkv"),
+		join('/', $talk->workdir, $talk->slug . ".webm"),
+		join('/', $talk->workdir, $talk->slug . ".mp4"),
+		join('/', $talk->workdir, $talk->slug . "-post.mkv"),
+		join('/', $talk->workdir, $talk->slug . "-post.webm"),
+		join('/', $talk->workdir, $talk->slug . "-post.mp4"),
+		join('/', $talk->workdir, $talk->slug . "-pre.mkv"),
+		join('/', $talk->workdir, $talk->slug . "-pre.webm"),
+		join('/', $talk->workdir, $talk->slug . "-pre.mp4"),
+	)
+}
+
 foreach my $profile(@{$config->get('output_profiles')}) {
 	my $basename = join('.', $talkdata->{slug}, SReview::Video::ProfileFactory->create($profile, $raw_file)->exten());
 	my $relfile = join('/', $reldir, $basename);
 	my $fullfile = join('/', $outputdir, $relfile);
 	run_command($fullfile, $relfile);
+	if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'output') {
+		push @files, $fullfile;
+		push @files, $fullfile . "-multipass-0.log";
+	}
+}
+
+if ($config->get('cleanup')) {
+	unlink(@files) or die "Could not remove files: $!";
 }
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
