@@ -54,7 +54,7 @@ foreach my $subdir(@$subdirs) {
 	$reldir = join('/', $reldir, $talkdata->{$subdir});
 }
 
-my $talk = SReview::Talk->new($talkid);
+my $talk = SReview::Talk->new(talkid => $talkid);
 
 my @files = ();
 
