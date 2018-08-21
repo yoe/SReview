@@ -334,7 +334,7 @@ sub create {
 		my $rv = "SReview::Video::Profile::$parent"->new(url => '', reference => $ref);
 		foreach my $param(keys %{$profiles->{$profile}{settings}}) {
 			next if($param eq 'parent');
-			$rv->meta->get_attribute($param)->set_value($profile, $profiles->{$profile}{settings}{$param});
+			$rv->meta->find_attribute_by_name($param)->set_value($rv, $profiles->{$profile}{settings}{$param});
 		}
 		return $rv;
 	}
