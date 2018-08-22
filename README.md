@@ -6,10 +6,9 @@ with a schedule it has of an event to see which talks are fully
 recorded, and creates a preview. After that, magic happens, and
 eventually a fully transcoded quality video rolls out of the system.
 
-Note that while SReview has been used in production for [FOSDEM
-2017](https://fosdem.org/2017), [FOSDEM 2018](https://fosdem.org/2018) and
-[DebConf 2017](https://debconf17.debconf.org), there is still some missing
-functionality in some areas. Patches welcome! :-)
+Note that while SReview has been used [in
+production](https://yoe.github.io/sreview/production), there is still
+some missing functionality in some areas. Patches welcome! :-)
 
 ## States
 
