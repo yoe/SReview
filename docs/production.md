@@ -5,6 +5,15 @@ SReview has been used in production for the following conferences:
 * FOSDEM: 2017 and 2018 edition.
 * DebConf: 2017 and 2018 edition.
 
+What follows below is a short description of how SReview was installed
+and configured for each of those conferences. Note, however, that it is
+possible to run all components of SReview on a single host; for small
+conferences, doing so is recommended.
+
+## FOSDEM
+
+### 2017
+
 At FOSDEM 2017, SReview was installed on the following machines:
 
 - review.video.fosdem.org: web interface, postgresql, gridengine master,
@@ -24,6 +33,8 @@ code was *extremely* rough around the edges; in fact, much of the
 functionality wasn't there yet, and much of what was there has since
 been rewritten.
 
+### 2018
+
 The setup for FOSDEM 2018 was very similar, but there were a few
 differences:
 
@@ -34,6 +45,10 @@ differences:
   turned out not to need in the end, sigh).
 - The NGinX-mp4 module was not used this time around to access the
   backend machines, instead we used NFS to access them.
+
+## DebConf
+
+### 2017 (Montéal, Canada)
 
 At DebConf17, SReview was installed on the following machines:
 
@@ -61,13 +76,12 @@ when the transcodes had finished were they copied (by the `uploads`
 script that ran on vittoria) to vittoria, and then pushed from vittoria
 to the DebConf [video archive](https://video.debian.net).
 
+After the conference, all raw recordings were rsync'd to vittoria.
+
+### 2018 (Hsinchu, Taiwan)
+
 For DebConf18, the setup was very similar, but there was a major
 difference: rather than having multiple machines on-site, the DebConf18
 setup only had one 24-core VM with 10 TiB of storage on-site,
 `storage.dc18.debconf.org`. All cutting and transcoding was done on this
 machine; vittoria served the webinterface and the database, etc.
-
-After the conference, all raw recordings were rsync'd to vittoria.
-
-It is possible to run all components of SReview on a single host; for
-small conferences, doing so is recommended.
