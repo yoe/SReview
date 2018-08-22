@@ -4,6 +4,7 @@ SReview has been used in production for the following conferences:
 
 * FOSDEM: 2017 and 2018 edition.
 * DebConf: 2017 and 2018 edition.
+* A few mini-debconfs: 2017 Cambridge, 2018 Hamburg
 
 What follows below is a short description of how SReview was installed
 and configured for each of those conferences. Note, however, that it is
@@ -85,3 +86,7 @@ difference: rather than having multiple machines on-site, the DebConf18
 setup only had one 24-core VM with 10 TiB of storage on-site,
 `storage.dc18.debconf.org`. All cutting and transcoding was done on this
 machine; vittoria served the webinterface and the database, etc.
+
+## Mini debconfs
+
+Everything was installed and run on vittoria.debian.org
