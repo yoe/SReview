@@ -31,6 +31,12 @@ has 'outname' => (
 	builder => '_load_outname',
 );
 
+has 'finaldir' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_finaldir',
+);
+
 has 'slug' => (
 	lazy => 1,
 	is => 'rw',
@@ -60,6 +66,11 @@ sub _load_outname {
 	return $self->_get_pathinfo->{"workdir"}."/".$self->_get_pathinfo->{"slug"};
 }
 
+sub _load_finaldir {
+	my $self = shift;
+	return $self->_get_pathinfo->{"finaldir"};
+}
+
 sub _load_slug {
 	my $self = shift;
 	return $self->_get_pathinfo->{"slug"};
@@ -70,11 +81,18 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventname->execute($self->talkid);
 	my $row = $eventname->fetchrow_hashref();
 
         $pathinfo->{"workdir"} = $config->get('pubdir') . "/" . $row->{eventid} . "/" . $row->{starttime} . "/" . substr($row->{room}, 0, 1);
+
+	my @elements = ($config->get('outputdir'));
+	foreach my $element(@{$config->get('output_subdirs')}) {
+		push @elements, $row->{$element};
+	}
+	$pathinfo->{"finaldir"} = join('/', @elements);
+
         $pathinfo->{"slug"} = $row->{"slug"};
 
 	return $pathinfo;
