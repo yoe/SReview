@@ -63,7 +63,7 @@ sub _load_workdir {
 
 sub _load_outname {
 	my $self = shift;
-	return $self->_get_pathinfo->{"workdir"}."/".$self->_get_pathinfo->{"slug"};
+	return join('/', $self->_get_pathinfo->{"workdir"}, $self->_get_pathinfo->{"slug"});
 }
 
 sub _load_finaldir {
@@ -85,7 +85,7 @@ sub _load_pathinfo {
 	$eventname->execute($self->talkid);
 	my $row = $eventname->fetchrow_hashref();
 
-        $pathinfo->{"workdir"} = $config->get('pubdir') . "/" . $row->{eventid} . "/" . $row->{starttime} . "/" . substr($row->{room}, 0, 1);
+        $pathinfo->{"workdir"} = join('/', $config->get('pubdir'), $row->{eventid}, $row->{date}, substr($row->{room}, 0, 1));
 
 	my @elements = ($config->get('outputdir'));
 	foreach my $element(@{$config->get('output_subdirs')}) {
