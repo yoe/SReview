@@ -47,6 +47,7 @@ has 'corrections' => (
 	lazy => 1,
 	is => 'rw',
 	builder => '_load_corrections',
+	clearer => '_clear_corrections',
 );
 
 has 'video_fragments' => (
@@ -140,6 +141,16 @@ sub _load_video_fragments {
 	return $rows;
 }
 
+sub correct {
+	my $self = shift;
+	my %corrections = @_;
+
+	my $update = $pg->db->dbh->prepare('INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, (SELECT id FROM properties WHERE name = ?))');
+	foreach my $param(keys %corrections) {
+		$update->execute($corrections{$param}, $self->talkid, $param);
+	}
+	$self->_clear_corrections;
+}
 
 no Moose;
 
