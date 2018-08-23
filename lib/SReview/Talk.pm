@@ -1,11 +1,11 @@
 package SReview::Talk;
 
 use Moose;
-use DBI;
+use Mojo::Pg;
 use SReview::Config::Common;
 
 my $config = SReview::Config::Common::setup;
-my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
+my $pg = Mojo::Pg->new->dsn($config->get('dbistring')) or die "Cannot connect to database!";
 
 has 'talkid' => (
 	required => 1,
@@ -81,7 +81,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventname = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventname->execute($self->talkid);
 	my $row = $eventname->fetchrow_hashref();
 
@@ -101,7 +101,7 @@ sub _load_pathinfo {
 sub _load_corrections {
 	my $self = shift;
 
-	my $corrections_data = $dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
+	my $corrections_data = $pg->db->dbh->prepare("SELECT corrections.talk, properties.name AS property, corrections.property_value FROM corrections LEFT JOIN properties ON corrections.property = properties.id WHERE talk = ?");
 	$corrections_data->execute($self->talkid);
 
 	my %corrections;
@@ -129,7 +129,7 @@ sub _load_video_fragments {
 	my $self = shift;
 	my $corrections = $self->corrections;
 
-	my $talk_data = $dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
+	my $talk_data = $pg->db->dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) AS fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected FROM adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric)) ORDER BY talk_start, raw_start");
 	$talk_data->execute($self->talkid, $corrections->{"offset_start"}, $corrections->{"length_adj"});
 
 	my $rows;
