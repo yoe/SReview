@@ -60,3 +60,4 @@ my $testprof = SReview::Video::ProfileFactory->create("test", $input);
 ok(defined($testprof), "Can create a profile from config");
 
 unlink($output->url);
+unlink('t/config.pm');
