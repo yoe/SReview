@@ -15,7 +15,7 @@ SKIP: {
 
 	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
 	$config->set('output_subdirs' => [ 'eventid', 'event', 'room', 'date', 'year' ]);
-
+	$config->set('pubdir' => '/srv/sreview/web/public/video');
 
 	use_ok('SReview::Talk');
 
