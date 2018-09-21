@@ -56,7 +56,6 @@ has 'video_fragments' => (
 	builder => '_load_video_fragments',
 );
 
-
 sub _load_workdir {
 	my $self = shift;
 	return $self->_get_pathinfo->{"workdir"};

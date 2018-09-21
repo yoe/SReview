@@ -152,7 +152,7 @@ CREATE TABLE speakers_events (
     upstreamid character varying
 );
 -- 3 down
-DROP TABLE speakers_events;
+DROP TABLE speakers_events; 
 DROP TABLE corrections;
 DROP TABLE properties;
 DROP TABLE speakers_talks;
