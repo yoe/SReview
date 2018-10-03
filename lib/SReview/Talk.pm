@@ -19,73 +19,16 @@ has 'pathinfo' => (
 	reader => '_get_pathinfo',
 );
 
-has 'workdir' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_workdir',
-);
-
-has 'outname' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_outname',
-);
-
-has 'finaldir' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_finaldir',
-);
-
-has 'slug' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_slug',
-);
-
-has 'corrections' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_corrections',
-	clearer => '_clear_corrections',
-);
-
-has 'video_fragments' => (
-	lazy => 1,
-	is => 'rw',
-	builder => '_load_video_fragments',
-);
-
-sub _load_workdir {
-	my $self = shift;
-	return $self->_get_pathinfo->{"workdir"};
-}
-
-sub _load_outname {
-	my $self = shift;
-	return join('/', $self->_get_pathinfo->{"workdir"}, $self->_get_pathinfo->{"slug"});
-}
-
-sub _load_finaldir {
-	my $self = shift;
-	return $self->_get_pathinfo->{"finaldir"};
-}
-
-sub _load_slug {
-	my $self = shift;
-	return $self->_get_pathinfo->{"slug"};
-}
-
 sub _load_pathinfo {
 	my $self = shift;
 
 	my $pathinfo = {};
 
-	my $eventname = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventname = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventname->execute($self->talkid);
 	my $row = $eventname->fetchrow_hashref();
 
-        $pathinfo->{"workdir"} = join('/', $config->get('pubdir'), $row->{eventid}, $row->{date}, substr($row->{room}, 0, 1));
+	$pathinfo->{"workdir"} = join('/', $row->{eventid}, $row->{date}, substr($row->{room}, 0, 1));
 
 	my @elements = ($config->get('outputdir'));
 	foreach my $element(@{$config->get('output_subdirs')}) {
@@ -95,8 +38,104 @@ sub _load_pathinfo {
 
         $pathinfo->{"slug"} = $row->{"slug"};
 
+	$pathinfo->{"raw"} = $row;
+
 	return $pathinfo;
 }
+
+has 'date' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_date',
+);
+
+sub _load_date {
+	return shift->_get_pathinfo->{raw}{date};
+}
+
+has 'eventname' => (
+	lazy => 1,
+	is => 'ro',
+	builder => '_load_eventname',
+);
+
+sub _load_eventname {
+	my $self = shift;
+	return $self->_get_pathinfo->{raw}{event};
+}
+
+has 'title' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_title',
+);
+
+sub _load_title {
+	my $self = shift;
+	return $self->_get_pathinfo->{raw}{title};
+}
+
+has 'workdir' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_workdir',
+);
+
+sub _load_workdir {
+	my $self = shift;
+	return join('/', $config->get("pubdir"), $self->_get_pathinfo->{"workdir"});
+}
+
+has 'relative_name' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_relative_name',
+);
+
+sub _load_relative_name {
+	my $self = shift;
+	return join('/', $self->_get_pathinfo->{"workdir"}, $self->_get_pathinfo->{'slug'});
+}
+
+has 'outname' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_outname',
+);
+
+sub _load_outname {
+	my $self = shift;
+	return join('/', $self->workdir, $self->_get_pathinfo->{"slug"});
+}
+
+has 'finaldir' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_finaldir',
+);
+
+sub _load_finaldir {
+	my $self = shift;
+	return $self->_get_pathinfo->{"finaldir"};
+}
+
+has 'slug' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_slug',
+);
+
+sub _load_slug {
+	my $self = shift;
+	return $self->_get_pathinfo->{"slug"};
+}
+
+has 'corrections' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_corrections',
+	clearer => '_clear_corrections',
+);
 
 sub _load_corrections {
 	my $self = shift;
@@ -125,6 +164,12 @@ sub _load_corrections {
 	return \%corrections;
 }
 
+has 'video_fragments' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_video_fragments',
+);
+
 sub _load_video_fragments {
 	my $self = shift;
 	my $corrections = $self->corrections;
@@ -140,6 +185,45 @@ sub _load_video_fragments {
 	return $rows;
 }
 
+has 'speakers' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_speakers',
+);
+
+sub _load_speakers {
+	my $self = shift;
+
+	my $spk = $pg->db->dbh->prepare("SELECT speakerlist(?)");
+
+	$spk->execute($self->talkid);
+
+	my $row = $spk->fetchrow_arrayref;
+
+	return $row->[0];
+}
+
+has 'room' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_room',
+);
+
+sub _load_room {
+	return shift->_get_pathinfo->{raw}{room};
+}
+
+has 'preview_exten' => (
+	lazy => 1,
+	is => 'ro',
+	builder => '_load_preview_exten',
+);
+
+# TODO: autodetect this, rather than hardcoding it
+sub _load_preview_exten {
+	return $config->get('preview_exten');
+}
+
 sub correct {
 	my $self = shift;
 	my %corrections = @_;
@@ -149,6 +233,18 @@ sub correct {
 		$update->execute($corrections{$param}, $self->talkid, $param);
 	}
 	$self->_clear_corrections;
+}
+
+sub by_nonce {
+	my $klass = shift;
+	my $nonce = shift;
+
+	my $st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE nonce = ?");
+	$st->execute($nonce);
+	return undef unless $st->rows == 1;
+	my $row = $st->fetchrow_arrayref;
+	my $rv = SReview::Talk->new(talkid => $row->[0]);
+	return $rv;
 }
 
 no Moose;

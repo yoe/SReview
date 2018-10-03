@@ -8,6 +8,11 @@
     <script><%== $script %></script>
     %   }
     % }
+    % if (my $sheets = stash 'stylesheets') {
+    %   foreach my $stylesheet(@$sheets) {
+    %= stylesheet $stylesheet
+    %   }
+    % }
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">

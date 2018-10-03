@@ -154,6 +154,9 @@ sub startup {
 		}
 	});
 
+	$r->get('/r/:nonce')->to(controller => 'review', action => 'view');
+	$r->get('/r/:nonce/:action')->to(controller => 'review');
+
 	$r->get('/review/:nonce' => sub {
 		my $c = shift;
 		my $stt = $c->dbh->prepare("SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE nonce=?");
