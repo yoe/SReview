@@ -294,7 +294,7 @@
             <label>Please explain:</label>
             <textarea class="form-control" id="comment_text" name="comment_text" rows="10"></textarea>
           </fieldset>
-          <a id="main_action" type="button" href="#" class="btn btn-primary btn-lg">Send your video review to <%= $talk->event %></a>
+          <a id="main_action" type="button" href="#" class="btn btn-primary btn-lg">Send your video review to <%= $talk->eventname %></a>
         </form>
       </div>
     </div>
