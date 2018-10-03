@@ -1,0 +1,119 @@
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  margin-bottom: 40px;
+}
+
+h1 > small {
+  display: block;
+  margin-bottom:10px;
+}
+
+#main_video, #video_starts_too_late, #av_delay, #talk_info, .help-text, #video_ends_too_early {
+  margin-top: 20px;
+}
+
+#talk_info .dl-horizontal {
+  margin-bottom: 5px;
+}
+
+.dl-horizontal dt {
+  width: auto;
+  padding-right: 5px;
+}
+
+.dl-horizontal dd {
+  margin-left: 0;
+}
+
+#state_indicator .glyphicon {
+  padding-left: 5px;
+}
+
+#video_starts_too_early, #video_ends_too_late {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.btn-block + .alert {
+  margin-top: 15px;
+}
+
+.alert_with_control {
+  padding:5px 15px;
+}
+
+.audio_player {
+  width: 90%;
+  padding: 10px 0 20px 0;
+}
+
+#state_indicator {
+  margin-top: 35px;
+}
+
+#state_indicator .well {
+  text-align: center;
+}
+
+#state_indicator .well-upcoming {
+  background-color: #fff;
+  color: #999;
+}
+
+#state_indicator .well-active {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74;
+}
+
+.jumbotron {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.jumbotron h2 {
+  font-size: 35px;
+  margin-bottom: 40px;
+}
+
+.jumbotron ul {
+  margin-bottom: 20px;
+}
+
+.jumbotron ul > li {
+  font-size: 21px;
+  font-weight: 200;
+}
+
+.restore_original {
+  margin-top: 20px;
+}
+
+.restore_original .btn {
+  margin-top: 20px;
+}
+
+.video_has_problems, .other_brokennes {
+  margin-top: 20px;
+}
+
+.video_has_problems legend {
+  margin-bottom: 10px;
+}
+
+#av_delay .form-inline {
+  width: 40%;
+}
+
+#main_action {
+  margin-top: 30px;
+}
+
+#no_audio h5 {
+  margin-top: 15px;
+}
