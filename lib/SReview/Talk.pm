@@ -26,7 +26,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
@@ -53,6 +53,16 @@ has 'date' => (
 
 sub _load_date {
 	return shift->_get_pathinfo->{raw}{date};
+}
+
+has 'readable_date' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_readable_date',
+);
+
+sub _load_readable_date {
+	return shift->_get_pathinfo->{raw}{readable_date};
 }
 
 has 'eventname' => (

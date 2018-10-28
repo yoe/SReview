@@ -8,7 +8,7 @@
           <dt>Speakers:</dt>
           <dd><%= $talk->speakers =%></dd>
           <dt>Date:<dt>
-          <dd><%= $talk->date =%></dd>
+          <dd><%= $talk->readable_date =%></dd>
           <dt>Room:</dt>
           <dd><%= $talk->room =%></dd>
         </dl>
