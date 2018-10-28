@@ -1,6 +1,6 @@
 package SReview::Talk::State;
 
-use overload '<=>' => statecmp, 'cmp' => statecmp, '""' => output;
+use overload '<=>' => 'statecmp', 'cmp' => 'statecmp', '""' => 'output';
 
 sub new {
 	my $class = shift;
