@@ -1,0 +1,25 @@
+    <h1>
+      <small style="display:block;margin-bottom:10px;"><%= $talk->eventname . " videos" =%></small>
+      <%= $talk->title =%>
+    </h1>
+    <div class="row" style="margin-top:20px;">
+      <div class="col-sm-12">
+        <dl class="dl-horizontal" style="margin-bottom:5px;">
+          <dt>Speakers:</dt>
+          <dd><%= $talk->speakers =%></dd>
+          <dt>Date:<dt>
+          <dd><%= $talk->date =%></dd>
+          <dt>Room:</dt>
+          <dd><%= $talk->room =%></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="row" id="video_state_information">
+      <div class="col-sm-6">
+        <div class="alert alert-info" role="alert" style="padding:20px;">
+          <p><strong>Your video is now published!</strong> Watch it at</p>
+          <p> <a href="<%= $talk->eventurl =%>"><strong><%= $talk->eventurl =%></strong></a></p>
+        <div>
+      </div>
+    </div>

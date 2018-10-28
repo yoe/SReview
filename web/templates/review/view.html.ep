@@ -27,23 +27,6 @@
         <a href="/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>">Download video</a>
       </div>
     </div>
-    <div class="row" id="state_indicator">
-      <div class="col-sm-3">
-        <div class="well well-sm">
-          Step 1: Generating video
-          <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-        </div>
-      </div>
-      <div class="col-sm-3">
-        <div class="well well-sm well-active">Step 2: Review video</div>
-      </div>
-      <div class="col-sm-3">
-        <div class="well well-sm well-upcoming">Step 3: Processing video</div>
-      </div>
-      <div class="col-sm-3">
-        <div class="well well-sm well-upcoming">Step 4: Video Published</div>
-      </div>
-    </div>
     <div class="row">
       <div class="col-sm-8">
         <h2>What to check when reviewing this video</h2>
@@ -92,13 +75,7 @@
             <div class="radio">
               <label>
                 <input type="radio" name="video_state" value="not_ok">
-                The video has problems with the start time, the end time and / or the sound
-              </label>
-            </div>
-            <div class="radio">
-              <label>
-                <input type="radio" name="video_state" value="other">
-                The video has other brokenness
+                The video has problems.
               </label>
             </div>
           </fieldset>
@@ -211,6 +188,9 @@
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_0" value="0" checked>
                 Audio channel 0
+		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 0" data-content="This channel is what the mixer recorded.">
+		  <span class="glyphicon glyphicon-question-sign"></span>
+		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
               </label>
             </div>
@@ -218,6 +198,9 @@
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_1" value="1">
                 Audio channel 1
+		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 1" data-content="This channel is what the camera recorded.">
+		  <span class="glyphicon glyphicon-question-sign"></span>
+		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
               </label>
             </div>
@@ -225,6 +208,9 @@
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_2" value="2">
                 Audio channel 2
+		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 2" data-content="This channel mixes channel 0 (from the mixer) and channel 1 (from the camera).">
+		  <span class="glyphicon glyphicon-question-sign"></span>
+		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
               </label>
             </div>
@@ -289,10 +275,14 @@
               </div>
             </div>
           </fieldset>
-          <fieldset class="other_brokennes">
+          <fieldset class="video_has_problems">
             <legend>Other brokenness</legend>
-            <label>Please explain:</label>
-            <textarea class="form-control" id="comment_text" name="comment_text" rows="10"></textarea>
+	    <div class="row">
+	      <div class="col-sm-6">
+                <label>Please explain:</label>
+                <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
+              </div>
+            </div>
           </fieldset>
           <a id="main_action" type="button" href="#" class="btn btn-primary btn-lg">Send your video review to <%= $talk->eventname %></a>
         </form>
@@ -414,13 +404,7 @@ $(document).ready(function() {
       }
     });
 
+    $('[data-toggle="popover"]').popover();
+
   });
 </script>
-
-  <!--p><a href="/admin/logout">Log out</a> | <a href="/volunteer/list">Volunteer review</a>
-      | <a href="/admin">Admin review: overview</a> | <a href="/admin/brokens">Admin review: broken talks</a>
-        | <a href="/admin/system">Admin: actions</a>
-  </p-->
-  </div>
-  </body>
-</html>
