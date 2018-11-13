@@ -186,9 +186,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $talk->relative_name =%>-audio0.wav" type="audio/wav">
-                  <source src="<%= $talk->relative_name =%>-audio0.mp3" type="audio/mpeg">
-                  <source src="<%= $talk->relative_name =%>-audio0.ogg" type="audio/ogg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio0.wav" type="audio/wav">
+                  <source src="/video/<%= $talk->relative_name =%>-audio0.mp3" type="audio/mpeg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio0.ogg" type="audio/ogg">
                 </audio>
               </label>
             </div>
@@ -200,9 +200,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $talk->relative_name =%>-audio1.wav" type="audio/wav">
-                  <source src="<%= $talk->relative_name =%>-audio1.mp3" type="audio/mpeg">
-                  <source src="<%= $talk->relative_name =%>-audio1.ogg" type="audio/ogg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio1.wav" type="audio/wav">
+                  <source src="/video/<%= $talk->relative_name =%>-audio1.mp3" type="audio/mpeg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio1.ogg" type="audio/ogg">
                 </audio>
               </label>
             </div>
@@ -214,9 +214,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $talk->relative_name =%>-audio2.wav" type="audio/wav">
-                  <source src="<%= $talk->relative_name =%>-audio2.mp3" type="audio/mpeg">
-                  <source src="<%= $talk->relative_name =%>-audio2.ogg" type="audio/ogg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio2.wav" type="audio/wav">
+                  <source src="/video/<%= $talk->relative_name =%>-audio2.mp3" type="audio/mpeg">
+                  <source src="/video/<%= $talk->relative_name =%>-audio2.ogg" type="audio/ogg">
                 </audio>
               </label>
             </div>
