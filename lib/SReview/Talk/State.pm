@@ -2,11 +2,7 @@ package SReview::Talk::State;
 
 use overload '<=>' => 'statecmp', 'cmp' => 'statecmp', '""' => 'output';
 
-sub new {
-	my $class = shift;
-	my $val = shift;
-	return bless \$val, $class;
-}
+use Carp;
 
 my %states = (
 	waiting_for_files => 0,
@@ -24,10 +20,19 @@ my %states = (
 	ignored => 12,
 );
 
+sub new {
+	my $class = shift;
+	my $val = shift;
+        croak "Unknown talk state value: $val" unless exists($states{$val});
+	return bless \$val, $class;
+}
+
 sub statecmp {
 	my $self = shift;
 	my $other = shift;
 	my $swapped = shift;
+
+        croak "Unknown talk state value: $other" unless exists($states{$other});
 
 	if($swapped) {
 		return $states{$other} <=> $states{$$self};
