@@ -191,6 +191,25 @@ if(exists($corrections->{audio_channel})) {
 my $full_wav = SReview::Video->new(url => "$tempdir/full.wav");
 SReview::Videopipe->new(inputs => [$full], output => $full_wav, "map" => [$map], acopy => 0, vcopy => 0)->run();
 
+# Create preview audio streams
+my $samplestart = ($mainlen - $prelen) / 2 + $prelen - 30;
+my $samplelen = 60;
+$samplestart = ($samplestart > 0) ? $samplestart : 0;
+$samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
+my @samples = (
+        SReview::Video->new(url => "$outname-audio0.wav", fragment_start => $samplestart, duration => $samplelen),
+        SReview::Video->new(url => "$outname-audio1.wav", fragment_start => $samplestart, duration => $samplelen),
+        SReview::Video->new(url => "$outname-audio2.wav", fragment_start => $samplestart, duration => $samplelen),
+);
+SReview::Videopipe->new(inputs => [$full], output => $samples[0], "map" => [SReview::Map->new(input => $full, choice => 'left')], acopy => 0, vcopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SReview::Map->new(input => $full, choice => 'right')], acopy => 0, vcopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, choice => 'both')], acopy => 0, vcopy => 0)->run();
+foreach my $codec(qw/mp3 ogg/) {
+        foreach my $stream(0, 1, 2) {
+                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => "$outname-audio$stream.$codec"))->run();
+        }
+}
+
 # If necessary, fickle with A/V sync values
 if($corrections->{offset_audio} != 0) {
 	if($corrections->{offset_audio} > 0) {
