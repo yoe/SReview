@@ -206,7 +206,7 @@ SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SRev
 SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, choice => 'both')], acopy => 0, vcopy => 0)->run();
 foreach my $codec(qw/mp3 ogg/) {
         foreach my $stream(0, 1, 2) {
-                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => "$outname-audio$stream.$codec"))->run();
+                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => "$outname-audio$stream.$codec"), acopy => 0, vcopy => 0)->run();
         }
 }
 
