@@ -54,9 +54,7 @@
     </div>
     <div class="row" id="main_video">
       <div class="col-sm-8">
-        <!--p>Main video:</p-->
         <div class="embed-responsive embed-responsive-16by9">
-          <!-- img src="main_video.png" class="image-responsive"-->
           <video id="video-main" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>"></video>
         </div>
       </div>
@@ -102,7 +100,6 @@
             <div class="row" id="video_starts_too_early">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <!--img src="video_starts_too_early.png" class="image-responsive"-->
                   <video id="video-start-early" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
@@ -115,7 +112,6 @@
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
                   <video id="video-pre" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-pre.<%= $talk->preview_exten =%>"></video>
-                  <!--img src="video_starts_too_late.png" class="image-responsive"-->
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <button type="button" class="btn btn-success btn-lg btn-block">Set new start time</button>
@@ -152,7 +148,6 @@
             <div class="row" id="video_ends_too_early">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <!--img src="video_ends_too_early.png" class="image-responsive"-->
                   <video id="video-post" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-post.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
@@ -169,8 +164,7 @@
             <div class="row" id="video_ends_too_late">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <!--img src="video_ends_too_late.png" class="image-responsive"-->
-                  <video id="video-post" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name=%>.<%= $talk->preview_exten =%>"></video>
+                  <video id="video-end-late" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name=%>.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <button type="button" class="btn btn-success btn-lg btn-block">Set new end time</button>
@@ -188,30 +182,30 @@
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_0" value="0" checked>
                 Audio channel 0
-		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 0" data-content="This channel is what the mixer recorded.">
-		  <span class="glyphicon glyphicon-question-sign"></span>
-		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
+                <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 0" data-content="This channel is what the mixer recorded.">
+                  <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
               </label>
             </div>
             <div class="radio">
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_1" value="1">
                 Audio channel 1
-		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 1" data-content="This channel is what the camera recorded.">
-		  <span class="glyphicon glyphicon-question-sign"></span>
-		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
+                <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 1" data-content="This channel is what the camera recorded.">
+                  <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
               </label>
             </div>
             <div class="radio">
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_2" value="2">
                 Audio channel 2
-		<a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 2" data-content="This channel mixes channel 0 (from the mixer) and channel 1 (from the camera).">
-		  <span class="glyphicon glyphicon-question-sign"></span>
-		</a>
                 <img src="audio_player.png" class="image-responsive audio_player">
+                <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 2" data-content="This channel mixes channel 0 (from the mixer) and channel 1 (from the camera).">
+                  <span class="glyphicon glyphicon-question-sign"></span>
+                </a>
               </label>
             </div>
             <div class="radio">
@@ -277,8 +271,8 @@
           </fieldset>
           <fieldset class="video_has_problems">
             <legend>Other brokenness</legend>
-	    <div class="row">
-	      <div class="col-sm-6">
+            <div class="row">
+              <div class="col-sm-6">
                 <label>Please explain:</label>
                 <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
               </div>
