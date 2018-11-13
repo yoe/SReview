@@ -6,6 +6,8 @@ use Mojo::Template;
 use SReview::Config::Common;
 use SReview::Talk::State;
 
+use Carp;
+
 my $config = SReview::Config::Common::setup;
 my $pg = Mojo::Pg->new->dsn($config->get('dbistring')) or die "Cannot connect to database!";
 
@@ -294,7 +296,7 @@ sub by_nonce {
 
 	my $st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE nonce = ?");
 	$st->execute($nonce);
-	return undef unless $st->rows == 1;
+	croak "Talk does not exist" unless $st->rows == 1;
 	my $row = $st->fetchrow_arrayref;
 	my $rv = SReview::Talk->new(talkid => $row->[0]);
 	return $rv;
