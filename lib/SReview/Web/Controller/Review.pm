@@ -3,6 +3,8 @@ package SReview::Web::Controller::Review;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Collection 'c';
 
+use feature "switch";
+
 use SReview::Talk;
 use SReview::Access qw/admin_for/;
 
@@ -11,11 +13,18 @@ sub view {
 
 	my $id = $c->stash("id");
 	my $talk;
-	if(defined($id)) {
-		$talk = SReview::Talk->new(talkid => $id);
-	} else {
-		$talk = SReview::Talk->by_nonce($c->stash('nonce'));
-	}
+        eval {
+                if(defined($id)) {
+                        $talk = SReview::Talk->new(talkid => $id);
+                } else {
+                        $talk = SReview::Talk->by_nonce($c->stash('nonce'));
+                }
+        };
+        if($@) {
+                $c->stash(error => $@);
+                $c->render(variant => 'error');
+                return;
+        }
 	my $variant;
 	if(admin_for($c, $talk) || $talk->state eq 'preview') {
 		$variant = undef;
@@ -27,10 +36,74 @@ sub view {
 		$variant = 'done';
 	}
 		
-	$c->stash(layout => 'default');
 	$c->stash(talk => $talk);
 	$c->stash(stylesheets => ['/review.css']);
 	$c->render(variant => $variant);
+}
+
+sub update {
+        my $c = shift;
+	my $id = $c->stash("id");
+	my $talk;
+	if(defined($id)) {
+		$talk = SReview::Talk->new(talkid => $id);
+	} else {
+                eval {
+		        $talk = SReview::Talk->by_nonce($c->stash('nonce'));
+                };
+                if($@) {
+                        $c->stash(error => $@);
+                        $c->render(variant => 'error');
+                        return;
+                }
+	}
+        $c->stash(talk => $talk);
+        if(!admin_for($c, $talk) && $talk->state ne 'preview') {
+                $c->stash(error => 'This talk is not currently available for review. Please try again later!');
+                $c->render(variant => 'error');
+                return;
+        }
+        if($c->stash('serial') ne $talk->corrections_serial) {
+                $c->stash(error => 'This talk was updated (probably by someone else) since you last loaded it. Please reload the page, and try again.');
+                $c->render(variant => 'error');
+                return;
+        }
+
+        my $variant;
+        if($c->param("video_state") eq "ok") {
+                $talk->state_done("preview");
+                $c->stash(stylesheets => ['/review.css']);
+                $c->render(variant => 'done');
+                return;
+        }
+        if($c->param("audio_channel") ne "3") {
+                $talk->add_correction("audio_channel", $c->param("audio_channel"));
+        } else {
+                if($c->param("no_audio_options") eq "no") {
+                        $talk->set_state("broken");
+                        $c->stash(stylesheets => ['/review.css']);
+                        $c->render(variant => 'broken');
+                        return;
+                }
+        }
+        if($c->param("start_time") ne "start_time_ok") {
+                $talk->add_correction("offset_start", $c->param("start_time_corrval"));
+        }
+        if($c->param("end_time") ne "end_time_ok") {
+                $talk->add_correction("offset_end", $c->param("end_time_corrval"));
+        }
+        if($c->param("av_sync") eq "av_not_ok_audio") {
+                $talk->add_correction("offset_audio", $c->param("av_seconds"));
+        } elsif($c->param("av_sync" eq "av_not_ok_video")) {
+                $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
+        }
+        if(length($c->param("comment_text")) > 0) {
+                $talk->add_correction("comment", $c->param("comment_text"));
+        }
+        $talk->done_correcting;
+        $talk->set_state("waiting_for_files");
+        $talk->state_done("waiting_for_files");
+        $c->render(variant => 'newreview');
 }
 
 1;

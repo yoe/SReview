@@ -154,8 +154,8 @@ sub startup {
 		}
 	});
 
-	$r->get('/r/:nonce')->to(controller => 'review', action => 'view');
-	$r->get('/r/:nonce/:action')->to(controller => 'review');
+	$r->get('/r/:nonce')->to(controller => 'review', action => 'view', layout => 'default');
+	$r->get('/r/:nonce/:action')->to(controller => 'review', layout => 'default');
 
 	$r->get('/review/:nonce' => sub {
 		my $c = shift;
