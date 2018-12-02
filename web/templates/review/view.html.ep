@@ -103,7 +103,7 @@
                   <video id="video-start-early" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
-                <div class="alert alert-success" role="alert" style="display:none;">
+                <div class="alert alert-success hidden" role="alert">
                 </div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="set_time_example">Set new start time</button>
               </div>
@@ -224,7 +224,7 @@
               <label>
                 <input type="radio" name="audio_channel" id="audio_channel_null" value="3">
                 There is no sound in any channel
-                <div id="no_audio" style="display:none;">
+                <div id="no_audio hidden">
                   <h5>What would you like to do?</h5>
                   <div class="radio">
                     <label>

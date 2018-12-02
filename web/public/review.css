@@ -2,6 +2,11 @@ body {
   font-size: 16px;
 }
 
+.eventname {
+  display: block;
+  margin-bottom: 10px;
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -43,8 +48,16 @@ h1 > small {
   margin-top: 15px;
 }
 
+.hidden {
+  display: none;
+}
+
 .alert_with_control {
   padding:5px 15px;
+}
+
+#video_state_information .alert + .alert-info {
+  padding: 20px;
 }
 
 .audio_player {
@@ -71,15 +84,11 @@ h1 > small {
   font-weight: 200;
 }
 
-.restore_original {
-  margin-top: 20px;
-}
-
 .restore_original .btn {
   margin-top: 20px;
 }
 
-.video_has_problems, .other_brokennes {
+.restore_original, .error_div, .video_has_problems, .other_brokennes, .info_row {
   margin-top: 20px;
 }
 
