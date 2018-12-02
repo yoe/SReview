@@ -6,14 +6,19 @@ use Mojo::Template;
 use SReview::Config::Common;
 use SReview::Talk::State;
 
-use Carp;
-
 my $config = SReview::Config::Common::setup;
 my $pg = Mojo::Pg->new->dsn($config->get('dbistring')) or die "Cannot connect to database!";
 
 has 'talkid' => (
 	required => 1,
-	is => 'rw',
+	is => 'ro',
+        trigger => sub {
+                my $self = shift;
+                my $val = shift;
+                my $st = $pg->db->dbh->prepare("SELECT count(*) FROM talks WHERE id = ?");
+                $st->execute($val);
+                die "Talk does not exist.\n" unless $st->rows == 1;
+        },
 );
 
 has 'pathinfo' => (
@@ -296,7 +301,7 @@ sub by_nonce {
 
 	my $st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE nonce = ?");
 	$st->execute($nonce);
-	croak "Talk does not exist" unless $st->rows == 1;
+	die "Talk does not exist.\n" unless $st->rows == 1;
 	my $row = $st->fetchrow_arrayref;
 	my $rv = SReview::Talk->new(talkid => $row->[0]);
 	return $rv;
