@@ -25,6 +25,7 @@ sub view {
                 $c->render(variant => 'error');
                 return;
         }
+        my $nonce = $talk->nonce;
 	my $variant;
 	if(admin_for($c, $talk) || $talk->state eq 'preview') {
 		$variant = undef;
@@ -104,6 +105,15 @@ sub update {
         $talk->set_state("waiting_for_files");
         $talk->state_done("waiting_for_files");
         $c->render(variant => 'newreview');
+}
+
+sub data {
+        my $c = shift;
+        my $talk = SReview::Talk->by_nonce($c->stash('nonce'));
+
+        my $data = $talk->corrected_times;
+
+        $c->render(json => $data);
 }
 
 1;

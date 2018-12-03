@@ -33,7 +33,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
@@ -50,6 +50,53 @@ sub _load_pathinfo {
 	$pathinfo->{"raw"} = $row;
 
 	return $pathinfo;
+}
+
+has 'corrected_times' => (
+        lazy => 1,
+        is => 'ro',
+        builder => '_load_corrected_times',
+);
+
+sub _load_corrected_times {
+        my $self = shift;
+
+        my $times = {};
+
+        my $st = $pg->db->dbh->prepare("SELECT starttime, endtime from talks WHERE id = ?");
+
+        $st->execute($self->talkid);
+
+        die "talk lost" unless $st->rows > 0;
+
+        my $row = $st->fetchrow_hashref();
+        $times->{start} = $row->{starttime};
+        $times->{end} = $row->{endtime};
+
+        $st = $pg->db->dbh->prepare("SELECT talks.id, talks.starttime + (corrections.property_value || ' seconds')::interval AS corrected_time, to_char(talks.starttime + (corrections.property_value || ' seconds')::interval, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime  FROM talks FULL JOIN corrections ON talks.id = corrections.talk FULL JOIN properties ON properties.id = corrections.property WHERE properties.name = 'offset_start' AND talks.id = ?");
+        $st->execute($self->talkid);
+        if($st->rows > 0) {
+                $row = $st->fetchrow_hashref();
+                $times->{start} = $row->{corrected_time};
+                $times->{start_iso} = $row->{isotime};
+        }
+        $st = $pg->db->dbh->prepare("SELECT corrected_time, to_char(corrected_time, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime FROM (SELECT ?::timestamptz + (talks.endtime - talks.starttime) + (corrections.property_value || ' seconds')::interval AS corrected_time FROM talks FULL JOIN corrections ON talks.id = corrections.talk FULL JOIN properties ON properties.id = corrections.property WHERE properties.name = 'length_adj' AND talks.id = ?) AS sq");
+        $st->execute($times->{start}, $self->talkid);
+        if($st->rows > 0) {
+                $row = $st->fetchrow_hashref();
+                $times->{end} = $row->{corrected_time};
+                $times->{end_iso} = $row->{isotime};
+        }
+        return $times;
+}
+
+has 'nonce' => (
+        is => 'rw',
+        builder => '_load_nonce',
+);
+
+sub _load_nonce {
+        return shift->_get_pathinfo->{raw}{nonce};
 }
 
 has 'date' => (
@@ -303,7 +350,7 @@ sub by_nonce {
 	$st->execute($nonce);
 	die "Talk does not exist.\n" unless $st->rows == 1;
 	my $row = $st->fetchrow_arrayref;
-	my $rv = SReview::Talk->new(talkid => $row->[0]);
+	my $rv = SReview::Talk->new(talkid => $row->[0], nonce => $nonce);
 	return $rv;
 }
 
