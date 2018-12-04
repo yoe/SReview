@@ -320,7 +320,7 @@ sub startup {
 			foreach my $row(@$rows) {
 				my $nonce = shift @$row;
 				my $name = shift @$row;
-				push @$newrows, [ "<a href='/review/$nonce'>$name</a>", @$row ];
+				push @$newrows, [ "<a href='/r/$nonce'>$name</a>", @$row ];
 			}
 			$rows = $newrows;
 		}
