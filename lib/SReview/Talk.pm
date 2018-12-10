@@ -210,10 +210,18 @@ sub _load_slug {
 }
 
 has 'corrections' => (
+        traits => ['Hash'],
+        isa => 'HashRef[Str]',
 	lazy => 1,
 	is => 'rw',
 	builder => '_load_corrections',
 	clearer => '_clear_corrections',
+        handles => {
+                has_correction => 'exists',
+                set_correction => 'set',
+                clear_correction => 'delete',
+                correction_pairs => 'kv',
+        },
 );
 
 sub _load_corrections {
@@ -353,6 +361,63 @@ sub by_nonce {
 	my $row = $st->fetchrow_arrayref;
 	my $rv = SReview::Talk->new(talkid => $row->[0], nonce => $nonce);
 	return $rv;
+}
+
+sub add_correction {
+        my $self = shift;
+        my $corrname = shift;
+        my $value = shift;
+
+        $self->corrections();
+        if($corrname eq 'offset_end') {
+                if($self->has_correction('offset_start')) {
+                        $value = $value - $self->corrections->{offset_start};
+                }
+                return $self->add_correction('length_adj', $value);
+        }
+        if($corrname eq 'offset_start') {
+                my $la;
+                if($self->has_correction('length_adj')) {
+                        $la = $self->corrections->{length_adj} - $value;
+                } else {
+                        $la = 0 - $value;
+                }
+                $self->add_correction('length_adj', $la);
+        }
+        if($self->has_correction($corrname)) {
+                $value = $self->corrections->{$corrname} + $value;
+        }
+        $self->set_correction($corrname, $value);
+}
+
+sub done_correcting {
+        my $self = shift;
+
+        my $db = $pg->db->dbh;
+        my $st = $db->prepare("INSERT INTO corrections(talk, property, property_value) VALUES (?, (SELECT id FROM properties WHERE name = ?), ?)");
+
+        $self->add_correction(serial => 1);
+        $db->begin_work;
+        foreach my $pair($self->correction_pairs) {
+                $st->execute($self->talkid, $pair->[0], $pair->[1]);
+        }
+        $db->commit;
+}
+
+sub set_state {
+        my $self = shift;
+        my $newstate = shift;
+
+        my $st = $pg->db->dbh->prepare("UPDATE talks SET state=?, progress='waiting' WHERE id=?");
+        $st->execute($newstate, $self->talkid);
+}
+
+sub state_done {
+        my $self = shift;
+        my $state = shift;
+
+        my $st = $pg->db->dbh->prepare("UPDATE talks SET progress='done' WHERE state = ? AND id = ?");
+        $st->execute($state, $self->talkid);
 }
 
 no Moose;
