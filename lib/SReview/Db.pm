@@ -1018,7 +1018,7 @@ ALTER TABLE talks DROP active_stream;
 INSERT INTO properties(name) VALUES('serial');
 -- 15 down
 LOCK TABLE corrections IN SHARE MODE;
-DELETE FROM corrections USING properties WHERE corrections.property = properties.id AND properties.name = 'serial'
+DELETE FROM corrections USING properties WHERE corrections.property = properties.id AND properties.name = 'serial';
 DELETE FROM properties WHERE name = 'serial';
 @@ code
 -- 1 up
