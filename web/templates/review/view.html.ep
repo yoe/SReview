@@ -62,7 +62,7 @@
     <div class="row">
       <div class="col-sm-12">
         <h2 id="big_question">How is this video?</h2>
-        <form>
+        <form action="/r/<%= $talk->nonce =%>/update" method="POST">
           <fieldset>
             <div class="radio">
               <label>
@@ -103,22 +103,22 @@
                   <video id="video-start-early" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
-                <div id="msg_start_early" class="alert alert-success" role="alert"></div>
+                <div id="msg_start_early" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="start_time_early">Set new start time</button>
               </div>
             </div>
             <div class="row" id="video_starts_too_late">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-pre" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-pre.<%= $talk->preview_exten =%>"></video>
+                  <video id="video-start-late" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-pre.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
-                <div id="msg_start_late" class="alert alert-success" role="alert"></div>
+                <div id="msg_start_late" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="start_time_late">Set new start time</button>
                 <div class="alert alert-warning alert_with_control">
                   <div class="checkbox">
                     <label>
-                      <input id="pre-loads" type="checkbox"> The start of the talk is not in this video
+                      <input id="start-missing" type="checkbox"> The start of the talk is not in this video
                     </label>
                   </div>
                 </div>
@@ -148,15 +148,15 @@
             <div class="row" id="video_ends_too_early">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-post" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-post.<%= $talk->preview_exten =%>"></video>
+                  <video id="video-end-early" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name =%>-post.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
-                <div id="msg_end_early" class="alert alert-success" role="alert"></div>
+                <div id="msg_end_early" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="end_time_early">Set new end time</button>
                 <div class="alert alert-warning alert_with_control">
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox">The end of the talk is not in this video
+                      <input id="end-missing" type="checkbox">The end of the talk is not in this video
                     </label>
                   </div>
                 </div>
@@ -168,7 +168,7 @@
                   <video id="video-end-late" class="embed-responsive-item" controls="controls" src="/video/<%= $talk->relative_name=%>.<%= $talk->preview_exten =%>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
-                <div id="msg_end_late" class="alert alert-success" role="alert"></div>
+                <div id="msg_end_late" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="end_time_late">Set new end time</button>
               </div>
             </div>
@@ -292,7 +292,10 @@
               </div>
             </div>
           </fieldset>
-          <a id="main_action" type="button" href="#" class="btn btn-primary btn-lg">Send your video review to <%= $talk->eventname %></a>
+          <input type="hidden" name="start_time_corrval" id="start_time_corrval"></input>
+          <input type="hidden" name="end_time_corrval" id="end_time_corrval"></input>
+          <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} + 0 =%>"></input>
+          <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
         </form>
       </div>
     </div>
@@ -328,17 +331,14 @@ $(document).ready(function() {
     // set the page
     if ($("input[name=video_state]:checked").val() == "ok") {
       $(".video_has_problems, .other_brokennes").hide();
-      $(".btn-primary").attr('href','thankyou_video_ok.html');
     }
     if ($("input[name=video_state]:checked").val() == "not_ok") {
       $(".video_has_problems").show();
       $(".other_brokennes").hide();
-      $(".btn-primary").attr('href','thankyou_video_not_ok.html');
     }
     if ($("input[name=video_state]:checked").val() == "other") {
       $(".video_has_problems").hide();
       $(".other_brokennes").show();
-      $(".btn-primary").attr('href','thankyou_other_brokeness.html');
     }
     if ($("input[name=av_sync]:checked").val() == "av_ok") {
       $("#av_delay").hide();
@@ -350,17 +350,14 @@ $(document).ready(function() {
     $("input[name=video_state]").click(function() {
       if ($("input[name=video_state]:checked").val() == "ok") {
         $(".video_has_problems, .other_brokennes").slideUp();
-        $(".btn-primary").attr('href','thankyou_video_ok.html');
       }
       if ($("input[name=video_state]:checked").val() == "not_ok") {
         $(".video_has_problems").slideDown();
         $(".other_brokennes").hide();
-        $(".btn-primary").attr('href','thankyou_video_not_ok.html');
       }
       if ($("input[name=video_state]:checked").val() == "other") {
         $(".video_has_problems").hide();
         $(".other_brokennes").slideDown();
-        $(".btn-primary").attr('href','thankyou_other_brokeness.html');
       }
     });
 
@@ -395,7 +392,7 @@ $(document).ready(function() {
     });
 
     function setText(obj, startstop, starttime, endtime) {
-      obj.fadeOut();
+      $(".changemsg").fadeOut();
       obj.html("<strong>New " + startstop + " time set</strong><p>If you are curious, the new video times are: " + starttime + " to " + endtime + "</p>");
       obj.fadeIn();
     };
@@ -406,31 +403,61 @@ $(document).ready(function() {
       return new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds() + s, d.getMilliseconds() + ms);
     }
 
+    // the following was taken from https://stackoverflow.com/questions/1267283/how-can-i-pad-a-value-with-leading-zeros
+    function zeroPad(numZeros, num) {
+      var n = Math.abs(num);
+      var zeros = Math.max(0, numZeros - Math.floor(n).toString().length);
+      var zeroString = Math.pow(10,zeros).toString().substr(1);
+      if(num<0) {
+        zeroString = '-' + zeroString;
+      }
+      return zeroString + n;
+    }
+
+
     function timeFromDate(d) {
-      return new Intl.DateTimeFormat('en-GB', { timeZone: "UTC", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(d);
+      return new Intl.DateTimeFormat('en-GB', { timeZone: "UTC", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", }).format(d) + "." + zeroPad(3, d.getMilliseconds());
+    }
+
+    function setStartTime(msgdiv, corrval) {
+      var newtime = addDate(data.video_start, corrval);
+      setText(msgdiv, "start", timeFromDate(newtime), timeFromDate(data.new_end));
+      $("#start_time_corrval").val(corrval);
+      data.new_start = newtime;
+    }
+
+    function setEndTime(msgdiv, corrval) {
+      var newtime = addDate(data.video_end, corrval);
+      setText(msgdiv, "end", timeFromDate(data.new_start), timeFromDate(newtime));
+      $("#end_time_corrval").val(corrval);
+      data.new_end = newtime;
     }
 
     // handle time set button clicks. TODO: generalize this.
     $("#start_time_early").click(function() {
-      var newtime = addDate(data.video_start, $("#video-start-early").get(0).currentTime);
-      setText($("#msg_start_early"), "start", timeFromDate(newtime), timeFromDate(data.new_end));
+      setStartTime($("#msg_start_early"), $("#video-start-early").get(0).currentTime);
     });
 
     $("#start_time_late").click(function() {
       var elem = $("#video-start-late").get(0);
-      var newtime = addDate(data.video_start, 0 - (elem.duration - elem.currentTime));
-      setText($("#msg_start_late"), "start", timeFromDate(newtime), timeFromDate(data.new_end));
+      if($("#start-missing").is(":checked")) {
+        setStartTime($("msg_start_late"), 0 - elem.duration);
+      } else {
+        setStartTime($("#msg_start_late"), 0 - (elem.duration - elem.currentTime));
+      }
     });
 
     $("#end_time_early").click(function() {
-      var elem = $("video-end-early").get(0);
-      var newtime = addDate(data.video_end, 0 - (elem.duration - elem.currentTime));
-      setText($("#msg_end_early"), "end", timeFromDate(data.new_start), timeFromDate(newtime));
+      if($("#end-missing").is(":checked")) {
+        setEndTime($("#msg_end_early"), $("#video-end-early").get(0).duration);
+      } else {
+        setEndTime($("#msg_end_early"), $("#video-end-early").get(0).currentTime);
+      }
     });
 
     $("#end_time_late").click(function() {
-      var newtime = addDate(data.video_end, $("#video-end-late").get(0).currentTime);
-      setText($("#msg_end_late"), "end", timeFromDate(data.new_start), timeFromDate(newtime));
+      var elem = $("#video-end-late").get(0);
+      setSendTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime));
     });
 
     // show / hide the no audio options

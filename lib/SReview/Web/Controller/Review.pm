@@ -64,7 +64,8 @@ sub update {
                 $c->render(variant => 'error');
                 return;
         }
-        if($c->stash('serial') ne $talk->corrections_serial) {
+        $talk->add_correction(serial => 0);
+        if($c->param('serial') ne $talk->corrections->{serial}) {
                 $c->stash(error => 'This talk was updated (probably by someone else) since you last loaded it. Please reload the page, and try again.');
                 $c->render(variant => 'error');
                 return;
@@ -80,7 +81,7 @@ sub update {
         if($c->param("audio_channel") ne "3") {
                 $talk->add_correction("audio_channel", $c->param("audio_channel"));
         } else {
-                if($c->param("no_audio_options") eq "no") {
+                if($c->param("no_audio_options") eq "no_publish") {
                         $talk->set_state("broken");
                         $c->stash(stylesheets => ['/review.css']);
                         $c->render(variant => 'broken');
