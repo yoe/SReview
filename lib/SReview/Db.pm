@@ -10,6 +10,8 @@ use SReview::Config;
 my $code;
 my $init;
 
+my $db;
+
 sub selfdestruct {
 	my %where = @_;
 	for my $key('code', 'init') {
@@ -23,7 +25,7 @@ sub selfdestruct {
 
 sub init {
 	my $config = shift;
-	my $db = Mojo::Pg->new->dsn($config->get('dbistring'));
+	$db = Mojo::Pg->new->dsn($config->get('dbistring'));
 
 	$code = Mojo::Pg::Migrations->new(pg => $db);
 	$code->name('code');
