@@ -93,6 +93,7 @@ sub _load_corrected_times {
 has 'nonce' => (
         is => 'rw',
         builder => '_load_nonce',
+        lazy => 1,
 );
 
 sub _load_nonce {
