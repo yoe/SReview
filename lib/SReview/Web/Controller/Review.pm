@@ -113,7 +113,7 @@ sub update {
         $talk->done_correcting;
         $talk->set_state("waiting_for_files");
         $talk->state_done("waiting_for_files");
-        $c->stash($corrections);
+        $c->stash(corrections => $corrections);
         $c->render(variant => 'newreview');
 }
 
