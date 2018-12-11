@@ -88,23 +88,32 @@ sub update {
                         return;
                 }
         }
+        my $corrections = {};
         if($c->param("start_time") ne "start_time_ok") {
                 $talk->add_correction("offset_start", $c->param("start_time_corrval"));
+                $corrections->{start} = $c->param("start_time_corrval");
         }
         if($c->param("end_time") ne "end_time_ok") {
                 $talk->add_correction("offset_end", $c->param("end_time_corrval"));
+                $corrections->{end} = $c->param("start_time_corrval");
         }
         if($c->param("av_sync") eq "av_not_ok_audio") {
                 $talk->add_correction("offset_audio", $c->param("av_seconds"));
+                $corrections->{audio_offset} = $c->param("av_seconds");
         } elsif($c->param("av_sync" eq "av_not_ok_video")) {
                 $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
+                $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
         if(length($c->param("comment_text")) > 0) {
                 $talk->add_correction("comment", $c->param("comment_text"));
+                $talk->set_state("broken");
+                $c->stash(other_msg => $c->param("comment_text"));
+                $c->render(variant => "other");
         }
         $talk->done_correcting;
         $talk->set_state("waiting_for_files");
         $talk->state_done("waiting_for_files");
+        $c->stash($corrections);
         $c->render(variant => 'newreview');
 }
 

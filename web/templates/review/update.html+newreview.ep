@@ -1,0 +1,32 @@
+    <h1>
+      <small><%= $talk->eventname . " videos " =%></small>
+      <%= $talk->title =%>
+    </h1>
+    <div class="row" id="submission_notification">
+      <div class="col-sm-12">
+        <div class="jumbotron">
+          <h2 class="text-success">
+            <span class="glyphicon glyphicon-thumbs-up"></span>
+            Thank you for sending your review
+          </h2>
+          <p>Once we have fixed the video, <strong>we will send you an email</strong> so that you can review the changes.</p>
+          <h3>Summary of video problems</h3>
+          <p>You have told us the video has some problems. Here is a summary of what needs fixing:</p>
+          <ul>
+          % if (exists($corrections->{start})) {
+            <li>The start time should be corrected with an offset of <%= $corrections->{start} %> seconds</li>
+          % }
+          % if (exists($corrections->{end})) {
+            <li>The end time should be corrected with an offset of <%= $corrections->{end} %> seconds</li>
+          % }
+          % if (exists($corrections->{audio_channel})) {
+            <li>The audio channel should be changed to channel <%= $corrections->{audio_channel} %></li>
+          % }
+          % if (exists($corrections->{audio_offset})) {
+            <li>An A/V synchronisation value of <%= $corrections->{audio_offset} %> seconds should be applied</li>
+          % }
+          </ul>
+          <p>Don't worry if the numbers don't make much sense: the video processing scripts will know what to do.</p>
+        </div>
+      </div>
+    </div> 
