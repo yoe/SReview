@@ -95,7 +95,7 @@ sub update {
         }
         if($c->param("end_time") ne "end_time_ok") {
                 $talk->add_correction("offset_end", $c->param("end_time_corrval"));
-                $corrections->{end} = $c->param("start_time_corrval");
+                $corrections->{end} = $c->param("end_time_corrval");
         }
         if($c->param("av_sync") eq "av_not_ok_audio") {
                 $talk->add_correction("offset_audio", $c->param("av_seconds"));
