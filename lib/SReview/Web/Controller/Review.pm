@@ -46,6 +46,8 @@ sub update {
         my $c = shift;
 	my $id = $c->stash("id");
 	my $talk;
+
+        $c->stash(stylesheets => ['/review.css']);
 	if(defined($id)) {
 		$talk = SReview::Talk->new(talkid => $id);
 	} else {
@@ -74,7 +76,6 @@ sub update {
         my $variant;
         if($c->param("video_state") eq "ok") {
                 $talk->state_done("preview");
-                $c->stash(stylesheets => ['/review.css']);
                 $c->render(variant => 'done');
                 return;
         }
@@ -83,7 +84,6 @@ sub update {
         } else {
                 if($c->param("no_audio_options") eq "no_publish") {
                         $talk->set_state("broken");
-                        $c->stash(stylesheets => ['/review.css']);
                         $c->render(variant => 'broken');
                         return;
                 }

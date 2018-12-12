@@ -457,7 +457,7 @@ $(document).ready(function() {
 
     $("#end_time_late").click(function() {
       var elem = $("#video-end-late").get(0);
-      setSendTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime));
+      setEndTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime));
     });
 
     // show / hide the no audio options
