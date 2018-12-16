@@ -481,7 +481,7 @@ $(document).ready(function() {
     $("#restore_original_confirmed").click(function(){
       $("#complete_reset").val("1");
       $("#main_form").submit();
-    }
+    });
 
     // hide and show the a/v sync delay form
     $("input[name=av_sync]").click(function() {
