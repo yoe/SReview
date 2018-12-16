@@ -9,10 +9,10 @@ sub admin_for($$) {
 	my $c = shift;
 	my $talk = shift;
 
-	if($c->session->{admin}) {
+	if(exists($c->session->{admin})) {
 		return 1;
 	}
-	if($c->session->{id}) {
+	if(exists($c->session->{id})) {
 		my $st = $c->dbh->prepare("SELECT room FROM users WHERE id = ?");
 		$st->execute($c->session->{id});
 		my $row = $st->fetchrow_hashref;
