@@ -73,7 +73,10 @@ sub update {
                 return;
         }
 
-        my $variant;
+        if($c->param("complete_reset") == 1) {
+                $talk->reset_corrections();
+                $c->render(variant => 'reset');
+        }
         if($c->param("video_state") eq "ok") {
                 $talk->state_done("preview");
                 $c->render(variant => 'done');

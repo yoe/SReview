@@ -420,6 +420,13 @@ sub state_done {
         $st->execute($state, $self->talkid);
 }
 
+sub reset_corrections {
+        my $self = shift;
+
+        $self->add_correction(serial => 1);
+        $pg->db->dbh->prepare("DELETE FROM corrections WHERE talk = ? AND property NOT IN (SELECT id FROM properties WHERE name = 'serial')")->execute($self->talkid) or die $!;
+}
+
 no Moose;
 
 1;

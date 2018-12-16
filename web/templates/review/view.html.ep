@@ -46,7 +46,7 @@
           <p>What you are about to do will <strong>remove all changes</strong> made to this video so far, and reset it to its initial state.</p>
           <p>That is a pretty drastic thing to do, that's why we are asking you again.</p>
           <div>
-            <a href="thankyou_restore_original.html" class="btn btn-warning btn-lg">Yes, restore the original video</a>
+            <button id="restore_original_confirmed" class="btn btn-warning btn-lg">Yes, restore the original video</button>
             <a class="btn btn-lg btn-link">No, cancel this business</a>
           </div>
         </div>
@@ -62,7 +62,7 @@
     <div class="row">
       <div class="col-sm-12">
         <h2 id="big_question">How is this video?</h2>
-        <form action="/r/<%= $talk->nonce =%>/update" method="POST">
+        <form id="main_form" action="/r/<%= $talk->nonce =%>/update" method="POST">
           <fieldset>
             <div class="radio">
               <label>
@@ -295,6 +295,7 @@
           <input type="hidden" name="start_time_corrval" id="start_time_corrval"></input>
           <input type="hidden" name="end_time_corrval" id="end_time_corrval"></input>
           <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} + 0 =%>"></input>
+          <input type="hidden" name="complete_reset" id="complete_reset"></input>
           <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
         </form>
       </div>
@@ -344,7 +345,6 @@ $(document).ready(function() {
       $("#av_delay").hide();
     }
     $("#video_starts_too_early, #video_starts_too_late, #video_ends_too_early, #video_ends_too_late, .restore_original, #av_delay").hide();
-
 
     // hide and show the problem reporting forms
     $("input[name=video_state]").click(function() {
@@ -477,6 +477,11 @@ $(document).ready(function() {
     $(".restore_original .btn-link").click(function(){
       $(".restore_original").fadeOut();
     });
+
+    $("#restore_original_confirmed").click(function(){
+      $("#complete_reset").val("1");
+      $("#main_form").submit();
+    }
 
     // hide and show the a/v sync delay form
     $("input[name=av_sync]").click(function() {
