@@ -340,17 +340,6 @@ sub _load_preview_exten {
 	return $config->get('preview_exten');
 }
 
-sub correct {
-	my $self = shift;
-	my %corrections = @_;
-
-	my $update = $pg->db->dbh->prepare('INSERT INTO corrections(property_value, talk, property) VALUES(?, ?, (SELECT id FROM properties WHERE name = ?))');
-	foreach my $param(keys %corrections) {
-		$update->execute($corrections{$param}, $self->talkid, $param);
-	}
-	$self->_clear_corrections;
-}
-
 sub by_nonce {
 	my $klass = shift;
 	my $nonce = shift;

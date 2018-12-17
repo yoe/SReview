@@ -35,7 +35,8 @@ SKIP: {
 		{ talkid => -2, rawid => 1, raw_filename => cwd() . '/t/inputdir/room1/2017-11-10/17:00:00.mp4', fragment_start => 10, raw_length => 20.024, raw_length_corrected => 10.024 }],
 	'Video fragments are found correctly');
 
-	$talk->correct(offset_start => 2);
+	$talk->add_correction(offset_start => 2);
+        $talk->done_correcting;
 	ok($talk->corrections->{offset_start} == 2, 'Corrections are accepted');
 
 	my $newtalk = SReview::Talk->new(talkid => 1);
