@@ -300,18 +300,8 @@
         </form>
       </div>
     </div>
-
-<script>
-$(document).ready(function() {
-  $('[data-toggle="popover"]').popover({
-    container: 'body'
-  });
-});
-</script>
-
 <script>
   $(document).ready(function() {
-
     var nonce = "<%= $talk->nonce =%>";
 
     var data;
@@ -345,6 +335,10 @@ $(document).ready(function() {
       $("#av_delay").hide();
     }
     $("#video_starts_too_early, #video_starts_too_late, #video_ends_too_early, #video_ends_too_late, .restore_original, #av_delay, #no_audio").hide();
+
+    $('[data-toggle="popover"]').popover({
+      container: 'body'
+    });
 
     // hide and show the problem reporting forms
     $("input[name=video_state]").click(function() {
