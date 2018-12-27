@@ -432,10 +432,14 @@
       setStartTime($("#msg_start_early"), $("#video-start-early").get(0).currentTime);
     });
 
+    $("#start-missing, #end-missing").click(function() {
+      $(".changemsg").fadeOut();
+    });
+
     $("#start_time_late").click(function() {
       var elem = $("#video-start-late").get(0);
       if($("#start-missing").is(":checked")) {
-        setStartTime($("msg_start_late"), 0 - elem.duration);
+        setStartTime($("#msg_start_late"), 0 - elem.duration);
       } else {
         setStartTime($("#msg_start_late"), 0 - (elem.duration - elem.currentTime));
       }
