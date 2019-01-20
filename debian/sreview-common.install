@@ -8,6 +8,7 @@ usr/share/perl5/SReview/Config.pm
 usr/share/perl5/SReview/Db.pm
 usr/share/perl5/SReview/Map.pm
 usr/share/perl5/SReview/Talk.pm
+usr/share/perl5/SReview/Talk/State.pm
 usr/share/perl5/SReview/Video/
 usr/share/perl5/SReview/Video.pm
 usr/share/perl5/SReview/Videopipe.pm
