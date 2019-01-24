@@ -26,7 +26,7 @@ my $config = SReview::Config::Common::setup;
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
-open SCHEDULE, "curl -s https://fosdem.org/2018/schedule/xml|";
+open SCHEDULE, "curl -s https://fosdem.org/2019/schedule/xml|";
 
 my $schedule = "";
 
