@@ -100,7 +100,7 @@ my $urlbase = $config->get('urlbase');
 $/ = '/';
 chomp($urlbase);
 $/ = $save;
-$url = join('/', ($urlbase, "review", $talkdata->{nonce}));
+$url = join('/', ($urlbase, "r", $talkdata->{nonce}));
 $overview = join('/', ($urlbase, "overview"));
 
 foreach my $action(@$actions) {
