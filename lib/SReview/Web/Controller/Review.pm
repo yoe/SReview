@@ -75,7 +75,9 @@ sub update {
 
         if($c->param("complete_reset") == 1) {
                 $talk->reset_corrections();
+                $talk->set_state("cutting");
                 $c->render(variant => 'reset');
+                return;
         }
         if($c->param("video_state") eq "ok") {
                 $talk->state_done("preview");
