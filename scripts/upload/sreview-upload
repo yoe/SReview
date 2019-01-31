@@ -85,7 +85,7 @@ foreach my $profile(@{$config->get('output_profiles')}) {
 	}
 }
 
-if ($config->get('cleanup')) {
+if (scalar(@files) > 0) {
 	unlink(@files) or die "Could not remove files: $!";
 }
 
