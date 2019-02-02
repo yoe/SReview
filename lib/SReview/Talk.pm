@@ -370,7 +370,7 @@ sub done_correcting {
         my $st = $db->prepare("INSERT INTO corrections(talk, property, property_value) VALUES (?, (SELECT id FROM properties WHERE name = ?), ?)");
 
         $self->add_correction(serial => 1);
-        $self->set_correction(length_adj => $self->corrections->{offset_end} - $self->correction->{offset_start});
+        $self->set_correction(length_adj => $self->corrections->{offset_end} - $self->corrections->{offset_start});
         $db->begin_work;
         foreach my $pair($self->correction_pairs) {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);
