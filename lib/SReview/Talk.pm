@@ -390,11 +390,9 @@ sub done_correcting {
         $start = 0 unless defined $start;
         $end = 0 unless defined $end;
         $self->set_correction(length_adj => $end - $start);
-        $db->begin_work;
         foreach my $pair($self->correction_pairs) {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);
         }
-        $db->commit;
         if($self->has_comment) {
                 $db->prepare("UPDATE talks SET comments=? WHERE id = ?")->execute($self->comment, $self->talkid);
         }
