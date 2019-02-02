@@ -360,7 +360,7 @@ sub add_correction {
         $self->corrections();
         if($corrname eq 'offset_end') {
                 if($self->has_correction('offset_start')) {
-                        $value = $value - $self->corrections->{offset_start};
+                        $value = $value + $self->corrections->{offset_start};
                 }
                 return $self->add_correction('length_adj', $value);
         }
