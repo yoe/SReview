@@ -136,10 +136,10 @@ should probably be set to 1 when not.
 =cut
 
 	if($config->get('query_limit') > 0) {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' LIMIT ? FOR UPDATE");
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' LIMIT ?");
 		$st->execute($config->get('query_limit'));
 	} else {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' FOR UPDATE");
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done'");
 		$st->execute;
 	}
 	while(my $row = $st->fetchrow_hashref) {
