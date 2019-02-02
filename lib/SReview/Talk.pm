@@ -357,22 +357,6 @@ sub add_correction {
         my $corrname = shift;
         my $value = shift;
 
-        $self->corrections();
-        if($corrname eq 'offset_end') {
-                if($self->has_correction('offset_start')) {
-                        $value = $value + $self->corrections->{offset_start};
-                }
-                return $self->add_correction('length_adj', $value);
-        }
-        if($corrname eq 'offset_start') {
-                my $la;
-                if($self->has_correction('length_adj')) {
-                        $la = $self->corrections->{length_adj} - $value;
-                } else {
-                        $la = 0 - $value;
-                }
-                $self->add_correction('length_adj', $la);
-        }
         if($self->has_correction($corrname)) {
                 $value = $self->corrections->{$corrname} + $value;
         }
@@ -386,6 +370,7 @@ sub done_correcting {
         my $st = $db->prepare("INSERT INTO corrections(talk, property, property_value) VALUES (?, (SELECT id FROM properties WHERE name = ?), ?)");
 
         $self->add_correction(serial => 1);
+        $self->set_correction(length_adj => $self->corrections->{offset_end} - $self->correction->{offset_start});
         $db->begin_work;
         foreach my $pair($self->correction_pairs) {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);

@@ -1020,6 +1020,12 @@ INSERT INTO properties(name) VALUES('serial');
 LOCK TABLE corrections IN SHARE MODE;
 DELETE FROM corrections USING properties WHERE corrections.property = properties.id AND properties.name = 'serial';
 DELETE FROM properties WHERE name = 'serial';
+-- 16 up
+INSERT INTO properties(name) VALUES('offset_end');
+-- 16 down
+LOCK TABLE corrections IN SHARE MODE;
+DELETE FROM corrections USING properties WHERE corrections.property = properties.id AND properties.name = 'offset_end';
+DELETE FROM properties WHERE name = 'offset_end';
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
