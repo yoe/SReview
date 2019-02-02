@@ -52,6 +52,20 @@ sub _load_pathinfo {
 	return $pathinfo;
 }
 
+has 'comment' => (
+        lazy => 1,
+        is => 'rw',
+        builder => '_load_comment',
+        predicate => 'has_comment',
+);
+
+sub _load_comment {
+        my $st = $pg->db->dbh->prepare("SELECT comments FROM talks WHERE id = ?");
+        $st->execute($self->talkid);
+        my $row = $st->fetchrow;
+        return $row->{comments};
+}
+
 has 'corrected_times' => (
         lazy => 1,
         is => 'ro',
@@ -381,6 +395,9 @@ sub done_correcting {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);
         }
         $db->commit;
+        if($self->has_comment) {
+                $db->prepare("UPDATE talks SET comments=? WHERE id = ?")->execute($self->comment, $self->talkid);
+        }
 }
 
 sub set_state {

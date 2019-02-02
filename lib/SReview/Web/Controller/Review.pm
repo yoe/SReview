@@ -110,7 +110,7 @@ sub update {
                 $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
         if(length($c->param("comment_text")) > 0) {
-                $talk->add_correction("comment", $c->param("comment_text"));
+                $talk->comment($c->param("comment_text"));
                 $talk->set_state("broken");
                 $c->stash(other_msg => $c->param("comment_text"));
                 $c->render(variant => "other");
