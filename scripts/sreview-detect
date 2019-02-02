@@ -85,6 +85,7 @@ foreach my $file(@files) {
 	$exists->execute($url);
 	my $row = $exists->fetchrow_hashref;
 	my $length = SReview::Video->new(url => $url)->duration;
+        next unless defined($length);
 	if(defined($row->{count}) && $row->{count} eq '0') {
 		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream);
 	} else {
