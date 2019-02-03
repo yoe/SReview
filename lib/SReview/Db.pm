@@ -33,7 +33,7 @@ sub init {
 	$init = Mojo::Pg::Migrations->new(pg => $db);
 	$init->name('init');
 	$init->from_data();
-	$code->migrate(0);
+	#$code->migrate(0);
 	$init->migrate();
 	$code->migrate();
 }
