@@ -86,7 +86,7 @@ foreach my $profile(@{$config->get('output_profiles')}) {
 }
 
 if (scalar(@files) > 0) {
-	unlink(@files) or die "Could not remove files: $!";
+	unlink(@files);
 }
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
