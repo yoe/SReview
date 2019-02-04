@@ -91,7 +91,9 @@ sub update {
         } else {
                 if($c->param("no_audio_options") eq "no_publish") {
                         $talk->set_state("broken");
-                        $c->render(variant => 'broken');
+                        $talk->comment("The audio is broken; the talk should not be released.");
+                        $talk->done_correcting;
+                        $c->render(variant => 'other');
                         return;
                 }
         }
