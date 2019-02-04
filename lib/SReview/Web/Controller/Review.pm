@@ -116,8 +116,8 @@ sub update {
                 $talk->comment($c->param("comment_text"));
                 $talk->set_state("broken");
                 $c->stash(other_msg => $c->param("comment_text"));
-                $c->render(variant => "other");
                 $talk->done_correcting;
+                $c->render(variant => "other");
                 return;
         }
         $talk->done_correcting;
