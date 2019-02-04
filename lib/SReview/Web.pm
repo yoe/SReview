@@ -474,7 +474,7 @@ sub startup {
 
 	$admin->get('/brokens' => sub {
 		my $c = shift;
-		my $st = $c->dbh->prepare("SELECT talks.id, title, speakeremail(talks.id), tracks.email, comments, state FROM talks JOIN tracks ON talks.track = tracks.id WHERE state>='broken' ORDER BY state,id");
+		my $st = $c->dbh->prepare("SELECT talks.id, title, speakeremail(talks.id), tracks.email, comments, state, nonce FROM talks JOIN tracks ON talks.track = tracks.id WHERE state>='broken' ORDER BY state,id");
 		my $tst = $c->dbh->prepare("SELECT rooms.altname, count(talks.id) FROM talks JOIN rooms ON talks.room = rooms.id WHERE talks.state='broken' GROUP BY rooms.altname");
 		my $rows = [];
 		$st->execute;
@@ -484,7 +484,8 @@ sub startup {
 		$c->stash(tottitrow => [ 'Room', 'Count' ]);
 		my $pgrows = $st->fetchall_arrayref;
 		foreach my $row(@{$pgrows}) {
-			push @$row, "<a href='/admin/talk?talk=" . $row->[0] . "'>review</a>";
+                        my $nonce = pop @$row;
+			push @$row, "<a href='/r/$nonce'>review</a>";
 			push @$rows, $row;
 		}
 		$c->stash(rows => $rows);
