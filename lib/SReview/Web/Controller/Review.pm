@@ -84,8 +84,10 @@ sub update {
                 $c->render(variant => 'done');
                 return;
         }
+        my $corrections = {};
         if($c->param("audio_channel") ne "3") {
                 $talk->add_correction("audio_channel", $c->param("audio_channel"));
+                $corrections->{audio_channel} = $c->param("audio_channel");
         } else {
                 if($c->param("no_audio_options") eq "no_publish") {
                         $talk->set_state("broken");
@@ -93,7 +95,6 @@ sub update {
                         return;
                 }
         }
-        my $corrections = {};
         if($c->param("start_time") ne "start_time_ok") {
                 $talk->add_correction("offset_start", $c->param("start_time_corrval"));
                 $corrections->{start} = $c->param("start_time_corrval");
