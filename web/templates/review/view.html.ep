@@ -289,6 +289,16 @@
               <div class="col-sm-6">
                 <label>Please explain:</label>
                 <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
+		<p><strong>Note:</strong> if you enter anything in the
+		  field above, the video will be <strong>marked as
+		  broken</strong>, and will <em>not</em> be released
+		  <strong>until an administrator has looked at
+		  it</strong>. If that's not what you want, please leave
+		  the field empty.</p>
+		<p>For feedback that is not critical for the release of
+		  your talk, you may contact us through <a
+		  href="mailto:video@fosdem.org">email</a> or <a
+		  href="irc://irc.freenode.net/fosdem-video">IRC</a></p>
               </div>
             </div>
           </fieldset>
