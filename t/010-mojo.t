@@ -17,7 +17,7 @@ use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
 
-my $cfgname = path()->realpath->child('config.pm');
+my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
 	skip("Need a database to play with", 22) unless exists($ENV{SREVIEW_TESTDB});
