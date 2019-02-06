@@ -282,7 +282,7 @@
                 <div class="form-inline">
                   <div class="form-group">
                     <div class="input-group">
-                      <input type="text" class="form-control seconds" placeholder="0.00">
+                      <input type="text" name="av_seconds" class="form-control seconds" placeholder="0.00">
                       <div class="input-group-addon">seconds</div>
                     </div>
                   </div>
