@@ -18,7 +18,7 @@
 </div>
 % }
     <h1>
-      <small><%= $talk->eventname . " videos " =%></small>
+      <small><%= $talk->eventname . " videos" =%></small>
       <%= $talk->title =%>
     </h1>
     <div class="row" id="talk_info">
