@@ -27,7 +27,7 @@ sub view {
         }
         my $nonce = $talk->nonce;
 	my $variant;
-	if(admin_for($c, $talk) || $talk->state eq 'preview') {
+	if(admin_for($c, $talk) || $talk->state eq 'preview' || $talk->state eq 'broken') {
 		$variant = undef;
 	} elsif($talk->state < 'preview') {
 		$variant = 'preparing';
