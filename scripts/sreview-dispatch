@@ -133,14 +133,22 @@ The maximum number of requests that should be handled per loop. Should
 be set to 0 (meaning infinity) when using an external scheduler;
 should probably be set to 1 when not.
 
+=item event
+
+The event in use for this instance of SReview. In previous versions of
+SReview, the dispatcher would run things for every event in the
+database; since version 0.4 this is no longer the case. This allows
+multiple instances of SReview to exist on the same host, sharing the
+same database if wanted.
+
 =cut
 
 	if($config->get('query_limit') > 0) {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done' LIMIT ?");
-		$st->execute($config->get('query_limit'));
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room, events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) OR progress = 'done' LIMIT ?");
+		$st->execute($config->get('event'), $config->get('query_limit'));
 	} else {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room WHERE (state IN ($statelist) AND progress = 'waiting') OR progress = 'done'");
-		$st->execute;
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room, events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) OR progress = 'done'");
+		$st->execute($config->get('event'));
 	}
 	while(my $row = $st->fetchrow_hashref) {
 		if($row->{progress} eq "done") {
