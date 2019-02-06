@@ -13,6 +13,7 @@ sub view {
 
 	my $id = $c->stash("id");
 	my $talk;
+	$c->stash(adminspecial => 0);
         eval {
                 if(defined($id)) {
                         $talk = SReview::Talk->new(talkid => $id);
@@ -27,8 +28,11 @@ sub view {
         }
         my $nonce = $talk->nonce;
 	my $variant;
-	if(admin_for($c, $talk) || $talk->state eq 'preview' || $talk->state eq 'broken') {
+	if ($talk->state eq 'preview' || $talk->state eq 'broken') {
 		$variant = undef;
+	} elsif(admin_for($c, $talk)) {
+		$variant = undef;
+		$c->stash(adminspecial => 1);
 	} elsif($talk->state < 'preview') {
 		$variant = 'preparing';
 	} elsif($talk->state < 'done') {
