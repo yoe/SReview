@@ -63,7 +63,7 @@ sub _load_comment {
         my $self = shift;
         my $st = $pg->db->dbh->prepare("SELECT comments FROM talks WHERE id = ?");
         $st->execute($self->talkid);
-        my $row = $st->fetchrow;
+        my $row = $st->fetchrow_hashref;
         return $row->{comments};
 }
 
