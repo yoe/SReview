@@ -65,7 +65,7 @@ sub update {
                 }
 	}
         $c->stash(talk => $talk);
-        if(!admin_for($c, $talk) && $talk->state ne 'preview') {
+        if(!admin_for($c, $talk) && $talk->state ne 'preview' && $talk->state ne 'broken') {
                 $c->stash(error => 'This talk is not currently available for review. Please try again later!');
                 $c->render(variant => 'error');
                 return;
