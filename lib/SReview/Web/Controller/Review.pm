@@ -90,7 +90,7 @@ sub update {
         }
         my $corrections = {};
         if($c->param("audio_channel") ne "3") {
-                $talk->add_correction("audio_channel", $c->param("audio_channel"));
+                $talk->set_correction("audio_channel", $c->param("audio_channel"));
                 $corrections->{audio_channel} = $c->param("audio_channel");
         } else {
                 if($c->param("no_audio_options") eq "no_publish") {
