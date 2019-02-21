@@ -274,7 +274,7 @@ if(defined($config->get("input_profile"))) {
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	die unless defined($config->get('apology_template'));
 	process_template($config->get('apology_template'), $apology);
-	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile);
+	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, duration => 5);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
 }
 
