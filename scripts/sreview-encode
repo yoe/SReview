@@ -1,0 +1,95 @@
+#!/usr/bin/perl -w
+
+=head1 NAME
+
+sreview-encode - use the SReview library to transcode a file from one format to another
+
+=head1 SYNOPSIS
+
+sreview-encode --input input.mkv --output output.webm --profile webm --multipass
+
+=cut
+
+use strict;
+use warnings;
+
+use SReview::Video;
+use SReview::Video::ProfileFactory;
+use SReview::Videopipe;
+use File::Basename qw/dirname basename/;
+use Getopt::Long;
+use Data::Dumper;
+
+my $dumped = 0;
+
+my $inputname;
+my $outputname;
+my $acopy = 0;
+my $vcopy = 0;
+my $multipass = 0;
+my $profilename;
+
+=head1 OPTIONS
+
+=head2 B<--input>=FILE
+
+Use C<FILE> as the input file to read video data from. Passed unmodified
+to L<ffmpeg(1)>'s C<-i> parameter. No default; required.
+
+=head2 B<--output>=FILE
+
+Use C<FILE> as the output file to write the transcoded video to. Passed
+unmodified to L<ffmpeg(1)> as the output file name. Default: the base
+name (with whatever comes after the final dot, if anything, removed) of
+the input file, supplemented with the default extension for the used
+profile.
+
+=head2 B<--acopy>
+
+Enable the C<acopy> option to the L<SReview::Videopipe> being used,
+which tells ffmpeg that it should not transcode the audio but just copy
+it from one container to another, unmodified.
+
+=head2 B<--vcopy>
+
+Enable the C<vcopy> option to the L<SReview::Videopipe> being used,
+which has the same effect to video that C<--acopy> has to audio.
+
+=head2 B<--multipass>
+
+Enable a 2-pass transcode.
+
+=head2 B<--profile>
+
+Select the profile to be used.
+
+=cut
+
+GetOptions("input=s" => \$inputname,
+	   "output=s" => \$outputname,
+	   "acopy" => \$acopy,
+	   "vcopy" => \$vcopy,
+	   "multipass" => \$multipass,
+	   "profile=s" => \$profilename)
+or die "Error in command line arguments";
+
+die "need input filename!" unless defined($inputname);
+die "need profile name!" unless defined($profilename);
+
+sub progress {
+	if($dumped < 10) {
+		print Dumper(@_);
+		$dumped++;
+	}
+}
+
+my $input = SReview::Video->new(url => $inputname);
+my $profile = SReview::Video::ProfileFactory->create($profilename, $input);
+if(!defined($outputname)) {
+	$outputname = $inputname;
+	$outputname =~ s/\.[^\.]*$//g;
+	$outputname .= "." . $profile->exten;
+}
+my $output = SReview::Video->new(url => $outputname, reference => $profile, progress => \&progress);
+
+SReview::Videopipe->new(inputs => [$input], output => $output, acopy => $acopy, vcopy => $vcopy, multipass => $multipass)->run();

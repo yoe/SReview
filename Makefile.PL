@@ -23,6 +23,7 @@ WriteMakefile(
 		'scripts/sreview-dispatch',
 		'scripts/sreview-skip',
 		'scripts/sreview-user',
+		'scripts/sreview-encode',
 		'scripts/notify/sreview-notify',
 		'scripts/upload/sreview-upload',
 		'scripts/transcode/sreview-transcode',

@@ -4,7 +4,9 @@ usr/bin/sreview-previews
 usr/bin/sreview-skip
 usr/bin/sreview-notify
 usr/bin/sreview-upload
+usr/bin/sreview-encode
 usr/share/man/man1/sreview-skip*
 usr/share/man/man1/sreview-cut*
 usr/share/man/man1/sreview-previews*
 usr/share/man/man1/sreview-transcode*
+usr/share/man/man1/sreview-encode*
