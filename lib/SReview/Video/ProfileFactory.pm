@@ -200,6 +200,7 @@ sub speed {
 		}
 		return 2;
 	}
+	return 4;
 }
 
 sub _probe_videocodec {
