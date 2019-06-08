@@ -111,6 +111,35 @@ Once gridengine has been installed, run `sreview-dispatch`.
 If you have any issues with SReview, please file an issue (or better
 yet, a pull request) on the github issue tracker.
 
+# Development
+
+To run SReview from git without installing, do the following:
+
+- Install Perl, PostgreSQL, ffmpeg, inkscape, and bs1770gain
+- Run 'cpanm --quiet --installdeps --notest .' to install the Perl
+  dependencies. Alternatively, install the packaged versions of the perl
+  dependencies for your distribution.
+- Add a PostgreSQL database and user:
+
+    createuser -P sreview
+    createdb -O sreview sreview
+
+- Create an SReview config file:
+
+    SREVIEW_WDIR=$(pwd) perl -I lib scripts/sreview-config -a update
+
+  This creates a file "config.pm". Edit that file in your favourite
+  editor; it should be self-documenting. Make sure to certainly edit the
+  PostgreSQL connection string and the "secrets" variable.
+
+- To add files to the database, store them in the inputdir (see config
+  file), and run `SREVIEW_WDIR=$(pwd) perl -I lib
+  scripts/sreview-detect`
+- The webinterface expects to be run from the `web` directory, so:
+
+    cd web
+    SREVIEW_WDIR=$(pwd)/.. ./sreview-web daemon
+
 # Further reading
 
 See the [documentation](docs/)
