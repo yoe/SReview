@@ -116,7 +116,7 @@ yet, a pull request) on the github issue tracker.
 To run SReview from git without installing, do the following:
 
 - Install Perl, PostgreSQL, ffmpeg, inkscape, and bs1770gain
-- Run 'cpanm --quiet --installdeps --notest .' to install the Perl
+- Run `cpanm --quiet --installdeps --notest .` to install the Perl
   dependencies. Alternatively, install the packaged versions of the perl
   dependencies for your distribution.
 - Add a PostgreSQL database and user:
