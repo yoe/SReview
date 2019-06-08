@@ -12,6 +12,7 @@ WriteMakefile(
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
 		'Moose' => 0,
+		'Mojolicious::Plugin::OAuth2::Server' => 0,
 	},
 	TEST_REQUIRES => {
 		'Test::More' => 0,

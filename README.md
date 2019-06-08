@@ -121,12 +121,12 @@ To run SReview from git without installing, do the following:
   dependencies for your distribution.
 - Add a PostgreSQL database and user:
 
-    createuser -P sreview
-    createdb -O sreview sreview
+        createuser -P sreview
+        createdb -O sreview sreview
 
 - Create an SReview config file:
 
-    SREVIEW_WDIR=$(pwd) perl -I lib scripts/sreview-config -a update
+        SREVIEW_WDIR=$(pwd) perl -I lib scripts/sreview-config -a update
 
   This creates a file "config.pm". Edit that file in your favourite
   editor; it should be self-documenting. Make sure to certainly edit the
@@ -137,8 +137,8 @@ To run SReview from git without installing, do the following:
   scripts/sreview-detect`
 - The webinterface expects to be run from the `web` directory, so:
 
-    cd web
-    SREVIEW_WDIR=$(pwd)/.. ./sreview-web daemon
+        cd web
+        SREVIEW_WDIR=$(pwd)/.. ./sreview-web daemon
 
 # Further reading
 
