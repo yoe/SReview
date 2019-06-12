@@ -538,7 +538,7 @@ sub _load_speakerlist {
 
 	my $rv = [];
 
-	while($talk = $query->fetchrow_arrayref) {
+	while(my $talk = $query->fetchrow_arrayref) {
 		push @$rv, $talk->[0];
 	}
 
