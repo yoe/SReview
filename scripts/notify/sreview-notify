@@ -64,11 +64,25 @@ sub notify_email() {
 	my $body = $mt->render_file($file, {title => $title, url => $url, overview => $overview, talk => $talk});
 	my $subject = $config->get("${configprefix}_email_subject");
 	$subject = $config->get("email_subject") unless defined($subject);
+	my @references;
+	my $nonce = $talk->nonce;
+	my $refid = $talk->corrections->{serial};
+	my $action = 'ntf';
+	if($configprefix ne 'notify') {
+		$refid--;
+		$action = 'ann';
+	}
+	for (; $refid >= 0; $refid--) {
+		push @references, "sreview-$nonce-$refid-ntf";
+	}
+	$refid = $talk->corrections->{serial};
 	my $email = Email::Simple->create(header => [
 			From => $config->get('email_from'),
 			To => join(',', @to_recips),
 			Subject => $mt->render($subject, {title => $title}),
 			Cc => join(',', @cc_recips),
+			References => join(',', @references),
+			"Message-ID" => "sreview-$nonce-$refid-$action",
 		], body => $body);
 	sendmail($email);
 }
