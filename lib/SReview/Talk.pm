@@ -350,6 +350,7 @@ sub _load_eventurl {
 			slug => $self->slug,
 			room => $self->room,
 			date => $self->date,
+			event => $self->eventname,
 			year => $self->_get_pathinfo->{raw}{year}});
 	}
 	return "";

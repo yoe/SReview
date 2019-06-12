@@ -275,6 +275,7 @@ sub startup {
 					slug => $row->{slug},
 					room => $row->{room},
 					date => $row->{date},
+					event => $row->{event},
 					year => $row->{year} });
 			}
 			$video->{video} = join('/',$outputdir, $row->{slug}) . "." . $formats{default}->exten;
