@@ -277,6 +277,7 @@ sub startup {
 					date => $row->{date},
 					event => $row->{event},
 					year => $row->{year} });
+				chomp $video->{details_url};
 			}
 			$video->{video} = join('/',$outputdir, $row->{slug}) . "." . $formats{default}->exten;
 			push @$videos, $video;
