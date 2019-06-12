@@ -76,6 +76,7 @@ foreach my $file(@files) {
 	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
 	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
 	my $stream = $+{stream};
+	$stream = '' unless defined $stream;
 	next unless defined($room);
 	my $url_build = $config->get('url_re');
 	my $url = $file;
