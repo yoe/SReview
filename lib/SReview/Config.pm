@@ -8,7 +8,7 @@ use Carp;
 
 =head1 NAME
 
-SReview::Config - Self-reproducing and self-documentating configuration file system
+SReview::Config - Self-reproducing and self-documenting configuration file system
 
 =head1 SYNOPSIS
 
