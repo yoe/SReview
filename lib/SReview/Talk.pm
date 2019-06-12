@@ -500,7 +500,7 @@ Lastname'
 
 has 'speakers' => (
 	lazy => 1,
-	is => 'rw',
+	is => 'ro',
 	builder => '_load_speakers',
 );
 
