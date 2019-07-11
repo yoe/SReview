@@ -27,7 +27,7 @@ my $config = SReview::Config::Common::setup;
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
-open SCHEDULE, "curl --capath /etc/ssl/ca-global -s https://debconf18.debconf.org/schedule/pentabarf.xml|";
+open SCHEDULE, "curl --capath /etc/ssl/ca-global -s https://debconf19.debconf.org/schedule/pentabarf.xml|";
 
 my $schedule = "";
 
@@ -64,8 +64,10 @@ my $track_add = $dbh->prepare("INSERT INTO tracks(name) VALUES (?)");
 
 foreach my $day($xml->child('schedule')->children('day')) {
 	foreach my $room($day->children('room')) {
+		my $roomname = $room->attribute('name');
+		next unless scalar(grep({$roomname =~ /$_/} ('Audit.rio', 'Miniaudit.rio', 'Sala de Videoconferencia'))) > 0;
 		do {
-			$dbroom->execute($room->attribute('name')) or die;
+			$dbroom->execute($roomname)) or die;
 
 			if($dbroom->rows < 1) {
 				my $ins = $dbh->prepare("INSERT INTO rooms(name) VALUES (?)");
