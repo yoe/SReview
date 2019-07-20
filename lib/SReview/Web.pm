@@ -51,7 +51,10 @@ sub startup {
 		state $pg = Mojo::Pg->new->dsn($config->get('dbistring'));
 		return $pg->db->dbh;
 	});
-	
+	$self->helper(srconfig => sub {
+		return $config;
+	});
+
 	$self->helper(talk_update => sub {
 		my $c = shift;
 		my $talk = shift;
