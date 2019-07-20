@@ -41,7 +41,7 @@ sub view {
 		$variant = 'done';
 	}
 
-	my $vid_prefix = $self->srconfig->get('vid_prefix');
+	my $vid_prefix = $c->srconfig->get('vid_prefix');
 	$vid_prefix = '' unless defined($vid_prefix);
 	$c->stash(vid_prefix => $vid_prefix;
 
