@@ -40,7 +40,11 @@ sub view {
 	} else {
 		$variant = 'done';
 	}
-		
+
+	my $vid_prefix = $self->srconfig->get('vid_prefix');
+	$vid_prefix = '' unless defined($vid_prefix);
+	$c->stash(vid_prefix => $vid_prefix;
+
 	$c->stash(talk => $talk);
 	$c->stash(stylesheets => ['/review.css']);
 	$c->render(variant => $variant);
