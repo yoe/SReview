@@ -102,8 +102,6 @@ my $talkid = $ARGV[0];
 
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?")->execute($talkid);
 
-$dbh->begin_work;
-
 my $talk = SReview::Talk->new(talkid => $talkid);
 
 my $slug = $talk->slug;
@@ -313,9 +311,9 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	unlink($input->url);
 }
 
-$dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ?")->execute($talkid);
+$dbh = DBI->connect($config->get('dbistring'), '', '') or die "Could not reconnect to database for state update!";
 
-$dbh->commit;
+$dbh->prepare("UPDATE talks SET progress = 'done' WHERE id = ?")->execute($talkid);
 
 =head1 SVG TRANSFORMATIONS
 
