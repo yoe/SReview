@@ -60,7 +60,7 @@ my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect
 
 $dbh->begin_work;
 
-my $exists = $dbh->prepare("SELECT count(*) FROM raw_files WHERE filename = ?");
+my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ?");
 my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval WHERE filename = ?");
 
@@ -84,12 +84,16 @@ foreach my $file(@files) {
 		$url =~ s/$parse_re/$url_build/g;
 	}
 	$exists->execute($url);
-	my $row = $exists->fetchrow_hashref;
-	my $length = SReview::Video->new(url => $url)->duration;
-        next unless defined($length);
-	if(defined($row->{count}) && $row->{count} eq '0') {
+	my $video = SReview::Video->new(url => $url);
+	if($exists->rows > 0) {
+		my $row = $exists->fetchrow_hashref;
+		my $mtime = $video->mtime;
+		next if($row->mtime != $mtime);
+		my $length = $video->duration;
+		next unless defined($length);
 		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream);
 	} else {
+		my $length = $video->duration;
 		$update->execute("$length", $url);
 	}
 }

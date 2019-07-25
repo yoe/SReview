@@ -88,6 +88,32 @@ has 'url' => (
 	required => 1,
 );
 
+=head2 mtime
+
+The mtime of the file backing this asset. Only defined if the file
+exists at the time the attribute is first read, and is not updated later
+on.
+
+=cut
+
+has 'mtime' => (
+	is => 'ro',
+	lazy => 1,
+	builder => '_probe_mtime',
+);
+
+sub _probe_mtime {
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->mtime;
+	}
+	my @statdata = stat($self->url);
+	if(length(@statdata) == 0) {
+		return undef;
+	}
+	return $statdata[9];
+}
+
 =head2 duration
 
 The duration of this asset.
