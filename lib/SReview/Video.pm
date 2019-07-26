@@ -108,7 +108,7 @@ sub _probe_mtime {
 		return $self->reference->mtime;
 	}
 	my @statdata = stat($self->url);
-	if(length(@statdata) == 0) {
+	if(scalar(@statdata) == 0) {
 		return undef;
 	}
 	return $statdata[9];

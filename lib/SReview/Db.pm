@@ -1027,9 +1027,9 @@ LOCK TABLE corrections IN SHARE MODE;
 DELETE FROM corrections USING properties WHERE corrections.property = properties.id AND properties.name = 'offset_end';
 DELETE FROM properties WHERE name = 'offset_end';
 -- 17 up
-ALTER TABLE talks ADD mtime INTEGER;
+ALTER TABLE raw_files ADD mtime INTEGER;
 -- 17 down
-ALTER TABLE talks DROP mtime;
+ALTER TABLE raw_files DROP mtime;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS

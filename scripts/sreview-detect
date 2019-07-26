@@ -61,8 +61,8 @@ my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect
 $dbh->begin_work;
 
 my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ?");
-my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?)");
-my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval WHERE filename = ?");
+my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream, mtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?, ?)");
+my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval, mtime = ? WHERE filename = ?");
 
 my @files = glob($config->get('inputglob'));
 
@@ -84,17 +84,20 @@ foreach my $file(@files) {
 		$url =~ s/$parse_re/$url_build/g;
 	}
 	$exists->execute($url);
+	my $row = $exists->fetchrow_hashref;
 	my $video = SReview::Video->new(url => $url);
-	if($exists->rows > 0) {
-		my $row = $exists->fetchrow_hashref;
-		my $mtime = $video->mtime;
-		next if($row->mtime != $mtime);
+	my $mtime = $video->mtime;
+	if($exists->rows == 0) {
+		# Reading the length takes time, so we only do it if we
+		# really need to...
 		my $length = $video->duration;
 		next unless defined($length);
-		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream);
+		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream, $mtime);
 	} else {
+		next unless ($row->{mtime} != $mtime);
 		my $length = $video->duration;
-		$update->execute("$length", $url);
+		next unless defined($length);
+		$update->execute("$length", $mtime, $url);
 	}
 }
 
