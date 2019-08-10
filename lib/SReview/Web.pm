@@ -279,6 +279,7 @@ sub startup {
 					room => $row->{room},
 					date => $row->{date},
 					event => $row->{event},
+					upstreamid => $row->{upstreamid},
 					year => $row->{year} });
 				chomp $video->{details_url};
 			}
