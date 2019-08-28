@@ -14,6 +14,7 @@ use SReview::Video;
 use SReview::Config::Common;
 use File::Path qw/make_path remove_tree/;
 
+remove_tree("t/inputdir", "t/outputdir", "t/pubdir");
 sub run {
 	my @command = @_;
 
@@ -75,5 +76,4 @@ SKIP: {
 	ok($final->audio_codec eq "opus", "The transcoded audio has the right codec");
 }
 
-remove_tree("t/inputdir", "t/outputdir", "t/pubdir");
 unlink("config.pm");
