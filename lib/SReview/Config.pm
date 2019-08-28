@@ -122,12 +122,11 @@ sub get {
 	$self->{fixed} = 1;
 	if(exists($SReview::Config::_private::{$name})) {
 		return ${$SReview::Config::_private::{$name}};
-	} else {
-		if(defined($ENV{'SREVIEW_VERBOSE'}) && $ENV{'SREVIEW_VERBOSE'} gt 0) {
-			print "No configuration value found for $name, using defaults\n";
-		}
-		return $self->{defs}{$name}{default};
 	}
+	if(defined($ENV{'SREVIEW_VERBOSE'}) && $ENV{'SREVIEW_VERBOSE'} gt 0) {
+		print "No configuration value found for $name, using defaults\n";
+	}
+	return $self->{defs}{$name}{default};
 };
 
 =head2 $config->set('name', value);
