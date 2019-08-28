@@ -16,11 +16,12 @@ use Test::More;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
+use SReview::Video;
 
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 22) unless exists($ENV{SREVIEW_TESTDB});
+	skip("Need a database to play with", 24) unless exists($ENV{SREVIEW_TESTDB});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web');
@@ -41,6 +42,13 @@ SKIP: {
 	  ->json_is("/start" => $talk->corrected_times->{start})
 	  ->json_is("/end_iso" => $talk->corrected_times->{end_iso})
 	  ->json_is("/start_iso" => $talk->corrected_times->{start_iso});
+
+	my $video = SReview::Video->new(url => $talk->outname . ".mkv");
+
+	$t->post_ok("$talkurl/update" => form => { start_time => "too_early", start_time_corrval => $video->duration - 0.5 })
+	  ->status_is(200);
+
+	$video = undef;
 
 	$talk->comment("test");
 	$talk->set_state("broken");
