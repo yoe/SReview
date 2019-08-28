@@ -369,6 +369,8 @@ The corrections that are set on this talk.
 
 Supports:
 
+=over
+
 =item has_correction
 
 check whether a correction exists (by name)
@@ -438,6 +440,8 @@ necessary to build the talk, given the schedule and the current
 corrections.
 
 Each hash contains:
+
+=over 
 
 =item talkid
 
