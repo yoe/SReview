@@ -80,6 +80,10 @@ sub define {
 	}
 	$self->{defs}{$name}{doc} = $doc;
 	$self->{defs}{$name}{default} = $default;
+	my $NAME = uc $name;
+	if(exists($ENV{"SREVIEW_${NAME}"})) {
+		$self->set($name => $ENV{"SREVIEW_${NAME}"});
+	}
 };
 
 sub define_computed {
@@ -97,7 +101,9 @@ definitions of this configuration file; that is, once this method has
 been called, the C<define> method above will croak.
 
 The returned value will either be the default value configured at
-C<define> time, or the value configured in the configuration file.
+C<define> time, the value configured in the configuration file, or the
+value set in the environment variable C<SREVIEW_I<name> >, where I<name>
+is the upper-case version of the name of the configuration item.
 
 =cut
 
