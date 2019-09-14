@@ -4,7 +4,7 @@ BEGIN {
 	if(exists($ENV{SREVIEW_TESTDB})) {
 		open my $config, ">config.pm";
 		print $config '$secret="foo";' . "\n";
-		print $config '$dbistring=\'dbi:Pg:dbname="' . $ENV{SREVIEW_TESTDB} . '"\';' . "\n";
+		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB} . '\';' . "\n";
 		close $config;
 	}
 }
