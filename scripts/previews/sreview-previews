@@ -68,7 +68,7 @@ sub convert($) {
 		return;
 	}
 	if ($vc eq "h264" && $ac eq "aac") {
-		my $output = SReview::Video->new(url => $basename . ".mp4");
+		my $output = SReview::Video->new(url => $basename . ".mp4", extra_params => { movflags => "faststart"});
 		SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
 		return;
 	}
