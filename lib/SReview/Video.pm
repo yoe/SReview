@@ -644,6 +644,10 @@ sub writeopts {
 		}
 	}
 
+	if(exists($ENV{SREVIEW_NONSTRICT})) {
+		push @opts, ("-strict", "-2");
+	}
+
 	push @opts, $self->url;
 
 	return @opts;
