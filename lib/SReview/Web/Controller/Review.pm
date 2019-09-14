@@ -116,7 +116,7 @@ sub update {
         if($c->param("av_sync") eq "av_not_ok_audio") {
                 $talk->add_correction("offset_audio", $c->param("av_seconds"));
                 $corrections->{audio_offset} = $c->param("av_seconds");
-        } elsif($c->param("av_sync" eq "av_not_ok_video")) {
+        } elsif($c->param("av_sync") eq "av_not_ok_video") {
                 $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
                 $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
