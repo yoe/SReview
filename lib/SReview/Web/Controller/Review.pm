@@ -81,18 +81,28 @@ sub update {
                 return;
         }
 
-        if($c->param("complete_reset") == 1) {
+        if(defined($c->param("complete_reset")) && $c->param("complete_reset") == 1) {
                 $talk->reset_corrections();
                 $talk->set_state("cutting");
                 $c->render(variant => 'reset');
                 return;
         }
+	if(!defined($c->param("video_state"))) {
+		$c->stash(error => 'Invalid submission data; missing parameter <t>video_state</t>.');
+		$c->render(variant => "error");
+		return;
+	}
         if($c->param("video_state") eq "ok") {
                 $talk->state_done("preview");
                 $c->render(variant => 'done');
                 return;
         }
         my $corrections = {};
+	if(!defined($c->param("audio_channel"))) {
+		$c->stash(error => 'Invalid submission data; missing parameter <t>audio_channel</t>.');
+		$c->render(variant => 'error');
+		return;
+	}
         if($c->param("audio_channel") ne "3") {
                 $talk->set_correction("audio_channel", $c->param("audio_channel"));
                 $corrections->{audio_channel} = $c->param("audio_channel");
@@ -105,14 +115,29 @@ sub update {
                         return;
                 }
         }
+	if(!defined($c->param("start_time"))) {
+		$c->stash(error => 'Invalid submission data; missing parameter <t>start_time</t>.');
+		$c->render(variant => 'error');
+		return;
+	}
         if($c->param("start_time") ne "start_time_ok") {
                 $talk->add_correction("offset_start", $c->param("start_time_corrval"));
                 $corrections->{start} = $c->param("start_time_corrval");
         }
+	if(!defined($c->param("end_time"))) {
+		$c->stash(error => 'Invalid submission data; missing parameter <t>end_time</t>.');
+		$c->render(variant => 'error');
+		return;
+	}
         if($c->param("end_time") ne "end_time_ok") {
                 $talk->add_correction("offset_end", $c->param("end_time_corrval"));
                 $corrections->{end} = $c->param("end_time_corrval");
         }
+	if(!defined($c->param("av_sync"))) {
+		$c->stash(error => 'Invalid submission data; missing parameter <t>av_sync</t>.');
+		$c->render(variant => 'error');
+		return;
+	}
         if($c->param("av_sync") eq "av_not_ok_audio") {
                 $talk->add_correction("offset_audio", $c->param("av_seconds"));
                 $corrections->{audio_offset} = $c->param("av_seconds");
@@ -120,7 +145,7 @@ sub update {
                 $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
                 $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
-        if(length($c->param("comment_text")) > 0) {
+        if(defined($c->param("comment_text")) && length($c->param("comment_text")) > 0) {
                 $talk->comment($c->param("comment_text"));
                 $talk->set_state("broken");
                 $c->stash(other_msg => $c->param("comment_text"));
