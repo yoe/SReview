@@ -13,8 +13,7 @@ addons:
     - inkscape
     - bs1770gain
 env:
-  - SREVIEW_TESTDB=sreview
-  - SREVIEW_NONSTRICT=1
+  - SREVIEW_TESTDB=sreview SREVIEW_NONSTRICT=1
 before_script:
   - psql -c "create database $SREVIEW_TESTDB;" -U postgres
 script:
