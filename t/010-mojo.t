@@ -1,18 +1,22 @@
 #!/usr/bin/perl -w
 
+use strict;
+use warnings;
+
+use Cwd 'abs_path';
+
 BEGIN {
 	if(exists($ENV{SREVIEW_TESTDB})) {
 		open my $config, ">config.pm";
 		print $config '$secret="foo";' . "\n";
 		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB} . '\';' . "\n";
+		print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
+		print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
 		close $config;
 	}
 }
 
-use strict;
-use warnings;
-
-use Test::More;
+use Test::More tests => 24;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -45,8 +49,15 @@ SKIP: {
 
 	my $video = SReview::Video->new(url => $talk->outname . ".mkv");
 
-	$t->post_ok("$talkurl/update" => form => { start_time => "too_early", start_time_corrval => $video->duration - 0.5 })
-	  ->status_is(200);
+	$t->post_ok("$talkurl/update" => form => {
+		start_time => "too_early",
+		start_time_corrval => $video->duration - 0.5,
+		end_time => "end_time_ok",
+		av_sync => "av_ok",
+		serial => $talk->corrections->{serial},
+		video_state => "not_ok",
+		audio_channel => $talk->corrections->{audio_channel},
+	})->status_is(200);
 
 	$video = undef;
 
