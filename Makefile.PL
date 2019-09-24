@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 use ExtUtils::MakeMaker;
+use ExtUtils::Depends;
+
+my $eud = ExtUtils::Depends->new(qw/Alien::ffmpeg/);
 
 WriteMakefile(
 	NAME	=> "SReview",
@@ -31,4 +34,5 @@ WriteMakefile(
 		'scripts/previews/sreview-previews',
 		'web/sreview-web',
 	],
+	$eud->get_makefile_vars
 );
