@@ -11,6 +11,3 @@ perl:latest:
 
 perl:5.24:
   <<: *build
-
-perl:5.26:
-  <<: *build
