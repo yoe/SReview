@@ -21,6 +21,8 @@ stages:
   - perl Makefile.PL
   script:
   - make TEST_VERBOSE=1 test
+  tags:
+  - docker
 
 perl:latest:
   <<: *build
