@@ -1030,6 +1030,15 @@ DELETE FROM properties WHERE name = 'offset_end';
 ALTER TABLE raw_files ADD mtime INTEGER;
 -- 17 down
 ALTER TABLE raw_files DROP mtime;
+-- 18 up
+CREATE TABLE config_overrides (
+    id SERIAL PRIMARY KEY,
+    event integer FOREIGN KEY REFERENCES events(id),
+    nodename character varying,
+    value character varying NOT NULL
+);
+-- 18 down
+DROP TABLE config_overrides;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
