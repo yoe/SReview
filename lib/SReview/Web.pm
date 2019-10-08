@@ -295,6 +295,7 @@ sub startup {
 		my $st;
 		if($config->get("anonreviews")) {
 			$st = $c->dbh->prepare('SELECT nonce, name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
+			$c->stash(autorefresh => 1);
 		} else {
 			$st = $c->dbh->prepare('SELECT name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
 		}
