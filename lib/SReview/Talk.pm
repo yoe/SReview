@@ -103,6 +103,7 @@ has 'apology' => (
         lazy => 1,
         is => 'rw',
         builder => '_load_apology',
+        clearer => 'clear_apology',
         predicate => 'has_apology',
 );
 
@@ -113,7 +114,7 @@ sub _load_apology {
 =head2 comment
 
 The comments that the user entered in the "other brokenness" field.
-Predicate: has_comment
+Predicate: C<has_comment>; clearer: C<clear_comment>.
 
 =cut
 
@@ -121,6 +122,7 @@ has 'comment' => (
         lazy => 1,
         is => 'rw',
         builder => '_load_comment',
+        clearer => 'clear_comment',
         predicate => 'has_comment',
 );
 
@@ -690,9 +692,13 @@ sub done_correcting {
         }
         if($self->has_comment) {
                 $db->prepare("UPDATE talks SET comments=? WHERE id = ?")->execute($self->comment, $self->talkid);
+        } else {
+                $db->prepare("UPDATE talks SET comments = NULL WHERE id = ?")->execute($self->talkid);
         }
 	if($self->has_apology) {
 		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);
+	} else {
+		$db->prepare("UPDATE talks SET apologynote = NULL WHERE id = ?")->execute($self->talkid);
 	}
 }
 
