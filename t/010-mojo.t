@@ -28,9 +28,10 @@ SKIP: {
 	skip("Need a database to play with", 24) unless exists($ENV{SREVIEW_TESTDB});
 
 	my $script = path(__FILE__);
-	$script = $script->dirname->child('..')->child('web')->child('sreview-web');
-	my $t = Test::Mojo->new($script);
+	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
+	symlink "../t", "web/t";
 	chdir($script->dirname);
+	my $t = Test::Mojo->new($script);
 
 	my $talk = SReview::Talk->new(talkid => 1);
 
@@ -66,6 +67,7 @@ SKIP: {
 	$talk->done_correcting;
 
 	$t->get_ok($talkurl)->status_is(200)->text_is("textarea#comment_text" => "test");
+	unlink("web/t");
 };
 
 unlink($cfgname);
