@@ -1,7 +1,16 @@
 ---
 .build: &build
+  services:
+  - postgres:9.6
+  variables:
+    POSTGRES_DB: sreview
+    POSTRES_USER: sreview
+    POSTGRES_PASSWORD: ""
+    SREVIEW_TESTDB: sreview;host=postgres;user=sreview
   image: $CI_JOB_NAME
   script:
+  - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
+  - cpanm ExtUtils::Depends
   - cpanm .
   - perl Makefile.PL
   - make TEST_VERBOSE=1 test
