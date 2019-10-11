@@ -691,6 +691,9 @@ sub done_correcting {
         if($self->has_comment) {
                 $db->prepare("UPDATE talks SET comments=? WHERE id = ?")->execute($self->comment, $self->talkid);
         }
+	if($self->has_apology) {
+		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);
+	}
 }
 
 =head2 set_state
