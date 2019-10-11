@@ -50,7 +50,11 @@ SKIP: {
 
 	my $video = SReview::Video->new(url => $talk->outname . ".mkv");
 
-	$t->post_ok("$talkurl/update" => form => {
+	$talk->set_state("preview");
+	$talk->done_correcting;
+	$talk = SReview::Talk->new(talkid => 1);
+
+	my $formdata = {
 		start_time => "too_early",
 		start_time_corrval => $video->duration - 0.5,
 		end_time => "end_time_ok",
@@ -58,8 +62,8 @@ SKIP: {
 		serial => $talk->corrections->{serial},
 		video_state => "not_ok",
 		audio_channel => $talk->corrections->{audio_channel},
-	})->status_is(200);
-
+	};
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
 	$video = undef;
 
 	$talk->comment("test");
