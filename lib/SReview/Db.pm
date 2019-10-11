@@ -1033,7 +1033,7 @@ ALTER TABLE raw_files DROP mtime;
 -- 18 up
 CREATE TABLE config_overrides (
     id SERIAL PRIMARY KEY,
-    event integer FOREIGN KEY REFERENCES events(id),
+    event integer REFERENCES events(id),
     nodename character varying,
     value character varying NOT NULL
 );
