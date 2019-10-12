@@ -68,7 +68,7 @@ SKIP: {
 	$talk = SReview::Talk->new(talkid => 1);
 
 	$t->get_ok("$talkurl/data")->status_is(200)
-	  ->json_like("/end" => qr/2017-11-10 17:00:10.5+\d{2}/);
+	  ->json_like("/end" => qr/2017-11-10 17:00:10.5\+\d{2}/);
 
 	$formdata->{av_sync} = "av_not_ok_audio";
 	$formdata->{av_seconds} = "1";
