@@ -17,7 +17,7 @@ stages:
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
   - cpanm ExtUtils::Depends
-  - cpanm --installdeps .
+  - cpanm --notest --installdeps .
   - perl Makefile.PL
   script:
   - make TEST_VERBOSE=1 test
