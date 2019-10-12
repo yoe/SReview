@@ -1,8 +1,9 @@
 %layout "default";
-% if(defined($autorefresh)) {
+% if($autorefresh) {
 <script>
-setTimeout({location.reload(true)}, 30000);
+setTimeout({location.reload(false)}, 30000);
 </script>
+% }
 <h1><%= $header %></h1>
 <table class='table table-hover'>
   % if(defined($titlerow)) {

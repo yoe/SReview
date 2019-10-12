@@ -298,6 +298,7 @@ sub startup {
 			$c->stash(autorefresh => 1);
 		} else {
 			$st = $c->dbh->prepare('SELECT name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime');
+			$c->stash(autorefresh => 0);
 		}
 		my $tot = $c->dbh->prepare('SELECT state, count(*) FROM talks WHERE event = ? GROUP BY state ORDER BY state;');
 		my %expls;
