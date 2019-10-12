@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -25,7 +25,7 @@ use SReview::Video;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 30) unless exists($ENV{SREVIEW_TESTDB});
+	skip("Need a database to play with", 31) unless exists($ENV{SREVIEW_TESTDB});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
@@ -82,6 +82,7 @@ SKIP: {
 
 	$talk = SReview::Talk->new(talkid => 1);
 	ok($talk->corrections->{offset_audio} == 1, "audio delay A/V sync value is set correctly");
+	ok($talk->corrections->{serial} == $formdata->{serial} + 1, "updates affect serial");
 
 	$formdata->{av_sync} = "av_not_ok_video";
 	$formdata->{serial} = $talk->corrections->{serial};
