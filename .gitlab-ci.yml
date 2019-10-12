@@ -13,11 +13,12 @@ stages:
     POSTGRES_PASSWORD: ""
     SREVIEW_TESTDB: sreview;host=postgres;user=sreview
   image: $CI_JOB_NAME
-  script:
+  before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
   - cpanm ExtUtils::Depends
   - cpanm --installdeps .
   - perl Makefile.PL
+  script:
   - make TEST_VERBOSE=1 test
 
 perl:latest:
