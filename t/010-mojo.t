@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 24;
+use Test::More tests => 30;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -25,7 +25,7 @@ use SReview::Video;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 24) unless exists($ENV{SREVIEW_TESTDB});
+	skip("Need a database to play with", 30) unless exists($ENV{SREVIEW_TESTDB});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
@@ -51,26 +51,49 @@ SKIP: {
 	my $video = SReview::Video->new(url => $talk->outname . ".mkv");
 
 	$talk->set_state("preview");
-	$talk->done_correcting;
 	$talk = SReview::Talk->new(talkid => 1);
 
 	my $formdata = {
-		start_time => "too_early",
-		start_time_corrval => $video->duration - 0.5,
-		end_time => "end_time_ok",
+		start_time => "start_time_ok",
+		end_time => "end_time_late",
+		end_time_corrval => "0.5",
 		av_sync => "av_ok",
 		serial => $talk->corrections->{serial},
 		video_state => "not_ok",
 		audio_channel => $talk->corrections->{audio_channel},
 	};
 	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
-	$video = undef;
 
-	$talk->comment("test");
-	$talk->set_state("broken");
-	$talk->done_correcting;
+	$talk->set_state("preview");
+	$talk = SReview::Talk->new(talkid => 1);
 
-	$t->get_ok($talkurl)->status_is(200)->text_is("textarea#comment_text" => "test");
+	$t->get_ok("$talkurl/data")->status_is(200)
+	  ->json_is("/end" => '2017-11-10 17:00:10.5+02');
+
+	$formdata->{av_sync} = "av_not_ok_audio";
+	$formdata->{av_seconds} = "1";
+	$formdata->{end_time} = "end_time_ok";
+	$formdata->{serial} = $talk->corrections->{serial};
+	delete $formdata->{end_time_corrval};
+
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
+
+	$talk->set_state("preview");
+
+	$talk = SReview::Talk->new(talkid => 1);
+	ok($talk->corrections->{offset_audio} == 1, "audio delay A/V sync value is set correctly");
+
+	$formdata->{av_sync} = "av_not_ok_video";
+	$formdata->{serial} = $talk->corrections->{serial};
+
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
+
+	$talk->set_state("preview");
+
+	$talk = SReview::Talk->new(talkid => 1);
+	ok($talk->corrections->{offset_audio} == 0, "video delay A/V sync value is set correctly");
+
+	chdir("..");
 	unlink("web/t");
 };
 
