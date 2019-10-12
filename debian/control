@@ -5,7 +5,7 @@ Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: https://salsa.debian.org/wouter/sreview
 Vcs-Git: https://salsa.debian.org/wouter/sreview
-Build-Depends: debhelper (>= 10), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl
+Build-Depends: debhelper (>= 10), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libexutils-depends-perl
 
 Package: sreview-master
 Architecture: all
