@@ -1,5 +1,10 @@
 ---
+stages:
+- test
+- deb
+
 .build: &build
+  stage: test
   services:
   - postgres:9.6
   variables:
@@ -20,3 +25,24 @@ perl:latest:
 
 perl:5.24:
   <<: *build
+
+.deb: &deb
+  stage: deb
+  image: $CI_JOB_NAME
+  before_script:
+  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs
+  - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
+  script:
+  - dpkg-buildpackage -us -uc -i -I.git
+  after_sccript:
+  - mkdir products
+  - dcmd mv ../*ges products/
+  artifacts:
+    paths:
+    - products
+
+debian:stable:
+  <<: *deb
+
+debian:unstable:
+  <<: *deb
