@@ -36,7 +36,7 @@ perl:5.24:
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
   script:
   - dpkg-buildpackage -us -uc -i -I.git
-  after_sccript:
+  after_script:
   - mkdir products
   - dcmd mv ../*ges products/
   artifacts:
