@@ -44,6 +44,8 @@ perl:5.24:
   artifacts:
     paths:
     - products
+  tags:
+  - docker
 
 debian:stable:
   <<: *deb
@@ -58,6 +60,9 @@ debian:unstable:
   services:
   - docker:dind
   image: docker:stable
+  tags:
+  - docker
+  - dind
   before_script:
   - export IMAGE_TAG=$CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
   - cp products/*deb dockerfiles/${CI_JOB_NAME#*:}
