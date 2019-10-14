@@ -26,7 +26,7 @@
   </head>
   <body>
   <div class="container"><%= content %>
-  <p id="version">SReview <%= $c->version %>. Code is <a href='https://github.com/yoe/sreview'>available</a> under the <a href='http://www.gnu.org/licenses/agpl-3.0.html'>GNU AGPLv3</a>. Patches welcome :-)</p>
+  <p id="version">SReview <%= $c->version %>. Code is <a href='https://salsa.debian.org/debconf-video-team/sreview'>available</a> under the <a href='http://www.gnu.org/licenses/agpl-3.0.html'>GNU AGPLv3</a>. Patches welcome :-)</p>
   </div>
   </body>
 </html>
