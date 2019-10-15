@@ -55,6 +55,26 @@ sub startup {
 		return $config;
 	});
 
+	$self->helper(auth_scope => sub {
+		my $scope = shift;
+		if($self->session->{admin}) {
+			return 1;
+		}
+		if($scope eq "api") {
+			return 1;
+		}
+		if($scope eq "api/events") {
+			return 1;
+		}
+		if($scope eq "api/talks/detailed") {
+			if($self->session->{id}) {
+				return 1;
+			}
+			return 0;
+		}
+		return 0;
+	});
+
 	$self->helper(talk_update => sub {
 		my $c = shift;
 		my $talk = shift;
