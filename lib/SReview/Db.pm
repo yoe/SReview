@@ -1045,7 +1045,7 @@ DROP TABLE config_overrides;
 -- 19 up
 ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);
 -- 19 down
-ALTER TABLE users DROP CONSTRAINT user_email_unique;
+ALTER TABLE users DROP CONSTRAINT users_email_unique;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
