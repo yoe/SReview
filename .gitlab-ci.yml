@@ -86,6 +86,11 @@ docker:web:
   <<: *docker
 
 validate:web:
+  # This actually requires
+  # https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1569 to
+  # be implemented, which it currently is not yet. So, for now, allow
+  # this to fail.
+  allow_failure: true
   stage: dockertest
   services:
   - name: postgres:latest
