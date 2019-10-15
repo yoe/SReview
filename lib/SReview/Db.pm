@@ -36,6 +36,9 @@ sub init {
 	#$code->migrate(0);
 	$init->migrate();
 	$code->migrate();
+	if(defined($config->get("adminuser")) && defined($config->get("adminpw"))) {
+		$db->dbh->prepare("INSERT INTO users(email, password, isadmin) VALUES(?, crypt(?, gen_salt('bf', 8)), true) ON CONFLICT ON users_email_unique DO NOTHING")->execute($config->get("adminuser"), $config->get("adminpw"));
+	}
 }
 
 1;

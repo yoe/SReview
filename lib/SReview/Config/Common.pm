@@ -39,6 +39,9 @@ sub setup {
 	$config->define("preview_exten", "The extension used by previews (webm or mp4). Should be autodetected in the future, but...", "webm");
 	$config->define("eventurl_format", "A Mojo::Template that generates an event URL. Used by the /released metadata URL", undef);
 
+	$config->define("adminuser", 'email address for the initial admin user created. Note: if this user is removed and this configuration value continues to exist, then the user will be recreated upon the next database initialization (which might be rather quick).', undef);
+	$config->define('adminpw', 'password for the admin user. See under "adminuser" for details.', undef);
+
 	# Values for encoder scripts
 	$config->define('pubdir', 'The directory on the file system where files served by the webinterface should be stored', '/srv/sreview/web/public');
 	$config->define('workdir', 'A directory where encoder jobs can create a subdirectory for temporary files', '/tmp');
