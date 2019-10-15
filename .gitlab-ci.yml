@@ -3,6 +3,7 @@ stages:
 - test
 - deb
 - docker
+- dockertest
 
 .build: &build
   stage: test
@@ -83,3 +84,21 @@ docker:master:
 
 docker:web:
   <<: *docker
+
+validate:web:
+  stage: dockertest
+  services:
+  - name: postgresql:latest
+    alias: postgresql
+  - name: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG
+    alias: web
+  variables:
+    POSTGRES_USER: sreview
+    POSTGRES_DB: sreview
+    SREVIEW_DBISTRING: dbi:Pg:dbname=sreview;host=postgres;user=sreview
+    SREVIEW_ADMINUSER: test@example.com
+    SREVIEW_ADMINPW: foo
+    BASEURL: http://web:8080/
+  image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
+  script:
+  - perl dockerfiles/tests/test.pl
