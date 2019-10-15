@@ -34,11 +34,13 @@ sub init {
 	$init->name('init');
 	$init->from_data();
 	#$code->migrate(0);
-	$init->migrate();
-	$code->migrate();
+	$init->migrate() or return 0;
+	$code->migrate() or return 0;
 	if(defined($config->get("adminuser")) && defined($config->get("adminpw"))) {
 		$db->dbh->prepare("INSERT INTO users(email, password, isadmin) VALUES(?, crypt(?, gen_salt('bf', 8)), true) ON CONFLICT ON users_email_unique DO NOTHING")->execute($config->get("adminuser"), $config->get("adminpw"));
 	}
+
+	return 1;
 }
 
 1;
