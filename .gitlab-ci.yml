@@ -36,13 +36,14 @@ perl:5.24:
   stage: deb
   image: $CI_JOB_NAME
   before_script:
-  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs
+  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
   script:
   - dpkg-buildpackage -us -uc -i -I.git
   after_script:
   - mkdir products
   - dcmd mv ../*ges products/
+  - git describe > products/git-version
   artifacts:
     paths:
     - products
@@ -71,6 +72,8 @@ debian:unstable:
   - docker pull $IMAGE_TAG || true
   script:
   - cd dockerfiles/${CI_JOB_NAME#*:}
+  - gitdesc=$(cat products/git-version)
+  - sed -i -e "s,@git@,$gitdesc,g" Dockerfile
   - docker build --pull -t $IMAGE_TAG .
   after_script:
   - export IMAGE_TAG=$CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
