@@ -67,11 +67,9 @@ debian:unstable:
   - export IMAGE_TAG=$CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
   - cp products/*deb dockerfiles/${CI_JOB_NAME#*:}
   - docker info
-  - gitdesc=$(git describe)
   - docker pull $IMAGE_TAG || true
   script:
   - cd dockerfiles/${CI_JOB_NAME#*:}
-  - sed -i -e "s,@git@,$gitdesc,g" Dockerfile
   - docker build --pull -t $IMAGE_TAG .
   after_script:
   - export IMAGE_TAG=$CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
