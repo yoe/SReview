@@ -1,6 +1,7 @@
 package SReview::Map;
 
 use Moose;
+use Carp;
 
 has 'input' => (
 	required => 1,
