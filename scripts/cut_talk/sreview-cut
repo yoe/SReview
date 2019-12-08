@@ -195,7 +195,7 @@ my $outname = $talk->outname;
 
 # Extract the correct audio
 my $full = SReview::Video->new(url => $full_output->url);
-my $map = SReview::Map->new(input => $full, type => $mapchoice);
+my $map = SReview::Map->new(input => $full, type => $maptype);
 
 if(exists($corrections->{audio_channel})) {
 	if($corrections->{audio_channel} == 0) {
