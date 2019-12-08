@@ -96,6 +96,23 @@ The DBI string used to connect to the database.
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
+my $maptype;
+my $primary_audio;
+my $backup_audio;
+my $both_audio;
+
+if($config->get('audio_multiplex_mode') eq 'stereo') {
+	$maptype = 'channel';
+	$primary_audio = 'left';
+	$backup_audio = 'right';
+	$both_audio = 'both';
+} else {
+	$maptype = 'astream';
+	$primary_audio = '0';
+	$backup_audio = '1';
+	$both_audio = '-1';
+}
+
 $dbh->begin_work;
 
 my $started = $dbh->prepare("UPDATE talks SET progress='running', state='cutting' WHERE id=?");
@@ -178,13 +195,15 @@ my $outname = $talk->outname;
 
 # Extract the correct audio
 my $full = SReview::Video->new(url => $full_output->url);
-my $map = SReview::Map->new(input => $full);
+my $map = SReview::Map->new(input => $full, type => $mapchoice);
 
 if(exists($corrections->{audio_channel})) {
-	if($corrections->{audio_channel} == 1) {
-		$map->choice('right');
+	if($corrections->{audio_channel} == 0) {
+		$map->choice($primary_audio);
+	} elsif($corrections->{audio_channel} == 1) {
+		$map->choice($backup_audio);
 	} elsif($corrections->{audio_channel} == 2) {
-		$map->choice('both');
+		$map->choice($both_audio);
 	}
 }
 
@@ -201,9 +220,9 @@ my @samples = (
         SReview::Video->new(url => "$outname-audio1.wav", fragment_start => $samplestart, duration => $samplelen),
         SReview::Video->new(url => "$outname-audio2.wav", fragment_start => $samplestart, duration => $samplelen),
 );
-SReview::Videopipe->new(inputs => [$full], output => $samples[0], "map" => [SReview::Map->new(input => $full, choice => 'left')], acopy => 0, vcopy => 0)->run();
-SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SReview::Map->new(input => $full, choice => 'right')], acopy => 0, vcopy => 0)->run();
-SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, choice => 'both')], acopy => 0, vcopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full], output => $samples[0], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $primary_audio)], acopy => 0, vcopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $backup_audio)], acopy => 0, vcopy => 0)->run();
+SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $both_audio)], acopy => 0, vcopy => 0)->run();
 foreach my $codec(qw/mp3 ogg/) {
         foreach my $stream(0, 1, 2) {
                 SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => "$outname-audio$stream.$codec"), acopy => 0, vcopy => 0)->run();

@@ -498,6 +498,38 @@ sub _probe_astream_id {
 	return $self->_get_audiodata->{index};
 }
 
+=head2 astream_ids
+
+Returns an array with the IDs for the audio streams in this file.
+
+=head2 astream_count
+
+Returns the number of audio streams in this file. 
+
+=cut
+
+has 'astream_ids' => (
+	is => 'rw',
+	traits => ['Array'],
+	isa => 'ArrayRef[Int]',
+	builder => '_probe_astream_ids',
+	lazy => 1,
+	handles => {
+		astream_count => "count",
+	},
+);
+
+sub _probe_astream_ids {
+	my $self = shift;
+	my @rv;
+	foreach my $stream(@{$self->_get_probedata->{streams}}) {
+		if($stream->{codec_type} eq "audio") {
+			push @rv, $stream->{index};
+		}
+	}
+	return \@rv;
+}
+
 =head2 vstream_id
 
 Returns the numeric ID for the first video stream in this file. Useful

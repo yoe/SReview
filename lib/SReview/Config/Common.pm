@@ -54,6 +54,7 @@ sub setup {
 	$config->define('apology_template', 'An SVG template to be used as apology template (shown just after the opening credits when technical issues occurred. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
 	$config->define('output_profiles', 'An array of profiles, one for each encoding, to be used for output encodings', ['webm']);
 	$config->define('input_profile', 'The profile that is used for input videos.', undef);
+	$config->define('audio_multiplex_mode', 'The way in which the primary and backup audio are multiplexed in the input stream. One of \'stereo\' for the primary in the left channel of the first audio stream and the backup in the right channel, or \'astream\' for the primary in the first audio stream, and the backup in the second audio stream');
 
 	# Values for detection script
 	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');
