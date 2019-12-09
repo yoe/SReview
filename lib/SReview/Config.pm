@@ -5,7 +5,7 @@ package SReview::Config;
 
 use Data::Dumper;
 use Carp;
-use Mojo::JSON qw/decode_json/;
+use Mojo::JSON qw/decode_json encode_json/;
 
 =head1 NAME
 
@@ -215,6 +215,19 @@ sub dump {
 };
 
 =back
+
+=head2 $config->dump_item("item")
+
+Return a JSON value for the given configuration item. Returns the
+default item if this item hasn't been set a value.
+
+=cut
+
+sub dump_item {
+	my ($self, $item) = @_;
+
+	print encode_json($self->get($item));
+}
 
 =head1 BUGS
 
