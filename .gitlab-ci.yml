@@ -96,9 +96,9 @@ docker:web:
   - docker
   script:
   - docker pull $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
-  - docker tag $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:latest
+  - docker tag $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:latest
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - docker push $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:latest
+  - docker push $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:latest
 
 release:encoder:
   <<: *drelease
