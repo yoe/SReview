@@ -4,6 +4,7 @@ stages:
 - deb
 - docker
 - dockertest
+- release
 
 .build: &build
   stage: test
@@ -84,6 +85,28 @@ docker:master:
 
 docker:web:
   <<: *docker
+
+.drelease: &drelease
+  stage: release
+  when: manual
+  services:
+  - docker:dind
+  image: docker:stable
+  tags:
+  - docker
+  script:
+  - docker pull $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
+  - docker tag $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:latest
+  - docker push $CI_REGISTRY_IMAGE_NAME/${CI_JOB_NAME#*:}:latest
+
+release:encoder:
+  <<: *drelease
+
+release:master:
+  <<: *drelease
+
+release:web:
+  <<: *drelease
 
 validate:web:
   # This actually requires
