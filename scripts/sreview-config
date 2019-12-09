@@ -13,12 +13,14 @@ my $cfile;
 my $action = undef;
 my $help = 0;
 my @extrasettings;
+my @dumpkeys;
 
 GetOptions(
 	"config-file=s" => \$cfile,
 	"action=s" => \$action,
 	"help" => \$help,
 	"set=s" => \@extrasettings,
+	"get=s" => \@dumpkeys,
 ) or pod2usage("command line invalid");
 
 =head1 NAME
@@ -92,6 +94,10 @@ This is useful on upgrade of SReview, so that new configuration
 options can be added to the configuration file without loss of old
 options. It can also be used as a way to configure C<sreview>.
 
+=head2 B<--get>=KEY
+
+Get the value of KEY, in JSON format
+
 =cut
 
 if($help) {
@@ -106,6 +112,13 @@ foreach my $setting(@extrasettings) {
 	my ($key, $value) = split(/=/, $setting, 2);
 	$config->set($key => $value);
 }
+
+foreach my $key(@dumpkeys) {
+	$config->dump_item($key);
+	print "\n";
+}
+
+exit 0 if scalar(@dumpkeys) > 0;
 
 if(!defined($action)) {
 	pod2usage("Need an action");
