@@ -5,6 +5,7 @@ package SReview::Config;
 
 use Data::Dumper;
 use Carp;
+use Mojo::JSON qw/decode_json/;
 
 =head1 NAME
 
@@ -43,7 +44,9 @@ sub new {
 	my $cfile = shift;
 
 	if (! -f $cfile) {
-		carp "Warning: could not find configuration file $cfile, falling back to defaults";
+		unless (grep /^SREVIEW_/, keys(%ENV)) {
+			carp "Warning: could not find configuration file $cfile, falling back to defaults";
+		}
 	} else {
 		package SReview::Config::_private;
 		use Carp;
@@ -82,7 +85,7 @@ sub define {
 	$self->{defs}{$name}{default} = $default;
 	my $NAME = uc $name;
 	if(exists($ENV{"SREVIEW_${NAME}"})) {
-		$self->set($name => $ENV{"SREVIEW_${NAME}"});
+		$self->set($name => decode_json($ENV{"SREVIEW_${NAME}"}));
 	}
 };
 
