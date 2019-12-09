@@ -11,9 +11,9 @@ use Cwd;
 my $config = SReview::Config::Common::setup;
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEW_TESTDB environment varialbe points to a database which we may clobber and recreate", 10) unless defined($ENV{SREVIEW_TESTDB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment varialbe points to a database which we may clobber and recreate", 10) unless defined($ENV{SREVIEWTEST_DB});
 
-	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
+	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB});
 	$config->set('output_subdirs' => [ 'eventid', 'event', 'room', 'date', 'year' ]);
 	$config->set('pubdir' => '/srv/sreview/web/public/video');
 

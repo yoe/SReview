@@ -12,7 +12,7 @@ use SReview::Config::Common;
 use DBI;
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEW_TESTDB environment variable points to a database which we may clobber and recreate", 7) unless defined($ENV{SREVIEW_TESTDB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 7) unless defined($ENV{SREVIEWTEST_DB});
 
 	my $warn;
 	local $SIG{__WARN__} = sub { $warn = shift };
@@ -21,7 +21,7 @@ SKIP: {
 
 	isa_ok($config, 'SReview::Config');
 
-	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
+	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB});
 
 	ok(SReview::Db::init($config), "Initializing the database was successful");
 	ok(SReview::Db::selfdestruct(code => 0, init => 0), "Clobbering the database works");

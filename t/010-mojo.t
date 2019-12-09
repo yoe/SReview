@@ -6,10 +6,10 @@ use warnings;
 use Cwd 'abs_path';
 
 BEGIN {
-	if(exists($ENV{SREVIEW_TESTDB})) {
+	if(exists($ENV{SREVIEWTEST_DB})) {
 		open my $config, ">config.pm";
 		print $config '$secret="foo";' . "\n";
-		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB} . '\';' . "\n";
+		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB} . '\';' . "\n";
 		print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
 		print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
 		close $config;
@@ -25,7 +25,7 @@ use SReview::Video;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 31) unless exists($ENV{SREVIEW_TESTDB});
+	skip("Need a database to play with", 31) unless exists($ENV{SREVIEWTEST_DB});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;

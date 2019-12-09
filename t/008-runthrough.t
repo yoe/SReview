@@ -23,21 +23,21 @@ sub run {
 }
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEW_TESTDB environment variable points to a database which we may clobber and recreate", 9) unless defined($ENV{SREVIEW_TESTDB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 9) unless defined($ENV{SREVIEWTEST_DB});
 
 	# Prepare an input directory
 	make_path('t/inputdir/room1/2017-11-10');
 	symlink('../../../testvids/bbb.mp4', 't/inputdir/room1/2017-11-10/17:00:00.mp4');
 
 	# Prepare the configuration
-	run("perl", "-I./blib/lib", "blib/script/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEW_TESTDB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "pubdir=" . abs_path('t/pubdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"));
+	run("perl", "-I./blib/lib", "blib/script/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEWTEST_DB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "pubdir=" . abs_path('t/pubdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"));
 
 	ok(-f 'config.pm', "running sreview-config with -a update creates a config.pm");
 
 	my $config = SReview::Config::Common::setup;
 	isa_ok($config, 'SReview::Config');
 
-	$config->set('dbistring' => 'dbi:Pg:dbname=' . $ENV{SREVIEW_TESTDB});
+	$config->set('dbistring' => 'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB});
 
 	# Prepare the input database
 	my $dbh = DBI->connect($config->get('dbistring'));

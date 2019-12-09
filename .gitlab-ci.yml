@@ -14,7 +14,7 @@ stages:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
     POSTGRES_PASSWORD: ""
-    SREVIEW_TESTDB: sreview;host=postgres;user=sreview
+    SREVIEWTEST_DB: sreview;host=postgres;user=sreview
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
