@@ -71,8 +71,8 @@ debian:unstable:
   - docker info
   - docker pull $IMAGE_TAG || true
   script:
-  - cd dockerfiles/${CI_JOB_NAME#*:}
   - gitdesc=$(cat products/git-version)
+  - cd dockerfiles/${CI_JOB_NAME#*:}
   - sed -i -e "s,@git@,$gitdesc,g" Dockerfile
   - docker build --pull -t $IMAGE_TAG .
   after_script:
