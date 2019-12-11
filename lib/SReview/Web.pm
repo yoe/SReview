@@ -566,6 +566,7 @@ sub startup {
 		$c->stash(header => 'Broken talks');
 		$c->stash(layout => 'admin');
 		$c->stash(totals => undef);
+		$c->stash(autorefresh => 0);
 		$c->render(template => 'table');
 	} => 'broken_table');
 
