@@ -37,6 +37,20 @@ my $yamldata = {
 			},
 			spec => {
 				restartPolicy => "Never",
+				volumes => [
+					{
+						name => "inputdata",
+						persistentVolumeClaim => {
+							claimName => "inputdata"
+						},
+					},
+					{
+						name => "outputdata",
+						persistentVolumeClaim => {
+							claimName => "outputdata",
+						},
+					}
+				],
 				containers => [ {
 					name => "encoder",
 					image => "registry.salsa.debian.org/debconf-video-team/sreview/encoder",
