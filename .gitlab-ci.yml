@@ -83,7 +83,7 @@ debian:unstable:
 docker:encoder:
   <<: *docker
 
-docker:encoder-kube:
+docker:master-kube:
   <<: *docker
   stage: docker-2nd
 
