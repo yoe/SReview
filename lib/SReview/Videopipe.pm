@@ -75,7 +75,7 @@ sub run_progress {
 	my ($in, $out, $err);
 	my $running;
 	my @lines;
-	my $old_perc = 0;
+	my $old_perc = -1;
 	my %vals;
 
 	my $length = $self->inputs->[0]->duration * 1000000;
