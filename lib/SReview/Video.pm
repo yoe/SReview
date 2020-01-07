@@ -691,7 +691,7 @@ sub _probe {
 	if($self->has_reference) {
 		return $self->reference->_get_probedata;
 	}
-	open JSON, "ffprobe -print_format json -show_format -show_streams '" . $self->url . "' 2>/dev/null|";
+	open JSON, "-|:encoding(UTF-8)", "ffprobe", "-print_format", "json", "-show_format", "-show_streams", $self->url;
 	my $json = "";
 	while(<JSON>) {
 		$json .= $_;
