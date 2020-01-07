@@ -1,0 +1,75 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use SReview::Talk;
+use SReview::Config::Common;
+use YAML::XS;
+use JSON;
+
+my $task = shift;
+my $id = shift;
+
+my $json = JSON->new->allow_nonref;
+
+my $config = SReview::Config::Common::setup;
+
+my %task_configs = (
+        previews => [ "pubdir", ],
+        cut => [ "workdir", "pubdir", "audio_multiplex_mode" ],
+        transcode => [ "pubdir", "outputdir", "output_subdirs", "workdir", "preroll_template", "postroll_template", "postroll", "apology_template", "input_profile", "output_profiles", "extra_profiles" ],
+        notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
+        announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
+        upload => [ "upload_actions", "event", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", ],
+);
+
+my $talk = SReview::Talk->new(talkid => $id);
+
+my $yamldata = {
+        apiVersion => "batch/v1",
+        kind => "Job",
+        metadata => {name => "$task-" . $talk->talkid},
+        spec => {
+		template => {
+			metadata => {
+				name => "$task-" . $talk->talkid,
+			},
+			spec => {
+				restartPolicy => "Never",
+				containers => [ {
+					name => "encoder",
+					image => "registry.salsa.debian.org/debconf-video-team/sreview/encoder",
+					command => ["sreview-$task"],
+					args => [ $talk->talkid ],
+					env => [ {
+						name => "SREVIEW_DBISTRING",
+						valueFrom => {
+							secretKeyRef => {
+								name => "sreview-secret",
+								key => "dbistring",
+							},
+						}
+					} ],
+				} ],
+			},
+		},
+        },
+};
+
+if($task eq "announce") {
+        $yamldata->{spec}{containers}[0]{command}[0] = "sreview-notify";
+        push @{$yamldata->{spec}{containers}[0]{args}}, "announce";
+}
+
+foreach my $cfg (@{$task_configs{$task}}) {
+	next if $config->is_default($cfg);
+	my $val = $json->encode($config->get($cfg));
+        push @{$yamldata->{spec}{template}{spec}{containers}[0]{env}}, {name => "SREVIEW_" . uc($cfg), value => $val};
+}
+
+print "About to create this job:\n";
+print Dump($yamldata) . "\n";
+open my $kubectl, "|-", "kubectl", "apply", "-f", "-";
+print $kubectl Dump($yamldata) . "\n";
+close $kubectl;
