@@ -229,6 +229,19 @@ sub dump_item {
 	print encode_json($self->get($item));
 }
 
+=head2 $config->is_default("item")
+
+Return a truthy value if the given configuration item is still at its
+default value.
+
+=cut
+
+sub is_default {
+	my ($self, $item) = @_;
+
+	return (exists($SReview::Config::_private::{$item})) ? 0 : 1;
+}
+
 =head1 BUGS
 
 It is currently not possible to load more than one configuration file in
