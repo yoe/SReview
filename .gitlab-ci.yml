@@ -113,6 +113,9 @@ release:encoder:
 release:master:
   <<: *drelease
 
+release:master-kube:
+  <<: *drelease
+
 release:web:
   <<: *drelease
 
