@@ -87,6 +87,7 @@ docker:encoder:kube:
   <<: *docker
   needs:
   - "docker:encoder"
+  - "debian:stable"
 
 docker:master:
   <<: *docker
