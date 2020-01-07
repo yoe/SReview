@@ -218,8 +218,8 @@ sub dump {
 
 =head2 $config->dump_item("item")
 
-Return a JSON value for the given configuration item. Returns the
-default item if this item hasn't been set a value.
+Print a JSON value for the given configuration item. Prints the default
+item if this item hasn't been set a value.
 
 =cut
 
