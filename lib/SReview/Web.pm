@@ -132,7 +132,11 @@ sub startup {
 		$rv = <GIT>;
 		close GIT;
 		if(!defined $rv) {
-			return $SReview::VERSION;
+			if(exists($ENV{GIT_DESCRIBE})) {
+				$rv = $ENV{GIT_DESCRIBE};
+			} else {
+				$rv = $SReview::VERSION;
+			}
 		}
 		chomp $rv;
 		return $rv;
