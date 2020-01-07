@@ -20,8 +20,6 @@ use File::Basename qw/dirname basename/;
 use Getopt::Long;
 use Data::Dumper;
 
-my $dumped = 0;
-
 my $inputname;
 my $outputname;
 my $acopy = 0;
@@ -77,10 +75,8 @@ die "need input filename!" unless defined($inputname);
 die "need profile name!" unless defined($profilename);
 
 sub progress {
-	if($dumped < 10) {
-		print Dumper(@_);
-		$dumped++;
-	}
+	my $perc = shift;
+	print "$outputname: $perc\%\r";
 }
 
 my $input = SReview::Video->new(url => $inputname);
@@ -90,6 +86,10 @@ if(!defined($outputname)) {
 	$outputname =~ s/\.[^\.]*$//g;
 	$outputname .= "." . $profile->exten;
 }
-my $output = SReview::Video->new(url => $outputname, reference => $profile, progress => \&progress);
+my $output = SReview::Video->new(url => $outputname, reference => $profile);
 
-SReview::Videopipe->new(inputs => [$input], output => $output, acopy => $acopy, vcopy => $vcopy, multipass => $multipass)->run();
+$| = 1;
+
+SReview::Videopipe->new(inputs => [$input], output => $output, acopy => $acopy, vcopy => $vcopy, multipass => $multipass, progress => \&progress)->run();
+
+print "\n";
