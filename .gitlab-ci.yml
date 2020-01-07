@@ -3,6 +3,7 @@ stages:
 - test
 - deb
 - docker
+- docker-2nd
 - dockertest
 - release
 
@@ -85,9 +86,7 @@ docker:encoder:
 
 docker:encoder:kube:
   <<: *docker
-  needs:
-  - "docker:encoder"
-  - "debian:stable"
+  stage: docker-2nd
 
 docker:master:
   <<: *docker
