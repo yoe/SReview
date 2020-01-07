@@ -83,6 +83,11 @@ debian:unstable:
 docker:encoder:
   <<: *docker
 
+docker:encoder:kube:
+  <<: *docker
+  needs:
+  - "docker:encoder"
+
 docker:master:
   <<: *docker
 
