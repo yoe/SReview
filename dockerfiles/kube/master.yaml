@@ -130,7 +130,7 @@ spec:
               name: sreview-secret
               key: adminpw
 	envFrom:
-	  configMapRef:
+	- configMapRef:
 	    name: sreview-config
 ---
 apiVersion: v1
@@ -202,7 +202,7 @@ spec:
               name: sreview-secret
               key: dbistring
         envFrom:
-          configMapRef:
+        - configMapRef:
             name: sreview-config
         volumeMounts:
         - mountPath: "/srv/sreview/incoming"
@@ -241,7 +241,7 @@ spec:
                   name: sreview-secret
                   key: dbistring
             envFrom:
-              configMapRef:
+            - configMapRef:
                 name: sreview-config
             volumeMounts:
             - mountPath: "/srv/sreview/incoming"
