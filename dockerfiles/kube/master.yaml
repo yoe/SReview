@@ -1,13 +1,41 @@
 ---
+# Before deploying, change the configuration in this ConfigMap and the
+# Secret up next to something that suits your environment.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sreview-config
+data:
+# For a list of possible values, run "sreview-config -a dump", which is
+# a binary found in any of the SReview containers.
+#
+# To transform the names of variables as reported by sreview-config,
+# transform them to upper case and prepend the literal string SREVIEW_
+# to them.
+#
+# The values should be encoded as JSON. This includes plain string
+# values, which should be double-quoted (i.e., use '"foo"' if you want
+# the string `foo` to be used), otherwise they're not JSON strings after
+# the YAML parsing.
+#
+# You may add or remove as many variables as you like here, but note
+# that the SREVIEW_DBISTRING, SREVIEW_SECRET, and SREVIEW_ADMINPW values
+# are set in the "Secret", below.
+  SREVIEW_ADMINUSER: '"w@uter.be"'
+  SREVIEW_EVENT: '"test"'
+---
 apiVersion: v1
 kind: Secret
 metadata:
   name: sreview-secret
 type: Opaque
 stringData:
-# Before deplying, change the values below to something else.
-# Note: except for the "dbpass" variable, the double-quoting is necessary, the
-# resulting string (after YAML processing) needs to be a JSON string
+# DO NOT remove these. They are assumed to always exist by the stuff
+# below.
+#
+# If you don't want an admin user to be created upon first load of the
+# webapp, then remove the SREVIEW_ADMINUSER variable above. Removing the
+# "adminpw" value below will make things fail.
   adminpw: '"qsdf"'
   dbpass: '<SREVIEW_DATABASE_PASSWORD>'
   dbistring: '"dbi:Pg:dbname=sreview;host=sreview-database;user=sreview;password=<SREVIEW_DATABASE_PASSWORD>"'
@@ -96,13 +124,14 @@ spec:
             secretKeyRef:
               name: sreview-secret
               key: websecret
-        - name: SREVIEW_ADMINUSER
-          value: '"w@uter.be"'
         - name: SREVIEW_ADMINPW
           valueFrom:
             secretKeyRef:
               name: sreview-secret
               key: adminpw
+	envFrom:
+	  configMapRef:
+	    name: sreview-config
 ---
 apiVersion: v1
 kind: Service
@@ -172,6 +201,9 @@ spec:
             secretKeyRef:
               name: sreview-secret
               key: dbistring
+        envFrom:
+          configMapRef:
+            name: sreview-config
         volumeMounts:
         - mountPath: "/srv/sreview/incoming"
           name: "inputdata"
@@ -208,6 +240,9 @@ spec:
                 secretKeyRef:
                   name: sreview-secret
                   key: dbistring
+            envFrom:
+              configMapRef:
+                name: sreview-config
             volumeMounts:
             - mountPath: "/srv/sreview/incoming"
               name: "inputdata"
