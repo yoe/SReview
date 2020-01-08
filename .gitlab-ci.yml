@@ -74,7 +74,7 @@ debian:unstable:
   script:
   - gitdesc=$(cat products/git-version)
   - cd dockerfiles/${CI_JOB_NAME#*:}
-  - sed -i -e "s/@git_describe/$gitdesc/g" Dockerfile
+  - sed -i -e "s/@git_describe@/$gitdesc/g" Dockerfile
   - docker build --build-arg=ci_registry_image=$CI_REGISTRY_IMAGE --build-arg=ci_commit_ref_slug=$CI_COMMIT_REF_SLUG --pull -t $IMAGE_TAG .
   after_script:
   - export IMAGE_TAG=$CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
