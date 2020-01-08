@@ -26,6 +26,11 @@ my %task_configs = (
 
 my $talk = SReview::Talk->new(talkid => $id);
 
+my $image = "registry.salsa.debian.org/debconf-video-team/sreview/encoder";
+if(exists($ENV{SREVIEW_ENCODER_IMAGE})) {
+	$image = $ENV{SREVIEW_ENCODER_IMAGE};
+}
+
 my $yamldata = {
         apiVersion => "batch/v1",
         kind => "Job",
@@ -53,7 +58,7 @@ my $yamldata = {
 				],
 				containers => [ {
 					name => "encoder",
-					image => "registry.salsa.debian.org/debconf-video-team/sreview/encoder",
+					image => $image,
 					command => ["sreview-$task"],
 					args => [ $talk->talkid ],
 					env => [ {
