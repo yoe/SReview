@@ -1,0 +1,210 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sreview-secret
+type: Opaque
+stringData:
+# Before deplying, change the values below to something else.
+# Note: except for the "dbpass" variable, the double-quoting is necessary, the
+# resulting string (after YAML processing) needs to be a JSON string
+  adminpw: '"qsdf"'
+  dbpass: '<SREVIEW_DATABASE_PASSWORD>'
+  dbistring: '"dbi:Pg:dbname=sreview;host=sreview-database;user=sreview;password=<SREVIEW_DATABASE_PASSWORD>"'
+  websecret: '"qsudbvqosfdqùmlkigjqsdloh,cosiucvhsnlqgfqwsdbnfliyqb"'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sreview-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sreview-database
+  template:
+    metadata:
+      labels:
+        app: sreview-database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        env:
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/db"
+        - name: POSTGRES_USER
+          value: sreview
+        - name: POSTGRES_DB
+          value: sreview
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: dbpass
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: "postgresdata"
+      volumes:
+      - name: "postgresdata"
+        persistentVolumeClaim:
+          claimName: "postgresdata"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sreview-database
+spec:
+  selector:
+    app: sreview-database
+  ports:
+    - protocol: TCP
+      port: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sreview-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sreview-web
+  template:
+    metadata:
+      labels:
+        app: sreview-web
+    spec:
+      containers:
+      - name: web
+        image: registry.salsa.debian.org/debconf-video-team/sreview/web:latest
+        env:
+        - name: SREVIEW_DBISTRING
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: dbistring
+        - name: SREVIEW_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: websecret
+        - name: SREVIEW_ADMINUSER
+          value: '"w@uter.be"'
+        - name: SREVIEW_ADMINPW
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: adminpw
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sreview-web
+spec:
+  type: NodePort
+  selector:
+    app: sreview-web
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sreview-master
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: manage-jobs
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["batch", "extensions"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: manage-jobs
+subjects:
+- kind: ServiceAccount
+  name: sreview-master
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: manage-jobs
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sreview-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sreview-master
+  template:
+    metadata:
+      labels:
+        app: sreview-master
+    spec:
+      serviceAccountName: sreview-master
+      containers:
+      - name: master
+        image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube
+        env:
+        - name: SREVIEW_DBISTRING
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: dbistring
+        volumeMounts:
+        - mountPath: "/srv/sreview/incoming"
+          name: "inputdata"
+      volumes:
+      - name: "inputdata"
+        persistentVolumeClaim:
+          claimName: "inputdata"
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: detect
+spec:
+  concurrencyPolicy: Forbid
+  schedule: 0,30 * * * *
+  jobTemplate: 
+    metadata:
+      labels:
+        app: sreview-detect
+    spec:
+      template:
+        metadata:
+          labels:
+            app: sreview-detect
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: detect
+            image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube
+            command: ["/usr/bin/sreview-detect"]
+            env:
+            - name: SREVIEW_DBISTRING
+              valueFrom:
+                secretKeyRef:
+                  name: sreview-secret
+                  key: dbistring
+            volumeMounts:
+            - mountPath: "/srv/sreview/incoming"
+              name: "inputdata"
+          volumes:
+          - name: "inputdata"
+            persistentVolumeClaim:
+              claimName: "inputdata"
