@@ -129,9 +129,9 @@ spec:
             secretKeyRef:
               name: sreview-secret
               key: adminpw
-	envFrom:
-	- configMapRef:
-	    name: sreview-config
+        envFrom:
+        - configMapRef:
+            name: sreview-config
 ---
 apiVersion: v1
 kind: Service
