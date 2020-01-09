@@ -45,6 +45,21 @@ spec:
     path: "/mnt/vda1/outputdata"
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: intermediatedata
+  labels:
+    type: local
+spec:
+  storageClassName: intermediatedata
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/mnt/vda1/intermediatedata"
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgresdata
@@ -74,6 +89,18 @@ metadata:
   name: outputdata
 spec:
   storageClassName: outputdata
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: intermediatedata
+spec:
+  storageClassName: intermediatedata
   accessModes:
   - ReadWriteMany
   resources:

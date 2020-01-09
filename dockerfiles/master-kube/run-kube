@@ -54,13 +54,33 @@ my $yamldata = {
 						persistentVolumeClaim => {
 							claimName => "outputdata",
 						},
-					}
+					},
+					{
+						name => "intermediatedata",
+						persistentVolumeClaim => {
+							claimName => "intermediatedata",
+						},
+					},
 				],
 				containers => [ {
 					name => "encoder",
 					image => $image,
 					command => ["sreview-$task"],
 					args => [ $talk->talkid ],
+					volumeMounts => [
+						{
+							mountPath => "/srv/sreview/incoming",
+							name => "inputdata"
+						},
+						{
+							mountPath => "/srv/sreview/output",
+							name => "outputdata",
+						},
+						{
+							mountPath => "/srv/sreview/web/public",
+							name => "intermediatedata",
+						}
+					],
 					env => [ {
 						name => "SREVIEW_DBISTRING",
 						valueFrom => {
