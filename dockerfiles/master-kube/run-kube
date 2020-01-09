@@ -77,6 +77,7 @@ my $yamldata = {
 				containers => [ {
 					name => "encoder",
 					image => $image,
+					imagePullPolicy => "Always",
 					command => ["sreview-$task"],
 					args => [ $talk->talkid ],
 					volumeMounts => [
