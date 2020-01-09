@@ -105,8 +105,6 @@ sub notify_command() {
 
 my $actions = $config->get("${configprefix}_actions");
 
-exit 0 if(scalar(@$actions) < 1);
-
 $talk = SReview::Talk->new(talkid => $talkid);
 $title = $talk->title;
 my $save = $/;
