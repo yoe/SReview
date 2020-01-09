@@ -35,7 +35,7 @@ my $start = DateTime->new(
 	minute => 0,
 	second => 0,
 );
-my $time_secs = $now->epoch - $start->epoch;
+my $secs = $now->epoch - $start->epoch;
 my $jobsuffix = $talk->talkid . "-" . unpack("h*", pack("L", $secs));
 
 my $image = "registry.salsa.debian.org/debconf-video-team/sreview/encoder";
