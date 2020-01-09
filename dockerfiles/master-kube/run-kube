@@ -7,6 +7,7 @@ use SReview::Talk;
 use SReview::Config::Common;
 use YAML::XS;
 use JSON;
+use DateTime;
 
 my $task = shift;
 my $id = shift;
@@ -25,6 +26,17 @@ my %task_configs = (
 );
 
 my $talk = SReview::Talk->new(talkid => $id);
+my $now = DateTime->now;
+my $start = DateTime->new(
+	year => $now->year,
+	month => $now->month,
+	day => 1,
+	hour => 0,
+	minute => 0,
+	second => 0,
+);
+my $time_secs = $now->epoch - $start->epoch;
+my $jobsuffix = $talk->talkid . "-" . unpack("h*", pack("L", $secs));
 
 my $image = "registry.salsa.debian.org/debconf-video-team/sreview/encoder";
 if(exists($ENV{SREVIEW_ENCODER_IMAGE})) {
@@ -34,11 +46,11 @@ if(exists($ENV{SREVIEW_ENCODER_IMAGE})) {
 my $yamldata = {
         apiVersion => "batch/v1",
         kind => "Job",
-        metadata => {name => "$task-" . $talk->talkid},
+        metadata => {name => "$task-$jobsuffix"};
         spec => {
 		template => {
 			metadata => {
-				name => "$task-" . $talk->talkid,
+				name => "$task-$jobsuffix",
 			},
 			spec => {
 				restartPolicy => "Never",
