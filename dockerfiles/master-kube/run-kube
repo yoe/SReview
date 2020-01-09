@@ -46,7 +46,7 @@ if(exists($ENV{SREVIEW_ENCODER_IMAGE})) {
 my $yamldata = {
         apiVersion => "batch/v1",
         kind => "Job",
-        metadata => {name => "$task-$jobsuffix"};
+        metadata => {name => "$task-$jobsuffix"},
         spec => {
 		template => {
 			metadata => {
