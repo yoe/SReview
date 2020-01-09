@@ -6,6 +6,9 @@ TODO:
   minikube on my laptop, that's all I can say.
 - I used this as a project to learn about Kubernetes. Most likely, I've
   made mistakes. Patches welcome!
+- I was told about the fact that PersistentVolumeClaims aren't really a
+  good thing for cross-pod communication. Will have to modify SReview so
+  it can upload/download files before/after working on them...
 
 Instructions:
 - Create three persistent volumes claims:
