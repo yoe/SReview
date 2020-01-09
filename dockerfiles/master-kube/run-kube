@@ -120,6 +120,11 @@ foreach my $cfg (@{$task_configs{$task}}) {
         push @{$yamldata->{spec}{template}{spec}{containers}[0]{env}}, {name => "SREVIEW_" . uc($cfg), value => $val};
 }
 
+if(exists($ENV{DO_DEBUG})) {
+	unshift(@{$yamldata->{spec}{template}{spec}{containers}[0]{args}}, ("-d:Trace", @{$yamldata->{spec}{template}{spec}{containers}[0]{command}));
+	$yamldata->{spec}{template}{spec}{containers}[0]{command} = [ "perl" ];
+}
+
 print "About to create this job:\n";
 print Dump($yamldata) . "\n";
 open my $kubectl, "|-", "kubectl", "apply", "-f", "-";
