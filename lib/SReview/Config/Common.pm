@@ -30,6 +30,7 @@ sub setup {
 	$config = SReview::Config->new($cfile);
 	# common values
 	$config->define('dbistring', 'The DBI connection string used to connect to the database', 'dbi:Pg:dbname=sreview');
+	$config->define('accessmethods', 'The way to access files. Can only be \'direct\' for now, but an S3 method will be added later.', {input => 'direct', output => 'direct', intermediate => 'direct'});
 
 	# Values for sreview-web
 	$config->define('event', 'The event to handle by this instance of SReview.');

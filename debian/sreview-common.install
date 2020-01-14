@@ -6,6 +6,7 @@ usr/share/perl5/SReview/CodecMap.pm
 usr/share/perl5/SReview/Config/
 usr/share/perl5/SReview/Config.pm
 usr/share/perl5/SReview/Db.pm
+usr/share/perl5/SReview/Files/
 usr/share/perl5/SReview/Map.pm
 usr/share/perl5/SReview/Talk.pm
 usr/share/perl5/SReview/Talk/State.pm
