@@ -51,6 +51,7 @@ use warnings;
 use DBI;
 use SReview::Config::Common;
 use SReview::Video;
+use SReview::Files::Factory;
 
 use Net::Domain qw(hostname);
 
@@ -64,40 +65,33 @@ my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ?");
 my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream, mtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?, ?)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval, mtime = ? WHERE filename = ?");
 
-my @files = glob($config->get('inputglob'));
+my $collection = SReview::Files::Factory->create("input", $config->get("inputglob"));
 
 my $host = hostname();
 
-foreach my $file(@files) {
-	next unless (-f $file);
+foreach my $file(@{$collection->children}) {
+	next if ($file->is_collection);
 	my $parse_re = $config->get('parse_re');
-	next unless $file =~ /$parse_re/;
+	next unless $file->url =~ /$parse_re/;
 	my $room = $+{room};
 	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
 	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
 	my $stream = $+{stream};
 	$stream = '' unless defined $stream;
 	next unless defined($room);
-	my $url_build = $config->get('url_re');
-	my $url = $file;
-	if(defined($url_build)) {
-		$url =~ s/$parse_re/$url_build/g;
-	}
-	$exists->execute($url);
+	$exists->execute($file->url);
 	my $row = $exists->fetchrow_hashref;
-	my $video = SReview::Video->new(url => $url);
-	my $mtime = $video->mtime;
 	if($exists->rows == 0) {
-		# Reading the length takes time, so we only do it if we
-		# really need to...
+		my $video = SReview::Video->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
-		$add->execute($url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream, $mtime);
+		$add->execute($file->url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream, $file->mtime->epoch);
 	} else {
-		next unless ($row->{mtime} != $mtime);
+		next unless ($row->{mtime} != $file->mtime->epoch);
+		my $video = SReview::Video->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
-		$update->execute("$length", $mtime, $url);
+		$update->execute("$length", $file->mtime->epoch, $file->url);
 	}
 }
 
