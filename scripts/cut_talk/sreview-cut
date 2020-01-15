@@ -13,6 +13,7 @@ use SReview::Video;
 use SReview::Video::Concat;
 use SReview::Videopipe;
 use SReview::Config::Common;
+use SReview::Files::Factory;
 
 =head1 NAME
 
@@ -135,6 +136,9 @@ my $prelen = 0;
 my $mainlen = 0;
 my $postlen = 0;
 
+my $input_coll = SReview::Files::Factory->create("input", $config->get("inputglob"));
+my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
+
 foreach my $row (@{$talk->video_fragments}) {
 	my $start;
 	my $stop;
@@ -160,7 +164,8 @@ foreach my $row (@{$talk->video_fragments}) {
 		$segments = \@segments_main;
 		$mainlen += $row->{raw_length_corrected};
 	}
-	my $input = SReview::Video->new(url => $row->{raw_filename});
+	my $input_file = $input_coll->get_file(fullname => $row->{raw_filename});
+	my $input = SReview::Video->new(url => $input_file->filename);
 	my $output = SReview::Video->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv");
 	if($row->{fragment_start} ne '0') {
 		$output->fragment_start($row->{fragment_start});
@@ -189,10 +194,6 @@ virtual host top level.
 
 =cut
 
-my $workdir = $talk->workdir;
-make_path($workdir);
-my $outname = $talk->outname;
-
 # Extract the correct audio
 my $full = SReview::Video->new(url => $full_output->url);
 my $map = SReview::Map->new(input => $full, type => $maptype);
@@ -215,17 +216,25 @@ my $samplestart = ($mainlen - $prelen) / 2 + $prelen - 30;
 my $samplelen = 60;
 $samplestart = ($samplestart > 0) ? $samplestart : 0;
 $samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
+my @audionames = (
+	$output_coll->add_file(relname => $talk->relative_name . "-audio0.wav"),
+	$output_coll->add_file(relname => $talk->relative_name . "-audio1.wav"),
+	$output_coll->add_file(relname => $talk->relative_name . "-audio2.wav"),
+);
 my @samples = (
-        SReview::Video->new(url => "$outname-audio0.wav", fragment_start => $samplestart, duration => $samplelen),
-        SReview::Video->new(url => "$outname-audio1.wav", fragment_start => $samplestart, duration => $samplelen),
-        SReview::Video->new(url => "$outname-audio2.wav", fragment_start => $samplestart, duration => $samplelen),
+        SReview::Video->new(url => $audionames[0]->filename, fragment_start => $samplestart, duration => $samplelen),
+        SReview::Video->new(url => $audionames[1]->filename, fragment_start => $samplestart, duration => $samplelen),
+        SReview::Video->new(url => $audionames[2]->filename, fragment_start => $samplestart, duration => $samplelen),
 );
 SReview::Videopipe->new(inputs => [$full], output => $samples[0], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $primary_audio)], acopy => 0, vcopy => 0)->run();
 SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $backup_audio)], acopy => 0, vcopy => 0)->run();
 SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $both_audio)], acopy => 0, vcopy => 0)->run();
-foreach my $codec(qw/mp3 ogg/) {
-        foreach my $stream(0, 1, 2) {
-                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => "$outname-audio$stream.$codec"), acopy => 0, vcopy => 0)->run();
+foreach my $stream(0, 1, 2) {
+	$audionames[$stream]->store_file;
+	foreach my $codec(qw/mp3 ogg/) {
+		my $temp_output = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.$codec");
+                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => $temp_output->filename), acopy => 0, vcopy => 0)->run();
+		$temp_output->store_file;
         }
 }
 
@@ -259,15 +268,21 @@ if($corrections->{offset_audio} != 0) {
 # Now split and merge the full video and audio files back into three video files with the audio reattached
 my $map_v = SReview::Map->new(input => $full, type => 'stream', choice => 'video');
 my $map_a = SReview::Map->new(input => $full_wav, type => 'stream', choice => 'audio');
-unlink("$outname-pre.mkv");
+my $prelen_db = 0;
+my $postlen_db = 0;
 if($prelen > 0) {
-	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-pre.mkv", audio_codec => detect_to_write($full->audio_codec), duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+	my $prefile = $output_coll->add_file(relname => $talk->relative_name . "-pre.mkv");
+	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => $prefile->filename, audio_codec => detect_to_write($full->audio_codec), duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+	$prelen_db = SReview::Video->new(url => $prefile->filename)->duration();
+	$prefile->store_file;
 } else {
 	print "Skipping generation of pre video, no data\n";
 }
-unlink("$outname-post.mkv");
 if($postlen > 0) {
-	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => "$outname-post.mkv", audio_codec => detect_to_write($full->audio_codec), fragment_start => ($prelen + $mainlen), duration => $postlen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+	my $postfile = $output_coll->add_file(relname => $talk->relative_name . "-post.mkv");
+	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => $postfile->filename, audio_codec => detect_to_write($full->audio_codec), fragment_start => ($prelen + $mainlen), duration => $postlen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
+	$postlen_db = SReview::Video->new(url => $postfile->filename)->duration();
+	$postfile->store_file;
 } else {
 	print "Skipping generation of post video, no data\n";
 }
@@ -279,19 +294,11 @@ my $preaudio = SReview::Video->new(url => "$tempdir/preaudio.mkv");
 my $flac = SReview::Video->new(url => "$tempdir/audio.flac");
 $map_v->input($preaudio);
 $map_a->input($flac);
-unlink("$outname.mkv");
-SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => "$outname.mkv", audio_codec => detect_to_write($full->audio_codec)), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a])->run();
-
-# Ensure the durations get probed from the actual file to remove any computation inaccuracies
-if($prelen > 0) {
-	$prelen = SReview::Video->new(url => "$outname-pre.mkv")->duration;
-}
-if($postlen > 0) {
-	$postlen = SReview::Video->new(url => "$outname-post.mkv")->duration;
-}
+my $finalname = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
+SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => $finalname->filename, audio_codec => detect_to_write($full->audio_codec)), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a])->run();
 
 my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
-$update->execute("$prelen seconds", "$postlen seconds", $talkid);
+$update->execute("$prelen_db seconds", "$postlen_db seconds", $talkid);
 
 $dbh->commit;
 
