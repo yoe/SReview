@@ -67,7 +67,7 @@ SKIP: {
 	run("perl", "-I./blib/lib", "blib/script/sreview-previews", $row->{talkid});
 
 	$check = SReview::Video->new(url => abs_path("t/pubdir/1/2017-11-10/r/test-talk.mp4"));
-	ok(($length * 0.9 < $check->duration) && ($length * 1.1 > $check_duration), "The preview video is of approximately the right length");
+	ok(($length * 0.9 < $check->duration) && ($length * 1.1 > $check->duration), "The preview video is of approximately the right length");
 
 	# perform transcode
 	run("perl", "-I./blib/lib", "blib/script/sreview-transcode", $row->{talkid});
