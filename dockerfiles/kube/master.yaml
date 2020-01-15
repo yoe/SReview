@@ -23,6 +23,12 @@ data:
 # are set in the "Secret", below.
   SREVIEW_ADMINUSER: '"w@uter.be"'
   SREVIEW_EVENT: '"test"'
+  SREVIEW_ANONREVIEWS: '1'
+  SREVIEW_URLBASE: '"http://sreview.example.com"'
+# Store these as "/mnt/vda1/inputdata/assets/preroll.svg and .../postroll.png on
+# minikube
+  SREVIEW_PREROLL_TEMPLATE: '"/srv/sreview/incoming/assets/preroll.svg"'
+  SREVIEW_POSTROLL: '"/srv/sreview/incoming/assets/postroll.png"'
 ---
 apiVersion: v1
 kind: Secret
