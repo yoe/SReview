@@ -60,7 +60,7 @@ my $collection = SReview::Files::Factory->create("intermediate", $config->get("p
 
 sub convert($) {
 	my $relname = shift;
-	return unless ($collection->has_file(relname => $relname . ".mkv"));
+	return unless ($collection->has_file($relname . ".mkv"));
 	my $input_file = $collection->get_file(relname => $relname . ".mkv");
 	my $input = SReview::Video->new(url => $input_file->filename);
 	my $vc = $input->video_codec;
