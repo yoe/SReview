@@ -31,6 +31,7 @@ use SReview::Video::PNGGen;
 use SReview::Video::Concat;
 use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
+use SReview::Files::Factory;
 use Mojo::Util qw/xml_escape/;
 
 =head1 NAME
@@ -116,7 +117,7 @@ The directory in which to find the output of C<sreview-cut>
 
 =cut
 
-my $workdir = $talk->workdir;
+my $input_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 
 =item outputdir
 
@@ -124,7 +125,7 @@ The top-level directory in which to store production output data
 
 =cut
 
-my $outputdir = $config->get('outputdir');
+my $output_coll = SReview::Files::Factory->create("output", $config->get("outputdir"));
 
 =item output_subdirs
 
@@ -157,10 +158,11 @@ The year in which this talk occurred
 
 =cut
 
+my @elems = ();
 foreach my $subdir(@{$config->get('output_subdirs')}) {
-	$outputdir = join('/', $outputdir, $drow->{$subdir});
+	push @elems, $drow->{$subdir};
 }
-make_path($outputdir);
+my $relprefix = join('/', @elems);
 
 =item workdir
 
@@ -201,8 +203,6 @@ sub process_template($$) {
 	system("inkscape --export-png=$output $outputsvg");
 }
 
-my $preroll = $workdir . "/$slug-pre.png";
-
 =item preroll_template
 
 The name of an SVG template to be used for the preroll (i.e., opening
@@ -210,13 +210,9 @@ credits). Required.
 
 =cut
 
-if ( ! -f $preroll ) {
-	process_template($config->get('preroll_template'), $preroll);
-} else {
-	print "reusing $preroll\n";
-}
-
-my $postroll = $workdir . "/$slug-post.png";
+my $preroll_file = $input_coll->add_file(relname => $talk->relative_name . "-pre.png");
+process_template($config->get('preroll_template'), $preroll_file->filename);
+$preroll_file->store_file;
 
 =item postroll_template
 
@@ -230,23 +226,22 @@ credits). Either this option or C<postroll_template> is required.
 
 =cut
 
-if ( ! -f $postroll ) {
-	if(defined($config->get('postroll_template'))) {
-		process_template($config->get('postroll_template'), $postroll);
-	} elsif(defined($config->get('postroll'))) {
-		print "using $postroll from config\n";
-		$postroll = $config->get('postroll');
-	} else {
-		die "need postroll or postroll template!";
-	}
+my $postroll;
+
+if(defined($config->get('postroll_template'))) {
+	my $postroll_file = $input_coll->add_file(relname => $talk->relative_name . "-post.png");
+	process_template($config->get('postroll_template'), $postroll_file->filename);
+	$postroll_file->store_file;
+	$postroll = $postroll_file->filename;
+} elsif(defined($config->get('postroll'))) {
+	print "using postroll from config\n";
+	$postroll = $config->get('postroll');
 } else {
-	print "reusing $postroll\n";
+	die "need postroll or postroll template!";
 }
 
-my $main_input = SReview::Video->new(url => "$workdir/$slug.mkv");
-
-my $apology = $workdir . "/$slug-sorry.png";
-my $sorry;
+my $main_input_file = $input_coll->get_file(relname => $talk->relative_name . ".mkv");
+my $main_input = SReview::Video->new(url => $main_input_file->filename);
 
 =item apology_template
 
@@ -269,16 +264,20 @@ if(defined($config->get("input_profile"))) {
 	$png_profile = $main_input;
 }
 
+my $sorry;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
+	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "-sorry.png");
+
 	die unless defined($config->get('apology_template'));
-	process_template($config->get('apology_template'), $apology);
+	process_template($config->get('apology_template'), $apology_file->filename);
+	$apology_file->store_file;
 	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, duration => 5);
-	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology)], output => $sorry)->run();
+	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology_file->filename)], output => $sorry)->run();
 }
 
 # concatenate preroll, main video, postroll
 my $pre = SReview::Video->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, duration => 5);
-SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
+SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $preroll_file->filename)], output => $pre, vcopy => 0, acopy => 0)->run();
 my $post = SReview::Video->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, duration => 5);
 SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
 my $inputs = [ $pre ];
@@ -300,7 +299,8 @@ Defaults to C<webm>.
 
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = SReview::Video::ProfileFactory->create($profile_str, $input);
-	my $output = SReview::Video->new( url => "$outputdir/$slug." . $profile->exten, reference => $profile);
+	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
+	my $output = SReview::Video->new( url => $output_file->filename, reference => $profile);
 	foreach my $field("title", "event", "speakers", "track", "date") {
 		if(defined($drow->{$field}) && length($drow->{$field}) > 0) {
 			$output->add_metadata($field, $drow->{$field});
@@ -309,6 +309,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
 	# XXX: this should really be done by SReview::Video::Concat, not by us
 	unlink($input->url);
+	$output_file->store_file;
 }
 
 $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Could not reconnect to database for state update!";
