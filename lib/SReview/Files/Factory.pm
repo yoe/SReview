@@ -73,6 +73,7 @@ has 'is_stored' => (
 	handles => {
 		auto_save => 'unset',
 		no_auto_save => 'set',
+		stored => 'set',
 	},
 );
 
@@ -115,7 +116,7 @@ sub _get_file {
 
 sub store_file {
 	my $self = shift;
-	$self->is_stored(1);
+	$self->stored;
 	return 1;
 }
 
@@ -172,7 +173,7 @@ sub _create {
 	my %options = @_;
 
 	if(exists($options{fullname})) {
-		if(substr($options{fullname}, 0, length($self->baseurl)) != $self->baseurl) {
+		if(substr($options{fullname}, 0, length($self->baseurl)) ne $self->baseurl) {
 			croak($options{fullname} . " is not accessible through this collection");
 		}
 		$options{relname} = substr($options{fullname}, length($self->baseurl));
@@ -181,6 +182,8 @@ sub _create {
 		}
 		delete $options{fullname};
 	}
+
+	$options{baseurl} = $self->baseurl;
 
 	my $fileclass = $self->fileclass;
 
