@@ -121,7 +121,7 @@ foreach my $cfg (@{$task_configs{$task}}) {
 }
 
 if(exists($ENV{DO_DEBUG})) {
-	unshift(@{$yamldata->{spec}{template}{spec}{containers}[0]{args}}, ("-d:Trace", @{$yamldata->{spec}{template}{spec}{containers}[0]{command}}));
+	unshift(@{$yamldata->{spec}{template}{spec}{containers}[0]{args}}, ("-d:Trace", "/usr/bin/" . @{$yamldata->{spec}{template}{spec}{containers}[0]{command}}));
 	$yamldata->{spec}{template}{spec}{containers}[0]{command} = [ "perl" ];
 }
 
