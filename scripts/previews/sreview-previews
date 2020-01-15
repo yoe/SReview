@@ -10,6 +10,7 @@ use SReview::Video;
 use SReview::Videopipe;
 use SReview::Video::ProfileFactory;
 use SReview::Config::Common;
+use SReview::Files::Factory;
 
 =head1 NAME
 
@@ -54,30 +55,37 @@ C<sreview-previews> considers the following configuration values:
 
 =cut
 
+my $config = SReview::Config::Common::setup;
+my $collection = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
+
 sub convert($) {
-	my $basename = shift;
-	my $filename = $basename . ".mkv";
-	return unless (-f $filename);
-	my $input = SReview::Video->new(url => $filename);
+	my $relname = shift;
+	return unless ($collection->has_file(relname => $relname . ".mkv"));
+	my $input_file = $collection->get_file(relname => $relname . ".mkv");
+	my $input = SReview::Video->new(url => $input_file->filename);
 	my $vc = $input->video_codec;
 	my $ac = $input->audio_codec;
 
 	if (($vc eq "vp8" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "opus")) {
-		my $output = SReview::Video->new(url => $basename . ".webm");
+		my $output_file = $collection->add_file(relname => $relname . ".webm");
+		my $output = SReview::Video->new(url => $output_file->filename);
 		SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+		$output_file->store_file;
 		return;
 	}
 	if ($vc eq "h264" && $ac eq "aac") {
-		my $output = SReview::Video->new(url => $basename . ".mp4", extra_params => { movflags => "faststart"});
+		my $output_file = $collection->add_file(relname => $relname . ".mp4");
+		my $output = SReview::Video->new(url => $output_file->filename, extra_params => { movflags => "faststart"});
 		SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+		$output_file->store_file;
 		return;
 	}
 	my $profile = SReview::Video::ProfileFactory->create('vp8_lq', $input);
-	my $output = SReview::Video->new(url => $basename . ".webm", reference => $profile);
+	my $output_file = $collection->add_file(relname => $relname . ".webm");
+	my $output = SReview::Video->new(url => $output_file->filename, reference => $profile);
 	SReview::Videopipe->new(inputs => [$input], output => $output)->run();
+	$output_file->store_file;
 }
-
-my $config = SReview::Config::Common::setup;
 
 =item dbistring
 
@@ -90,14 +98,7 @@ my $talkid = $ARGV[0];
 
 $dbh->prepare("UPDATE talks SET progress='running', state='generating_previews' WHERE id=?")->execute($talkid);
 
-$dbh->begin_work;
-
 my $talk = SReview::Talk->new(talkid => $talkid);
-
-my $talk_data = $dbh->prepare("SELECT talks.event, talks.slug, rooms.name, talks.starttime::date FROM talks JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
-$talk_data->execute($talkid);
-
-my $row = $talk_data->fetchrow_hashref();
 
 =item pubdir
 
@@ -106,21 +107,13 @@ which to write the previews
 
 =cut
 
-my $workdir = $talk->workdir;
-make_path($workdir);
-my $outname = $talk->outname;
+my $relname = $talk->relative_name;
 
-
-foreach my $suffix ("-pre.webm", "-post.webm", ".webm", "-pre.mp4", "-post.mp4", ".mp4") {
-	unlink($outname . $suffix);
-}
-convert($outname . "-pre");
-convert($outname);
-convert($outname . "-post");
+convert($relname . "-pre");
+convert($relname);
+convert($relname . "-post");
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='generating_previews'")->execute($talkid);
-
-$dbh->commit;
 
 =back
 

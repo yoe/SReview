@@ -208,6 +208,13 @@ sub add_file {
 	return $self->_create(%options);
 }
 
+sub has_file {
+	my $self = shift;
+	my $target = shift;
+
+	return scalar(grep({(!$_->is_collection) && ($_->url eq $target)} $self->children));
+}
+
 no Moose;
 
 package SReview::Files::Collection::direct;
@@ -276,6 +283,15 @@ sub _probe_children {
 	}
 
 	return \@return;
+}
+
+sub has_file {
+	my ($self, $target) = @_;
+
+	if(-f join('/', $self->baseurl, $target)) {
+		return 1;
+	}
+	return 0;
 }
 
 no Moose;
