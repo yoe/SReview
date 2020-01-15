@@ -210,6 +210,13 @@ sub get_by_fullname {
 	return SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $relname);
 }
 
+sub get_by_relname {
+	my $self = shift;
+	my $relname = shift
+
+	return SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $relname);
+}
+
 no Moose;
 
 package SReview::Files::Factory;
