@@ -65,13 +65,16 @@ package SReview::Files::Access::direct;
 
 use Moose;
 use DateTime;
+use File::Path qw/make_path/;
+use File::Basename qw/dirname/;
 
 extends 'SReview::Files::Access::Base';
 
 sub _get_file {
 	my $self = shift;
 
-	return join('/', $self->baseurl, $self->relname);
+	make_path(dirname($self->url));
+	return $self->url;
 }
 
 sub store_file {
