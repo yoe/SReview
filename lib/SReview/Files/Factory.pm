@@ -13,6 +13,7 @@ package SReview::Files::Access::Base;
 
 use Moose;
 use DateTime;
+use Carp;
 
 extends 'SReview::Files::Base';
 
@@ -53,10 +54,42 @@ has 'url' => (
 	builder => '_probe_url',
 );
 
+has 'create' => (
+	is => 'rw',
+	traits => ['Bool'],
+	isa => 'Bool',
+	default => 0,
+	required => 1,
+	handles => {
+		has_data => 'not',
+	},
+);
+
+has 'is_stored' => (
+	is => 'ro',
+	isa => 'Bool',
+	traits => ['Bool'],
+	default => 0,
+	handles => {
+		auto_save => 'unset',
+		no_auto_save => 'set',
+	},
+);
+
 sub _probe_url {
 	my $self = shift;
 
 	return join('/', $self->baseurl, $self->relname);
+}
+
+sub DESTROY {
+	my $self = shift;
+	if($self->create) {
+		if(!$self->is_stored) {
+			carp "object destructor entered without an explicit store, storing now...";
+			$self->store_file;
+		}
+	}
 }
 
 no Moose;
@@ -73,11 +106,16 @@ extends 'SReview::Files::Access::Base';
 sub _get_file {
 	my $self = shift;
 
-	make_path(dirname($self->url));
+	if($self->create) {
+		make_path(dirname($self->url));
+		unlink($self->url);
+	}
 	return $self->url;
 }
 
 sub store_file {
+	my $self = shift;
+	$self->is_stored(1);
 	return 1;
 }
 
@@ -123,12 +161,49 @@ has 'globpattern' => (
 	predicate => 'has_globpattern',
 );
 
-has 'fullname' => (
+has 'fileclass' => (
 	isa => 'Str',
 	is => 'ro',
-	lazy => 1,
-	builder => '_probe_fullname',
+	required => 1,
 );
+
+sub _create {
+	my $self = shift;
+	my %options = @_;
+
+	if(exists($options{fullname})) {
+		if(substr($options{fullname}, 0, length($self->baseurl)) != $self->baseurl) {
+			croak($options{fullname} . " is not accessible through this collection");
+		}
+		$options{relname} = substr($options{fullname}, length($self->baseurl));
+		while(substr($options{relname}, 0, 1) eq '/') {
+			$options{relname} = substr($options{relname}, 1);
+		}
+		delete $options{fullname};
+	}
+
+	my $fileclass = $self->fileclass;
+
+	return "$fileclass"->new(%options);
+}
+
+sub get_file {
+	my $self = shift;
+	my %options = @_;
+
+	$options{create} = 0;
+
+	return $self->_create(%options);
+}
+
+sub add_file {
+	my $self = shift;
+	my %options = @_;
+
+	$options{create} = 1;
+
+	return $self->_create(%options);
+}
 
 no Moose;
 
@@ -148,6 +223,10 @@ has '+baseurl' => (
 has '+globpattern' => (
 	lazy => 1,
 	builder => '_probe_globpattern',
+);
+
+has '+fileclass' => (
+	default => 'SReview::Files::Access::direct',
 );
 
 sub _probe_baseurl {
@@ -194,27 +273,6 @@ sub _probe_children {
 	}
 
 	return \@return;
-}
-
-sub get_by_fullname {
-	my $self = shift;
-	my $fullname = shift;
-
-	if(substr($fullname, 0, length($self->baseurl)) != $self->baseurl) {
-		croak("$fullname is not accessible through this collection");
-	}
-	my $relname = substr($fullname, length($self->baseurl) + 1);
-	while(substr($relname, 0, 1) eq '/') {
-		$relname = substr($relname, 1);
-	}
-	return SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $relname);
-}
-
-sub get_by_relname {
-	my $self = shift;
-	my $relname = shift
-
-	return SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $relname);
 }
 
 no Moose;
