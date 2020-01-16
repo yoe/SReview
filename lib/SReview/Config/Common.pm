@@ -30,7 +30,8 @@ sub setup {
 	$config = SReview::Config->new($cfile);
 	# common values
 	$config->define('dbistring', 'The DBI connection string used to connect to the database', 'dbi:Pg:dbname=sreview');
-	$config->define('accessmethods', 'The way to access files. Can only be \'direct\' for now, but an S3 method will be added later.', {input => 'direct', output => 'direct', intermediate => 'direct'});
+	$config->define('accessmethods', 'The way to access files for each collection. Can be \'direct\' or \'S3\'. For the latter, the \'$s3_access_config\' configuration needs to be set, too', {input => 'direct', output => 'direct', intermediate => 'direct'});
+	$config->define('s3_access_config', 'Configuration for accessing S3-compatible buckets. Any option that can be passed to the "new" method of the Net::Amazon::S3 Perl module can be passed to any of the child hashes of the toplevel hash. Uses the same toplevel keys as the "$accessmethods" configuration item, but falls back to "default"', {default => {}});
 
 	# Values for sreview-web
 	$config->define('event', 'The event to handle by this instance of SReview.');
