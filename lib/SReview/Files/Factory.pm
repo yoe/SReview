@@ -127,6 +127,18 @@ sub _probe_mtime {
 	return DateTime->from_epoch(epoch => $stat[9]);
 }
 
+sub delete {
+	my $self = shift;
+
+	unlink($self->url);
+}
+
+sub valid_path_filename {
+	my $self = shift;
+
+	return $self->url;
+}
+
 no Moose;
 
 package SReview::Files::Collection::Base;
