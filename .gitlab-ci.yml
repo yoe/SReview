@@ -58,7 +58,7 @@ debian:unstable:
   <<: *deb
 
 .docker: &docker
-  stage: docker
+  stage: docker-2nd
   dependencies:
   - debian:stable
   services:
@@ -71,6 +71,7 @@ debian:unstable:
   - cp products/*deb dockerfiles/${CI_JOB_NAME#*:}
   - docker info
   - docker pull $IMAGE_TAG || true
+  - docker pull $CI_REGISTRY_IMAGE/master:$CI_COMMIT_REF_SLUG
   script:
   - gitdesc=$(cat products/git-version)
   - cd dockerfiles/${CI_JOB_NAME#*:}
@@ -89,10 +90,10 @@ docker:detect:
 
 docker:master-kube:
   <<: *docker
-  stage: docker-2nd
 
 docker:master:
   <<: *docker
+  stage: docker
 
 docker:web:
   <<: *docker
