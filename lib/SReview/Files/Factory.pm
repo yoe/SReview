@@ -87,7 +87,7 @@ sub DESTROY {
 	my $self = shift;
 	if($self->create) {
 		if(!$self->is_stored) {
-			carp "object destructor entered without an explicit store, storing now...";
+			carp "object destructor for '" . $self->url . "' entered without an explicit store, storing now...";
 			$self->store_file;
 		}
 	}
