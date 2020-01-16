@@ -4,7 +4,7 @@ stages:
 - deb
 - docker
 - docker-2nd
-- dockertest
+#- dockertest
 - release
 
 .build: &build
@@ -124,25 +124,25 @@ release:master-kube:
 release:web:
   <<: *drelease
 
-validate:web:
-  # This actually requires
-  # https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1569 to
-  # be implemented, which it currently is not yet. So, for now, allow
-  # this to fail.
-  allow_failure: true
-  stage: dockertest
-  services:
-  - name: postgres:latest
-    alias: postgresql
-  - name: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG
-    alias: web
-  variables:
-    POSTGRES_USER: sreview
-    POSTGRES_DB: sreview
-    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
-    SREVIEW_ADMINUSER: '"test@example.com"'
-    SREVIEW_ADMINPW: '"foo"'
-    BASEURL: http://web:8080/
-  image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
-  script:
-  - perl dockerfiles/tests/test.pl
+#validate:web:
+#  # This actually requires
+#  # https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1569 to
+#  # be implemented, which it currently is not yet. So, for now, allow
+#  # this to fail.
+#  allow_failure: true
+#  stage: dockertest
+#  services:
+#  - name: postgres:latest
+#    alias: postgresql
+#  - name: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG
+#    alias: web
+#  variables:
+#    POSTGRES_USER: sreview
+#    POSTGRES_DB: sreview
+#    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
+#    SREVIEW_ADMINUSER: '"test@example.com"'
+#    SREVIEW_ADMINPW: '"foo"'
+#    BASEURL: http://web:8080/
+#  image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
+#  script:
+#  - perl dockerfiles/tests/test.pl
