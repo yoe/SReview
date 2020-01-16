@@ -166,6 +166,7 @@ has 'baseurl' => (
 	isa => 'Str',
 	is => 'ro',
 	predicate => 'has_baseurl',
+	writer => '_set_baseurl',
 );
 
 has 'globpattern' => (
@@ -324,7 +325,10 @@ sub create {
 		die "missing method for $target\n";
 	}
 	$method = $methods->{$target};
-	eval "require SReview::Files::Collection::$method";
+	eval "require SReview::Files::Collection::$method;";
+	if($@) {
+		die "$@: $!";
+	}
 	if($target eq "input") {
 		return "SReview::Files::Collection::$method"->new(globpattern => $relname);
 	} else {

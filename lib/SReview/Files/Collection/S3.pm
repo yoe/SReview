@@ -11,7 +11,7 @@ extends 'SReview::Files::Access::Base';
 has 's3object' => (
 	is => 'ro',
 	required => 1,
-	isa => 'Net::Amazon::S3::Bucket';
+	isa => 'Net::Amazon::S3::Bucket',
 );
 
 has '+filename' => (
@@ -55,7 +55,7 @@ sub store_file {
 	my $self = shift;
 	return if(!$self->has_download);
 
-	$self->s3object->add_key_filename($self->relname, $self->filename, {}) or croak($bucket->errstr);
+	$self->s3object->add_key_filename($self->relname, $self->filename, {}) or croak($self->s3object->errstr);
 
 	$self->is_stored(1);
 }
@@ -70,11 +70,14 @@ sub valid_path_filename {
 }
 
 sub DESTROY {
+	my $self = shift;
 	$self->SUPER::DESTROY();
 	if($self->has_download) {
 		unlink($self->filename);
 	}
 }
+
+no Moose;
 
 package SReview::Files::Collection::S3;
 
@@ -104,10 +107,10 @@ sub _probe_s3obj {
 		$bucket = $self->baseurl;
 	} else {
 		(undef, $bucket, undef) = split('\/', $self->globpattern);
-		$self->baseurl = $bucket;
+		$self->_set_baseurl($bucket);
 	}
 	my $aconf = $config->get('s3_access_config');
-	if(exists($aconf->{$bucket}) {
+	if(exists($aconf->{$bucket})) {
 		$aconf = $aconf->{$bucket};
 	} else {
 		if(!exists($aconf->{default})) {
@@ -141,3 +144,7 @@ sub _create {
 
 	return $self->SUPER::_create(%options);
 }
+
+no Moose;
+
+1;
