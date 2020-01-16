@@ -48,7 +48,7 @@ sub _probe_mtime {
 	my $self = shift;
 	my $meta = $self->s3object->head_key($self->relname);
 
-	return DateTime::Format::ISO8601->parse_datetime($meta->last_modified);
+	return DateTime::Format::ISO8601->parse_datetime($meta->{last_modified});
 }
 
 sub store_file {
@@ -106,7 +106,10 @@ sub _probe_s3obj {
 	if($self->has_baseurl) {
 		$bucket = $self->baseurl;
 	} else {
-		(undef, $bucket, undef) = split('\/', $self->globpattern);
+		my @elements = split('\/', $self->globpattern);
+		do {
+			$bucket = shift(@elements)
+		} while(!length($bucket));
 		$self->_set_baseurl($bucket);
 	}
 	my $aconf = $config->get('s3_access_config');
@@ -123,17 +126,18 @@ sub _probe_s3obj {
 
 sub _probe_children {
 	my $self = shift;
-	my @return;
+	my $return = [];
 	my $baseurl;
 
 	foreach my $key(@{$self->s3object->list_all->{keys}}) {
-		push @return, SReview::Files::Access::S3->new(
+		push @$return, SReview::Files::Access::S3->new(
 			s3object => $self->s3object,
 			baseurl => $self->baseurl,
-			mtime => DateTime::Format::ISO8601->parse_datetime($key->last_modified),
-			relname => $key->key,
+			mtime => DateTime::Format::ISO8601->parse_datetime($key->{last_modified}),
+			relname => $key->{key},
 		);
 	}
+	return $return;
 }
 
 sub _create {
