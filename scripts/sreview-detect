@@ -65,12 +65,15 @@ my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ?");
 my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream, mtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?, ?)");
 my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval, mtime = ? WHERE filename = ?");
 
+my $verbose = 0;
+$verbose = 1 if exists($ENV{KUBERNETES_PORT});
+
 my $collection = SReview::Files::Factory->create("input", $config->get("inputglob"));
+
+print "searching collection at " . $collection->baseurl . ", accessing for files using " . $collection->fileclass . "\n" if $verbose;
 
 my $host = hostname();
 
-my $verbose = 0;
-$verbose = 1 if exists($ENV{KUBERNETES_PORT});
 
 foreach my $file(@{$collection->children}) {
 	next if ($file->is_collection);
