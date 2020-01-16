@@ -254,7 +254,7 @@ spec:
           restartPolicy: Never
           containers:
           - name: detect
-            image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect
             command: ["/usr/bin/sreview-detect"]
             env:
             - name: SREVIEW_DBISTRING
