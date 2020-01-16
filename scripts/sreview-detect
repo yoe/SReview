@@ -69,10 +69,15 @@ my $collection = SReview::Files::Factory->create("input", $config->get("inputglo
 
 my $host = hostname();
 
+my $verbose = 0;
+$verbose = 1 if exists($ENV{KUBERNETES_PORT});
+
 foreach my $file(@{$collection->children}) {
 	next if ($file->is_collection);
+	print "\nfound " . $file->url if $verbose;
 	my $parse_re = $config->get('parse_re');
 	next unless $file->url =~ /$parse_re/;
+	print " ...passes regex" if $verbose;
 	my $room = $+{room};
 	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
 	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
@@ -82,18 +87,25 @@ foreach my $file(@{$collection->children}) {
 	$exists->execute($file->url);
 	my $row = $exists->fetchrow_hashref;
 	if($exists->rows == 0) {
+		print " ...is new" if $verbose;
 		my $video = SReview::Video->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
 		$add->execute($file->url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream, $file->mtime->epoch);
+		print "... stored" if $verbose;
 	} else {
+		print " ... is known" if $verbose;
 		next unless ($row->{mtime} != $file->mtime->epoch);
+		print " ... but has changed" if $verbose;
 		my $video = SReview::Video->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
 		$update->execute("$length", $file->mtime->epoch, $file->url);
+		print " ... length stored" if $verbose
 	}
 }
+
+print "\ndone\n" if $verbose;
 
 my $full = $dbh->prepare("UPDATE talks SET progress = 'done' WHERE state = 'waiting_for_files' AND progress < 'done' AND id IN (select talkid FROM raw_talks WHERE talks_length <= (raw_total + '5 seconds'::interval)) AND endtime < now() - '20 minutes'::interval");
 $full->execute();
