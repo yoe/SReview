@@ -35,7 +35,7 @@ sub _get_file {
 	my $dir = $self->workdir;
 
 	if($self->has_data) {
-		my $file = tempfile("s3-XXXXXX.$ext", dir => $dir);
+		my $file = tempfile("s3-XXXXXX", dir => $dir, SUFFIX => ".$ext");
 		$self->s3object->get_key_filename($self->relname, "GET", $file);
 		return $file;
 	} else {
