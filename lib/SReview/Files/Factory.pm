@@ -167,12 +167,16 @@ has 'baseurl' => (
 	is => 'ro',
 	predicate => 'has_baseurl',
 	writer => '_set_baseurl',
+	lazy => 1,
+	builder => '_probe_baseurl',
 );
 
 has 'globpattern' => (
 	isa => 'Str',
 	is => 'ro',
 	predicate => 'has_globpattern',
+	lazy => 1,
+	builder => '_probe_globpattern',
 );
 
 has 'fileclass' => (
@@ -180,6 +184,31 @@ has 'fileclass' => (
 	is => 'ro',
 	required => 1,
 );
+
+sub _probe_baseurl {
+	my $self = shift;
+	
+	if(!$self->has_globpattern) {
+		croak("either a globpattern or a baseurl are required!\n");
+	}
+	@_ = split(/\*/, $self->globpattern);
+
+	my $rv = $_[0];
+	while(substr($rv, -1) eq '/') {
+		substr($rv, -1) = '';
+	}
+
+	return $rv;
+}
+
+sub _probe_globpattern {
+	my $self = shift;
+
+	if(!$self->has_baseurl) {
+		croak("either a globpattern or a baseurl are required!\n");
+	}
+	return join('/', $self->baseurl, '*');
+}
 
 sub _create {
 	my $self = shift;
@@ -238,44 +267,9 @@ use Carp;
 
 extends 'SReview::Files::Collection::Base';
 
-has '+baseurl' => (
-	lazy => 1,
-	builder => '_probe_baseurl',
-);
-
-has '+globpattern' => (
-	lazy => 1,
-	builder => '_probe_globpattern',
-);
-
 has '+fileclass' => (
 	default => 'SReview::Files::Access::direct',
 );
-
-sub _probe_baseurl {
-	my $self = shift;
-	
-	if(!$self->has_globpattern) {
-		croak("either a globpattern or a baseurl are required!\n");
-	}
-	@_ = split(/\*/, $self->globpattern);
-
-	my $rv = $_[0];
-	while(substr($rv, -1) eq '/') {
-		substr($rv, -1) = '';
-	}
-
-	return $rv;
-}
-
-sub _probe_globpattern {
-	my $self = shift;
-
-	if(!$self->has_baseurl) {
-		croak("either a globpattern or a baseurl are required!\n");
-	}
-	return join('/', $self->baseurl, '*');
-}
 
 sub _probe_children {
 	my $self = shift;
