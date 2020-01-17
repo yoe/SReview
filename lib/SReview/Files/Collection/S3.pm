@@ -39,7 +39,7 @@ sub _get_file {
 		$self->s3object->get_key_filename($self->relname, "GET", $file);
 		return $file;
 	} else {
-		my $file = join("/", $self->workdir, basename($self->relname);
+		my $file = join("/", $self->workdir, basename($self->relname));
 		return $file;
 	}
 }
