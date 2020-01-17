@@ -11,7 +11,7 @@ my $val;
 local $SIG{__WARN__} = sub { $val = shift; };
 
 my $config = SReview::Config->new('config');
-ok($val =~ /^Warning: could not find configuration file config, falling back to defaults at t\/001-config\.t line \d+\.$/, 'loading nonexisting config produces a warning but succeeds');
+ok($val =~ /^Warning: could not find configuration file config, falling back to defaults at t\/010-config\.t line \d+\.$/, 'loading nonexisting config produces a warning but succeeds');
 isa_ok($config, 'SReview::Config');
 
 $val = '';
