@@ -35,11 +35,11 @@ sub _get_file {
 	my $dir = $self->workdir;
 
 	if($self->has_data) {
-		my $file = tempfile("s3-XXXXXX", dir => $dir, SUFFIX => ".$ext");
+		my ($fh, $file) = tempfile("s3-XXXXXX", dir => $dir, SUFFIX => ".$ext");
 		$self->s3object->get_key_filename($self->relname, "GET", $file);
 		return $file;
 	} else {
-		my $file = mktemp("$dir/s3-XXXXXX.$ext");
+		my $file = $join("/", $self->workdir, basename($self->relname);
 		return $file;
 	}
 }
