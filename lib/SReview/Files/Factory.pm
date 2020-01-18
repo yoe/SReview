@@ -144,6 +144,7 @@ no Moose;
 package SReview::Files::Collection::Base;
 
 use Moose;
+use Carp;
 
 extends 'SReview::Files::Base';
 
