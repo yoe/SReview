@@ -2,8 +2,9 @@
 stages:
 - test
 - deb
+- docker-pre
 - docker
-- docker-2nd
+- docker-post
 #- dockertest
 - release
 
@@ -58,7 +59,7 @@ debian:unstable:
   <<: *deb
 
 .docker: &docker
-  stage: docker-2nd
+  stage: docker
   dependencies:
   - debian:stable
   services:
@@ -82,6 +83,10 @@ debian:unstable:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - docker push $IMAGE_TAG
 
+docker:common:
+  <<: *docker
+  stage: docker-pre
+
 docker:encoder:
   <<: *docker
 
@@ -90,10 +95,10 @@ docker:detect:
 
 docker:master-kube:
   <<: *docker
+  stage: docker-post
 
 docker:master:
   <<: *docker
-  stage: docker
 
 docker:web:
   <<: *docker
