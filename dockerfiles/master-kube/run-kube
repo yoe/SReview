@@ -18,7 +18,7 @@ my $config = SReview::Config::Common::setup;
 
 my %task_configs = (
         previews => [ "pubdir", "accessmethods", "s3_access_config",],
-        cut => [ "workdir", "pubdir", "audio_multiplex_mode", "accessmethods", "s3_access_config",],
+        cut => [ "workdir", "pubdir", "audio_multiplex_mode", "accessmethods", "s3_access_config","inputglob",],
         transcode => [ "pubdir", "outputdir", "output_subdirs", "workdir", "preroll_template", "postroll_template", "postroll", "apology_template", "input_profile", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
         notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
