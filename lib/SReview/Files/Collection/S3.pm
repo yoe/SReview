@@ -60,6 +60,11 @@ sub store_file {
 	$self->stored;
 }
 
+sub delete {
+	my $self = shift;
+	$self->s3object->delete_key($self->relname)
+}
+
 sub valid_path_filename {
 	my $self = shift;
 
