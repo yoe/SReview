@@ -57,7 +57,7 @@ sub store_file {
 
 	$self->s3object->add_key_filename($self->relname, $self->filename, {}) or croak($self->s3object->errstr);
 
-	$self->is_stored(1);
+	$self->stored;
 }
 
 sub valid_path_filename {
