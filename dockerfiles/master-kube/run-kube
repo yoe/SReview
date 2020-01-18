@@ -53,7 +53,7 @@ my $yamldata = {
 				name => "$task-$jobsuffix",
 			},
 			spec => {
-				restartPolicy => "Never",
+				restartPolicy => "OnFailure",
 				volumes => [
 					{
 						name => "inputdata",
