@@ -36,7 +36,7 @@ sub setup {
 	# Values for sreview-web
 	$config->define('event', 'The event to handle by this instance of SReview.');
 	$config->define('secret', 'A random secret key, used to encrypt the cookies.', '_INSECURE_DEFAULT_REPLACE_ME_');
-	$config->define("vid_prefix", "The URL prefix to be used for video data files", "");
+	$config->define("vid_prefix", "The URL prefix to be used for video data files", "/video");
 	$config->define("anonreviews", "Set to truthy if anonymous reviews should be allowed, or to falsy if not", 0);
 	$config->define("preview_exten", "The extension used by previews (webm or mp4). Should be autodetected in the future, but...", "webm");
 	$config->define("eventurl_format", "A Mojo::Template that generates an event URL. Used by the /released metadata URL", undef);

@@ -31,7 +31,7 @@
           <dt>Room:</dt>
           <dd><%= $talk->room =%></dd>
         </dl>
-        <a href="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>">Download video</a>
+        <a href="<%= $vid_prefix =%>/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>">Download video</a>
       </div>
     </div>
     <div class="row">
@@ -62,7 +62,7 @@
     <div class="row" id="main_video">
       <div class="col-sm-8">
         <div class="embed-responsive embed-responsive-16by9">
-          <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+          <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
         </div>
       </div>
     </div>
@@ -107,7 +107,7 @@
             <div class="row" id="video_starts_too_early">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-start-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+                  <video id="video-start-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_early" class="changemsg alert alert-success" role="alert"></div>
@@ -117,7 +117,7 @@
             <div class="row" id="video_starts_too_late">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-start-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-pre.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+                  <video id="video-start-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-pre.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_late" class="changemsg alert alert-success" role="alert"></div>
@@ -155,7 +155,7 @@
             <div class="row" id="video_ends_too_early">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-end-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-post.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+                  <video id="video-end-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-post.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_early" class="changemsg alert alert-success" role="alert"></div>
@@ -172,7 +172,7 @@
             <div class="row" id="video_ends_too_late">
               <div class="col-sm-6">
                 <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-end-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/video/<%= $talk->relative_name=%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+                  <video id="video-end-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name=%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_late" class="changemsg alert alert-success" role="alert"></div>
@@ -195,9 +195,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio0.ogg?nocache=<%= localtime %>" type="audio/ogg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio0.mp3?nocache=<%= localtime %>" type="audio/mpeg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio0.wav?nocache=<%= localtime %>" type="audio/wav">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio0.ogg?nocache=<%= localtime %>" type="audio/ogg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio0.mp3?nocache=<%= localtime %>" type="audio/mpeg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio0.wav?nocache=<%= localtime %>" type="audio/wav">
                 </audio>
               </label>
             </div>
@@ -209,9 +209,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio1.ogg?nocache=<%= localtime %>" type="audio/ogg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio1.mp3?nocache=<%= localtime %>" type="audio/mpeg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio1.wav?nocache=<%= localtime %>" type="audio/wav">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio1.ogg?nocache=<%= localtime %>" type="audio/ogg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio1.mp3?nocache=<%= localtime %>" type="audio/mpeg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio1.wav?nocache=<%= localtime %>" type="audio/wav">
                 </audio>
               </label>
             </div>
@@ -223,9 +223,9 @@
                   <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
                 <audio controls="1" class="audio_player">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio2.ogg?nocache=<%= localtime %>" type="audio/ogg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio2.mp3?nocache=<%= localtime %>" type="audio/mpeg">
-                  <source src="<%= $vid_prefix =%>/video/<%= $talk->relative_name =%>-audio2.wav?nocache=<%= localtime %>" type="audio/wav">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio2.ogg?nocache=<%= localtime %>" type="audio/ogg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio2.mp3?nocache=<%= localtime %>" type="audio/mpeg">
+                  <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>-audio2.wav?nocache=<%= localtime %>" type="audio/wav">
                 </audio>
               </label>
             </div>
