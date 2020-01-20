@@ -28,7 +28,7 @@ isa_ok($child, "SReview::Files::Access::direct");
 ok(defined($child->filename), "child has a filename");
 
 SKIP: {
-	skip("Can't test S3 work unless the s3_access_config configuration is valid", 4) unless (exists($ENV{SREVIEWTEST_BUCKET}) && exists($ENV{SREVIEWTEST_S3_CONFIG}));
+	skip("Can't test S3 work unless the s3_access_config configuration is valid", 5) unless (exists($ENV{SREVIEWTEST_BUCKET}) && exists($ENV{SREVIEWTEST_S3_CONFIG}));
 
 	$config->set("s3_access_config", decode_json($ENV{SREVIEWTEST_S3_CONFIG}));
 	$config->set("accessmethods", {input => "S3", output => "S3", intermediate => "S3"});
