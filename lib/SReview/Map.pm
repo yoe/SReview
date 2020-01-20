@@ -59,6 +59,8 @@ sub arguments($$) {
 			return ('-filter_complex', "[$index:$id1][$index:$id2]amix=inputs=2:duration=first");
 		}
 		return ('-map', "$index:a:$choice");
+	} elsif($self->type eq "allcopy") {
+		return ('-map', '0');
 	} else {
 		...
 	}
