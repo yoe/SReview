@@ -13,7 +13,9 @@ stages:
   services:
   - postgres:9.6
   - name: minio/minio:latest
-    command: server /data
+    command:
+    - server
+    - /data
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
