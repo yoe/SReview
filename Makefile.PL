@@ -18,6 +18,7 @@ WriteMakefile(
 		'Mojolicious::Plugin::OAuth2::Server' => 0,
 		'DateTime' => 0,
 		'DateTime::Format::ISO8601' => 0,
+		'Net::Amazon::S3' => 0,
 	},
 	TEST_REQUIRES => {
 		'Test::More' => 0,
