@@ -173,14 +173,14 @@ foreach my $row (@{$talk->video_fragments}) {
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
 		$output->duration($row->{raw_length_corrected});
 	}
-	SReview::Videopipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+	SReview::Videopipe->new(inputs => [$input], "map" => [SReview::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
 	push @$segments, SReview::Video->new(url => $output->url);
 }
 
 my $full_input = SReview::Video::Concat->new(url => "$tempdir/full.txt", components => [@segments_pre, @segments_main, @segments_post]);
 my $full_output = SReview::Video->new(url => "$tempdir/full.mkv");
 
-SReview::Videopipe->new(inputs => [$full_input], output => $full_output)->run();
+SReview::Videopipe->new(inputs => [$full_input], "map" => [SReview::Map->new(input => $full_input, type => "allcopy")], output => $full_output)->run();
 
 my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 $eventname->execute($talkid);
@@ -299,6 +299,8 @@ SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->
 
 my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
 $update->execute("$prelen_db seconds", "$postlen_db seconds", $talkid);
+
+$finalname->store_file;
 
 $dbh->commit;
 
