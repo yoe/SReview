@@ -49,7 +49,7 @@ sub arguments($$) {
 		}
 	} elsif($self->type eq "astream") {
 		my $choice = $self->choice;
-		if($choice >= $self->input->astream_count) {
+		if($choice > $self->input->astream_count) {
 			croak("Invalid audio stream, not supported by input video");
 		}
 		if($choice == -1) {
