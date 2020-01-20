@@ -50,10 +50,10 @@ sub setup {
 	$config->define('outputdir', 'The base directory under which SReview should place the final released files', '/srv/sreview/output');
 	$config->define('output_subdirs', 'An array of fields to be used to create subdirectories under the output directory.', ['event', 'room', 'date']);
 	$config->define('script_output', 'The directory to which the output of scripts should be redirected', '/srv/sreview/script-output');
-	$config->define('preroll_template', 'An SVG template to be used as opening credits. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
-	$config->define('postroll_template', 'An SVG template to be used as closing credits. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
-	$config->define('postroll', 'A PNG file to be used as closing credits. Will only be used if no postroll_template was defined. Should have the same dimensions as the video assets.', undef);
-	$config->define('apology_template', 'An SVG template to be used as apology template (shown just after the opening credits when technical issues occurred. Should have the same nominal dimensions (in pixels) as the video assets.', undef);
+	$config->define('preroll_template', 'An SVG template to be used as opening credits. Should have the same nominal dimensions (in pixels) as the video assets. May be a file or an http(s) URL.', undef);
+	$config->define('postroll_template', 'An SVG template to be used as closing credits. Should have the same nominal dimensions (in pixels) as the video assets. May be a file or an http(s) URL.', undef);
+	$config->define('postroll', 'A PNG file to be used as closing credits. Will only be used if no postroll_template was defined. Should have the same dimensions as the video assets. Must be a direct file.', undef);
+	$config->define('apology_template', 'An SVG template to be used as apology template (shown just after the opening credits when technical issues occurred. Should have the same nominal dimensions (in pixels) as the video assets. May be a file or an http(s) URL.', undef);
 	$config->define('output_profiles', 'An array of profiles, one for each encoding, to be used for output encodings', ['webm']);
 	$config->define('input_profile', 'The profile that is used for input videos.', undef);
 	$config->define('audio_multiplex_mode', 'The way in which the primary and backup audio are multiplexed in the input stream. One of \'stereo\' for the primary in the left channel of the first audio stream and the backup in the right channel, or \'astream\' for the primary in the first audio stream, and the backup in the second audio stream', 'stereo');
