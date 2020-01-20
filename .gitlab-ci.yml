@@ -21,8 +21,8 @@ stages:
     POSTGRES_USER: sreview
     POSTGRES_PASSWORD: ""
     SREVIEWTEST_DB: sreview;host=postgres;user=sreview
-    SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"minioadmin","aws_secret_access_key":"minioadmin","secure":0,"host":"minio"}}'
-    SREVIEWTEST_BUCKET: '"test"'
+    SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"minioadmin","aws_secret_access_key":"minioadmin","secure":0,"host":"minio-minio"}}'
+    SREVIEWTEST_BUCKET: 'test'
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
