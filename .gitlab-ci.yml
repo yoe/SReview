@@ -12,17 +12,21 @@ stages:
   stage: test
   services:
   - postgres:9.6
+  - minio/minio:latest
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
     POSTGRES_PASSWORD: ""
     SREVIEWTEST_DB: sreview;host=postgres;user=sreview
+    SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"minioadmin","aws_secret_access_key":"minioadmin","secure":0,"host":"minio"}}'
+    SREVIEWTEST_BUCKET: '"test"'
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
   - cpanm ExtUtils::Depends
   - cpanm --notest --installdeps .
   - perl Makefile.PL
+  - perl .ci/setup-minio.pl
   script:
   - make TEST_VERBOSE=1 test
   tags:
