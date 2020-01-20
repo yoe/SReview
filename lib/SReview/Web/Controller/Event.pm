@@ -1,7 +1,7 @@
 package SReview::Web::Controller::Event;
 
 use Mojo::Base 'Mojolicious::Controller';
-use SReview::API::Helpers;
+use SReview::API::Helpers qw/db_query/;
 
 sub create {
 	my $c = shift;
@@ -57,5 +57,7 @@ sub delete {
 sub list {
 	my $c = shift;
 
-	$c->render(json => db_query($c->dbh, "SELECT row_to_json(*) FROM events"));
+	$c->render(json => db_query($c->dbh, "SELECT row_to_json(events.*) FROM events"));
 }
+
+1;

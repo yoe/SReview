@@ -1,8 +1,8 @@
 package SReview::Web::Controller::Talk;
 
 use Mojo::Base 'Mojolicious::Controller';
-use SReview::API::Helpers;
-use Text::Dirify qw/dirify/;
+use SReview::API::Helpers qw/db_query/;
+use Mojo::Util;
 
 sub create {
 	my $c = shift;
@@ -15,10 +15,10 @@ sub create {
 
 	my $slug = $c->stash("slug");
 	if(!defined($slug)) {
-		$slug = dirify($c->stash("title"));
+		$slug = slugify($c->stash("title"));
 	}
 
-	$c->render(json => db_query($c->dbh, "INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?,?,?,?,?,?,?,?,?,?)", $c->stash("room"), $slug, $c->stash("starttime"), $c->stash("endtime"), $c->stash("title"), $c->stash("event"), $c->stash("upstreamid"), $c->stash("subtitle"), $c->stash("track"), $c->stash("description")));
+	$c->render(json => db_query($c->dbh, "INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?,?,?,?,?,?,?,?,?,?) RETURNING json_build_object('id', id)", $c->stash("room"), $slug, $c->stash("starttime"), $c->stash("endtime"), $c->stash("title"), $c->stash("event"), $c->stash("upstreamid"), $c->stash("subtitle"), $c->stash("track"), $c->stash("description")));
 }
 
 sub by_title {
@@ -45,3 +45,5 @@ sub delete {
 	my $c = shift;
 	$c->render(json => db_query($c->dbh, "DELETE FROM talks WHERE id = ? AND event = ?", $c->stash("id"), $c->stash("event")));
 }
+
+1;
