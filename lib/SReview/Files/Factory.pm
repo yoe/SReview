@@ -255,7 +255,7 @@ sub has_file {
 	my $self = shift;
 	my $target = shift;
 
-	return scalar(grep({(!$_->is_collection) && ($_->url eq $target)} $self->children));
+	return scalar(grep({(!$_->is_collection) && ($_->relname eq $target)} @{$self->children}));
 }
 
 no Moose;
