@@ -56,22 +56,25 @@ sub startup {
 	});
 
 	$self->helper(auth_scope => sub {
+		my $c = shift;
 		my $scope = shift;
-		if($self->session->{admin}) {
+		$self->log->debug("checking if authorized for $scope");
+		if($c->session->{admin}) {
 			return 1;
-		}
-		if($scope eq "api") {
+		} elsif($scope eq "api") {
 			return 1;
-		}
-		if($scope eq "api/events") {
+		} elsif($scope eq "api/event") {
 			return 1;
-		}
-		if($scope eq "api/talks/detailed") {
-			if($self->session->{id}) {
+		} elsif($scope eq "api/talks") {
+			if(exists($c->session->{id})) {
 				return 1;
 			}
-			return 0;
+		} elsif($scope eq "api/talks/detailed") {
+			if(exists($c->session->{id})) {
+				return 1;
+			}
 		}
+		$self->log->debug("not authorized for $scope");
 		return 0;
 	});
 
@@ -409,7 +412,8 @@ sub startup {
 		my $c = shift;
 		if(!$c->auth_scope("api")) {
 			$c->res->code(403);
-			$c->render('Unauthorized');
+			$self->log->debug("failed auth scope api");
+			$c->render(text => 'Unauthorized');
 			return 0;
 		}
 		return 1;
@@ -419,7 +423,8 @@ sub startup {
 		my $c = shift;
 		if(!$c->auth_scope("api/event")) {
 			$c->res->code(403);
-			$c->render('Unauthorized');
+			$self->log->debug("failed auth scope event");
+			$c->render(text => 'Unauthorized');
 			return 0;
 		}
 		return 1;
@@ -436,7 +441,7 @@ sub startup {
 		my $c = shift;
 		if(!$c->auth_scope("api/talks")) {
 			$c->res->code(403);
-			$c->render('Unauthorized');
+			$c->render(text => 'Unauthorized');
 			return 0;
 		}
 		return 1;
