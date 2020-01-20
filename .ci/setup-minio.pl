@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Net::Amazon::S3;
-use Mojo::JSON;
+use Mojo::JSON qw/decode_json/;
 
 exit 0 unless exists($ENV{SREVIEWTEST_S3_CONFIG});
 exit 0 unless exists($ENV{SREVIEWTEST_BUCKET});
