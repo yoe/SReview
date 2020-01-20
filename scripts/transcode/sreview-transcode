@@ -33,6 +33,7 @@ use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
 use SReview::Files::Factory;
 use Mojo::Util qw/xml_escape/;
+use Mojo::UserAgent;
 
 =head1 NAME
 
@@ -185,7 +186,17 @@ sub process_template($$) {
 	my $startdate = xml_escape($drow->{date});
 	my $apology = xml_escape($drow->{apologynote});
 
-	open INPUT, "<$input";
+	if($input =~ /^http(s)?:\/\//) {
+		my $ua = Mojo::UserAgent->new->connect_timeout(60)->max_redirects(10);
+		my $res = $ua->get($input)->result;
+		if(!$res->is_success) {
+			die "could not download: " . $res->message;
+		}
+		my $data = $res->body;
+		open INPUT, '<:encoding(UTF-8)', \$data;
+	} else {
+		open INPUT, '<:encoding(UTF-8)', $input;
+	}
 	open my $fh, ">:encoding(UTF-8)", $outputsvg;
 	$room =~ s/ \(backup\)//;
 	print "creating $output from $input\n";
@@ -227,9 +238,10 @@ credits). Either this option or C<postroll_template> is required.
 =cut
 
 my $postroll;
+my $postroll_file;
 
 if(defined($config->get('postroll_template'))) {
-	my $postroll_file = $input_coll->add_file(relname => $talk->relative_name . "-post.png");
+	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "-post.png");
 	process_template($config->get('postroll_template'), $postroll_file->filename);
 	$postroll_file->store_file;
 	$postroll = $postroll_file->filename;
