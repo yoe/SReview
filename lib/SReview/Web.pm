@@ -42,6 +42,16 @@ sub startup {
 		my $vpr = $config->get('vid_prefix');
 		my $media = "media-src 'self'";
 		if(defined($vpr) && length($vpr) > 0) {
+			if($vpr =~/\/\//) {
+				my @parts = split('/', $vpr);
+				$vpr = undef;
+				while(!defined($vpr) && scalar(@parts) > 0) {
+					my $v = shift(@parts);
+					if($v ne "http" && $v ne "https" && length($v) > 0) {
+						$vpr = $v;
+					}
+				}
+			}
 			$media = "media-src $vpr;";
 		}
 		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline'; font-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
