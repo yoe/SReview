@@ -134,6 +134,9 @@ release:master-kube:
 
 release:web:
   <<: *drelease
+  
+release:detect:
+  <<: *drelease
 
 #validate:web:
 #  # This actually requires
