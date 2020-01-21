@@ -151,7 +151,7 @@ sub _load_corrected_times {
 
         my $times = {};
 
-        my $st = $pg->db->dbh->prepare("SELECT starttime, endtime from talks WHERE id = ?");
+        my $st = $pg->db->dbh->prepare("SELECT starttime, to_char(starttime, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isostart, endtime, to_char(endtime, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isoend from talks WHERE id = ?");
 
         $st->execute($self->talkid);
 
@@ -160,6 +160,8 @@ sub _load_corrected_times {
         my $row = $st->fetchrow_hashref();
         $times->{start} = $row->{starttime};
         $times->{end} = $row->{endtime};
+        $times->{start_iso} = $row->{isostart};
+        $times->{end_iso} = $row->{isoend};
 
         $st = $pg->db->dbh->prepare("SELECT coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime) AS corrected_time, to_char(coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime), 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime  FROM talks LEFT JOIN corrections ON talks.id = corrections.talk LEFT JOIN properties ON properties.id = corrections.property WHERE talks.id = ? AND properties.name = 'offset_start'");
         $st->execute($self->talkid);
