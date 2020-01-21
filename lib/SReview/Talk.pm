@@ -161,14 +161,14 @@ sub _load_corrected_times {
         $times->{start} = $row->{starttime};
         $times->{end} = $row->{endtime};
 
-        $st = $pg->db->dbh->prepare("SELECT coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime) AS corrected_time, to_char(coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime), 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime  FROM talks LEFT JOIN corrections ON talks.id = corrections.talk LEFT JOIN properties ON properties.id = corrections.property WHERE talks.id = ? AND properties.name = 'offset_start'");
+        $st = $pg->db->dbh->prepare("SELECT coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime) AS corrected_time, to_char(coalesce(talks.starttime + (corrections.property_value || ' seconds')::interval, talks.starttime), 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime  FROM talks LEFT JOIN corrections ON talks.id = corrections.talk LEFT JOIN properties ON (properties.id = corrections.property AND properties.name = 'offset_start') WHERE talks.id = ?");
         $st->execute($self->talkid);
         if($st->rows > 0) {
                 $row = $st->fetchrow_hashref();
                 $times->{start} = $row->{corrected_time};
                 $times->{start_iso} = $row->{isotime};
         }
-        $st = $pg->db->dbh->prepare("SELECT corrected_time, to_char(corrected_time, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime FROM (select ?::timestamptz + (talks.endtime - talks.starttime) + (coalesce(corrections.property_value, '0') || ' seconds')::interval AS corrected_time FROM talks LEFT JOIN corrections ON talks.id = corrections.talk LEFT JOIN properties ON properties.id = corrections.property WHERE talks.id = ? AND properties.name = 'length_adj') AS sq");
+        $st = $pg->db->dbh->prepare("SELECT corrected_time, to_char(corrected_time, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS isotime FROM (select ?::timestamptz + (talks.endtime - talks.starttime) + (coalesce(corrections.property_value, '0') || ' seconds')::interval AS corrected_time FROM talks LEFT JOIN corrections ON talks.id = corrections.talk LEFT JOIN properties ON (properties.id = corrections.property AND properties.name = 'length_adj') WHERE talks.id = ?) AS sq");
         $st->execute($times->{start}, $self->talkid);
         if($st->rows > 0) {
                 $row = $st->fetchrow_hashref();
