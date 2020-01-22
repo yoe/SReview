@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious';
 use Mojo::Collection 'c';
 use Mojo::JSON qw(encode_json);
 use Mojo::Pg;
+use Mojo::URL;
 use SReview;
 use SReview::Config;
 use SReview::Config::Common;
@@ -42,15 +43,9 @@ sub startup {
 		my $vpr = $config->get('vid_prefix');
 		my $media = "media-src 'self'";
 		if(defined($vpr) && length($vpr) > 0) {
-			if($vpr =~/\/\//) {
-				my @parts = split('/', $vpr);
-				$vpr = undef;
-				while(!defined($vpr) && scalar(@parts) > 0) {
-					my $v = shift(@parts);
-					if($v ne "http" && $v ne "https" && length($v) > 0) {
-						$vpr = $v;
-					}
-				}
+			my $url = Mojo::URL->new($vpr);
+			if(defined($url->host)) {
+				$vpr = $url->host;
 			}
 			$media = "media-src $vpr;";
 		}
