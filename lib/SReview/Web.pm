@@ -42,11 +42,9 @@ sub startup {
 		my $c = shift;
 		my $vpr = $config->get('vid_prefix');
 		my $media = "media-src 'self'";
-		if(defined($vpr) && length($vpr) > 0) {
-			my $url = Mojo::URL->new($vpr);
-			if(defined($url->host)) {
-				$vpr = $url->host;
-			}
+		my $url = Mojo::URL->new($vpr);
+		if(defined($url->host)) {
+			$vpr = $url->host;
 			$media = "media-src $vpr;";
 		}
 		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline'; font-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
