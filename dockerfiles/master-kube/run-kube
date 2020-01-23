@@ -65,7 +65,7 @@ my $yamldata = {
 						valueFrom => {
 							secretKeyRef => {
 								name => "sreview-secret",
-								key => "dbistring",
+								key => "SREVIEW_DBISTRING",
 							},
 						}
 					} ],
