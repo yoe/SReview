@@ -28,7 +28,7 @@ data:
   SREVIEW_PREROLL_TEMPLATE: '"https://github.com/yoe/SReview/blob/master/t/testvids/just-title.svg"'
   SREVIEW_POSTROLL_TEMPLATE: '"https://github.com/yoe/SReview/blob/master/t/testvids/just-title.svg"'
   SREVIEW_ACCESSMETHODS: '{"input":"S3","intermediate":"S3","output":"S3"}'
-  SREVIEW_S3_ACCESS_CONFIG: '{"default":{"aws_access_key_id":"adminpass", "aws_secret_access_key":"adminuser","secure":0,"host":"sreview-storage:9000"}}'
+  SREVIEW_S3_ACCESS_CONFIG: '{"default":{"aws_access_key_id":"adminuser", "aws_secret_access_key":"adminpass","secure":0,"host":"sreview-storage:9000"}}'
   SREVIEW_INPUTGLOB: '"input/*"'
   SREVIEW_PUBDIR: '"inter"'
   SREVIEW_OUTPUTDIR: '"output"'
