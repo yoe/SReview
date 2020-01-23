@@ -28,9 +28,9 @@ spec:
         - "/data"
         env:
         - name: MINIO_ACCESS_KEY
-          value: sreview-storage
+          value: adminuser
         - name: MINIO_SECRET_KEY
-          value: 7SG8Tn1zqUL1W4OWMPYQ21qhW21hvlCy91oTR60H
+          value: adminpass
       volumes:
       - name: "minio"
         persistentVolumeClaim:
