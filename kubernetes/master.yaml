@@ -1,52 +1,4 @@
 ---
-# Before deploying, change the configuration in this ConfigMap and the
-# Secret up next to something that suits your environment.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sreview-config
-data:
-# For a list of possible values, run "sreview-config -a dump", which is
-# a binary found in any of the SReview containers.
-#
-# To transform the names of variables as reported by sreview-config,
-# transform them to upper case and prepend the literal string SREVIEW_
-# to them.
-#
-# The values should be encoded as JSON. This includes plain string
-# values, which should be double-quoted (i.e., use '"foo"' if you want
-# the string `foo` to be used), otherwise they're not JSON strings after
-# the YAML parsing.
-#
-# You may add or remove as many variables as you like here, but note
-# that the SREVIEW_DBISTRING, SREVIEW_SECRET, and SREVIEW_ADMINPW values
-# are set in the "Secret", below.
-  SREVIEW_ADMINUSER: '"w@uter.be"'
-  SREVIEW_EVENT: '"test"'
-  SREVIEW_ANONREVIEWS: '1'
-  SREVIEW_URLBASE: '"http://sreview.example.com"'
-# Store these as "/mnt/vda1/inputdata/assets/preroll.svg and .../postroll.png on
-# minikube
-  SREVIEW_PREROLL_TEMPLATE: '"/srv/sreview/incoming/assets/preroll.svg"'
-  SREVIEW_POSTROLL: '"/srv/sreview/incoming/assets/postroll.png"'
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sreview-secret
-type: Opaque
-stringData:
-# DO NOT remove these. They are assumed to always exist by the stuff
-# below.
-#
-# If you don't want an admin user to be created upon first load of the
-# webapp, then remove the SREVIEW_ADMINUSER variable above. Removing the
-# "adminpw" value below will make things fail.
-  adminpw: '"qsdf"'
-  dbpass: '<SREVIEW_DATABASE_PASSWORD>'
-  dbistring: '"dbi:Pg:dbname=sreview;host=sreview-database;user=sreview;password=<SREVIEW_DATABASE_PASSWORD>"'
-  websecret: '"qsudbvqosfdqùmlkigjqsdloh,cosiucvhsnlqgfqwsdbnfliyqb"'
----
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -92,7 +44,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: sreview-secret
-              key: dbpass
+              key: SREVIEW_DBPASS
         ports:
         - containerPort: 5432
           name: postgresql
@@ -134,26 +86,27 @@ spec:
     spec:
       containers:
       - name: web
-        image: registry.salsa.debian.org/debconf-video-team/sreview/web:latest
+        image: registry.salsa.debian.org/debconf-video-team/sreview/web:master
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: sreview-config
         env:
-        - name: SREVIEW_DBISTRING
-          valueFrom:
-            secretKeyRef:
-              name: sreview-secret
-              key: dbistring
-        - name: SREVIEW_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: sreview-secret
-              key: websecret
         - name: SREVIEW_ADMINPW
           valueFrom:
             secretKeyRef:
               name: sreview-secret
-              key: adminpw
-        envFrom:
-        - configMapRef:
-            name: sreview-config
+              key: SREVIEW_ADMINPW
+        - name: SREVIEW_DBISTRING
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: SREVIEW_DBISTRING
+        - name: SREVIEW_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: SREVIEW_SECRET
 ---
 apiVersion: v1
 kind: Service
@@ -216,23 +169,17 @@ spec:
       serviceAccountName: sreview-master
       containers:
       - name: master
-        image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube
+        image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube:master
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: sreview-config
         env:
         - name: SREVIEW_DBISTRING
           valueFrom:
             secretKeyRef:
               name: sreview-secret
-              key: dbistring
-        envFrom:
-        - configMapRef:
-            name: sreview-config
-        volumeMounts:
-        - mountPath: "/srv/sreview/incoming"
-          name: "inputdata"
-      volumes:
-      - name: "inputdata"
-        persistentVolumeClaim:
-          claimName: "inputdata"
+              key: SREVIEW_DBISTRING
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
@@ -251,24 +198,18 @@ spec:
           labels:
             app: sreview-detect
         spec:
-          restartPolicy: Never
+          restartPolicy: OnFailure
           containers:
           - name: detect
-            image: registry.salsa.debian.org/debconf-video-team/sreview/detect
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:master
+            imagePullPolicy: Always
             command: ["/usr/bin/sreview-detect"]
+            envFrom:
+            - configMapRef:
+                name: sreview-config
             env:
             - name: SREVIEW_DBISTRING
               valueFrom:
                 secretKeyRef:
                   name: sreview-secret
-                  key: dbistring
-            envFrom:
-            - configMapRef:
-                name: sreview-config
-            volumeMounts:
-            - mountPath: "/srv/sreview/incoming"
-              name: "inputdata"
-          volumes:
-          - name: "inputdata"
-            persistentVolumeClaim:
-              claimName: "inputdata"
+                  key: SREVIEW_DBISTRING
