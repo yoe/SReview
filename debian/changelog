@@ -1,8 +1,8 @@
-sreview (0.5.0-1) UNRELEASED; urgency=medium
+sreview (0.5.0-1) unstable; urgency=medium
 
   * New upstream release (too many changes to enumerate).
 
- -- Wouter Verhelst <wouter@debian.org>  Mon, 06 May 2019 17:09:49 +0200
+ -- Wouter Verhelst <wouter@debian.org>  Sat, 25 Jan 2020 23:21:50 +0200
 
 sreview (0.4.0-2) unstable; urgency=medium
 
