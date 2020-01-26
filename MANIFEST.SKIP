@@ -1,0 +1,8 @@
+.ci/*
+.git/*
+.travis.yml
+debian/*
+docs/*
+kubernetes/*
+dockerfiles/*
+javascript-test/*
