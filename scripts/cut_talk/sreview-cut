@@ -276,6 +276,7 @@ if($prelen > 0) {
 	$prelen_db = SReview::Video->new(url => $prefile->filename)->duration();
 	$prefile->store_file;
 } else {
+	$prelen_db = 0;
 	print "Skipping generation of pre video, no data\n";
 }
 if($postlen > 0) {
@@ -284,6 +285,7 @@ if($postlen > 0) {
 	$postlen_db = SReview::Video->new(url => $postfile->filename)->duration();
 	$postfile->store_file;
 } else {
+	$postlen_db = 0
 	print "Skipping generation of post video, no data\n";
 }
 SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
