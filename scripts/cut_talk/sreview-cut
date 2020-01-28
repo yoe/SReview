@@ -276,7 +276,6 @@ if($prelen > 0) {
 	$prelen_db = SReview::Video->new(url => $prefile->filename)->duration();
 	$prefile->store_file;
 } else {
-	$prelen_db = 0;
 	print "Skipping generation of pre video, no data\n";
 }
 if($postlen > 0) {
@@ -285,7 +284,6 @@ if($postlen > 0) {
 	$postlen_db = SReview::Video->new(url => $postfile->filename)->duration();
 	$postfile->store_file;
 } else {
-	$postlen_db = 0;
 	print "Skipping generation of post video, no data\n";
 }
 SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
@@ -300,6 +298,10 @@ my $finalname = $output_coll->add_file(relname => $talk->relative_name . ".mkv")
 SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => $finalname->filename, audio_codec => detect_to_write($full->audio_codec)), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a])->run();
 
 my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
+
+$postlen_db = defined($postlen_db) ? $postlen_db : 0;
+$prelen_db = defined($prelen_db) ? $prelen_db : 0;
+
 $update->execute("$prelen_db seconds", "$postlen_db seconds", $talkid);
 
 $finalname->store_file;
