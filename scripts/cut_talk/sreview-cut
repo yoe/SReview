@@ -145,7 +145,7 @@ foreach my $row (@{$talk->video_fragments}) {
 	my $target;
 	my $segments;
 
-	next if ($row->{raw_length_corrected} <= 0);
+	next if ($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0);
 	if($row->{talkid} == -1) {
 		$target = "pre";
 		$segments = \@segments_pre;
