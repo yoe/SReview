@@ -15,7 +15,6 @@ WriteMakefile(
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
 		'Moose' => 0,
-		'Mojolicious::Plugin::OAuth2::Server' => 0,
 		'DateTime' => 0,
 		'DateTime::Format::ISO8601' => 0,
 		'Net::Amazon::S3' => 0,
