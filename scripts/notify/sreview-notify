@@ -40,7 +40,9 @@ sub notify_email() {
 
 	foreach my $to_recip(@$to) {
 		if(defined($to_recip->[1])) {
-			push @to_recips, $to_recip->[0] . " <" . $to_recip->[1] . ">";
+			my $rcp = $to_recip->[0];
+			$rcp =~ s/,//g;
+			push @to_recips, $rcp . " <" . $to_recip->[1] . ">";
 		}
 	}
 
@@ -50,7 +52,9 @@ sub notify_email() {
 
 	foreach my $cc_recip(@$cc) {
 		if(defined($cc_recip->[1])) {
-			push @cc_recips, "responsible for track " . $cc_recip->[0] . " <" . $cc_recip->[1] . ">";
+			my $rcp = $cc_recip->[0];
+			$rcp =~ s/,//g;
+			push @cc_recips, "responsible for track " . $rcp . " <" . $cc_recip->[1] . ">";
 		}
 	}
 
