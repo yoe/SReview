@@ -351,7 +351,7 @@ sub _probe_videomaxrate {
 	my $self = shift;
 	my $rate;
 	if($self->has_reference) {
-		$rate = $self->reference->video_minrate;
+		$rate = $self->reference->video_maxrate;
 		if(defined($rate)) {
 			return $rate;
 		}
