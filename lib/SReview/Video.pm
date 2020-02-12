@@ -303,6 +303,42 @@ sub _probe_videobitrate {
 	return $self->_get_videodata->{bit_rate};
 }
 
+=head2 video_minrate
+
+The minimum bit rate for this video, in bits per second.
+
+Defaults to 0.5 * video_bitrate
+
+=cut
+
+has 'video_minrate' => (
+	is => 'rw',
+	builder => '_probe_videominrate',
+	lazy => 1,
+);
+
+sub _probe_videominrate {
+	return shift->video_bitrate * 0.5;
+}
+
+=head2 video_maxrate
+
+The maximum bit rate for this video, in bits per second.
+
+Defaults to 1.45 * video_bitrate
+
+=cut
+
+has 'video_maxrate' => (
+	is => 'rw',
+	builder => '_probe_videomaxrate',
+	lazy => 1,
+);
+
+sub _probe_videomaxrate {
+	return shift->video_bitrate * 1.45;
+}
+
 =head2 aspect_ratio
 
 The Display Aspect Ratio of a video. Note that with non-square pixels,
@@ -621,7 +657,7 @@ sub writeopts {
 			push @opts, ('-c:v', detect_to_write($self->video_codec));
 		}
 		if(defined($self->video_bitrate)) {
-			push @opts, ('-b:v', $self->video_bitrate . "k", '-minrate', $self->video_bitrate * .5 . "k", '-maxrate', $self->video_bitrate * 1.45 . "k");
+			push @opts, ('-b:v', $self->video_bitrate . "k", '-minrate', $self->video_minrate . "k", '-maxrate', $self->video_maxrate . "k");
 		}
 		if(defined($self->video_framerate)) {
 			push @opts, ('-r:v', $self->video_framerate);
