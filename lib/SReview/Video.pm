@@ -318,7 +318,11 @@ has 'video_minrate' => (
 );
 
 sub _probe_videominrate {
-	return shift->video_bitrate * 0.5;
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_minrate;
+	}
+	return $self->video_bitrate * 0.5;
 }
 
 =head2 video_maxrate
@@ -336,7 +340,11 @@ has 'video_maxrate' => (
 );
 
 sub _probe_videomaxrate {
-	return shift->video_bitrate * 1.45;
+	my $self = shift;
+	if($self->has_reference) {
+		return $self->reference->video_maxrate;
+	}
+	return $self->video_bitrate * 1.45;
 }
 
 =head2 aspect_ratio
