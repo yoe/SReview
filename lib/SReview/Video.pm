@@ -356,7 +356,7 @@ sub _probe_videomaxrate {
 			return $rate;
 		}
 	}
-	$rate = $self->video_bitrate
+	$rate = $self->video_bitrate;
 	if(defined($rate)) {
 		return $rate * 1.45;
 	}
