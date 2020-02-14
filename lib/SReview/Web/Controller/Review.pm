@@ -93,7 +93,7 @@ sub update {
 		return;
 	}
         if($c->param("video_state") eq "ok") {
-		if(!$talk->has_correction('serial')) {
+		if($talk->corrections->{serial} == 0)  {
 			$c->stash(error => 'No corrections have yet been applied to this talk. Unless (at least) start and end times are applied through this webinterface, the likelihood that the video starts and ends at the correct time is very low. Please go back and set the correct start and end times; if by extreme coincidence this video does start and end at the correct time, then please select the "there are problems" option in the previous screen, and submit the form without any changes.');
 			$c->render(variant => "error");
 			return;
