@@ -89,6 +89,51 @@ sub define {
 	}
 };
 
+=head2 $config->define_deprecated(oldname, newname, conversion_sub)
+
+Define a name as a deprecated way of configuring things. When this value
+is set, SReview::Config will issue a warning that this option is now
+deprecated, and that the user should use some other option instead.
+
+The conversion subroutine is an optional argument that should mangle the
+value given to "oldname" into the value expected by "newname". If it
+returns nonzero, then SReview::Config will croak. It will receive a
+reference to the "config" object, the value that is trying to be set, and the
+name of the new parameter.
+
+The default conversion sub just sets the value of the newname
+configuration without any conversion.
+
+=cut
+
+sub define_deprecated {
+	my $self = shift;
+	my $oldname = shift;
+	my $newname = shift;
+	my $convert = shift;
+
+	if(exists($self->{fixed})) {
+		croak "Tried to define a new value after a value has already been requested. This is not allowed!";
+	}
+	$self->{defs}{$oldname}{deprecated} = 1;
+	$self->{defs}{$oldname}{instead} = $newname;
+	if(defined($convert)) {
+		$self->{defs}{$oldname}{convert} = $convert;
+	} else {
+		$self->{defs}{$oldname}{convert} = sub { my $self = shift; my $old = shift; $self->set($newname => $old); return 0; };
+	}
+	if(exists($SReview::Config::_private::{$oldname})) {
+		carp "Found a value for \"$oldname\" when it was being defined as a deprecated name. Please convert this value to a value of $newname!\n";
+		if ((&$self->{defs}{$oldname}{convert}($self, $SReview::Config::_private::{$oldname}, $newname)) != 0) {
+			croak "Could not convert deprecated value to new name: $!";
+		}
+	}
+	my $NAME = uc $oldname;
+	if(exists($ENV{"SREVIEW_${NAME}"})) {
+		$self->set($newname => decode_json($ENV{"SREVIEW_${NAME}"}));
+	}
+}
+
 sub define_computed {
 	my $self = shift;
 	my $name = shift;
@@ -150,6 +195,14 @@ sub set {
 		}
 		{
 			my $val = $vals{$name};
+			if(exists($self->{defs}{$name}{deprecated})) {
+				my $newname = $self->{defs}{$name}{instead};
+				carp "A value for \"$name\" is being set, which is a deprecated name for $newname. Please update things for the new value\n";
+				if ((&{$self->{defs}{$name}{convert}}($self, $vals{$name}, $self->{defs}{$name}{instead})) != 0) {
+					croak "Could not convert deprecated value for $name to $newname format\n";
+				}
+				return;
+			}
 			$SReview::Config::_private::{$name} = \$val;
 		}
 	}
