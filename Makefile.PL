@@ -25,6 +25,7 @@ WriteMakefile(
 	EXE_FILES => [
 		'scripts/cut_talk/sreview-cut',
 		'scripts/sreview-config',
+		'scripts/sreview-copy',
 		'scripts/sreview-detect',
 		'scripts/sreview-dispatch',
 		'scripts/sreview-skip',
