@@ -1,4 +1,5 @@
 usr/bin/sreview-cut
+usr/bin/sreview-copy
 usr/bin/sreview-transcode
 usr/bin/sreview-previews
 usr/bin/sreview-skip
