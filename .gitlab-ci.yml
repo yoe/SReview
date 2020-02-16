@@ -20,6 +20,7 @@ stages:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
     POSTGRES_PASSWORD: ""
+    POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEWTEST_DB: sreview;host=postgres;user=sreview
     SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"minioadmin","aws_secret_access_key":"minioadmin","secure":0,"host":"minio-minio:9000"}}'
     SREVIEWTEST_BUCKET: 'test'
