@@ -39,7 +39,9 @@ SKIP: {
 	} else {
 		@outputopts = ("--set", "pubdir=" . abs_path("t/pubdir"));
 	}
-	run("perl", "-I./blib/lib", "blib/script/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEWTEST_DB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"), @outputopts);
+	$ENV{SREVIEW_OUTPUT_PROFILES}='["webm","copy"]';
+	run("perl", "-I./blib/lib", "blib/script/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEWTEST_DB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"), @outputopts, "--set", "event=Test event");
+	delete $ENV{SREVIEW_OUTPUT_PROFILES};
 
 	ok(-f 'config.pm', "running sreview-config with -a update creates a config.pm");
 
