@@ -22,7 +22,7 @@ my %task_configs = (
         transcode => [ "pubdir", "outputdir", "output_subdirs", "workdir", "preroll_template", "postroll_template", "postroll", "apology_template", "input_profile", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
         notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
-        upload => [ "upload_actions", "event", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
+        upload => [ "upload_actions", "event", "pubdir", "inputglob", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
 );
 
 my $talk = SReview::Talk->new(talkid => $id);
