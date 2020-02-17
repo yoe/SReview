@@ -43,7 +43,7 @@ exit 0 if(scalar(@$actions) < 1);
 my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room JOIN events ON talks.event = events.id WHERE events.name = ? LIMIT 1");
 $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
-$raw_file = SReview::Video->new(url => SReview::Files::Factory->create("input", $config->get('inputglob'))->get_file($raw_file->{filename}));
+$raw_file = SReview::Video->new(url => SReview::Files::Factory->create("input", $config->get('inputglob'))->get_file(fullname => $raw_file->{filename})->filename);
 my $talk_st = $dbh->prepare("SELECT event, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk_st->execute($talkid);
 my $talkdata = $talk_st->fetchrow_hashref;
