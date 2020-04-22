@@ -10,7 +10,7 @@ spec:
   - host: sreview.example.com
     http:
       paths:
-      - path: /
+      - path: 
         backend:
           serviceName: sreview-web
           servicePort: 8080
@@ -119,7 +119,7 @@ spec:
   ports:
   - name: http
     protocol: TCP
-    port: 80
+    port: 8080
     targetPort: 8080
 ---
 apiVersion: v1
