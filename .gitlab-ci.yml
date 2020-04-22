@@ -65,6 +65,7 @@ debian:stable:
 
 debian:unstable:
   <<: *deb
+  allow_failure: true
 
 .docker: &docker
   stage: docker
