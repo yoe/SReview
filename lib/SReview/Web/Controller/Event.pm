@@ -1,63 +1,58 @@
 package SReview::Web::Controller::Event;
 
 use Mojo::Base 'Mojolicious::Controller';
-use SReview::API::Helpers qw/db_query/;
+use SReview::API::Helpers qw/db_query update_with_json/;
+use Data::Dumper;
 
-sub create {
-	my $c = shift;
+my %fields = (
+	"id" => 1,
+	"name" => 1,
+	"time_offset" => 1,
+	"inputdir" => 1,
+	"outputdir" => 1,
+);
+sub add {
+	my $c = shift->openapi->valid_input or return;
 
-	my $name = $c->stash("name");
-	my $inputdir = $c->stash("inputdir");
-	my $outputdir = $c->stash("outputdir");
-	my $offset = $c->stash("time_offset");
+	my $event = $c->req->body;
 
-	if(!$c->auth_scope("api/event/rw")) {
-		$c->res->code(403);
-		$c->render('Unauthorized');
-		return 0;
-	}
+	$c->app->log->debug("adding event");
 
-	$c->render(json => db_query($c->dbh, "INSERT INTO events(name, time_offset, inputdir, outputdir) VALUES(?,?,?,?) RETURNING json_build_object('id', \"id\")", $name, $offset, $inputdir, $outputdir));
-}
-
-sub by_title {
-	my $c = shift;
-
-	$c->render(json => db_query($c->dbh, "SELECT row_to_json(events.*) FROM events WHERE title = ?", $c->stash("title")));
-}
-
-sub by_id {
-	my $c = shift;
-
-	$c->render(json => db_query($c->dbh, "SELECT row_to_json(events.*) FROM events WHERE id = ?", $c->stash("id")));
+	$c->render(openapi => db_query($c->dbh, "INSERT INTO events(select * FROM json_populate_record(null::events, ?)) RETURNING id", $event));
 }
 
 sub update {
-	my $c = shift;
+	my $c = shift->openapi->valid_input or return;
 
-	if(!$c->auth_scope("api/event/rw")) {
-		$c->res->code(403);
-		$c->render('Unauthorized');
-		return 0;
-	}
-	$c->render(json => db_query($c->dbh, "UPDATE events SET name = ?, inputdir = ?, outputdir = ?, time_offset = ? WHERE id = ?", $c->stash("name"), $c->stash("inputdir"), $c->stash("outputdir"), $c->stash("time_offset"), $c->stash("id")));
+	my $event = $c->req->json;
+
+	return update_with_json($c, $event, "events", \%fields);
 }
 
-sub delete {
-	my $c = shift;
+sub getById {
+	my $c = shift->openapi->valid_input or return;
 
-	if(!$c->auth_scope("api/event/rw")) {
-		$c->res->code(403);
-		$c->render('Unauthorized');
-		return 0;
+	my $eventId = $c->param("eventId");
+
+	my $event = db_query($c->dbh, "SELECT row_to_json(events.*) FROM events WHERE id = ?", $eventId);
+
+	if(scalar(@$event) < 1) {
+		$c->res->code(404);
+		$c->render(text => "not found");
+		return;
 	}
-	$c->render(json => db_query($c->dbh, "DELETE FROM events WHERE id = ?", $c->stash("id")));
+
+	$c->render(openapi => $event->[0]);
 }
 
 sub list {
-	my $c = shift;
+	my $c = shift->openapi->valid_input or return;
 
-	$c->render(json => db_query($c->dbh, "SELECT row_to_json(events.*) FROM events"));
+	$c->app->log->debug(Dumper($c->openapi->spec));
+
+	my $events = db_query($c->dbh, "SELECT row_to_json(events.*) FROM events");
+
+	$c->render(openapi => $events);
 }
 
 1;
