@@ -121,7 +121,6 @@ $mt->vars(1);
 while(1) {
 	$dbh->begin_work;
 	print "==> Checking for new work...\n";
-	my $next = $dbh->prepare("UPDATE talks SET state = state_next(state), progress='waiting' WHERE id = ?");
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
 
 	my $st;
@@ -143,6 +142,7 @@ same database if wanted.
 
 =cut
 
+	$dbh->prepare("UPDATE talks SET state=state_next(state), progress='waiting' WHERE progress='done' AND event = (SELECT id FROM event WHERE name = ?)")->execute($config->get('event'));
 	if($config->get('query_limit') > 0) {
 		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room JOIN events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) OR progress = 'done' LIMIT ?");
 		$st->execute($config->get('event'), $config->get('query_limit'));
@@ -151,11 +151,6 @@ same database if wanted.
 		$st->execute($config->get('event'));
 	}
 	while(my $row = $st->fetchrow_hashref) {
-		if($row->{progress} eq "done") {
-			print "Job for event " . $row->{title} . " in state " . $row->{state} . " finished, migrating it to the next state\n";
-			$next->execute($row->{id});
-			next;
-		}
 		if(exists(${$state_actions}{$row->{state}})) {
 			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
