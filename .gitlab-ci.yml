@@ -46,7 +46,7 @@ perl:5.24:
   stage: deb
   image: $CI_JOB_NAME
   before_script:
-  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git
+  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
   script:
   - dpkg-buildpackage -us -uc -i -I.git
