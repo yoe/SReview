@@ -72,6 +72,7 @@ paths:
       - sreview_auth:
         - write:events
         - read:events
+      - api_key: []
       x-mojo-to:
         controller: event
         action: update
@@ -98,6 +99,7 @@ paths:
       - sreview_auth:
         - write:events
         - read:events
+      - api_key: []
       x-mojo-to:
         controller: event
         action: add
@@ -159,6 +161,7 @@ paths:
       - sreview_auth:
         - write:events
         - read:events
+      - api_key: []
       x-mojo-to:
         controller: event
         action: delete
@@ -215,6 +218,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: update
@@ -252,6 +256,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: add
@@ -278,6 +283,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: delete
@@ -313,6 +319,7 @@ paths:
       security:
       - sreview_auth:
         - read:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: getById
@@ -344,6 +351,7 @@ paths:
       security:
       - sreview_auth:
         - read:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: listByEvent
@@ -381,6 +389,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: speaker
         action: listByTalk
@@ -425,6 +434,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: setSpeakers
@@ -469,6 +479,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
       x-mojo-to:
         controller: talk
         action: addSpeakers
@@ -542,6 +553,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
     patch:
       tags:
       - speaker
@@ -565,6 +577,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /speaker/{speakerId}:
     get:
       tags:
@@ -609,6 +622,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /room:
     post:
       tags:
@@ -630,6 +644,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
     patch:
       tags:
       - room
@@ -653,6 +668,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /room/{roomId}:
     get:
       tags:
@@ -696,6 +712,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /room/list:
     get:
       tags:
@@ -732,6 +749,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
     patch:
       tags:
       - track
@@ -755,6 +773,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /track/list:
     get:
       tags:
@@ -813,6 +832,7 @@ paths:
       security:
       - sreview_auth:
         - write:talks
+      - api_key: []
   /user:
     post:
       tags:
@@ -834,6 +854,7 @@ paths:
       security:
       - sreview_auth:
         - write:users
+      - api_key: []
     patch:
       tags:
       - user
@@ -857,6 +878,7 @@ paths:
       security:
       - sreview_auth:
         - write:users
+      - api_key: []
   /user/{userId}:
     get:
       tags:
@@ -882,6 +904,7 @@ paths:
       security:
       - sreview_auth:
         - write:users
+      - api_key: []
     delete:
       tags:
       - user
@@ -903,6 +926,7 @@ paths:
       security:
       - sreview_auth:
         - write:users
+      - api_key: []
   /user/list:
     get:
       tags:
@@ -921,6 +945,7 @@ paths:
       security:
       - sreview_auth:
         - write:users
+      - api_key: []
 components:
   schemas:
     Talk:
