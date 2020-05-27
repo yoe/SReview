@@ -107,7 +107,7 @@ paths:
       - event
       summary: Find event by ID
       description: Returns a single event
-      operationId: get_pet_by_id
+      operationId: get_event
       parameters:
       - name: eventId
         in: path
@@ -497,7 +497,7 @@ paths:
       x-mojo-to:
         controller: review
         action: data
-  /speakers/search/{searchString}:
+  /speaker/search/{searchString}:
     get:
       tags:
       - speaker
@@ -701,7 +701,7 @@ paths:
       tags:
       - room
       summary: Retrieve the list of rooms
-      operationId: list_rooms
+      operationId: room_list
       responses:
         200:
           description: OK
@@ -760,7 +760,7 @@ paths:
       tags:
       - track
       summary: Retrieve the list of tracks
-      operationId: list_tracks
+      operationId: track_list
       responses:
         200:
           description: OK
@@ -908,7 +908,7 @@ paths:
       tags:
       - user
       summary: Retrieve the list of all users
-      operationId: list_users
+      operationId: user_list
       responses:
         200:
           description: OK
