@@ -19,6 +19,7 @@ sub init {
 				return $c->cb();
 			},
 			sreview_auth => sub {
+				my ($c, $definition, $scopes, $cb) = @_;
 				return $c->$cb('OAuth2 not yet implemented');
 			},
 		}
