@@ -60,7 +60,9 @@ perl:5.24:
   tags:
   - docker
 
-debian:stable:
+#debian:stable:
+#  <<: *deb
+debian:testing:
   <<: *deb
 
 debian:unstable:
@@ -70,7 +72,7 @@ debian:unstable:
 .docker: &docker
   stage: docker
   dependencies:
-  - debian:stable
+  - debian:testing
   services:
   - docker:dind
   image: docker:stable
