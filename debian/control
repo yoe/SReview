@@ -5,7 +5,7 @@ Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: https://salsa.debian.org/wouter/sreview
 Vcs-Git: https://salsa.debian.org/wouter/sreview
-Build-Depends: debhelper (>= 10), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libextutils-depends-perl, libmojolicious-plugin-openapi-perl
+Build-Depends: debhelper (>= 10), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libextutils-depends-perl
 
 Package: sreview-master
 Architecture: all
@@ -23,7 +23,7 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: sreview-common, libjs-bootstrap, pwgen, ${misc:Depends}
+Depends: sreview-common, libjs-bootstrap, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl
 Recommends: httpd
 Description: SReview webinterface
  SReview is a video review and transcoding system. It allows users to
