@@ -33,7 +33,7 @@ sub init {
 	$init = Mojo::Pg::Migrations->new(pg => $db);
 	$init->name('init');
 	$init->from_data();
-	#$code->migrate(0);
+	$code->migrate(0);
 	$init->migrate() or return 0;
 	$code->migrate() or return 0;
 	if(defined($config->get("adminuser")) && defined($config->get("adminpw"))) {
@@ -1048,6 +1048,49 @@ DROP TABLE config_overrides;
 ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);
 -- 19 down
 ALTER TABLE users DROP CONSTRAINT users_email_unique;
+-- 20 up
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'announcing',
+    'done',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 20 down
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'announcing',
+    'done',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
