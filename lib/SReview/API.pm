@@ -5,14 +5,14 @@ use SReview::Config::Common;
 sub init {
 	my $app = shift;
 
-	my $config = SReview::Config::Common::init();
+	my $config = SReview::Config::Common::setup();
 
 	$app->plugin("OpenAPI" => {
 		url => "data:///api.yml",
 		schema => "v3",
 		security => {
 			api_key => sub {
-				my $c, $definition, $scopes, $cb) = @_;
+				my ($c, $definition, $scopes, $cb) = @_;
 				return $c->$cb('API key not configured') unless defined($config->get('api_key'));
 				return $c->$cb('Authorization header not present') unless $c->req->headers->authorization;
 				return $c->$cb('API key invalid') unless $c->req->headers->authorization eq $config->get('api_key');
