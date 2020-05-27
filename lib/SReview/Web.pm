@@ -11,6 +11,7 @@ use SReview::Config::Common;
 use SReview::Db;
 use SReview::Video;
 use SReview::Video::ProfileFactory;
+use SReview::API;
 
 sub startup {
 	my $self = shift;
@@ -18,6 +19,8 @@ sub startup {
 	my $dir = $ENV{SREVIEW_WDIR};
 
 	$self->config(hypnotoad => { pid_file => '/var/run/sreview/sreview-web.pid' });
+
+	SReview::API::init($self);
 
 	my $config = SReview::Config::Common::setup;
 
@@ -410,53 +413,6 @@ sub startup {
 	});
 
 	$vol->get('/list')->to('volunteer#list');
-
-	my $api = $r->under('/api/v1' => sub {
-		my $c = shift;
-		if(!$c->auth_scope("api")) {
-			$c->res->code(403);
-			$self->log->debug("failed auth scope api");
-			$c->render(text => 'Unauthorized');
-			return 0;
-		}
-		return 1;
-	});
-
-	my $event_api = $api->under('/events' => sub {
-		my $c = shift;
-		if(!$c->auth_scope("api/event")) {
-			$c->res->code(403);
-			$self->log->debug("failed auth scope event");
-			$c->render(text => 'Unauthorized');
-			return 0;
-		}
-		return 1;
-	});
-
-	$event_api->post('/create')->to(controller => 'event', action => 'create');
-	$event_api->get('/by-title/:title')->to(controller => 'event', action => 'by_title');
-	$event_api->get('/by-id/:id')->to(controller => 'event', action => 'by_id');
-	$event_api->post('/update/:id')->to(controller => 'event', action => 'update');
-	$event_api->get('/list')->to(controller => 'event', action => 'list');
-	$event_api->delete('/delete/:id')->to(controller => 'event', action => 'delete');
-
-	my $talk_api = $api->under('/event/:event/talks' => sub {
-		my $c = shift;
-		if(!$c->auth_scope("api/talks")) {
-			$c->res->code(403);
-			$c->render(text => 'Unauthorized');
-			return 0;
-		}
-		return 1;
-	});
-
-	$talk_api->post('/create')->to(controller => 'talk', action => 'create');
-	$talk_api->get('/by-title/:title')->to(controller => 'talk', action => 'by_title');
-	$talk_api->get('/by-id/:id')->to(controller => 'talk', action => 'by_id');
-	$talk_api->get('/by-nonce/:nonce')->to(controller => 'talk', action => 'by_nonce');
-	$talk_api->get('/list')->to(controller => 'talk', action => 'list');
-	$talk_api->post('/update')->to(controller => 'talk', action => 'update');
-	$talk_api->delete('/delete')->to(controller => 'talk', action => 'delete');
 
 	my $admin = $r->under('/admin' => sub {
 		my $c = shift;

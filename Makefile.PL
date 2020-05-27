@@ -14,6 +14,7 @@ WriteMakefile(
 	PREREQ_PM => {
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
+		'Mojolicious::Plugin::OpenAPI' => 0,
 		'Moose' => 0,
 		'DateTime' => 0,
 		'DateTime::Format::ISO8601' => 0,
