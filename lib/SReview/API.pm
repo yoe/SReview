@@ -32,15 +32,21 @@ tags:
   description: Managing talks
 - name: speaker
   description: Managing speakers
+- name: room
+  description: Managing rooms
+- name: track
+  description: Managing tracks
+- name: user
+  description: Managing users
 paths:
   /event:
-    put:
+    patch:
       tags:
       - event
       summary: Update an existing event
       operationId: update_event
       requestBody:
-        description: Event object that needs to be added to the store
+        description: Event object that needs to be modified in the store
         content:
           application/json:
             schema:
@@ -87,10 +93,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event/properties/id"
-        405:
-          description: Invalid input
-          content: {}
+                $ref: "#/components/schemas/Event"
       security:
       - sreview_auth:
         - write:events
@@ -129,47 +132,6 @@ paths:
       x-mojo-to:
         controller: event
         action: getById
-    post:
-      tags:
-      - event
-      summary: Update an event with form data
-      operationId: update_event_with_form
-      parameters:
-      - name: eventId
-        in: path
-        description: ID of event that needs to be updated
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              properties:
-                name:
-                  type: string
-                  description: Updated name of the event
-                inputdir:
-                  type: string
-                  description: Updated input directory of the event
-                outputdir:
-                  type: string
-                  description: Updated output directory of the event
-      responses:
-        404:
-          description: Event not found
-          content: {}
-        405:
-          description: Invalid input
-          content: {}
-      security:
-      - sreview_auth:
-        - write:events
-        - read:events
-      x-mojo-to:
-        controller: event
-        action: updateForm
     delete:
       tags:
       - event
@@ -184,8 +146,8 @@ paths:
           type: integer
           format: int64
       responses:
-        400:
-          description: Invalid ID supplied
+        200:
+          description: Successful operation
           content: {}
         404:
           description: Event not found
@@ -219,7 +181,7 @@ paths:
         controller: event
         action: list
   /event/{eventId}/talk:
-    put:
+    patch:
       tags:
       - talk
       summary: Update an existing talk
@@ -280,8 +242,7 @@ paths:
           content:
             application/json:
               schema:
-                type: integer
-                format: int64
+                $ref: '#/components/schemas/Talk'
         404:
           description: Event not found
           content: {}
@@ -313,9 +274,6 @@ paths:
           content: {}
         404:
           description: Event or talk not found
-          content: {}
-        405:
-          description: Invalid input
           content: {}
       security:
       - sreview_auth:
@@ -351,9 +309,6 @@ paths:
                 $ref: '#/components/schemas/Talk'
         404:
           description: Event or talk not found
-          content: {}
-        405:
-          description: invalid input
           content: {}
       security:
       - sreview_auth:
@@ -397,7 +352,7 @@ paths:
       tags:
       - speaker
       summary: Get the list of speakers for a talk
-      operationId: get_speakers
+      operationId: get_talk_speakers
       parameters:
       - name: eventId
         in: path
@@ -414,12 +369,14 @@ paths:
       responses:
         200:
           description: successful operation
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Speaker'
         404:
           description: event or talk not found
-          content: {}
-        405:
-          description: invalid input
           content: {}
       security:
       - sreview_auth:
@@ -457,21 +414,20 @@ paths:
         200:
           description: successful operation
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Speaker/properties/id'
         404:
-          description: event or talk not found
-          content: {}
-        405:
-          description: invalid input
+          description: event, talk, or speakers not found
           content: {}
       security:
       - sreview_auth:
         - write:talks
-      x-codegen-request-body-name: body
+      x-mojo-to:
+        controller: talk
+        action: setSpeakers
     post:
       tags:
       - speaker
@@ -508,15 +464,463 @@ paths:
                 items:
                   $ref: '#/components/schemas/Speaker/properties/id'
         404:
-          description: event or talk not found
-          content: {}
-        405:
-          description: invalid input
+          description: event, talk, or speakers not found
           content: {}
       security:
       - sreview_auth:
         - write:talks
-      x-codegen-request-body-name: body
+      x-mojo-to:
+        controller: talk
+        action: addSpeakers
+  /nonce/{nonce}/data:
+    get:
+      tags:
+      - talk
+      summary: Retrieve talk data by nonce
+      operationId: get_nonce_data
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TalkData'
+        404:
+          description: talk not found
+          content: {}
+      x-mojo-to:
+        controller: review
+        action: data
+  /speakers/search/{searchString}:
+    get:
+      tags:
+      - speaker
+      summary: Find speakers based on a substring of their name or email address
+      operationId: find_speaker
+      parameters:
+      - name: searchString
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Speaker'
+        404:
+          description: speaker not found
+          content: {}
+  /speaker:
+    post:
+      tags:
+      - speaker
+      summary: Add a new speaker to the system
+      operationId: add_speaker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speaker'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speaker'
+      security:
+      - sreview_auth:
+        - write:talks
+    patch:
+      tags:
+      - speaker
+      summary: Update an existing speaker
+      operationId: update_speaker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speaker'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speaker'
+        404:
+          description: speaker not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /speaker/{speakerId}:
+    get:
+      tags:
+      - speaker
+      summary: Get a speaker
+      operationId: get_speaker
+      parameters:
+      - name: speakerId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Speaker/properties/id'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speaker'
+        404:
+          description: Speaker not found
+          content: {}
+    delete:
+      tags:
+      - speaker
+      summary: Remove a speaker from the system
+      operationId: delete_speaker
+      parameters:
+      - name: speakerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        404:
+          description: speaker not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /room:
+    post:
+      tags:
+      - room
+      summary: Add a room
+      operationId: add_room
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+      security:
+      - sreview_auth:
+        - write:talks
+    patch:
+      tags:
+      - room
+      summary: Update a room
+      operationId: update_room
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        404:
+          description: Room not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /room/{roomId}:
+    get:
+      tags:
+      - room
+      summary: Retrieve a room's details
+      operationId: get_room
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Room/properties/id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        404:
+          description: Room not found
+          content: {}
+    delete:
+      tags:
+      - room
+      summary: Remove a room
+      operationId: delete_room
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Room/properties/id'
+      responses:
+        200:
+          description: OK
+          content: {}
+        404:
+          description: Room not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /room/list:
+    get:
+      tags:
+      - room
+      summary: Retrieve the list of rooms
+      operationId: list_rooms
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+  /track:
+    post:
+      tags:
+      - track
+      summary: Add a track
+      operationId: add_track
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Track'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+      security:
+      - sreview_auth:
+        - write:talks
+    patch:
+      tags:
+      - track
+      summary: Update a track
+      operationId: update_track
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Track'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+        404:
+          description: Track not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /track/list:
+    get:
+      tags:
+      - track
+      summary: Retrieve the list of tracks
+      operationId: list_tracks
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+  /track/{trackId}:
+    get:
+      tags:
+      - track
+      summary: Retrieve a track by ID
+      operationId: get_track
+      parameters:
+      - name: trackId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Track/properties/id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+        400:
+          description: Track not found
+          content: {}
+    delete:
+      tags:
+      - track
+      summary: Delete a track
+      operationId: delete_track
+      parameters:
+      - name: trackId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Track/properties/id'
+      responses:
+        200:
+          description: OK
+          content: {}
+        400:
+          description: Track not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+  /user:
+    post:
+      tags:
+      - user
+      summary: Add a user
+      operationId: add_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      security:
+      - sreview_auth:
+        - write:users
+    patch:
+      tags:
+      - user
+      summary: Update a user
+      operationId: update_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:users
+  /user/{userId}:
+    get:
+      tags:
+      - user
+      summary: Retrieve a user's details
+      operationId: get_user
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/User/properties/id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:users
+    delete:
+      tags:
+      - user
+      summary: Delete a user
+      operationId: delete_user
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/User/properties/id'
+      responses:
+        200:
+          description: OK
+          content: {}
+        404:
+          description: User not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:users
+  /user/list:
+    get:
+      tags:
+      - user
+      summary: Retrieve the list of all users
+      operationId: list_users
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      security:
+      - sreview_auth:
+        - write:users
 components:
   schemas:
     Talk:
@@ -525,28 +929,36 @@ components:
         id:
           type: integer
           format: int64
+          description: ID of the talk
         room:
           $ref: '#/components/schemas/Room/properties/id'
         event:
           $ref: '#/components/schemas/Event/properties/id'
         nonce:
           type: string
+          description: nonce (URL part to be handed out to unauthenticated reviewers) of this talk
         slug:
           type: string
+          description: unique part of the string, will be used for (part of) the output name
         starttime:
           type: string
           format: date-time
+          description: time this talk will (have) start(ed)
         endtime:
           type: string
           format: date-time
+          description: time this talk will (have) end(ed)
         title:
           type: string
+          description: title of this talk
         subtitle:
           type: string
           nullable: true
+          description: subtitle of this talk, if any
         state:
           type: string
           default: waiting_for_files
+          description: current state of the talk
           enum:
           - waiting_for_files
           - cutting
@@ -564,6 +976,7 @@ components:
         progress:
           type: string
           default: waiting
+          description: how far along the talk is in the current state
           enum:
           - waiting
           - scheduled
@@ -573,32 +986,40 @@ components:
         prelen:
           type: string
           format: interval
+          description: length of the 'pre' video of this talk, if any
           nullable: true
         postlen:
           type: string
           format: interval
+          description: length of the 'post' video of this talk, if any
           nullable: true
         track:
           type: integer
           format: int64
           nullable: true
+          description: Track this talk is being held in, if any
         reviewer:
           type: integer
           format: int64
           nullable: true
+          description: Reviewer who last touched this talk, if known
         perc:
           type: integer
           format: int32
           nullable: true
+          description: percentage completion of the current state
         apologynote:
           type: string
           nullable: true
+          description: apology note for technical issues, if any
         description:
           type: string
           nullable: true
+          description: long-form description of this talk
         active_stream:
           type: string
           default: ""
+          description: stream of this talk that is currently active
     Event:
       type: object
       properties:
@@ -668,6 +1089,21 @@ components:
           type: string
         upstreamid:
           type: string
+    TalkData:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        start_iso:
+          type: string
+          format: date-time
+        end_iso:
+          type: string
+          format: date-time
   securitySchemes:
     sreview_auth:
       type: oauth2
@@ -679,6 +1115,7 @@ components:
             read:events: read events
             write:talks: modify talks
             read:talks: read talks with full detail
+            write:users: manage users
     api_key:
       type: apiKey
       name: api_key
