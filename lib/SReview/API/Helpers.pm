@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/db_query db_query_log update_with_json/;
+our @EXPORT_OK = qw/db_query db_query_log update_with_json add_with_json/;
 
 use SReview::Config::Common;
 use Mojo::JSON qw/decode_json/;
@@ -59,6 +59,42 @@ sub update_with_json {
 	if(scalar(@$res) < 1) {
 		$c->res->code(404);
 		$c->render(text => "not found");
+		return;
+	}
+
+	$c->render(openapi => $res->[0]);
+}
+
+sub add_with_json {
+	my ($c, $json, $tablename, $fields) = @_;
+
+	my @args;
+	my @inserts;
+
+	if(exists($json->{id})) {
+		delete $json->{id};
+	}
+
+	while(my @tuple = each %$json) {
+		next if($tuple[0] eq "id");
+		next unless(exists($fields->{$tuple[0]}));
+		push @inserts, $tuple[0];
+		push @args, $tuple[1];
+	}
+
+	my $inserts = join(', ', @inserts);
+	my $fieldlist;
+	if(scalar(@inserts) > 0) {
+		$fieldlist = "?, " x (scalar(@inserts) - 1) . "?";
+	} else {
+		$fieldlist = "";
+	}
+	my $dbh = $c->dbh;
+	my $res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING row_to_json($tablename.*)", @args);
+
+	if(scalar(@$res) < 1) {
+		$c->res->code(400);
+		$c->render(text => "failed to add data: " . $dbh->errstr);
 		return;
 	}
 
