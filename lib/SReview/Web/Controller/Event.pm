@@ -4,25 +4,16 @@ use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Data::Dumper;
 
-my %fields = (
-	"id" => 1,
-	"name" => 1,
-	"time_offset" => 1,
-	"inputdir" => 1,
-	"outputdir" => 1,
-);
 sub add {
 	my $c = shift->openapi->valid_input or return;
 
-	return add_with_json($c, $c->req->json, "events", \%fields);
+	return add_with_json($c, $c->req->json, "events", $c->openapi->spec('/components/schemas/Event/properties'));
 }
 
 sub update {
 	my $c = shift->openapi->valid_input or return;
 
-	my $event = $c->req->json;
-
-	return update_with_json($c, $event, "events", \%fields);
+	return update_with_json($c, $c->req->json, "events",  $c->openapi->spec('/components/schemas/Event/properties'));
 }
 
 sub getById {
