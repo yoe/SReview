@@ -1030,12 +1030,12 @@ components:
           - failed
         prelen:
           type: string
-          format: interval
+          format: time
           description: length of the 'pre' video of this talk, if any
           nullable: true
         postlen:
           type: string
-          format: interval
+          format: time
           description: length of the 'post' video of this talk, if any
           nullable: true
         track:
