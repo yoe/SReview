@@ -16,7 +16,7 @@ sub init {
 				return $c->$cb('API key not configured') unless defined($config->get('api_key'));
 				return $c->$cb('Authorization header not present') unless $c->req->headers->authorization;
 				return $c->$cb('API key invalid') unless $c->req->headers->authorization eq $config->get('api_key');
-				return $c->cb();
+				return $c->$cb();
 			},
 			sreview_auth => sub {
 				my ($c, $definition, $scopes, $cb) = @_;
