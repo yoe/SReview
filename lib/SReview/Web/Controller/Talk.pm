@@ -1,7 +1,7 @@
 package SReview::Web::Controller::Talk;
 
 use Mojo::Base 'Mojolicious::Controller';
-use SReview::API::Helpers qw/db_query update_with_json/;
+use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Mojo::Util;
 
 sub listByEvent {
@@ -29,21 +29,49 @@ sub add {
 
 	if(scalar(@$event) < 1) {
 		$c->res->code(404);
-		$c->render(text => "not found");
+		$c->render(text => "Event not found");
 		return;
 	}
 
-	my $talk = $c->req->body;
+	my $talk = $c->req->json;
+	$talk->{event} = $event->[0];
 
-	$c->render(openapi => db_query($c->dbh, "INSERT INTO talks (SELECT * FROM json_populate_record(null::talks, ?)) RETURNING id", $talk)->[0]);
+	return add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
 }
 
 sub update {
 	my $c = shift->openapi->valid_input or return;
 
+	my $eventId = $c->param('eventId');
+
+	my $event = db_query($c->dbh, "SELECT id FROM events WHERE id = ?", $eventId);
+
+	if(scalar(@$event) < 1) {
+		$c->res->code(404);
+		$c->render(text => 'Event not found');
+		return;
+	}
+
 	my $talk = $c->req->json;
 
-	return update_with_json($c, $talk, "talks", \%fields);
+	return update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
+}
+
+sub delete {
+	my $c = shift->openapi->valid_input or return;
+
+	my $eventId = $c->param('eventId');
+	my $talkId = $c->param('talkId');
+
+	my $event = db_query($c->dbh, "SELECT id FROM events WHERE id = ?", $eventId);
+
+	if(scalar(@$event) < 1) {
+		$c->res->code(404);
+		$c->render(text => 'Event not found');
+		return;
+	}
+
+	return db_query($c->dbh, 'DELETE FROM talks WHERE id = ? AND event = ?', $talkId, $eventId);
 }
 
 sub by_title {
