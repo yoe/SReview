@@ -124,7 +124,7 @@ while(1) {
 	$dbh->begin_work;
 	print "==> Checking for new work...\n";
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
-	my $publishing = $dbh->prepare("SELECT * FROM talks JOIN events ON event.id = talks.event WHERE progress='publishing' AND events.name = ?");
+	my $publishing = $dbh->prepare("SELECT id FROM talks JOIN events ON event.id = talks.event WHERE progress='publishing' AND events.name = ?");
 
 	my $st;
 	my $statelist = "'" . join("','", keys(%{$state_actions})) . "'";
@@ -174,10 +174,10 @@ stderr and a file for stdout for each script run.
 	}
 	$publishing->execute($config->get('event'));
 	if(!defined($config->get('published_headers')) || !defined($config->get('eventurl_format'))) {
-		$dbh->prepare("UPDATE talks SET state=state_next(state), progress='waiting' WHERE state='publishing' AND event = (SELECT id FROM event WHERE name = ?)")->execute($config->get('event'));
+		$dbh->prepare("UPDATE talks SET progress='done' WHERE state='publishing' AND event = (SELECT id FROM event WHERE name = ?)")->execute($config->get('event'));
 	} else {
-		while(my $row = $st->fetchrow_hashref) {
-			my $url = $config->get('eventurl_format');
+		while(my $row = $publishing->fetchrow_hashref) {
+                        my $url = SReview::Talk->new(talkid => $row->{id})->eventurl;
 			my $res = $ua->head($url)->result;
 			my $is_ok = 1;
 			my $headers = $config->get('published_headers');
@@ -189,7 +189,7 @@ stderr and a file for stdout for each script run.
 					}
 				} else {
 					my $val;
-					eval "\$val = \$res->$header;"
+					eval "\$val = \$res->$header;";
 					if($@) {
 						die $!
 					}
@@ -200,7 +200,8 @@ stderr and a file for stdout for each script run.
 				}
 			}
 			if($is_ok) {
-				$dbh->prepare
+				$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute();
+                        }
 		}
 	}
 	print "finished, waiting 10 seconds...\n";
