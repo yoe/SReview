@@ -836,11 +836,36 @@ paths:
       x-mojo-to:
         controller: track
         action: add
+  /track/list:
+    get:
+      tags:
+      - track
+      summary: Retrieve the list of tracks
+      operationId: track_list
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+      x-mojo-to:
+        controller: track
+        action: list
+  /track/{trackId}:
     patch:
       tags:
       - track
       summary: Update a track
       operationId: update_track
+      parameters:
+      - name: trackId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Track/properties/id'
       requestBody:
         content:
           application/json:
@@ -863,25 +888,6 @@ paths:
       x-mojo-to:
         controller: track
         action: update
-  /track/list:
-    get:
-      tags:
-      - track
-      summary: Retrieve the list of tracks
-      operationId: track_list
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Track'
-      x-mojo-to:
-        controller: track
-        action: list
-  /track/{trackId}:
     get:
       tags:
       - track
@@ -950,6 +956,10 @@ paths:
       - sreview_auth:
         - write:users
       - api_key: []
+      x-mojo-to:
+        controller: user
+        action: add
+  /user/{userId}:
     patch:
       tags:
       - user
@@ -960,6 +970,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
+      parameters:
+      - name: trackId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/User/properties/id'
       responses:
         200:
           description: OK
@@ -974,7 +990,9 @@ paths:
       - sreview_auth:
         - write:users
       - api_key: []
-  /user/{userId}:
+      x-mojo-to:
+        controller: user
+        action: update
     get:
       tags:
       - user
@@ -1000,6 +1018,9 @@ paths:
       - sreview_auth:
         - write:users
       - api_key: []
+      x-mojo-to:
+        controller: user
+        action: getById
     delete:
       tags:
       - user
@@ -1022,6 +1043,9 @@ paths:
       - sreview_auth:
         - write:users
       - api_key: []
+      x-mojo-to:
+        controller: user
+        action: delete
   /user/list:
     get:
       tags:
@@ -1041,6 +1065,9 @@ paths:
       - sreview_auth:
         - write:users
       - api_key: []
+      x-mojo-to:
+        controller: user
+        action: list
 components:
   schemas:
     Talk:
