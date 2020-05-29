@@ -124,7 +124,7 @@ while(1) {
 	$dbh->begin_work;
 	print "==> Checking for new work...\n";
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
-	my $publishing = $dbh->prepare("SELECT id FROM talks JOIN events ON event.id = talks.event WHERE progress='publishing' AND events.name = ?");
+	my $publishing = $dbh->prepare("SELECT id FROM talks JOIN events ON events.id = talks.event WHERE progress='publishing' AND events.name = ?");
 
 	my $st;
 	my $statelist = "'" . join("','", keys(%{$state_actions})) . "'";
