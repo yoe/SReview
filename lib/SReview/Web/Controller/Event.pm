@@ -13,14 +13,20 @@ sub add {
 sub update {
 	my $c = shift->openapi->valid_input or return;
 
-	return update_with_json($c, $c->req->json, "events",  $c->openapi->spec('/components/schemas/Event/properties'));
+	my $eventId = $c->param("eventId");
+
+	my $event = $c->req->json;
+
+	$event->{id} = $eventId;
+
+	return update_with_json($c, $event, "events",  $c->openapi->spec('/components/schemas/Event/properties'));
 }
 
 sub delete {
 	my $c = shift->openapi->valid_input or return;
 
 	my $eventId = $c->param('eventId');
-	my $query = "DELETE FROM events WHERE id = ?";
+	my $query = "DELETE FROM events WHERE id = ? RETURNING id";
 
 	return delete_with_query($c, $query, $eventId);
 }
