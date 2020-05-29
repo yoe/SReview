@@ -528,6 +528,31 @@ paths:
       x-mojo-to:
         controller: review
         action: data
+  /nonce/{nonce}/talk:
+    get:
+      tags:
+      - talk
+      summary: Retrieve talk object by nonce
+      operationId: get_nonce_talk
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Talk'
+        404:
+          description: talk not found
+          content: {}
+      x-mojo-to:
+        controller: talk
+        action: getByNonce
   /speaker/search/{searchString}:
     get:
       tags:
@@ -552,6 +577,9 @@ paths:
         404:
           description: speaker not found
           content: {}
+      x-mojo-to:
+        controller: speaker
+        action: search
   /speaker:
     post:
       tags:
@@ -574,6 +602,10 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: speaker
+        action: add
+  /speaker/{speakerId}:
     patch:
       tags:
       - speaker
@@ -598,7 +630,9 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
-  /speaker/{speakerId}:
+      x-mojo-to:
+        controller: speaker
+        action: update
     get:
       tags:
       - speaker
@@ -620,6 +654,9 @@ paths:
         404:
           description: Speaker not found
           content: {}
+      x-mojo-to:
+        controller: speaker
+        action: getById
     delete:
       tags:
       - speaker
@@ -665,6 +702,10 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: room
+        action: add
+  /room/{roomId}:
     patch:
       tags:
       - room
@@ -689,7 +730,9 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
-  /room/{roomId}:
+      x-mojo-to:
+        controller: room
+        action: update
     get:
       tags:
       - room
@@ -711,6 +754,9 @@ paths:
         404:
           description: Room not found
           content: {}
+      x-mojo-to:
+        controller: room
+        action: getById
     delete:
       tags:
       - room
@@ -733,6 +779,9 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: room
+        action: delete
   /room/list:
     get:
       tags:
@@ -770,6 +819,9 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: track
+        action: add
     patch:
       tags:
       - track
@@ -794,6 +846,9 @@ paths:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: track
+        action: update
   /track/list:
     get:
       tags:
@@ -810,6 +865,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/Track'
   /track/{trackId}:
+      x-mojo-to:
+        controller: track
+        action: list
     get:
       tags:
       - track
@@ -831,6 +889,9 @@ paths:
         400:
           description: Track not found
           content: {}
+      x-mojo-to:
+        controller: track
+        action: getById
     delete:
       tags:
       - track
@@ -846,13 +907,13 @@ paths:
         200:
           description: OK
           content: {}
-        400:
-          description: Track not found
-          content: {}
       security:
       - sreview_auth:
         - write:talks
       - api_key: []
+      x-mojo-to:
+        controller: track
+        action: delete
   /user:
     post:
       tags:

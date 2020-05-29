@@ -4,7 +4,8 @@ use strict;
 use warnings;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/db_query db_query_log update_with_json add_with_json/;
+our @EXPORT = qw/db_query update_with_json add_with_json delete_with_query/;
+our @EXPORT_OK = qw/db_query_log/;
 
 use SReview::Config::Common;
 use Mojo::JSON qw/decode_json/;
@@ -31,6 +32,20 @@ sub db_query {
 	my ($dbh, $query, @args) = @_;
 
 	return db_query_log(undef, $dbh, $query, @args);
+}
+
+sub delete_with_query {
+	my ($c, $query, @args) = @_;
+
+	my $st = $c->dbh->prepare($query);
+	$st->execute(@args);
+
+	if($st->err) {
+		$c->res->code(400);
+		$c->render(text => 'could not delete:', $st->errmsg);
+		return;
+	}
+	$c->render(openapi => undef);
 }
 
 sub update_with_json {

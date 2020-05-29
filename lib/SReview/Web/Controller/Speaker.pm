@@ -1,0 +1,77 @@
+package SReview::Web::Controller::Speaker;
+
+use Mojo::Base 'Mojolicious::Controller';
+use SReview::API::Helpers;
+
+sub listByTalk {
+        my $c = shift->openapi->valid_input or return;
+
+        my $eventId = $c->param("eventId");
+        my $talkId = $c->param("talkId");
+
+        my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND talk = ?", $eventId, $talkId);
+
+        if(scalar(@$event) < 1) {
+                $c->res->code(404);
+                $c->render(text => 'not found');
+                return;
+        }
+
+        my $speakers = db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ?", $talkId);
+
+        $c->render(openapi => $speakers);
+}
+
+sub search {
+        my $c = shift->openapi->valid_input or return;
+
+        my $searchString = "%" . $c->param("searchString") . "%";
+
+        $c->render(openapi => db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers WHERE name ILIKE ? OR email ILIKE ?", $searchString, $searchString));
+}
+
+sub add {
+        my $c = shift->openapi->valid_input or return;
+
+        my $speaker = $c->req->json;
+
+        return add_with_json($c, $speaker, "speakers", $c->openapi->spec('/components/schemas/Speker/properties'));
+}
+
+sub update {
+        my $c = shift->openapi->valid_input or return;
+
+        my $speakerId = $c->param("speakerId");
+
+        my $speaker = $c->req->json;
+
+        $speaker->{id} = $speakerId;
+
+        return update_with_json($c, $speaker, "speakers", $c->openapi->spec('/components/schemas/Speaker/properties'));
+}
+
+sub getById {
+        my $c = shift->openapi->valid_input or return;
+
+        my $speakerId = $c->param("speakerId");
+
+        my $speaker = db_query($c->dbh, "SELET row_to_json(speakers.*) FROM speakers WHERE id = ?", $speakerId);
+
+        if(scalar(@$speaker) < 1) {
+                $c->res->code(404);
+                $c->render(text => "not found");
+                return;
+        }
+        
+        $c->render(openapi => $speaker);
+}
+
+sub delete {
+        my $c = shift->openapi->valid_input or return;
+
+        my $speakerId = $c->param('speakerId');
+
+        return delete_with_query($c, "DELETE FROM speakers WHERE id = ?", $speakerId);
+}
+
+1;
