@@ -1194,8 +1194,10 @@ components:
           type: string
         altname:
           type: string
+          nullable: true
         outputname:
           type: string
+          nullable: true
     Track:
       type: object
       properties:
