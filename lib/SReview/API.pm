@@ -1177,6 +1177,8 @@ components:
           type: string
           default: ""
           description: stream of this talk that is currently active
+	upstreamid:
+	  type: string
     Event:
       type: object
       properties:
