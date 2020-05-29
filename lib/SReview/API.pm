@@ -811,6 +811,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Room'
+      x-mojo-to:
+        controller: room
+        action: list
   /track:
     post:
       tags:
