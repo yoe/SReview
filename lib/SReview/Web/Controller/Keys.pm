@@ -62,3 +62,5 @@ sub list {
 	}
 	$keysfile->read();
 }
+
+1;
