@@ -611,6 +611,13 @@ paths:
       - speaker
       summary: Update an existing speaker
       operationId: update_speaker
+      parameters:
+      - name: speakerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -711,6 +718,13 @@ paths:
       - room
       summary: Update a room
       operationId: update_room
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -864,10 +878,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Track'
-  /track/{trackId}:
       x-mojo-to:
         controller: track
         action: list
+  /track/{trackId}:
     get:
       tags:
       - track
