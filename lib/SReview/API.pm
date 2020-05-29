@@ -60,42 +60,6 @@ tags:
   description: Managing users
 paths:
   /event:
-    patch:
-      tags:
-      - event
-      summary: Update an existing event
-      operationId: update_event
-      requestBody:
-        description: Event object that needs to be modified in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Event'
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Event"
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Event not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - sreview_auth:
-        - write:events
-        - read:events
-      - api_key: []
-      x-mojo-to:
-        controller: event
-        action: update
     post:
       tags:
       - event
@@ -124,6 +88,42 @@ paths:
         controller: event
         action: add
   /event/{eventId}:
+    patch:
+      tags:
+      - event
+      summary: Update an existing event
+      operationId: update_event
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Event/properties/id'
+      requestBody:
+        description: Event object that needs to be modified in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        404:
+          description: Event not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:events
+        - read:events
+      - api_key: []
+      x-mojo-to:
+        controller: event
+        action: update
     get:
       tags:
       - event
@@ -170,7 +170,11 @@ paths:
       responses:
         200:
           description: Successful operation
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
         404:
           description: Event not found
           content: {}
@@ -204,44 +208,6 @@ paths:
         controller: event
         action: list
   /event/{eventId}/talk:
-    patch:
-      tags:
-      - talk
-      summary: Update an existing talk
-      operationId: update_talk
-      parameters:
-      - name: eventId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Talk'
-        required: false
-      responses:
-        200:
-          description: successful operation
-          content: 
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Talk"
-        400:
-          description: Invalid input
-          content: {}
-        404:
-          description: Event or talk not found
-          content: {}
-      security:
-      - sreview_auth:
-        - write:talks
-      - api_key: []
-      x-mojo-to:
-        controller: talk
-        action: update
     post:
       tags:
       - talk
@@ -280,7 +246,45 @@ paths:
       x-mojo-to:
         controller: talk
         action: add
-      x-codegen-request-body-name: body
+  /event/{eventId}/talk/{talkId}:
+    patch:
+      tags:
+      - talk
+      summary: Update an existing talk
+      operationId: update_talk
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Talk'
+        required: false
+      responses:
+        200:
+          description: successful operation
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Talk"
+        400:
+          description: Invalid input
+          content: {}
+        404:
+          description: Event or talk not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+      - api_key: []
+      x-mojo-to:
+        controller: talk
+        action: update
     delete:
       tags:
       - talk
@@ -307,7 +311,6 @@ paths:
       x-mojo-to:
         controller: talk
         action: delete
-  /event/{eventId}/talk/{talkId}:
     get:
       tags:
       - talk
@@ -785,7 +788,11 @@ paths:
       responses:
         200:
           description: OK
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
         404:
           description: Room not found
           content: {}

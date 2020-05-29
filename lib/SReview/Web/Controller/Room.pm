@@ -41,9 +41,9 @@ sub getById {
 sub delete {
         my $c = shift->openapi->valid_input or return;
 
-        my $roomId = $c->param(roomId);
+        my $roomId = $c->param("roomId");
 
-        return delete_with_query($c, "DELETE FROM rooms WHERE id = ?", $roomId);
+        return delete_with_query($c, "DELETE FROM rooms WHERE id = ? RETURNING id", $roomId);
 }
 
 sub list {

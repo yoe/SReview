@@ -45,7 +45,14 @@ sub delete_with_query {
 		$c->render(text => 'could not delete:', $st->errmsg);
 		return;
 	}
-	$c->render(openapi => undef);
+
+	if($st->rows < 1) {
+		$c->res->code(404);
+		$c->render(text => 'not found');
+		return;
+	}
+	my $row = $st->fetchrow_arrayref;
+	$c->render(openapi => $row->[0]);
 }
 
 sub update_with_json {
