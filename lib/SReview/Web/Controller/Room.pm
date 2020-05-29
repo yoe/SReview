@@ -8,7 +8,7 @@ sub add {
 
         my $room = $c->req->json;
 
-        return add_with_json($c, $room, "rooms", $c->openapi->spec('/components/schemas/Room/properties');
+        return add_with_json($c, $room, "rooms", $c->openapi->spec('/components/schemas/Room/properties'));
 }
 
 sub update {
@@ -19,7 +19,7 @@ sub update {
 
         $room->{id} = $roomId;
 
-        return update_with_json($c, $room, "rooms", $c->openapi->spec('/components/schemas/Room/properties');
+        return update_with_json($c, $room, "rooms", $c->openapi->spec('/components/schemas/Room/properties'));
 }
 
 sub getById {
