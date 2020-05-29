@@ -971,7 +971,7 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       parameters:
-      - name: trackId
+      - name: userId
         in: path
         required: true
         schema:
