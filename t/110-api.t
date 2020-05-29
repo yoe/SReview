@@ -27,11 +27,11 @@ use Mojo::File qw/path/;
 my $cfgname = path()->to_abs->child('config.pm');
 my $do_auth = 0;
 
-SReview::Db::init(SReview::Config::Common::setup());
-SReview::Db::selfdestruct(code => 0, init => 0);
-
 SKIP: {
 	skip("Need a database to play with", 1) unless exists($ENV{SREVIEWTEST_DB});
+
+	SReview::Db::init(SReview::Config::Common::setup());
+	SReview::Db::selfdestruct(code => 0, init => 0);
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
