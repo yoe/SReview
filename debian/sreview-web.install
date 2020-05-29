@@ -2,6 +2,7 @@ usr/share/perl5/SReview/Web.pm
 usr/share/perl5/SReview/Web/
 usr/share/perl5/SReview/Access.pm
 usr/share/perl5/SReview/API
+usr/share/perl5/SReview/API.pm
 usr/bin/sreview-web
 web/templates usr/share/sreview
 web/public usr/share/sreview
