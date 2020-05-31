@@ -4,6 +4,8 @@ use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Mojo::Util;
 
+use SReview::Talk;
+
 sub listByEvent {
 	my $c = shift->openapi->valid_input or return;
 
@@ -43,6 +45,7 @@ sub update {
 	my $c = shift->openapi->valid_input or return;
 
 	my $eventId = $c->param('eventId');
+	my $talkId = $c->param('talkId');
 
 	my $event = db_query($c->dbh, "SELECT id FROM events WHERE id = ?", $eventId);
 
@@ -53,6 +56,8 @@ sub update {
 	}
 
 	my $talk = $c->req->json;
+
+	$talk->{id} = $talkId;
 
 	return update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
 }
@@ -120,7 +125,7 @@ sub setSpeakers {
 
 	$dbh->commit;
 
-	my $speakers = db_query($dbh, "SELECT speaker FROM speakers_talks WHERE talk = ?", $talkId);
+	$speakers = db_query($dbh, "SELECT speaker FROM speakers_talks WHERE talk = ?", $talkId);
 
 	return $c->render(openapi => $speakers);
 }
@@ -169,7 +174,7 @@ sub addSpeakers {
 
 	$dbh->commit;
 
-	my $speakers = db_query($dbh, "SELECT speaker FROM speakers_talks WHERE talk = ?", $talkId);
+	$speakers = db_query($dbh, "SELECT speaker FROM speakers_talks WHERE talk = ?", $talkId);
 
 	return $c->render(openapi => $speakers);
 }
@@ -207,4 +212,21 @@ sub getByNonce {
 	$c->render(openapi => $talk);
 }
 
+sub getCorrections {
+	my $c = shift->openapi->valid_input or return;
+
+	my $eventId = $c->param("eventId");
+	my $talkid = $c->param("talkId");
+
+	$talkId = db_query("SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
+
+	if(scalar(@$talk) < 1) {
+		$c->res->code(404);
+		$c->render(text => "event or talk not found");
+		return;
+	}
+
+	my $talk = SReview::Talk->new(talkid => $talkId);
+
+	$c->render(openapi => $talk->corrections);
 1;
