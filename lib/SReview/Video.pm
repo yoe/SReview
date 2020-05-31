@@ -677,6 +677,7 @@ sub writeopts {
 	my @opts = ();
 
 	if(!$pipe->vcopy && !$pipe->vskip) {
+		push @opts, ('-threads', '1');
 		if(defined($self->video_codec)) {
 			push @opts, ('-c:v', detect_to_write($self->video_codec));
 		}
