@@ -88,6 +88,20 @@ SKIP: {
 	$t->delete_ok("$b/room/2")->status_is(200);
 	$do_auth = 0;
 	$t->get_ok("$b/room/2")->status_is(404);
+	$t->get_ok("$b/event/1/talk/list")->status_is(401);
+	$do_auth = 1;
+	$t->get_ok("$b/event/1/talk/list")->status_is(200)->json_is("" => []);
+	$t->post_ok("$b/event/1/talk" => json => {room => 1,slug => 'test', starttime => '2020-05-30T10:30:00',endtime => '2020-05-30T10:35:00',title=>'Test',event=>1,upstreamid=>''})->status_is(200)->json_is('/title' => 'Test')->json_is('/room' => 1)->json_is('/id' => 1);
+	$t->get_ok("$b/event/1/talk/list")->status_is(200)->json_is('/0/title' => 'Test');
+	$t->patch_ok("$b/event/1/talk/1" => json => {subtitle => 'also test'})->status_is(200)->json_is('/title' => 'Test')->json_is('/subtitle' => 'also test');
+	$do_auth = 0;
+	$t->get_ok("$b/speaker/search/Wouter")->status_is(401);
+	$do_auth = 1;
+	$t->get_ok("$b/speaker/search/Wouter")->status_is(200)->json_is("" => []);
+	$t->post_ok("$b/speaker" => json => {name => "Wouter Verhelst"})->status_is(200)->json_is("/name" => "Wouter Verhelst")->json_is("/id" => 1);
+	$t->get_ok("$b/speaker/search/Wouter")->status_is(200)->json_is("/0/name" => "Wouter Verhelst");
+	$t->patch_ok("$b/speaker/1" => json => {email => 'w@uter.be'})->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
+	$t->get_ok("$b/speaker/1")->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
 }
 
 unlink($cfgname);

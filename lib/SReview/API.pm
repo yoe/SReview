@@ -346,6 +346,73 @@ paths:
       x-mojo-to:
         controller: talk
         action: getById
+  /event/{eventId}/talk/{talkId}/corrections:
+    get:
+      tags:
+      - talk
+      summary: Get the corrections for the talk
+      operationId: talk_corrections
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TalkCorrections'
+        404:
+          description: Event or talk not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+      - api_key: []
+      x-mojo-to:
+        controller: talk
+        action: getCorrections
+    patch:
+      tags:
+      - talk
+      summary: Set the corrections for the talk
+      operationId: set_corrections
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TalkCorrections'
+        required: false
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TalkCorrections'
+        404:
+          description: Event or talk not found
+          content: {}
+      security:
+      - sreview_auth:
+        - write:talks
+      - api_key: []
+      x-mojo-to:
+        controller: talk
+        action: setCorrections
   /event/{eventId}/talk/list:
     get:
       tags:
@@ -556,6 +623,51 @@ paths:
       x-mojo-to:
         controller: talk
         action: getByNonce
+  /nonce/{nonce}/talk/corrections:
+    get:
+      tags:
+      - talk
+      summary: Retrieve talk corrections by nonce
+      operationId: get_nonce_corrections
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TalkCorrections'
+        404:
+          description: talk not found
+          content: {}
+        x-mojo-to:
+          controller: talk
+          action: getCorrections
+     patch:
+       tags:
+       - talk
+       summary: Set talk corrections by nonce
+       operationId: set_nonce_corrections
+       parameters:
+       - name: nonce
+         in: path
+         required: true
+       responses:
+         200:
+           description: successful operation
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/TalkCorrections'
+         404:
+           description: talk not found
+           content: {}
+         x-mojo-to:
+           controller: talk
+           action: getCorrections;
   /speaker/search/{searchString}:
     get:
       tags:
@@ -583,6 +695,10 @@ paths:
       x-mojo-to:
         controller: speaker
         action: search
+      security:
+      - sreview_auth:
+        - read:talks
+      - api_key: []
   /speaker:
     post:
       tags:
@@ -1246,10 +1362,12 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         name:
           type: string
         upstreamid:
           type: string
+          nullable: true
     TalkData:
       type: object
       properties:
@@ -1265,6 +1383,19 @@ components:
         end_iso:
           type: string
           format: date-time
+    TalkCorrections:
+      type: object
+      properties:
+        offset_audio:
+          type: string
+        audio_channel:
+          type: string
+        length_adj:
+          type: string
+        offset_start:
+          type: string
+        serial:
+          type: string
   securitySchemes:
     sreview_auth:
       type: oauth2

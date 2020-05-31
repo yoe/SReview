@@ -11,7 +11,7 @@ sub listByTalk {
 
         my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND talk = ?", $eventId, $talkId);
 
-        if(scalar(@$event) < 1) {
+        if(scalar(@$talk) < 1) {
                 $c->res->code(404);
                 $c->render(text => 'not found');
                 return;
@@ -34,8 +34,9 @@ sub add {
         my $c = shift->openapi->valid_input or return;
 
         my $speaker = $c->req->json;
+	$c->app->log->debug(join(',', keys %$speaker));
 
-        return add_with_json($c, $speaker, "speakers", $c->openapi->spec('/components/schemas/Speker/properties'));
+        return add_with_json($c, $speaker, "speakers", $c->openapi->spec('/components/schemas/Speaker/properties'));
 }
 
 sub update {
@@ -55,7 +56,7 @@ sub getById {
 
         my $speakerId = $c->param("speakerId");
 
-        my $speaker = db_query($c->dbh, "SELET row_to_json(speakers.*) FROM speakers WHERE id = ?", $speakerId);
+        my $speaker = db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers WHERE id = ?", $speakerId);
 
         if(scalar(@$speaker) < 1) {
                 $c->res->code(404);
@@ -63,7 +64,7 @@ sub getById {
                 return;
         }
         
-        $c->render(openapi => $speaker);
+        $c->render(openapi => $speaker->[0]);
 }
 
 sub delete {
