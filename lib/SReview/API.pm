@@ -259,6 +259,12 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: talkId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -292,6 +298,12 @@ paths:
       operationId: delete_talk
       parameters:
       - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: talkId
         in: path
         required: true
         schema:
@@ -359,6 +371,12 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: talkId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         200:
           description: successful operation
@@ -385,6 +403,12 @@ paths:
       operationId: set_corrections
       parameters:
       - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: talkId
         in: path
         required: true
         schema:
@@ -633,6 +657,8 @@ paths:
       - name: nonce
         in: path
         required: true
+        schema:
+          type: string
       responses:
         200:
           description: successful operation
@@ -646,28 +672,30 @@ paths:
         x-mojo-to:
           controller: talk
           action: getCorrections
-     patch:
-       tags:
-       - talk
-       summary: Set talk corrections by nonce
-       operationId: set_nonce_corrections
-       parameters:
-       - name: nonce
-         in: path
-         required: true
-       responses:
-         200:
-           description: successful operation
-           content:
-             application/json:
-               schema:
-                 $ref: '#/components/schemas/TalkCorrections'
-         404:
-           description: talk not found
-           content: {}
-         x-mojo-to:
-           controller: talk
-           action: getCorrections;
+    patch:
+      tags:
+      - talk
+      summary: Set talk corrections by nonce
+      operationId: set_nonce_corrections
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TalkCorrections'
+        404:
+          description: talk not found
+          content: {}
+      x-mojo-to:
+        controller: talk
+        action: getCorrections;
   /speaker/search/{searchString}:
     get:
       tags:
