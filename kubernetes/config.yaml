@@ -57,3 +57,6 @@ stringData:
   SREVIEW_DBPASS: '<SREVIEW_DATABASE_PASSWORD>'
   SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=sreview-database;user=sreview;password=<SREVIEW_DATABASE_PASSWORD>"'
   SREVIEW_SECRET: '"_INSECURE_DEFAULT_REPLACE_ME_"'
+# Set this to a securely generated password if you want to be able to
+# edit things through the webinterface.
+  SREVIEW_API_KEY: 'null'
