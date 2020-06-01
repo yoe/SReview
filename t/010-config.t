@@ -1,5 +1,13 @@
 #!/usr/bin/perl -w
 
+BEGIN {
+	foreach my $key(keys %ENV) {
+		if($key =~ /^SREVIEW_/) {
+			delete $ENV{$key};
+		}
+	}
+}
+
 use strict;
 use warnings;
 
