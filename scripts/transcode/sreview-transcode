@@ -211,7 +211,11 @@ sub process_template($$) {
 	}
 	close INPUT;
 	close $fh;
-	system("inkscape --export-png=$output $outputsvg");
+	my $inkscape_options = "--batch -o $output";
+	if($config->get("command_tune")->{inkscape} eq "0.9") {
+		$inkscape_options = "--export-png=$output";
+	}
+	system("inkscape $inkscape_options $outputsvg");
 }
 
 =item preroll_template
