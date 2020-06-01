@@ -107,6 +107,11 @@ spec:
             secretKeyRef:
               name: sreview-secret
               key: SREVIEW_SECRET
+        - name: SREVIEW_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sreview-secret
+              key: SREVIEW_API_KEY
 ---
 apiVersion: v1
 kind: Service
