@@ -101,6 +101,9 @@ sub setup {
 	# for extending profiles
 	$config->define('extra_profiles', 'Any extra custom profiles you want to use. This hash should have two keys: the "parent" should be a name of a profile to subclass from, and the "settings" should contain a hash reference with attributes for the new profile to set', {});
 
+	# for tuning command stuff
+	$config->define('command_tune', 'Some commands change incompatibly from one version to the next. This option exists to deal with such incompatibilities', {});
+
 	return $config;
 }
 

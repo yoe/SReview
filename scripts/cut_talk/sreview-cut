@@ -289,7 +289,20 @@ if($postlen > 0) {
 SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
 SReview::Videopipe->new(inputs => [$full], output => SReview::Video->new(url => "$tempdir/preaudio.mkv", fragment_start => $prelen, duration => $mainlen), vcopy => 1)->run();
 # Run bs1770gain (no class, maybe do that later)
-system("bs1770gain -a -o $tempdir $tempdir/audio.wav");
+=item command_tune
+
+Set the C<bs1770gain> key to C<0.5> to remove the C<--suffix> parameter,
+required in 0.6 (but not allowed in 0.5)
+
+=cut
+
+my $bsextraopts = "";
+
+if($config->get("command_tune")->{bs1770gain}) ne "0.5") {
+	$bsextraopts = "--suffix=flac";
+} else {
+}
+system("bs1770gain -a -o $tempdir $bsextraopts $tempdir/audio.wav");
 my $preaudio = SReview::Video->new(url => "$tempdir/preaudio.mkv");
 my $flac = SReview::Video->new(url => "$tempdir/audio.flac");
 $map_v->input($preaudio);
