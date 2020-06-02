@@ -409,9 +409,7 @@
     };
 
     function addDate(d, offset) {
-      var s = Math.trunc(offset);
-      var ms = Math.round((offset - s) * 1000);
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds() + s, d.getMilliseconds() + ms);
+      return new Date(Date.parse(d) + offset * 1000);
     }
 
     // the following was taken from https://stackoverflow.com/questions/1267283/how-can-i-pad-a-value-with-leading-zeros
@@ -472,7 +470,8 @@
 
     $("#end_time_late").click(function() {
       var elem = $("#video-end-late").get(0);
-      setEndTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime));
+      vidend = Date.parse(data.video_start) + elem.duration * 1000;
+      setEndTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime) - (Date.parse(data.video_end) - vidend) / 1000);
     });
 
     // show / hide the no audio options
