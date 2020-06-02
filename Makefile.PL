@@ -24,7 +24,7 @@ WriteMakefile(
 		'Test::More' => 0,
 	},
 	EXE_FILES => [
-		'scripts/cut_talk/sreview-cut',
+		'scripts/sreview-cut',
 		'scripts/sreview-config',
 		'scripts/sreview-copy',
 		'scripts/sreview-detect',
@@ -32,10 +32,10 @@ WriteMakefile(
 		'scripts/sreview-skip',
 		'scripts/sreview-user',
 		'scripts/sreview-encode',
-		'scripts/notify/sreview-notify',
-		'scripts/upload/sreview-upload',
-		'scripts/transcode/sreview-transcode',
-		'scripts/previews/sreview-previews',
+		'scripts/sreview-notify',
+		'scripts/sreview-upload',
+		'scripts/sreview-transcode',
+		'scripts/sreview-previews',
 		'web/sreview-web',
 	],
 	$eud->get_makefile_vars
