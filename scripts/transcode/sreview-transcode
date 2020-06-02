@@ -211,7 +211,7 @@ sub process_template($$) {
 	}
 	close INPUT;
 	close $fh;
-	my $inkscape_options = "--batch -o $output";
+	my $inkscape_options = "--batch-process -o $output";
 	if($config->get("command_tune")->{inkscape} eq "0.9") {
 		$inkscape_options = "--export-png=$output";
 	}
