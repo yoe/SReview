@@ -9,7 +9,7 @@ sub listByTalk {
         my $eventId = $c->param("eventId");
         my $talkId = $c->param("talkId");
 
-        my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND talk = ?", $eventId, $talkId);
+        my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
         if(scalar(@$talk) < 1) {
                 $c->res->code(404);
