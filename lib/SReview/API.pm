@@ -1438,5 +1438,5 @@ components:
             write:users: manage users
     api_key:
       type: apiKey
-      name: api_key
+      name: Authorization
       in: header
