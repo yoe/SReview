@@ -98,7 +98,7 @@ sub setSpeakers {
 
 	$dbh->begin_work();
 
-	db_query($dbh, 'DELETE FROM speakers_talks WHERE talk = ?', $talkId);
+	db_query($dbh, 'DELETE FROM speakers_talks WHERE talk = ? RETURNING talk', $talkId);
 
 	if(scalar(@$speakers) < 1) {
 		$c->render(openapi => []);
@@ -114,7 +114,7 @@ sub setSpeakers {
 			$dbh->rollback;
 			return;
 		}
-		db_query($dbh, 'INSERT INTO speakers_talks(speaker, talk) VALUES(?, ?)', $speakerId, $talkId);
+		db_query($dbh, 'INSERT INTO speakers_talks(speaker, talk) VALUES(?, ?) RETURNING speaker', $speakerId, $talkId);
 		if($dbh->err) {
 			$c->res->code(400);
 			$c->render(text => 'Could not add speaker:' . $dbh->errmsg);
@@ -163,10 +163,12 @@ sub addSpeakers {
 			$dbh->rollback;
 			return;
 		}
-		db_query($dbh, 'INSERT INTO speakers_talks(speaker, talk) VALUES(?, ?)', $speakerId, $talkId);
-		if($dbh->err) {
+		eval {
+			db_query($dbh, 'INSERT INTO speakers_talks(speaker, talk) VALUES(?, ?) RETURNING speaker', $speakerId, $talkId);
+		};
+		if($@ && $dbh->err) {
 			$c->res->code(400);
-			$c->render(text => 'Could not add speaker:' . $dbh->errmsg);
+			$c->render(text => 'Could not add speaker:' . $dbh->errstr);
 			$dbh->rollback;
 			return;
 		}
@@ -201,7 +203,7 @@ sub getByNonce {
 
 	my $nonce = $c->param("nonce");
 
-	my $talk = db_query("SELECT row_to_json(talks.*) FROM talks WHERE nonce = ?", $nonce);
+	my $talk = db_query($c->dbh, "SELECT row_to_json(talks.*) FROM talks WHERE nonce = ?", $nonce);
 
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
@@ -209,7 +211,7 @@ sub getByNonce {
 		return;
 	}
 
-	$c->render(openapi => $talk);
+	$c->render(openapi => $talk->[0]);
 }
 
 sub getCorrections {

@@ -48,8 +48,8 @@ SKIP: {
 
 	my $b = '/api/v1';
 
-	# events
-	$t->get_ok("$b/")->status_is(200)->json_is("/info/title" => "SReview API");
+	# Events
+	$t->get_ok("$b/")->status_is(200)->json_is("/info/title" => "SReview API")->json_is("/info/version" => "1.0.0");
 	$t->get_ok("$b/event/list")->status_is(200)->json_is(""=>[]);
 	$t->post_ok("$b/event" => json => {name => 'Test event'})->status_is(401);
 	$do_auth = 1;
@@ -69,7 +69,7 @@ SKIP: {
 	$t->get_ok("$b/event/2")->status_is(404);
 	$t->delete_ok("$b/event/2")->status_is(404);
 
-	# rooms
+	# Rooms
 	$t->get_ok("$b/room/list")->status_is(200)->json_is(""=>[]);
 	$t->post_ok("$b/room" => json => {name => 'Test room'})->status_is(200)->json_is('/name' => 'Test room')->json_is('/id' => 1);
 	$t->get_ok("$b/room/1")->status_is(200)->json_is('/name' => 'Test room')->json_is('/id' => 1);
@@ -88,12 +88,22 @@ SKIP: {
 	$t->delete_ok("$b/room/2")->status_is(200);
 	$do_auth = 0;
 	$t->get_ok("$b/room/2")->status_is(404);
+
+	# Talks
 	$t->get_ok("$b/event/1/talk/list")->status_is(401);
 	$do_auth = 1;
 	$t->get_ok("$b/event/1/talk/list")->status_is(200)->json_is("" => []);
-	$t->post_ok("$b/event/1/talk" => json => {room => 1,slug => 'test', starttime => '2020-05-30T10:30:00',endtime => '2020-05-30T10:35:00',title=>'Test',event=>1,upstreamid=>''})->status_is(200)->json_is('/title' => 'Test')->json_is('/room' => 1)->json_is('/id' => 1);
+	my $nonce = $t->post_ok("$b/event/1/talk" => json => {room => 1,slug => 'test', starttime => '2020-05-30T10:30:00',endtime => '2020-05-30T10:35:00',title=>'Test',event=>1,upstreamid=>''})->status_is(200)->json_is('/title' => 'Test')->json_is('/room' => 1)->json_is('/id' => 1)->tx->res->json->{nonce};
 	$t->get_ok("$b/event/1/talk/list")->status_is(200)->json_is('/0/title' => 'Test');
 	$t->patch_ok("$b/event/1/talk/1" => json => {subtitle => 'also test'})->status_is(200)->json_is('/title' => 'Test')->json_is('/subtitle' => 'also test');
+
+	# Talks by nonce
+	$t->get_ok("$b/nonce/$nonce/talk")->status_is(200)->json_is("/id" => 1);
+	
+	# Talk data
+	$t->get_ok("$b/nonce/$nonce/data")->status_is(200)->json_like("/start" => qr/^2020-05-30 10:30:00\+[0-9][0-9]/)->json_is("/start_iso" => "2020-05-30T10:30:00Z")->json_like("/end" => qr/^2020-05-30 10:35:00\+[0-9][0-9]/)->json_is("/end_iso" => "2020-05-30T10:35:00Z");
+
+	# Speakers
 	$do_auth = 0;
 	$t->get_ok("$b/speaker/search/Wouter")->status_is(401);
 	$do_auth = 1;
@@ -102,6 +112,22 @@ SKIP: {
 	$t->get_ok("$b/speaker/search/Wouter")->status_is(200)->json_is("/0/name" => "Wouter Verhelst");
 	$t->patch_ok("$b/speaker/1" => json => {email => 'w@uter.be'})->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
 	$t->get_ok("$b/speaker/1")->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
+	$t->post_ok("$b/speaker" => json => {name => "Tammy Verhelst"})->status_is(200)->json_is("/name" => "Tammy Verhelst")->json_is("/id" => 2);
+
+	# Speakers/talks
+	$do_auth = 0;
+	$t->get_ok("$b/event/1/talk/1/speakers")->status_is(401);
+	$do_auth = 1;
+	$t->get_ok("$b/event/1/talk/1/speakers")->status_is(200)->json_is("" => []);
+	$t->get_ok("$b/event/1/talk/2/speakers")->status_is(404);
+	$t->put_ok("$b/event/1/talk/1/speakers" => json => [1])->status_is(200)->json_is("" => [1]);
+	my $js = $t->post_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(200)->tx->res->json;
+	ok(scalar(@$js) == 2, "correct number of speakers found");
+	my @js = sort @$js;
+	ok($js[0] == 1, "speaker 1 is assigned correctly");
+	ok($js[1] == 2, "speaker 2 is assigned correctly");
+	$t->put_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(200)->json_is("" => [2]);
+	$t->post_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(400);
 }
 
 unlink($cfgname);
