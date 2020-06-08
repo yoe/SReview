@@ -776,6 +776,8 @@ paths:
       x-mojo-to:
         controller: speaker
         action: getById
+      security:
+      - api_key: []
     delete:
       tags:
       - speaker
