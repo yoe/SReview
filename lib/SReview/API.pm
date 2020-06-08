@@ -80,9 +80,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/Event"
       security:
-      - sreview_auth:
-        - write:events
-        - read:events
       - api_key: []
       x-mojo-to:
         controller: event
@@ -117,9 +114,6 @@ paths:
           description: Event not found
           content: {}
       security:
-      - sreview_auth:
-        - write:events
-        - read:events
       - api_key: []
       x-mojo-to:
         controller: event
@@ -182,9 +176,6 @@ paths:
           description: Event not empty
           content: {}
       security:
-      - sreview_auth:
-        - write:events
-        - read:events
       - api_key: []
       x-mojo-to:
         controller: event
@@ -240,8 +231,6 @@ paths:
           description: Invalid input
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -285,8 +274,6 @@ paths:
           description: Event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -317,8 +304,6 @@ paths:
           description: Event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -352,8 +337,6 @@ paths:
           description: Event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - read:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -390,8 +373,6 @@ paths:
           description: Event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -431,8 +412,6 @@ paths:
           description: Event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -463,8 +442,6 @@ paths:
           description: Event not found
           content: {}
       security:
-      - sreview_auth:
-        - read:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -501,8 +478,6 @@ paths:
           description: event or talk not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: speaker
@@ -546,8 +521,6 @@ paths:
           description: event, talk, or speakers not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -591,8 +564,6 @@ paths:
           description: event, talk, or speakers not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: talk
@@ -724,8 +695,6 @@ paths:
         controller: speaker
         action: search
       security:
-      - sreview_auth:
-        - read:talks
       - api_key: []
   /speaker:
     post:
@@ -746,8 +715,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Speaker'
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: speaker
@@ -781,8 +748,6 @@ paths:
           description: speaker not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: speaker
@@ -831,8 +796,6 @@ paths:
           description: speaker not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
   /room:
     post:
@@ -853,8 +816,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Room'
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: room
@@ -888,8 +849,6 @@ paths:
           description: Room not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: room
@@ -941,8 +900,6 @@ paths:
           description: Room not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: room
@@ -984,8 +941,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Track'
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: track
@@ -1036,8 +991,6 @@ paths:
           description: Track not found
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: track
@@ -1082,8 +1035,6 @@ paths:
           description: OK
           content: {}
       security:
-      - sreview_auth:
-        - write:talks
       - api_key: []
       x-mojo-to:
         controller: track
@@ -1107,8 +1058,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
       security:
-      - sreview_auth:
-        - write:users
       - api_key: []
       x-mojo-to:
         controller: user
@@ -1141,8 +1090,6 @@ paths:
           description: User not found
           content: {}
       security:
-      - sreview_auth:
-        - write:users
       - api_key: []
       x-mojo-to:
         controller: user
@@ -1169,8 +1116,6 @@ paths:
           description: User not found
           content: {}
       security:
-      - sreview_auth:
-        - write:users
       - api_key: []
       x-mojo-to:
         controller: user
@@ -1194,8 +1139,6 @@ paths:
           description: User not found
           content: {}
       security:
-      - sreview_auth:
-        - write:users
       - api_key: []
       x-mojo-to:
         controller: user
@@ -1216,8 +1159,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
       security:
-      - sreview_auth:
-        - write:users
       - api_key: []
       x-mojo-to:
         controller: user
@@ -1425,17 +1366,6 @@ components:
         serial:
           type: string
   securitySchemes:
-    sreview_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://sreview.example.com/oauth/dialog
-          scopes:
-            write:events: modify events
-            read:events: read events
-            write:talks: modify talks
-            read:talks: read talks with full detail
-            write:users: manage users
     api_key:
       type: apiKey
       name: Authorization
