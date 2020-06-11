@@ -18,11 +18,13 @@ sub startup {
 
 	my $dir = $ENV{SREVIEW_WDIR};
 
-	$self->config(hypnotoad => { pid_file => '/var/run/sreview/sreview-web.pid' });
-
 	SReview::API::init($self);
 
 	my $config = SReview::Config::Common::setup;
+
+	if(defined($config->get("web_pid_file"))) {
+		$self->config(hypnotoad => { pid_file => $config->get("web_pid_file") });
+	}
 
 	die "Need to configure secrets!" if $config->get("secret") eq "_INSECURE_DEFAULT_REPLACE_ME_";
 	$self->secrets([$config->get("secret")]);
