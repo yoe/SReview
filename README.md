@@ -7,7 +7,7 @@ recorded, and creates a preview. After that, magic happens, and
 eventually a fully transcoded quality video rolls out of the system.
 
 Note that while SReview has been used [in
-production](https://yoe.github.io/sreview/production), there is still
+production](https://yoe.github.io/SReview/production), there is still
 some missing functionality in some areas. Patches welcome! :-)
 
 ## States
