@@ -258,6 +258,53 @@ sub has_file {
 	return scalar(grep({(!$_->is_collection) && ($_->relname eq $target)} @{$self->children}));
 }
 
+sub delete_files {
+	my $self = shift;
+	my %options = @_;
+
+	my @names = sort(@{$options{files}});
+	my @ownfiles = sort(@{$self->children});
+	my @to_delete = ();
+
+	do {
+		if($ownfiles[0]->is_collection) {
+			if($names[0] eq $ownfiles[0]->baseurl) {
+				push @to_delete, shift @ownfiles;
+			} elsif(substr($names[0], 0, length($ownfiles[0]->baseurl)) eq $ownfiles[0]->baseurl) {
+				$ownfiles[0]->delete_files(files => [$names[0]]);
+			}
+			shift @names;
+			shift @ownfiles;
+		} elsif($names[0] eq $ownfiles[0]->url) {
+			shift @names;
+			push @to_delete, shift @ownfiles;
+		} elsif($names[0] eq substr($ownfiles[0]->url, 0, length($names[0]))) {
+			push @to_delete, shift @ownfiles;
+			if((!scalar(@ownfiles)) || $names[0] lt $ownfiles[0]->url) {
+				shift @names;
+			}
+		} elsif ($names[0] gt $ownfiles[0]->url) {
+			shift @ownfiles;
+		} else {
+			croak "${names[0]} is not a member of this collection";
+		}
+	} while(scalar(@names) && scalar(@ownfiles));
+	if(scalar(@names)) {
+		croak "${names[0]} is not a member of this collection";
+	}
+	foreach my $file(@to_delete) {
+		$file->delete;
+	}
+}
+
+sub delete {
+	my $self = shift;
+
+	foreach my $child($self->children) {
+		$child->delete;
+	}
+}
+
 no Moose;
 
 package SReview::Files::Collection::direct;
@@ -300,6 +347,13 @@ sub has_file {
 		return 1;
 	}
 	return 0;
+}
+
+sub delete {
+	my $self = shift;
+
+	$self->SUPER::delete;
+	rmdir($self->baseurl);
 }
 
 no Moose;
