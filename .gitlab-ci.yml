@@ -154,6 +154,8 @@ validate:web:
   variables:
     POSTGRES_USER: sreview
     POSTGRES_DB: sreview
+    POSTGRES_PASSWORD: ""
+    POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
     SREVIEW_ADMINUSER: '"test@example.com"'
     SREVIEW_ADMINPW: '"foo"'
