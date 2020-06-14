@@ -162,4 +162,4 @@ validate:web:
     BASEURL: http://web:8080/
   image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
   script:
-  - perl dockerfiles/tests/test.pl
+  - perl -I lib dockerfiles/tests/test.pl
