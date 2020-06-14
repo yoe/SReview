@@ -156,10 +156,10 @@ validate:web:
     POSTGRES_DB: sreview
     POSTGRES_PASSWORD: ""
     POSTGRES_HOST_AUTH_METHOD: trust
-    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
+    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgresql;user=sreview"'
     SREVIEW_ADMINUSER: '"test@example.com"'
     SREVIEW_ADMINPW: '"foo"'
-    BASEURL: http://web:8080/
+    SREVIEW_URLBASE: '"http://web:8080/"'
   image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
   script:
   - perl -I lib dockerfiles/tests/test.pl
