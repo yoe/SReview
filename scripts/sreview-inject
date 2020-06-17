@@ -1,0 +1,50 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use lib "/home/wouter/sreview/lib";
+
+use SReview::Talk;
+use SReview::Config::Common;
+use SReview::Video;
+use SReview::Video::ProfileFactory;
+use SReview::Videopipe;
+use SReview::Files::Factory;
+use Getopt::Long;
+use Pod::Usage;
+
+my $inputfile = undef;
+my $talkid = undef;
+my $talknonce = undef;
+my $talkslug = undef;
+my $help = undef;
+
+GetOptions("t|talkid=i" => \$talkid,
+           "n|nonce=s" => \$talknonce,
+           "s|slug=s" => \$talkslug,
+           "i|input=s" => \$inputfile,
+           "h|help" => \$help) or pod2usage("command line invalid");
+
+if($help) {
+    pod2usage(0);
+}
+
+die "require an input file name\n" unless defined($inputfile);
+die "Require exactly one of a nonce, a talk ID, or a talk slug\n" unless scalar(grep({defined}($talkid, $talknonce, $talkslug))==1);
+
+my $config = SReview::Config::Common::setup();
+my $talk;
+if(defined($talknonce)) {
+    $talk = SReview::Talk->by_nonce($talknonce);
+} elsif(defined($talkid)) {
+    $talk = SReview::Talk->new(talkid => $talkid);
+} elsif(defined($talkslug)) {
+    $talk = SReview::Talk->by_slug($talkslug);
+}
+my $input = SReview::Video->new(url => $inputfile);
+my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
+my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
+my $outputfile = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
+SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
+$outputfile->store_file;
