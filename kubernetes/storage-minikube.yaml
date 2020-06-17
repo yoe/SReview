@@ -4,7 +4,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: postgresdata
 spec:
-  storageClassName: standard
   accessModes:
   - ReadWriteOnce
   resources:
@@ -16,7 +15,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: minio
 spec:
-  storageClassName: standard
   accessModes:
   - ReadWriteOnce
   resources:
