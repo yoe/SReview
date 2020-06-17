@@ -71,6 +71,7 @@ SKIP: {
 	$new = $coll->add_file(relname => "foo/" . $child->relname);
 	copy($child->filename, $new->filename);
 	$new->store_file;
+	sleep(1);
 	$coll = SReview::Files::Factory->create("output", $ENV{SREVIEWTEST_BUCKET});
 	ok($coll->has_file($new->relname), "adding a file with a subdir works");
 	$coll->delete_files(files => [$ENV{SREVIEWTEST_BUCKET} . "/foo"]);
