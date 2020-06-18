@@ -71,15 +71,8 @@ SKIP: {
 	$new = $coll->add_file(relname => "foo/" . $child->relname);
 	copy($child->filename, $new->filename);
 	$new->store_file;
-	sleep(1);
-	print "old collection:";
-	print Dumper($coll->children);
 	$coll = SReview::Files::Factory->create("output", $ENV{SREVIEWTEST_BUCKET});
-	print "new collection:";
-	print Dumper($coll->children);
 	ok($coll->has_file($new->relname), "adding a file with a subdir works");
-	print "after check:";
-	print Dumper($coll->children);
 	$coll->delete_files(files => [$ENV{SREVIEWTEST_BUCKET} . "/foo"]);
 	$coll = SReview::Files::Factory->create("output", $ENV{SREVIEWTEST_BUCKET});
 	ok(!($coll->has_file($new->relname)), "file can be deleted by prefix");
