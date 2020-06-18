@@ -7,6 +7,13 @@ has 'is_collection' => (
 	is => 'ro',
 );
 
+has 'url' => (
+	isa => 'Str',
+	is => 'ro',
+	lazy => 1,
+	builder => '_probe_url',
+);
+
 no Moose;
 
 package SReview::Files::Access::Base;
@@ -45,13 +52,6 @@ has 'baseurl' => (
 	isa => 'Str',
 	is => 'ro',
 	required => 1,
-);
-
-has 'url' => (
-	isa => 'Str',
-	is => 'ro',
-	lazy => 1,
-	builder => '_probe_url',
 );
 
 has 'create' => (
@@ -200,6 +200,10 @@ sub _probe_baseurl {
 	}
 
 	return $rv;
+}
+
+sub _probe_url {
+	return shift->baseurl;
 }
 
 sub _probe_globpattern {
