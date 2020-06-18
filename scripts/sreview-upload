@@ -81,7 +81,7 @@ if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'previews') {
 		$inter_coll->get_file(relname => $talk->relative_name . "-pre.png"),
 	);
 	for my $count(0, 1, 2) {
-		for my $ext qw/wav mp3 ogg/ {
+		for my $ext(qw/wav mp3 ogg/) {
 			push @files, $inter_coll->get_file(relname => $talk->relative_name . "-audio$count.$ext");
 		}
 	}
