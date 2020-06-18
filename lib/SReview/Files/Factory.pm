@@ -263,7 +263,7 @@ sub delete_files {
 	my %options = @_;
 
 	my @names = sort(@{$options{files}});
-	my @ownfiles = sort(@{$self->children});
+	my @ownfiles = sort({$a->url cmp $b->url} @{$self->children});
 	my @to_delete = ();
 
 	do {
