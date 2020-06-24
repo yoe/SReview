@@ -1,3 +1,10 @@
+sreview (0.6.0-1) unstable; urgency=medium
+
+  * New upstream release. Major new feature: now provides an
+    OpenAPI-based API to deal with calendars and schedules.
+
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 24 Jun 2020 10:32:32 +0200
+
 sreview (0.5.0-1) unstable; urgency=medium
 
   * New upstream release (too many changes to enumerate).
