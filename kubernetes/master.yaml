@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: registry.salsa.debian.org/debconf-video-team/sreview/web:master
+        image: registry.salsa.debian.org/debconf-video-team/sreview/web:main
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
@@ -123,7 +123,7 @@ spec:
       serviceAccountName: sreview-master
       containers:
       - name: master
-        image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube:master
+        image: registry.salsa.debian.org/debconf-video-team/sreview/master-kube:main
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
@@ -155,7 +155,7 @@ spec:
           restartPolicy: OnFailure
           containers:
           - name: detect
-            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:master
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
             imagePullPolicy: Always
             command: ["/usr/bin/sreview-detect"]
             envFrom:
