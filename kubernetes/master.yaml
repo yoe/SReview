@@ -57,6 +57,10 @@ spec:
             secretKeyRef:
               name: sreview-secret
               key: SREVIEW_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
 ---
 apiVersion: v1
 kind: Service
