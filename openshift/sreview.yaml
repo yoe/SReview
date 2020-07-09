@@ -62,6 +62,9 @@ objects:
       template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
+      git:
+        uri: "https://salsa.debian.org/debconf-video-team/sreview.git"
+        ref: ${GIT_REF}
       dockerfile: |
         FROM debian:testing
         RUN apt-get update  \
