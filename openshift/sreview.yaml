@@ -521,6 +521,20 @@ objects:
               path: /
               port: 8080
 - apiVersion: v1
+  kind: Route
+  metadata:
+    name: sreview-web
+  spec:
+    host: ${SREVIEW_HOST}
+    port:
+      targetPort: http
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: sreview-web
+- apiVersion: v1
   kind: Service
   metadata:
     name: sreview-web
