@@ -195,7 +195,7 @@ objects:
       imageChange:
         from:
           kind: ImageStreamTag
-          name: sreview-common:${GIT_REF}
+          name: sreview-master-kube:${GIT_REF}
 - apiVersion: v1
   kind: BuildConfig
   metadata:
