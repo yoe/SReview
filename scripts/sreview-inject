@@ -13,6 +13,7 @@ use SReview::Videopipe;
 use SReview::Files::Factory;
 use Getopt::Long;
 use Pod::Usage;
+use Mojo::JSON qw/true/;
 
 my $inputfile = undef;
 my $talkid = undef;
@@ -48,3 +49,5 @@ my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
 SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
 $outputfile->store_file;
+$talk->set_flag('is_injected' => true);
+$talk->done_correcting;
