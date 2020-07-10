@@ -3,6 +3,7 @@ package SReview::Talk;
 use Moose;
 use Mojo::Pg;
 use Mojo::Template;
+use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
 
@@ -91,6 +92,31 @@ sub _load_pathinfo {
 	$pathinfo->{"raw"} = $row;
 
 	return $pathinfo;
+}
+
+has 'flags' => (
+	is => 'rw',
+	traits => [ 'Hash' ],
+	isa => 'HashRef[Bool]',
+	builder => '_probe_flags',
+	lazy => 1,
+	predicate => '_has_flags',
+	handles => {
+		set_flag => 'set',
+		get_flag => 'get',
+		delete_flag => 'delete',
+	},
+);
+
+sub _probe_flags {
+	my $self = shift;
+	my $st = $pg->db->dbh->prepare("SELECT flags FROM talks WHERE id = ?");
+	$st->execute($self->talkid);
+	my $row = $st->fetchrow_arrayref;
+	if(defined($row->[0])) {
+		return decode_json($row->[0]);
+	}
+	return {};
 }
 
 =head2 apology
@@ -690,7 +716,7 @@ sub add_correction {
 =head2 done_correcting
 
 Commit the created corrections to the database. Also commits other
-things, like the comment.
+things, like the comment and the flags.
 
 =cut
 
@@ -719,6 +745,11 @@ sub done_correcting {
 		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);
 	} else {
 		$db->prepare("UPDATE talks SET apologynote = NULL WHERE id = ?")->execute($self->talkid);
+	}
+	if($self->_has_flags) {
+		$db->prepare("UPDATE talks SET flags=? WHERE id = ?")->execute(encode_json($self->flags), $self->talkid);
+	} else {
+		$db->prepare("UPDATE talks SET flags = NULL WHERE id = ?")->execute($self->talkid);
 	}
 }
 
