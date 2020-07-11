@@ -192,6 +192,9 @@ sub startup {
 		}
 	});
 
+	$r->get('/i/:nonce')->to(controller => 'inject', action => 'view', layout => 'default');
+	$r->post('/i/:nonce/update')->to(controller => 'inject', action => 'update', layout => 'default');
+
 	$r->get('/r/:nonce')->to(controller => 'review', action => 'view', layout => 'default');
 	$r->post('/r/:nonce/update')->to(controller => 'review', layout => 'default', action => 'update');
         $r->get('/r/:nonce/data')->to(controller => 'review', action => 'data');
