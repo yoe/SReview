@@ -1213,6 +1213,7 @@ components:
           - uploading
           - announcing
           - done
+          - injecting
           - broken
           - needs_work
           - lost

@@ -351,6 +351,7 @@ sub startup {
 		$expls{'uploading'} = 'Publishing results';
 		$expls{'announcing'} = 'Announcing completion of publication';
 		$expls{'done'} = 'Videos published, all done';
+		$expls{'injecting'} = 'Injecting manually-edited video';
 		$expls{'broken'} = 'Review found problems, administrator required';
 		$expls{'ignored'} = 'Talk will not be/was not recorded, ignored for review';
 		$expls{'needs_work'} = 'Fixable problems exist, manual intervention required';
