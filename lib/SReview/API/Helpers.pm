@@ -112,7 +112,10 @@ sub add_with_json {
 		$fieldlist = "";
 	}
 	my $dbh = $c->dbh;
-	my $res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING row_to_json($tablename.*)", @args);
+	my $res;
+	eval {
+		$res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING row_to_json($tablename.*)", @args);
+	};
 
 	if(scalar(@$res) < 1) {
 		$c->res->code(400);
