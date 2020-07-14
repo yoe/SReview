@@ -1095,6 +1095,51 @@ ALTER TYPE talkstate_new RENAME TO talkstate;
 ALTER TABLE talks ADD flags json;
 -- 21 down
 ALTER TABLE talks DROP flags;
+-- 22 up
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'announcing',
+    'done',
+    'injecting',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 22 down
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'announcing',
+    'done'
+    'broken'
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
@@ -1502,3 +1547,33 @@ BEGIN
             OR (talks.endtime + start_off + end_off + '00:20:00'::interval) >= raw_files.starttime AND (talks.endtime + start_off + end_off + '00:20:00'::interval) <= raw_files.endtime
             OR (talks.endtime + start_off + end_off) <= raw_files.starttime AND (talks.endtime + start_off + end_off + '00:20:00'::interval) >= raw_files.endtime);
 END $_$;
+-- 3 up
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  enumvals talkstate[];
+  startval ALIAS FOR $1;
+BEGIN
+  IF startval = 'injecting' THEN
+    return 'generating_previews'::talkstate;
+  ELSE
+    IF startval >= 'done' THEN
+      return startval;
+    ELSE
+      enumvals := enum_range(startval, NULL);
+      return enumvals[2];
+    END IF;
+  END IF;
+END $_$;
+-- 3 down
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+declare
+  enumvals talkstate[];
+  startval alias for $1;
+begin
+  enumvals := enum_range(startval, NULL);
+  return enumvals[2];
+end $_$;

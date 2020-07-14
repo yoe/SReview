@@ -73,6 +73,7 @@ sub setup {
 		uploading => 'sreview-skip <%== $talkid %>',
 		notification => 'sreview-skip <%== $talkid %>',
 		announcing => 'sreview-skip <%== $talkid %>',
+		injecting => 'sreview-inject -t <%== $talkid %>',
 	});
 	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 1);
 	$config->define('published_headers', 'The HTTP headers that indicate that the video is available now. Use _code for the HTTP status code.', undef);

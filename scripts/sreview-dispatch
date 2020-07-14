@@ -172,13 +172,6 @@ stderr and a file for stdout for each script run.
 			system $mt->render($statetrans, {talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output')});
 		}
 	}
-	$st = $dbh->prepare("SELECT talks.id AS talkid, rooms.name AS room, extract(epoch from (endtime - starttime) AS length FROM talks JOIN room ON rooms.id = talks.room WHERE (talks.flags->>'want_inject')::boolean = true AND talks.state <= 'preview'");
-	$st->execute;
-	while(my $row = $st->fetchrow_hashref) {
-		print "Starting inject job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
-		my $inject = $config->get("inject_action");
-		system $mt->render($inject, {talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output')});
-	}
 	$publishing->execute($config->get('event'));
 	if(!defined($config->get('published_headers')) || !defined($config->get('eventurl_format'))) {
 		$dbh->prepare("UPDATE talks SET progress='done' WHERE state='publishing' AND event = (SELECT id FROM events WHERE name = ?)")->execute($config->get('event'));

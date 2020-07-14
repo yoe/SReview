@@ -14,10 +14,11 @@ my %states = (
 	uploading => 6,
 	announcing => 7,
 	done => 8,
-	broken => 9,
-	needs_work => 10,
-	lost => 11,
-	ignored => 12,
+	injecting => 9,
+	broken => 10,
+	needs_work => 11,
+	lost => 12,
+	ignored => 13,
 );
 
 sub new {

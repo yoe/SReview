@@ -784,6 +784,20 @@ sub state_done {
         $st->execute($state, $self->talkid);
 }
 
+=head2 set_stream
+
+Set the input stream this talk uses to the given string.
+
+=cut
+
+sub set_stream {
+	my $self = shift;
+	my $stream = shift;
+
+	my $st = $pg->db->dbh->prepare("UPDATE talks SET stream=? WHERE id = ?");
+	$st->execute($stream, $self->talkid);
+}
+
 =head2 reset_corrections
 
 Clear all corrections, except the serial one. Used when a user requests

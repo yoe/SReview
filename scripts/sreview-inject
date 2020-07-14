@@ -43,6 +43,8 @@ if(defined($talknonce)) {
 } elsif(defined($talkslug)) {
     $talk = SReview::Talk->by_slug($talkslug);
 }
+$talk->set_state("injecting");
+$talk = SReview::Talk->new(talkid => $talkid);
 my $input = SReview::Video->new(url => $inputfile);
 my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
@@ -51,3 +53,4 @@ SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url =>
 $outputfile->store_file;
 $talk->set_flag('is_injected' => true);
 $talk->done_correcting;
+$talk->state_done;
