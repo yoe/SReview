@@ -2,6 +2,20 @@ apiVersion: v1
 kind: Template
 metadata:
   name: sreview
+  annotations:
+    iconClass: icon-perl
+    description: The SReview online video review system was originally written
+        for FOSDEM, but has been used by DebConf and a number of other
+        conferences. It automates as much of the postprocessing workflow as
+        possible, using human interaction only when absolutely necessary.
+
+        This template creates an SReview installation that stores
+        everything inside the OpenShift environment, including object
+        storage and the PostgreSQL database. It does not create
+        backups; if wanted, those should be set up separately.
+    openshift.io/display-name: SReview
+    openshift.io/documentation-url: https://yoe.github.io/SReview
+    openshift.io/provider-display-name: Wouter Verhelst
 objects:
 # Image streams
 - apiVersion: v1
@@ -58,8 +72,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-build
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -96,8 +108,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-common
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -133,8 +143,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-detect
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -168,8 +176,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-master
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -198,13 +204,11 @@ objects:
       imageChange:
         from:
           kind: ImageStreamTag
-          name: sreview-master-kube:${GIT_REF}
+          name: sreview-common:${GIT_REF}
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     name: sreview-master-kube
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -238,8 +242,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-web
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -273,8 +275,6 @@ objects:
   kind: BuildConfig
   metadata:
     name: sreview-encoder
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
   spec:
     source:
       git:
@@ -325,7 +325,7 @@ objects:
     SREVIEW_URLBASE: '"${SREVIEW_HOST}"'
     SREVIEW_WEB_PID_FILE: '"/tmp/sreview-web.pid"'
     SREVIEW_ACCESSMETHODS: '{"input":"S3","intermediate":"S3","output":"S3"}'
-    SREVIEW_S3_ACCESS_CONFIG: '{"default":{aws_access_key_id":"adminuser","aws_secret_access_key":"${MINIO_SECRET_KEY}","secure":0,"host":"sreview-storage:9000"}}'
+    SREVIEW_S3_ACCESS_CONFIG: '{"default":{"aws_access_key_id":"adminuser","aws_secret_access_key":"${MINIO_SECRET_KEY}","secure":0,"host":"sreview-storage:9000"}}'
     SREVIEW_ENCODER_IMAGE: sreview-encoder:${GIT_REF}
     SREVIEW_INPUTGLOB: '"input/*"'
     SREVIEW_PUBDIR: '"inter"'
@@ -580,6 +580,16 @@ objects:
     name: sreview-master
   spec:
     replicas: 1
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - "master"
+        from:
+          kind: ImageStreamTag
+          name: sreview-master-kube:${GIT_REF}
     template:
       metadata:
         labels:
@@ -588,7 +598,7 @@ objects:
         serviceAccountName: sreview-master
         containers:
         - name: master
-          image: sreview-master:main
+          image: sreview-master-kube:${GIT_REF}
           imagePullPolicy: Always
           envFrom:
           - configMapRef:
