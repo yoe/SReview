@@ -1267,6 +1267,10 @@ components:
           description: stream of this talk that is currently active
         upstreamid:
           type: string
+        flags:
+          type: string
+          description: string-encoded JSON object of flags on this talk, if any
+          example: '{"is_injected":false}'
     Event:
       type: object
       properties:
