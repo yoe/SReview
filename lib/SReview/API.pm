@@ -95,7 +95,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Event/properties/id'
+          type: integer
+          format: int64
       requestBody:
         description: Event object that needs to be modified in the store
         content:
@@ -506,7 +507,8 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Speaker/properties/id'
+                type: integer
+                format: int64
         required: false
       responses:
         200:
@@ -516,7 +518,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Speaker/properties/id'
+                  type: integer
+                  format: int64
         404:
           description: event, talk, or speakers not found
           content: {}
@@ -549,7 +552,8 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Speaker/properties/id'
+                type: integer
+                format: int64
         required: false
       responses:
         200:
@@ -559,7 +563,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Speaker/properties/id'
+                  type: integer
+                  format: int64
         404:
           description: event, talk, or speakers not found
           content: {}
@@ -762,7 +767,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Speaker/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: successful operation
@@ -865,7 +871,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Room/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -889,7 +896,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Room/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -976,7 +984,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Track/properties/id'
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
@@ -1007,7 +1016,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Track/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -1031,7 +1041,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/Track/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -1080,7 +1091,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/User/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -1106,7 +1118,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/User/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -1132,7 +1145,8 @@ paths:
         in: path
         required: true
         schema:
-          $ref: '#/components/schemas/User/properties/id'
+          type: integer
+          format: int64
       responses:
         200:
           description: OK
@@ -1175,9 +1189,11 @@ components:
           format: int64
           description: ID of the talk
         room:
-          $ref: '#/components/schemas/Room/properties/id'
+          type: integer
+          format: int64
         event:
-          $ref: '#/components/schemas/Event/properties/id'
+          type: integer
+          format: int64
         nonce:
           type: string
           description: nonce (URL part to be handed out to unauthenticated reviewers) of this talk
@@ -1328,7 +1344,8 @@ components:
         isVolunteer:
           type: boolean
         limitToRoom:
-          $ref: '#/components/schemas/Room/properties/id'
+          type: integer
+          format: int64
     Speaker:
       type: object
       properties:
