@@ -95,6 +95,7 @@ objects:
                 && tar cvf /packages.tar.gz *.deb
     strategy:
       dockerStrategy:
+        noCache: true
         from:
           kind: DockerImage
           name: "debian:testing"
