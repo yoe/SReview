@@ -117,7 +117,7 @@ sub add_with_json {
 		$res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING row_to_json($tablename.*)", @args);
 	};
 
-	if(scalar(@$res) < 1) {
+	if(!defined($res) || scalar(@$res) < 1) {
 		$c->res->code(400);
 		$c->render(text => "failed to add data: " . $dbh->errstr);
 		return;
