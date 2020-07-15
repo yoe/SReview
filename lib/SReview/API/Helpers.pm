@@ -38,17 +38,19 @@ sub delete_with_query {
 	my ($c, $query, @args) = @_;
 
 	my $st = $c->dbh->prepare($query);
-	$st->execute(@args);
+	eval {
+		$st->execute(@args);
+	};
 
 	if($st->err) {
 		$c->res->code(400);
-		$c->render(text => 'could not delete:', $st->errmsg);
+		$c->render(openapi => {errors => [message => 'could not delete:', $st->errmsg]});
 		return;
 	}
 
 	if($st->rows < 1) {
 		$c->res->code(404);
-		$c->render(text => 'not found');
+		$c->render(openapi => {errors => [message => 'not found']});
 		return;
 	}
 	my $row = $st->fetchrow_arrayref;
@@ -80,7 +82,7 @@ sub update_with_json {
 
 	if(scalar(@$res) < 1) {
 		$c->res->code(404);
-		$c->render(text => "not found");
+		$c->render(openapi => {errors => [message => "not found"]});
 		return;
 	}
 
@@ -119,7 +121,7 @@ sub add_with_json {
 
 	if(!defined($res) || scalar(@$res) < 1) {
 		$c->res->code(400);
-		$c->render(text => "failed to add data: " . $dbh->errstr);
+		$c->render(openapi => {errors => [message => "failed to add data: " . $dbh->errstr]});
 		return;
 	}
 
