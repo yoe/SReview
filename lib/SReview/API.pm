@@ -170,12 +170,6 @@ paths:
               schema:
                 type: integer
                 format: int64
-        404:
-          description: Event not found
-          content: {}
-        405:
-          description: Event not empty
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -853,9 +847,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
-        404:
-          description: Room not found
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -880,9 +871,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
-        404:
-          description: Room not found
-          content: {}
       x-mojo-to:
         controller: room
         action: getById
@@ -906,9 +894,6 @@ paths:
               schema:
                 type: integer
                 format: int64
-        404:
-          description: Room not found
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -998,9 +983,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Track'
-        404:
-          description: Track not found
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -1025,9 +1007,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Track'
-        400:
-          description: Track not found
-          content: {}
       x-mojo-to:
         controller: track
         action: getById
@@ -1100,9 +1079,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        404:
-          description: User not found
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -1127,9 +1103,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        404:
-          description: User not found
-          content: {}
       security:
       - api_key: []
       x-mojo-to:
@@ -1150,9 +1123,6 @@ paths:
       responses:
         200:
           description: OK
-          content: {}
-        404:
-          description: User not found
           content: {}
       security:
       - api_key: []
