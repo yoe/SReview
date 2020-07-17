@@ -43,14 +43,12 @@ sub delete_with_query {
 	};
 
 	if($st->err) {
-		$c->res->code(400);
-		$c->render(openapi => {errors => [message => 'could not delete:', $st->errmsg]});
+		$c->render(openapi => {errors => [{message => 'could not delete:', $st->errmsg}]}, status => 400);
 		return;
 	}
 
 	if($st->rows < 1) {
-		$c->res->code(404);
-		$c->render(openapi => {errors => [message => 'not found']});
+		$c->render(openapi => {errors => [{message => 'not found'}]}, status => 404);
 		return;
 	}
 	my $row = $st->fetchrow_arrayref;
@@ -63,8 +61,7 @@ sub update_with_json {
 	my @args;
 
 	if(!exists($json->{id})) {
-		$c->res->code(400);
-		$c->render(text => 'id required');
+		$c->render(openapi => {errors => [{message => 'id required'}]}, status => 400);
 		return;
 	}
 
@@ -81,8 +78,7 @@ sub update_with_json {
 	my $res = db_query($c->dbh, "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)", @args, $json->{id});
 
 	if(scalar(@$res) < 1) {
-		$c->res->code(404);
-		$c->render(openapi => {errors => [message => "not found"]});
+		$c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
 		return;
 	}
 
@@ -120,8 +116,7 @@ sub add_with_json {
 	};
 
 	if(!defined($res) || scalar(@$res) < 1) {
-		$c->res->code(400);
-		$c->render(openapi => {errors => [message => "failed to add data: " . $dbh->errstr]});
+		$c->render(openapi => {errors => [{message => "failed to add data: " . $dbh->errstr}]}, status => 400);
 		return;
 	}
 
