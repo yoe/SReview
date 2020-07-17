@@ -1257,6 +1257,7 @@ components:
           type: string
           description: string-encoded JSON object of flags on this talk, if any
           example: '{"is_injected":false}'
+          nullable: true
     Event:
       type: object
       properties:
