@@ -794,7 +794,7 @@ sub set_stream {
 	my $self = shift;
 	my $stream = shift;
 
-	my $st = $pg->db->dbh->prepare("UPDATE talks SET stream=? WHERE id = ?");
+	my $st = $pg->db->dbh->prepare("UPDATE talks SET active_stream=? WHERE id = ?");
 	$st->execute($stream, $self->talkid);
 }
 
