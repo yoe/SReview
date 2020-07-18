@@ -92,7 +92,7 @@ sub update {
 			$talk->set_state("injecting");
 		} elsif($upload->name eq "other_asset") {
 			my $coll = SReview::Files::Factory->create("upload", $c->srconfig->get("extra_collections")->{upload}, $c->srconfig);
-			my $file = $coll->add_file(relname => join("/", $talk->slug, $file->filename));
+			my $file = $coll->add_file(relname => join("/", $talk->slug, $upload->filename));
 			$upload->move_to($file->filename);
 			$file->store_file;
 		}
