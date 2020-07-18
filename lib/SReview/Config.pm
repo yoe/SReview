@@ -150,8 +150,9 @@ been called, the C<define> method above will croak.
 
 The returned value will either be the default value configured at
 C<define> time, the value configured in the configuration file, or the
-value set in the environment variable C<SREVIEW_I<name> >, where I<name>
-is the upper-case version of the name of the configuration item.
+value set (in JSON format) in the environment variable
+C<SREVIEW_I<name> >, where I<name> is the upper-case version of the name
+of the configuration item.
 
 =cut
 
