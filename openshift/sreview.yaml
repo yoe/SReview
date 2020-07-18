@@ -79,23 +79,20 @@ objects:
         ref: ${GIT_REF}
       dockerfile: |
         FROM debian:testing
+        RUN mkdir /sreview
+        COPY . /sreview/
         RUN apt-get update  \
-                && apt-get -y --no-install-recommends install devscripts equivs git build-essential \
-                && git clone https://salsa.debian.org/debconf-video-team/sreview /sreview \
+                && apt-get -y --no-install-recommends install devscripts equivs build-essential git \
                 && cd /sreview \
-                && git checkout ${GIT_REF} \
-                && mk-build-deps -r -i -t 'apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends'
-        RUN cd /sreview \
+                && mk-build-deps -r -i -t 'apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends' \
                 && dpkg-buildpackage -uc -us -i -I.git \
-                && gitdesc=$(git describe) \
-                && sed -i -e "/^ARG/d;s/@git_describe@/$gitdesc/" dockerfiles/*/Dockerfile \
+                && sed -i -e "/^ARG/d;s/@git_describe@/unknown/" dockerfiles/*/Dockerfile \
                 && sed -i -e 's,^COPY.*$,ADD packages.tar.gz /root/,' dockerfiles/common/Dockerfile \
                 && apt-get --purge autoremove \
                 && cd .. \
                 && tar cvf /packages.tar.gz *.deb
     strategy:
       dockerStrategy:
-        noCache: true
         from:
           kind: DockerImage
           name: "debian:testing"
