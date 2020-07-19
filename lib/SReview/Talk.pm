@@ -133,6 +133,7 @@ has 'active_stream' => (
 );
 
 sub _probe_stream {
+	my $self = shift;
 	my $st = $pg->db->dbh->prepare("SELECT active_stream FROM talk WHERE id = ?");
 	$st->execute($self->talkid);
 	my $row = $st->fetchrow_arrayref;
