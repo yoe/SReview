@@ -75,6 +75,7 @@ sub update {
 	if(!admin_for($c, $talk) && $talk->state > 'preview' && $talk->state != 'injecting') {
 		$c->stash(short_error => 'Not available');
 		$c->stash(error => 'This talk is not currently available for data injection. Please try again later!');
+		$c->render(variant => 'error');
 		return;
 	}
 	foreach my $upload(@{$c->req->uploads}) {
