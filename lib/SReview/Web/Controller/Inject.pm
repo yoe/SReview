@@ -80,7 +80,7 @@ sub update {
 	}
 	foreach my $upload(@{$c->req->uploads}) {
 		if($upload->name eq "video_asset") {
-			$c->app->log->debug("coying video asset " . $upload->filename);
+			$c->app->log->debug("copying video asset " . $upload->filename);
 			my @parts = split /\./, $upload->filename;
 			my $ext = pop @parts;
 			my $fn = join('.', $talk->slug, $ext);
