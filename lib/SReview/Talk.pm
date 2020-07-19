@@ -763,13 +763,9 @@ sub done_correcting {
         }
 	if($self->has_apology) {
 		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);
-	} else {
-		$db->prepare("UPDATE talks SET apologynote = NULL WHERE id = ?")->execute($self->talkid);
 	}
 	if($self->_has_flags) {
 		$db->prepare("UPDATE talks SET flags=? WHERE id = ?")->execute(encode_json($self->flags), $self->talkid);
-	} else {
-		$db->prepare("UPDATE talks SET flags = NULL WHERE id = ?")->execute($self->talkid);
 	}
 	if($self->has_stream) {
 		$db->prepare("UPDATE talks SET active_stream=? WHERE id = ?")->execute($self->active_stream, $self->talkid);
