@@ -23,7 +23,7 @@ my %task_configs = (
         notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         upload => [ "upload_actions", "event", "pubdir", "inputglob", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
-        injecting => [ "input_profile", "pubdir", "inputglob" ],
+        "inject-job" => [ "input_profile", "pubdir", "inputglob" ],
 );
 
 my $talk = SReview::Talk->new(talkid => $id);
