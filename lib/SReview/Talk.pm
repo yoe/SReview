@@ -119,6 +119,20 @@ sub _probe_flags {
 	return {};
 }
 
+has 'active_stream' => (
+	is => 'rw',
+	builder => '_probe_stream',
+	lazy => 1,
+	predicate => 'has_stream',
+);
+
+sub _probe_stream {
+	my $st = $pg->db->dbh->prepare("SELECT active_stream FROM talk WHERE id = ?");
+	$st->execute($self->talkid);
+	my $row = $st->fetchrow_arrayref;
+	return row->[0];
+}
+
 =head2 apology
 
 The apology note, if any. Predicate: C<has_apology>.
@@ -751,6 +765,9 @@ sub done_correcting {
 	} else {
 		$db->prepare("UPDATE talks SET flags = NULL WHERE id = ?")->execute($self->talkid);
 	}
+	if($self->has_stream) {
+		$db->prepare("UPDATE talks SET active_stream=? WHERE id = ?")->execute($self->active_stream, $self->talkid);
+	}
 }
 
 =head2 set_state
@@ -782,20 +799,6 @@ sub state_done {
 
         my $st = $pg->db->dbh->prepare("UPDATE talks SET progress='done' WHERE state = ? AND id = ?");
         $st->execute($state, $self->talkid);
-}
-
-=head2 set_stream
-
-Set the input stream this talk uses to the given string.
-
-=cut
-
-sub set_stream {
-	my $self = shift;
-	my $stream = shift;
-
-	my $st = $pg->db->dbh->prepare("UPDATE talks SET active_stream=? WHERE id = ?");
-	$st->execute($stream, $self->talkid);
 }
 
 =head2 reset_corrections
