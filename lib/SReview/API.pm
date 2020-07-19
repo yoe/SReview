@@ -1254,7 +1254,7 @@ components:
         upstreamid:
           type: string
         flags:
-          type: string
+          type: object
           description: string-encoded JSON object of flags on this talk, if any
           example: '{"is_injected":false}'
           nullable: true
