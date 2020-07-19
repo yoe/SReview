@@ -136,7 +136,7 @@ sub _probe_stream {
 	my $st = $pg->db->dbh->prepare("SELECT active_stream FROM talk WHERE id = ?");
 	$st->execute($self->talkid);
 	my $row = $st->fetchrow_arrayref;
-	return row->[0];
+	return $row->[0];
 }
 
 =head2 apology
