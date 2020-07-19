@@ -5,6 +5,7 @@ $state_actions = {
   'notification' => 'run-kube notify <%== $talkid %>',
   'transcoding' => 'run-kube transcode <%== $talkid %>',
   'uploading' => 'run-kube upload <%== $talkid %>',
+  'injecting' => 'run-kube inject-web <%== $talkid %>',
 };
 
 1;
