@@ -36,6 +36,8 @@ WriteMakefile(
 		'scripts/sreview-upload',
 		'scripts/sreview-transcode',
 		'scripts/sreview-previews',
+		'scripts/sreview-inject',
+		'scripts/sreview-inject-web',
 		'web/sreview-web',
 	],
 	$eud->get_makefile_vars
