@@ -79,6 +79,7 @@ sub update {
 	}
 	foreach my $upload(@{$c->req->uploads}) {
 		if($upload->name eq "video_asset") {
+			$c->app->log->debug("coying video asset " . $upload->filename);
 			my @parts = split /\./, $upload->filename;
 			my $ext = pop @parts;
 			my $fn = join('.', $talk->slug, $ext);
@@ -92,11 +93,13 @@ sub update {
 			$talk->set_state("injecting");
 			$talk->done_correcting;
 		} elsif($upload->name eq "other_asset") {
+			$c->app->log->debug("copying other asset " . $upload->filename);
 			my $coll = SReview::Files::Factory->create("upload", $c->srconfig->get("extra_collections")->{upload}, $c->srconfig);
 			my $file = $coll->add_file(relname => join("/", $talk->slug, $upload->filename));
 			$upload->move_to($file->filename);
 			$file->store_file;
 		}
+		$c->app->log->debug($upload->filename . " done");
 	}
 	$c->render(text => "ok");
 }
