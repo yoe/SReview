@@ -94,6 +94,12 @@ sub _load_pathinfo {
 	return $pathinfo;
 }
 
+=head2 flags
+
+Flags set on this talk. Setter: C<set_flag>; getter: C<get_flag>. Flags can be deleted with C<delete_flag>.
+
+=cut
+
 has 'flags' => (
 	is => 'rw',
 	traits => [ 'Hash' ],
