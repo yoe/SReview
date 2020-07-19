@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use lib "/home/wouter/sreview/lib";
-
 use SReview::Talk;
 use SReview::Config::Common;
 use SReview::Video;
