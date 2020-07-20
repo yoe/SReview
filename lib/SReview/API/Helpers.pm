@@ -71,6 +71,7 @@ sub update_with_json {
 		if($tuple[0] eq "id") {
 			$c->app->log->debug("skipping id");
 			next;
+		}
 		unless(exists($fields->{$tuple[0]})) {
 			$c->app->log->debug("skipping unknown field " . $tuple[0]);
 			next;
