@@ -88,7 +88,7 @@ objects:
                 && dpkg-buildpackage -uc -us -i -I.git \
                 && sed -i -e "/^ARG/d;s/@git_describe@/unknown/" dockerfiles/*/Dockerfile \
                 && sed -i -e 's,^COPY.*$,ADD packages.tar.gz /root/,' dockerfiles/common/Dockerfile \
-                && apt-get --purge autoremove \
+                && apt-get -y --purge autoremove \
                 && cd .. \
                 && tar cvf /packages.tar.gz *.deb
     strategy:
@@ -557,9 +557,12 @@ objects:
   metadata:
     name: manage-jobs
   rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch","list"]
   - apiGroups: ["batch", "extensions"]
     resources: ["jobs"]
-    verbs: ["create"]
+    verbs: ["create","list","watch","get","update","patch","delete"]]
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: RoleBinding
   metadata:
