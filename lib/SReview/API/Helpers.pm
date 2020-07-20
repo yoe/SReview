@@ -68,14 +68,26 @@ sub update_with_json {
 	my @updates;
 
 	while(my @tuple = each %$json) {
-		next if($tuple[0] eq "id");
-		next unless(exists($fields->{$tuple[0]}));
-		my $update = "${tuple[0]} = ?";
+		if($tuple[0] eq "id") {
+			$c->app->log->debug("skipping id");
+			next;
+		unless(exists($fields->{$tuple[0]})) {
+			$c->app->log->debug("skipping unknown field " . $tuple[0]);
+			next;
+		}
+		my $update = $tuple[0] . " = ?";
 		push @updates, $update;
 		push @args, $tuple[1];
 	}
 	my $updates = join(', ', @updates);
-	my $res = db_query($c->dbh, "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)", @args, $json->{id});
+	my $dbh = $c->dbh;
+	eval {
+		my $res = db_query($dbh, "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)", @args, $json->{id});
+	};
+	if($@) {
+		$c->render(openapi => {errors => [{message => "error communicating with database"},{message => $dbh->errstr}]}, status => 500);
+		return;
+	}
 
 	if(scalar(@$res) < 1) {
 		$c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
