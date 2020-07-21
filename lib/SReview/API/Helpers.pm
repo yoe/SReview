@@ -85,11 +85,13 @@ sub update_with_json {
 	my $updates = join(', ', @updates);
 	my $dbh = $c->dbh;
 	my $res;
+	my $query = "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)"
 	eval {
-		$res = db_query($dbh, "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)", @args, $json->{id});
+		$res = db_query($dbh, $query ,@args, $json->{id});
 	};
 	if($@) {
-		$c->render(openapi => {errors => [{message => "error communicating with database"},{message => $dbh->errstr}]}, status => 500);
+		$c->app->log->warn("error running $query: " . $dbh->errstr);
+		$c->render(openapi => {errors => [{message => "error communicating with database"}]}, status => 500);
 		return;
 	}
 
