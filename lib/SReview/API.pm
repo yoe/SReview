@@ -1256,7 +1256,7 @@ components:
         flags:
           type: object
           description: JSON object of flags on this talk, if any
-          example: '{"is_injected":false}'
+          example: {"is_injected":false}
           nullable: true
     Event:
       type: object
