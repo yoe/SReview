@@ -191,7 +191,7 @@ sub getById {
 	my $eventId = $c->param("eventId");
 	my $talkId = $c->param("talkId");
 
-	my $talk = db_query("SELECT row_to_json(talks.*) FROM talks WHERE event = ? AND talk = ?", $eventId, $talkId);
+	my $talk = db_query($c->dbh, "SELECT row_to_json(talks.*) FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
@@ -199,7 +199,7 @@ sub getById {
 		return;
 	}
 
-	$c->render(openapi => $talk);
+	$c->render(openapi => $talk->[0]);
 }
 
 sub getByNonce {
