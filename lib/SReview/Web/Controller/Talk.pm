@@ -3,6 +3,7 @@ package SReview::Web::Controller::Talk;
 use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Mojo::Util;
+use Mojo::JSON qw/encode_json/;
 
 use SReview::Talk;
 
