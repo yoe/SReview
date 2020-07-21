@@ -59,6 +59,10 @@ sub update {
 
 	$talk->{id} = $talkId;
 
+	if(exists($talk->{flags})) {
+		$talk->{flags} = encode_json($talk->{flags});
+	}
+
 	return update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
 }
 

@@ -8,7 +8,7 @@ our @EXPORT = qw/db_query update_with_json add_with_json delete_with_query/;
 our @EXPORT_OK = qw/db_query_log/;
 
 use SReview::Config::Common;
-use Mojo::JSON qw/decode_json/;
+use Mojo::JSON qw/decode_json encode_json/;
 
 sub db_query_log {
 	my ($app, $dbh, $query, @args) = @_;
@@ -64,6 +64,8 @@ sub update_with_json {
 		$c->render(openapi => {errors => [{message => 'id required'}]}, status => 400);
 		return;
 	}
+
+	$c->app->log->debug("updating $tablename with " . encode_json($json));
 
 	my @updates;
 
