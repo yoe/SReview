@@ -85,7 +85,7 @@ sub update_with_json {
 	my $updates = join(', ', @updates);
 	my $dbh = $c->dbh;
 	my $res;
-	my $query = "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)"
+	my $query = "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)";
 	eval {
 		$res = db_query($dbh, $query ,@args, $json->{id});
 	};
