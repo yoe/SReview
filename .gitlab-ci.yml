@@ -5,7 +5,7 @@ stages:
 - docker-pre
 - docker
 - docker-post
-- dockertest
+#- dockertest
 - release
 
 .build: &build
@@ -143,23 +143,23 @@ release:web:
 release:detect:
   <<: *drelease
 
-validate:web:
-  allow_failure: true
-  stage: dockertest
-  services:
-  - name: postgres:latest
-    alias: postgresql
-  - name: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG
-    alias: web
-  variables:
-    POSTGRES_USER: sreview
-    POSTGRES_DB: sreview
-    POSTGRES_PASSWORD: ""
-    POSTGRES_HOST_AUTH_METHOD: trust
-    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgresql;user=sreview"'
-    SREVIEW_ADMINUSER: '"test@example.com"'
-    SREVIEW_ADMINPW: '"foo"'
-    SREVIEW_URLBASE: '"http://web:8080/"'
-  image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
-  script:
-  - perl -I lib dockerfiles/tests/test.pl
+#validate:web:
+#  allow_failure: true
+#  stage: dockertest
+#  services:
+#  - name: postgres:latest
+#    alias: postgresql
+#  - name: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG
+#    alias: web
+#  variables:
+#    POSTGRES_USER: sreview
+#    POSTGRES_DB: sreview
+#    POSTGRES_PASSWORD: ""
+#    POSTGRES_HOST_AUTH_METHOD: trust
+#    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgresql;user=sreview"'
+#    SREVIEW_ADMINUSER: '"test@example.com"'
+#    SREVIEW_ADMINPW: '"foo"'
+#    SREVIEW_URLBASE: '"http://web:8080/"'
+#  image: $CI_REGISTRY_IMAGE/encoder:$CI_COMMIT_REF_SLUG
+#  script:
+#  - perl -I lib dockerfiles/tests/test.pl
