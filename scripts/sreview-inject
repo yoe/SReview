@@ -51,4 +51,4 @@ SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url =>
 $outputfile->store_file;
 $talk->set_flag('is_injected' => true);
 $talk->done_correcting;
-$talk->state_done;
+$talk->state_done("injecting");
