@@ -97,22 +97,40 @@ debian:unstable:
 docker:common:
   <<: *docker
   stage: docker-pre
+  needs:
+  - debian:testing
 
 docker:encoder:
   <<: *docker
+  needs:
+  - debian:testing
+  - docker:common
 
 docker:detect:
   <<: *docker
+  needs:
+  - debian:testing
+  - docker:common
 
 docker:master-kube:
   <<: *docker
   stage: docker-post
+  needs:
+  - debian:testing
+  - docker:master
+  - docker:common
 
 docker:master:
   <<: *docker
+  needs:
+  - debian:testing
+  - docker:common
 
 docker:web:
   <<: *docker
+  needs:
+  - debian:testing
+  - docker:common
 
 .drelease: &drelease
   stage: release
