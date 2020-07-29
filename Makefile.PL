@@ -10,7 +10,11 @@ my $eud = ExtUtils::Depends->new(qw/Alien::ffmpeg/);
 
 WriteMakefile(
 	NAME	=> "SReview",
+	ABSTRACT_FROM => "lib/SReview.pm",
 	VERSION_FROM => "lib/SReview.pm",
+	AUTHOR => [
+		'Wouter Verhelst <w@uter.be>',
+	],
 	PREREQ_PM => {
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
@@ -40,5 +44,16 @@ WriteMakefile(
 		'scripts/sreview-inject-job',
 		'web/sreview-web',
 	],
+	META_MERGE => {
+		"meta-spec" => { version => 2 },
+		resources => {
+			repository => {
+				type => "git",
+				url => "https://github.com/yoe/SReview.git",
+				web => "https://github.com/yoe/SReview",
+			},
+			homepage => "https://yoe.github.io/SReview",
+		}
+	},
 	$eud->get_makefile_vars
 );
