@@ -171,7 +171,7 @@ sub data {
 
         my $data = $talk->corrected_times;
         $data->{length} = $talk->video_fragments->[0]{raw_length};
-        $data->{filename} = join("/", $talk->workdir, $talk->slug . $config->get('preview_exten'));
+        $data->{filename} = join("/", $talk->workdir, $talk->slug . $c->srconfig->get('preview_exten'));
         $data->{room} = $talk->room;
 
         $c->render(json => $data);
