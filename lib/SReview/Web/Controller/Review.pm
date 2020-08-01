@@ -170,7 +170,7 @@ sub data {
         my $talk = SReview::Talk->by_nonce($c->stash('nonce'));
 
         my $data = $talk->corrected_times;
-        $data->{length} = $talk->video_fragments->[0]{raw_length};
+	$c->app->log->debug($talk->video_fragments);
         $data->{filename} = join("/", $talk->workdir, $talk->slug . $c->srconfig->get('preview_exten'));
         $data->{room} = $talk->room;
 
