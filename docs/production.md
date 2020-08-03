@@ -2,12 +2,14 @@
 
 SReview has been used in production for the following conferences:
 
-* FOSDEM: 2017 and 2018 edition.
-* DebConf: 2017 and 2018 edition.
-* A few mini-debconfs: 2017 Cambridge, 2018 Hamburg
+* FOSDEM: Every edition since the 2017 edition
+* DebConf: Every edition since the 2017 edition
+* A few mini-debconfs: 2017 Cambridge, 2018 Hamburg, most mini-debconfs
+  since.
+* OSW.za: 2019 edition
 
 What follows below is a short description of how SReview was installed
-and configured for each of those conferences. Note, however, that it is
+and configured for some of those conferences. Note, however, that it is
 possible to run all components of SReview on a single host; for small
 conferences, doing so is recommended.
 
@@ -90,3 +92,12 @@ machine; vittoria served the webinterface and the database, etc.
 ## Mini debconfs
 
 Everything was installed and run on vittoria.debian.org
+
+## OSW.co.za
+
+The Open Source Week in Johannesburg, South Africa, used SReview for the
+review and transcode cycle. Everything was installed on a single
+machine (from Debian packages) that was only available from the NOC;
+review was done by a single user. After the first day of this
+conference, when less rooms were required, we also reused some of the
+machines that were originally used for recording as transcoding workers.
