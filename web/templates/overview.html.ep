@@ -1,0 +1,32 @@
+%layout "default", scripts_extra => [ "/vue/vue.min.js" ];
+% my $event = stash('event');
+% my $e = stash('events');
+<div id="overview">
+  <h1>Talk overview</h1>
+  <p v-if="events.length > 0">Event:
+    <select v-model="event">
+      <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
+    </select>
+  </p>
+  <table class='table table-hover'>
+    <tr>
+      <th>Talk</th>
+      <th>Speakers</th>
+      <th>Room</th>
+      <th>Start time</th>
+      <th>End time</th>
+      <th>State</th>
+      <th>Progress</th>
+    </tr>
+    <tr v-for="row in rows">
+      <td v-if="row.reviewurl"><a v-bind:href="row.reviewurl">{{row.name}}</a></td><td v-if="row.reviewurl===undefined">{{row.name}}</td>
+      <td>{{row.speakers}}</td>
+      <td>{{row.room}}</td>
+      <td>{{new Date(row.starttime).toLocaleString()}}</td>
+      <td>{{new Date(row.endtime).toLocaleString()}}</td>
+      <td>{{row.state}}</td>
+      <td>{{row.progress}}</td>
+    </tr>
+  </table>
+</div>
+<script src="/overview.js"></script>

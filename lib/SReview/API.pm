@@ -59,6 +59,20 @@ tags:
 - name: user
   description: Managing users
 paths:
+  /config:
+    get:
+      x-mojo-to:
+        controller: config
+        action: get_config
+      summary: Get configuration values
+      operationId: get_config
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigData'
   /event:
     post:
       tags:
@@ -1176,6 +1190,11 @@ paths:
         action: list
 components:
   schemas:
+    ConfigData:
+      type: object
+      properties:
+        event:
+          $ref: '#/components/schemas/Event/properties/id'
     Talk:
       type: object
       properties:

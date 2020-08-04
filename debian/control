@@ -23,7 +23,7 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: sreview-common, libjs-bootstrap, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl
+Depends: sreview-common, libjs-bootstrap, libjs-vue, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl
 Recommends: httpd
 Description: SReview webinterface
  SReview is a video review and transcoding system. It allows users to
