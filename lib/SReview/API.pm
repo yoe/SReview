@@ -154,12 +154,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Event'
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Event not found
-          content: {}
       x-mojo-to:
         controller: event
         action: getById
