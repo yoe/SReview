@@ -193,6 +193,31 @@ paths:
       x-mojo-to:
         controller: event
         action: list
+  /event/{eventId}/overview:
+    get:
+      tags:
+      - event
+      summary: Return data for the overview page for this event
+      operationId: event_overview
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TalkReadable'
+      x-mojo-to:
+        controller: event
+        action: overview
   /event/{eventId}/talk:
     post:
       tags:
@@ -1347,6 +1372,26 @@ components:
         end_iso:
           type: string
           format: date-time
+    TalkReadable:
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/Talk/properties/title'
+        nonce:
+          $ref: '#/components/schemas/Talk/properties/nonce'
+        speakers:
+          type: string
+          example: 'Wouter Verhelst, Tammy Verhelst and Roel Verhelst'
+        room:
+          $ref: '#/components/schemas/Room/properties/name'
+        starttime:
+          $ref: '#/components/schemas/Talk/properties/starttime'
+        endtime:
+          $ref: '#/components/schemas/Talk/properties/endtime'
+        state:
+          $ref: '#/components/schemas/Talk/properties/state'
+        progress:
+          $ref: '#/components/schemas/Talk/properties/progress'
     TalkCorrections:
       type: object
       properties:
