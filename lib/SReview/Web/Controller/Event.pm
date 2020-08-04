@@ -38,9 +38,7 @@ sub getById {
 	my $event = db_query($c->dbh, "SELECT row_to_json(events.*) FROM events WHERE id = ?", $eventId);
 
 	if(scalar(@$event) < 1) {
-		$c->res->code(404);
-		$c->render(text => "not found");
-		return;
+		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
 	}
 
 	$c->render(openapi => $event->[0]);
