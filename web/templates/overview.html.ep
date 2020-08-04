@@ -2,7 +2,7 @@
 % my $event = stash('event');
 % my $e = stash('events');
 <div id="overview">
-  <h1>Talk overview</h1>
+  <h1>Video status overview</h1>
   <p v-if="events.length > 0">Event:
     <select v-model="event">
       <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
