@@ -54,4 +54,24 @@ sub list {
 	$c->render(openapi => $events);
 }
 
+sub overview {
+	my $c = shift->openapi->valid_input or return;
+
+	my $eventId = $c->param("eventId");
+	my $query;
+	if($c->srconfig->get("anonreviews")) {
+		$query = "SELECT json_build_object('reviewurl', '/r/' || nonce, 'name', name, 'speakers', speakers, 'room', room, 'starttime', starttime::timestamp, 'endtime', endtime::timestamp, 'state', state, 'progress', progress) FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
+	} else {
+		$query = "SELECT json_build_object('name', name, 'speakers', speakers, 'room', room, 'starttime', starttime::timestamp, 'endtime', endtime::timestamp, 'state', state, 'progress', progress) FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
+	}
+
+	my $res = db_query($c->dbh, $query, $eventId);
+
+	if(scalar(@$res) < 1) {
+		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
+	}
+
+	$c->render(openapi => db_query($c->dbh, $query, $eventId));
+}
+
 1;
