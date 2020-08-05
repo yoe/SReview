@@ -54,6 +54,8 @@ tags:
   description: Managing speakers
 - name: room
   description: Managing rooms
+- name: system
+  description: System information
 - name: track
   description: Managing tracks
 - name: user
@@ -61,6 +63,8 @@ tags:
 paths:
   /config:
     get:
+      tags:
+      - system
       x-mojo-to:
         controller: config
         action: get_config
