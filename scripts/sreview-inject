@@ -3,8 +3,11 @@
 use strict;
 use warnings;
 
+use File::Basename;
+use File::Temp qw/tempdir/;
 use SReview::Talk;
 use SReview::Config::Common;
+use SReview::Normalizer;
 use SReview::Video;
 use SReview::Video::ProfileFactory;
 use SReview::Videopipe;
@@ -18,11 +21,13 @@ my $talkid = undef;
 my $talknonce = undef;
 my $talkslug = undef;
 my $help = undef;
+my $audionormal = undef;
 
 GetOptions("t|talkid=i" => \$talkid,
            "n|nonce=s" => \$talknonce,
            "s|slug=s" => \$talkslug,
            "i|input=s" => \$inputfile,
+	   "a|audionormal" => \$audionormal,
            "h|help" => \$help) or pod2usage("command line invalid");
 
 if($help) {
@@ -44,6 +49,12 @@ if(defined($talknonce)) {
 $talk->set_state("injecting");
 $talk = SReview::Talk->new(talkid => $talkid);
 my $input = SReview::Video->new(url => $inputfile);
+if($audionormal) {
+	my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"));
+	my $normalized = SReview::Video->new(url => join("/", $dirname, basename($inputfile)));
+	SReview::Normalizer->new(input => $input, output => $normalized)->run();
+	$input = $normalized;
+}
 my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
