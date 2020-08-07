@@ -18,4 +18,8 @@ my $st = $db->prepare("SELECT filename FROM raw_files WHERE room = ? AND stream 
 $st->execute($talk->roomid, $talk->active_stream, '%' . $talk->slug . '%');
 my $row = $st->fetchrow_arrayref;
 my $inputfile = $input->get_file(fullname => $row->[0]);
-system("sreview-inject", "-t", $talkid, "-i", $inputfile->filename);
+my @command = ("sreview-inject", "-t", $talkid, "-i", $inputfile->filename);
+if(!$talk->get_flag("keep_audio")) {
+	push @command, "-a";
+}
+system(@command);
