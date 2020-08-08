@@ -22,6 +22,7 @@ WriteMakefile(
 		'Moose' => 0,
 		'DateTime' => 0,
 		'DateTime::Format::ISO8601' => 0,
+		'DateTime::Format::Pg' => 0,
 		'Net::Amazon::S3' => 0,
 	},
 	TEST_REQUIRES => {
