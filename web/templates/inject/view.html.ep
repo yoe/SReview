@@ -40,7 +40,7 @@
     </div>
     <div class="row">
       <div class="col-sm-12">
-        <input type="submit" class="btn btn-primary btn-lg" value="Deliver your files to <%= $talk->eventname %>"></input>
+        <input type="submit" class="btn btn-primary btn-lg" value="Upload your files"></input>
       </div>
     </div>
   </form>
