@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Mojo::Util;
 use Mojo::JSON qw/encode_json/;
+use DateTime::Format::Pg;
 
 use SReview::Talk;
 
@@ -20,7 +21,13 @@ sub listByEvent {
 		return;
 	}
 
-	$c->render(openapi => db_query($c->dbh, "SELECT row_to_json(talks.*) FROM talks WHERE event = ?", $eventId));
+	my $res = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ?", $eventId);
+	foreach my $r(@$res) {
+		$r->{starttime} = DateTime::Format::Pg->parse_datetime($r->{starttime})->iso8601();
+		$r->{endtime} = DateTime::Format::Pg->parse_datetime($r->{endtime})->iso8601();
+	}
+
+	$c->render(openapi => $res);
 }
 
 sub add {
@@ -192,7 +199,7 @@ sub getById {
 	my $eventId = $c->param("eventId");
 	my $talkId = $c->param("talkId");
 
-	my $talk = db_query($c->dbh, "SELECT row_to_json(talks.*) FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
+	my $talk = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
@@ -208,12 +215,16 @@ sub getByNonce {
 
 	my $nonce = $c->param("nonce");
 
-	my $talk = db_query($c->dbh, "SELECT row_to_json(talks.*) FROM talks WHERE nonce = ?", $nonce);
+	my $talk = db_query($c->dbh, "SELECT talks.* FROM talks WHERE nonce = ?", $nonce);
 
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
 		$c->render(text => "not found");
 		return;
+	}
+	foreach my $r(@$talk) {
+		$r->{starttime} = DateTime::Format::Pg->parse_datetime($r->{starttime})->iso8601();
+		$r->{endtime} = DateTime::Format::Pg->parse_datetime($r->{endtime})->iso8601();
 	}
 
 	$c->render(openapi => $talk->[0]);

@@ -17,7 +17,7 @@ sub listByTalk {
                 return;
         }
 
-        my $speakers = db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ?", $talkId);
+        my $speakers = db_query($c->dbh, "SELECT speakers.* FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ?", $talkId);
 
         $c->render(openapi => $speakers);
 }
@@ -27,7 +27,7 @@ sub search {
 
         my $searchString = "%" . $c->param("searchString") . "%";
 
-        $c->render(openapi => db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers WHERE name ILIKE ? OR email ILIKE ?", $searchString, $searchString));
+        $c->render(openapi => db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE name ILIKE ? OR email ILIKE ?", $searchString, $searchString));
 }
 
 sub add {
@@ -56,7 +56,7 @@ sub getById {
 
         my $speakerId = $c->param("speakerId");
 
-        my $speaker = db_query($c->dbh, "SELECT row_to_json(speakers.*) FROM speakers WHERE id = ?", $speakerId);
+        my $speaker = db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE id = ?", $speakerId);
 
         if(scalar(@$speaker) < 1) {
                 $c->res->code(404);

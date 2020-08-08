@@ -35,7 +35,7 @@ sub getById {
 	my $c = shift->openapi->valid_input or return;
 
 	my $eventId = $c->param("eventId");
-	my $event = db_query($c->dbh, "SELECT row_to_json(events.*) FROM events WHERE id = ?", $eventId);
+	my $event = db_query($c->dbh, "SELECT events.* FROM events WHERE id = ?", $eventId);
 
 	if(scalar(@$event) < 1) {
 		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
@@ -47,7 +47,7 @@ sub getById {
 sub list {
 	my $c = shift->openapi->valid_input or return;
 
-	my $events = db_query($c->dbh, "SELECT row_to_json(events.*) FROM events");
+	my $events = db_query($c->dbh, "SELECT events.* FROM events");
 
 	$c->render(openapi => $events);
 }
@@ -58,9 +58,9 @@ sub overview {
 	my $eventId = $c->param("eventId");
 	my $query;
 	if($c->srconfig->get("anonreviews")) {
-		$query = "SELECT json_build_object('reviewurl', '/r/' || nonce, 'name', name, 'speakers', speakers, 'room', room, 'starttime', starttime::timestamp, 'endtime', endtime::timestamp, 'state', state, 'progress', progress) FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
+		$query = "SELECT '/r/' || nonce AS reviewurl, name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
 	} else {
-		$query = "SELECT json_build_object('name', name, 'speakers', speakers, 'room', room, 'starttime', starttime::timestamp, 'endtime', endtime::timestamp, 'state', state, 'progress', progress) FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
+		$query = "SELECT name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
 	}
 
 	my $res = db_query($c->dbh, $query, $eventId);
@@ -69,7 +69,7 @@ sub overview {
 		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
 	}
 
-	$c->render(openapi => db_query($c->dbh, $query, $eventId));
+	$c->render(openapi => $res);
 }
 
 1;
