@@ -9,23 +9,25 @@ our @EXPORT_OK = qw/db_query_log/;
 
 use SReview::Config::Common;
 use Mojo::JSON qw/decode_json encode_json/;
+use DateTime::Format::Pg;
 
 sub db_query_log {
 	my ($app, $dbh, $query, @args) = @_;
 	my $st = $dbh->prepare($query);
 	$st->execute(@args);
-	my @results;
-	while(my $row = $st->fetchrow_arrayref) {
-		if(defined($app)) {
-			$app->log->debug('found row with first column: ' . $row->[0]);
-		}
-		if(scalar(@{$row}) == 1) {
-			push @results, $row->[0];
+	my $results = [];
+	while(my @row = $st->fetchrow_array) {
+		if(scalar(@row) > 1) {
+			my $h = {};
+			foreach my $col(@{$st->{NAME_lc}}) {
+				$h->{$col} = shift @row;
+			}
+			push @$results, $h;
 		} else {
-			push @results, "[" . join(",", @$row) . "]";
+			push @$results, @row;
 		}
 	}
-	return decode_json("[" . join(",", @results) . "]");
+	return $results;
 }
 
 sub db_query {
@@ -85,7 +87,7 @@ sub update_with_json {
 	my $updates = join(', ', @updates);
 	my $dbh = $c->dbh;
 	my $res;
-	my $query = "UPDATE $tablename SET $updates WHERE id = ? RETURNING row_to_json($tablename.*)";
+	my $query = "UPDATE $tablename SET $updates WHERE id = ? RETURNING $tablename.*";
 	eval {
 		$res = db_query($dbh, $query ,@args, $json->{id});
 	};
@@ -98,6 +100,22 @@ sub update_with_json {
 	if(scalar(@$res) < 1) {
 		$c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
 		return;
+	}
+	my $result = $res->[0];
+	foreach my $field(keys %$fields) {
+		next unless exists($fields->{$field}{format});
+		if($fields->{$field}{format} eq "date-time") {
+			# PostgreSQL never uses the T in date-time
+			# fields unless we're encoding JSON. Doing that
+			# makes Mojo::JSON unhappy. Not doing that makes
+			# OpenAPI unhappy about the lack of the T.
+			#
+                        # JSON makes me unhappy.
+                        $c->app->log->debug("changing date; before: ");
+                        $c->app->log->debug($result->{$field});
+			$result->{$field} = DateTime::Format::Pg->parse_datetime($result->{$field})->iso8601() or die;
+                        $c->app->log->debug("after: " . $result->{$field});
+		}
 	}
 
 	$c->render(openapi => $res->[0]);
@@ -130,12 +148,28 @@ sub add_with_json {
 	my $dbh = $c->dbh;
 	my $res;
 	eval {
-		$res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING row_to_json($tablename.*)", @args);
+		$res = db_query($dbh, "INSERT INTO $tablename($inserts) VALUES($fieldlist) RETURNING $tablename.*", @args);
 	};
 
 	if(!defined($res) || scalar(@$res) < 1) {
 		$c->render(openapi => {errors => [{message => "failed to add data: " . $dbh->errstr}]}, status => 400);
 		return;
+	}
+	my $result = $res->[0];
+	foreach my $field(keys %$fields) {
+		next unless exists($fields->{$field}{format});
+		if($fields->{$field}{format} eq "date-time") {
+			# PostgreSQL never uses the T in date-time
+			# fields unless we're encoding JSON. Doing that
+			# makes Mojo::JSON unhappy. Not doing that makes
+			# OpenAPI unhappy about the lack of the T.
+			#
+                        # JSON makes me unhappy.
+                        $c->app->log->debug("changing date; before: ");
+                        $c->app->log->debug($result->{$field});
+			$result->{$field} = DateTime::Format::Pg->parse_datetime($result->{$field})->iso8601() or die;
+                        $c->app->log->debug("after: " . $result->{$field});
+		}
 	}
 
 	$c->render(openapi => $res->[0]);

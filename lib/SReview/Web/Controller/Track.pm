@@ -25,7 +25,7 @@ sub update {
 sub list {
         my $c = shift->openapi->valid_input or return;
 
-        $c->render(openapi => db_query($c->dbh, "SELECT row_to_json(tracks.*) FROM tracks"));
+        $c->render(openapi => db_query($c->dbh, "SELECT tracks.* FROM tracks"));
 }
 
 sub getById {
@@ -33,7 +33,7 @@ sub getById {
 
         my $trackId = $c->param('trackId');
 
-        my $track = db_query($c->dbh, "SELECT row_to_json(tracks.*) FROM tracks WHERE id = ?", $trackId);
+        my $track = db_query($c->dbh, "SELECT tracks.* FROM tracks WHERE id = ?", $trackId);
 
         if(scalar(@$track) < 1) {
                 $c->res->code(404);

@@ -27,7 +27,7 @@ sub getById {
 
 	my $userId = $c->param('userId');
 
-	my $user = db_query($c->dbh, "SELECT row_to_json(users.*) FROM users WHERE id = ?", $userId);
+	my $user = db_query($c->dbh, "SELECT users.* FROM users WHERE id = ?", $userId);
 
 	if(scalar(@$user) < 1) {
 		$c->res->code(404);
@@ -49,7 +49,7 @@ sub delete {
 sub list {
 	my $c = shift->openapi->valid_input or return;
 
-	$c->render(openapi => db_query($c->dbh, "SELECT row_to_json(users.*) FROM users");
+	$c->render(openapi => db_query($c->dbh, "SELECT users.* FROM users");
 }
 
 1;

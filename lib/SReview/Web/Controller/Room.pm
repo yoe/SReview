@@ -27,7 +27,7 @@ sub getById {
 
         my $roomId = $c->param('roomId');
 
-        my $room = db_query($c->dbh, "SELECT row_to_json(rooms.*) FROM rooms WHERE id = ?", $roomId);
+        my $room = db_query($c->dbh, "SELECT rooms.* FROM rooms WHERE id = ?", $roomId);
 
         if(scalar(@$room) < 1) {
                 $c->res->code(404);
@@ -49,7 +49,7 @@ sub delete {
 sub list {
         my $c = shift->openapi->valid_input or return;
 
-        my $rooms = db_query($c->dbh, "SELECT row_to_json(rooms.*) FROM rooms");
+        my $rooms = db_query($c->dbh, "SELECT rooms.* FROM rooms");
 
         $c->render(openapi => $rooms);
 }
