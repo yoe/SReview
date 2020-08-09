@@ -46,7 +46,7 @@ if(defined($talknonce)) {
 } elsif(defined($talkslug)) {
     $talk = SReview::Talk->by_slug($talkslug);
 }
-$talk->set_state("injecting");
+$talk->set_state("injecting", "running");
 $talk = SReview::Talk->new(talkid => $talkid);
 my $input = SReview::Video->new(url => $inputfile);
 if($audionormal) {
