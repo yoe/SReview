@@ -20,7 +20,11 @@ var vm = new Vue({
     fetch("/api/v1/config")
     .then(response => response.json())
     .then(data => {this.event = data.event; updated(this);})
-    .catch(error => console.error(error))
+    .catch(error => console.error(error));
+    fetch("/api/v1/event/list")
+    .then(response => response.json())
+    .then(data => {this.events = data;})
+    .catch(error => console.error(error));
   },
   updated: function() {
     updated(this);
