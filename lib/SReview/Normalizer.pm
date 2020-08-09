@@ -95,7 +95,7 @@ has 'audio' => (
 sub _probe_audiofile {
 	my $self = shift;
 
-	my $audio = SReview::Video->new
+	my $audio = SReview::Video->new;
 
 	my $dir = $self->_tempdir;
 
@@ -134,6 +134,8 @@ Performs the normalization.
 =cut
 
 sub run {
+	my $self = shift;
+
 	my @command = ("bs1770gain", "-a", "-o", $self->tempdir);
 	if(SReview::Config::Common::setup()->get("command_tune")->{bs1770gain} ne "0.5") {
 		push @command, "--suffix=flac";
@@ -141,10 +143,12 @@ sub run {
 	push @command, $self->audio->url;
 	print "Running: '" . join("' '", @command) . "'\n";
 	system(@command);
-	my $audio_in = SReview::Video->new(url => join('/', $self->tempdir, basename($filename, [ ".wav" ])) . ".flac");
+	my $audio_in = SReview::Video->new(url => join('/', $self->tempdir, basename($self->audio->url, [ ".wav" ])) . ".flac");
 	my $map_v = SReview::Map->new(input => $self->input, type => "stream", choice => "video");
 	my $map_a = SReview::Map->new(input => $audio_in, type => "stream", choice => "audio");
 	$self->output->audio_codec($self->audio_codec);
 
 	SReview::Videopipe->new(inputs => [$self->input, $audio_in], "map" => [$map_a, $map_v], vcopy => 1, acopy => 0)->run();
 }
+
+1;
