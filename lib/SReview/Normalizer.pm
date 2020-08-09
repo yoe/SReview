@@ -136,7 +136,7 @@ Performs the normalization.
 sub run {
 	my $self = shift;
 
-	my @command = ("bs1770gain", "-a", "-o", $self->tempdir);
+	my @command = ("bs1770gain", "-a", "-o", $self->_tempdir);
 	if(SReview::Config::Common::setup()->get("command_tune")->{bs1770gain} ne "0.5") {
 		push @command, "--suffix=flac";
 	}
