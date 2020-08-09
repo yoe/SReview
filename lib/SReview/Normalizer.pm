@@ -142,7 +142,7 @@ sub run {
 	push @command, $self->audio->url;
 	print "Running: '" . join("' '", @command) . "'\n";
 	system(@command);
-	my $audio_in = SReview::Video->new(url => join('/', $self->tempdir, basename($self->audio->url, ".wav")) . ".flac");
+	my $audio_in = SReview::Video->new(url => join('/', $self->_tempdir, basename($self->audio->url, ".wav")) . ".flac");
 	my $map_v = SReview::Map->new(input => $self->input, type => "stream", choice => "video");
 	my $map_a = SReview::Map->new(input => $audio_in, type => "stream", choice => "audio");
 	$self->output->audio_codec($self->audio_codec);
