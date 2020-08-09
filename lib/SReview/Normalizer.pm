@@ -5,6 +5,7 @@ use File::Basename;
 use File::Temp qw/tempdir/;
 use SReview::CodecMap qw/detect_to_write/;
 use SReview::Config::Common;
+use SReview::Map;
 use SReview::Video;
 use SReview::Videopipe;
 
@@ -64,7 +65,7 @@ has 'output' => (
 
 has '_tempdir' => (
 	is => 'rw',
-	isa => 'String',
+	isa => 'Str',
 	lazy => 1,
 	builder => '_probe_tempdir',
 );
@@ -95,8 +96,6 @@ has 'audio' => (
 sub _probe_audiofile {
 	my $self = shift;
 
-	my $audio = SReview::Video->new;
-
 	my $dir = $self->_tempdir;
 
 	my $rv = SReview::Video->new(url => "$dir/audio.wav");
@@ -116,7 +115,7 @@ input video object.
 
 has 'audio_codec' => (
 	is => 'rw',
-	isa => 'String',
+	isa => 'Str',
 	lazy => 1,
 	builder => '_probe_audio_codec',
 );
@@ -143,12 +142,12 @@ sub run {
 	push @command, $self->audio->url;
 	print "Running: '" . join("' '", @command) . "'\n";
 	system(@command);
-	my $audio_in = SReview::Video->new(url => join('/', $self->tempdir, basename($self->audio->url, [ ".wav" ])) . ".flac");
+	my $audio_in = SReview::Video->new(url => join('/', $self->tempdir, basename($self->audio->url, ".wav")) . ".flac");
 	my $map_v = SReview::Map->new(input => $self->input, type => "stream", choice => "video");
 	my $map_a = SReview::Map->new(input => $audio_in, type => "stream", choice => "audio");
 	$self->output->audio_codec($self->audio_codec);
 
-	SReview::Videopipe->new(inputs => [$self->input, $audio_in], "map" => [$map_a, $map_v], vcopy => 1, acopy => 0)->run();
+	SReview::Videopipe->new(inputs => [$self->input, $audio_in], output => $self->output, "map" => [$map_a, $map_v], vcopy => 1, acopy => 0)->run();
 }
 
 1;
