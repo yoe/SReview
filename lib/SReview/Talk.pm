@@ -784,9 +784,12 @@ just before destroying it.
 sub set_state {
         my $self = shift;
         my $newstate = shift;
+	my $progress = shift;
 
-        my $st = $pg->db->dbh->prepare("UPDATE talks SET state=?, progress='waiting' WHERE id=?");
-        $st->execute($newstate, $self->talkid);
+	$progress = 'waiting' unless defined($progress);
+
+        my $st = $pg->db->dbh->prepare("UPDATE talks SET state=?, progress=? WHERE id=?");
+        $st->execute($newstate, $progress, $self->talkid);
 }
 
 =head2 state_done
