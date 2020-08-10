@@ -1140,6 +1140,12 @@ ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstat
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
 ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 23 up
+ALTER TABLE raw_files ADD CONSTRAINT unique_filename UNIQUE(filename);
+ALTER TABLE talks ALTER flags TYPE jsonb;
+-- 23 down
+ALTER TABLE raw_files DROP CONSTRAINT unique_filename;
+ALTER TABLE talks ALTER flags TYPE json;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
