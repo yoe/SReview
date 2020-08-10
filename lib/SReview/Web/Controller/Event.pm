@@ -57,6 +57,12 @@ sub overview {
 
 	my $eventId = $c->param("eventId");
 	my $query;
+	my $st = $c->dbh->prepare("SELECT id FROM events WHERE id = ?");
+	$st->execute($eventId);
+	if($st->rows < 1) {
+		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
+	}
+
 	if($c->srconfig->get("anonreviews")) {
 		$query = "SELECT '/r/' || nonce AS reviewurl, name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
 	} else {
@@ -64,10 +70,6 @@ sub overview {
 	}
 
 	my $res = db_query($c->dbh, $query, $eventId);
-
-	if(scalar(@$res) < 1) {
-		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
-	}
 
 	$c->render(openapi => $res);
 }
