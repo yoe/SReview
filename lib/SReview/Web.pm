@@ -21,6 +21,7 @@ sub startup {
 	SReview::API::init($self);
 
 	my $config = SReview::Config::Common::setup;
+	$self->max_request_size(1024*1024*1024);
 
 	if(defined($config->get("web_pid_file"))) {
 		$self->config(hypnotoad => { pid_file => $config->get("web_pid_file") });
