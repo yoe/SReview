@@ -86,7 +86,7 @@ sub update {
 			my $fn = join('.', $talk->slug, $ext);
 			my $coll = SReview::Files::Factory->create("input", $c->srconfig->get("inputglob"), $c->srconfig);
 			my $file = $coll->add_file(relname => join("/", "injected", $fn));
-			my $st = $c->dbh->prepare("INSERT INTO raw_files(filename, room, starttime, stream) VALUES(?,?,?,'injected')");
+			my $st = $c->dbh->prepare("INSERT INTO raw_files(filename, room, starttime, stream) VALUES(?,?,?,'injected') ON CONFLICT DO NOTHING");
 			$st->execute($file->url, $talk->roomid, $talk->corrected_times->{start});
 			$upload->move_to($file->filename);
 			$file->store_file;
