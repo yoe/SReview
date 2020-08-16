@@ -88,6 +88,7 @@ sub talksByState {
 	my $row = $st->fetchrow_hashref;
 	my $rv = {};
 	my $have_default = 0;
+	my %formats;
 	$rv->{conference}{title} = $row->{title};
 	$rv->{conference}{date} = [ $row->{start}, $row->{end} ];
 	$st = $c->dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room WHERE talks.event = ? LIMIT 1");
@@ -98,11 +99,11 @@ sub talksByState {
 	}
 	$row = $st->fetchrow_hashref;
 	my $vid = SReview::Video->new(url => $row->{filename});
-	foreach my $format(@{$config->get("output_profiles")}) {
+	foreach my $format(@{$c->srconfig->get("output_profiles")}) {
 		my $nf;
 		$c->app->log->debug("profile $format");
 		my $prof = SReview::Video::rofileFactory->create($format, $vid);
-		if(!$have_efault) {
+		if(!$have_default) {
 			$nf = 'default';
 			$have_default = 1;
 		} else {
@@ -140,8 +141,8 @@ sub talksByState {
 		}
 		my $outputdir = join('/', @outputdirs);
 		if($state > 'transcoding' && $state <= 'done') {
-			if(defined($config->get('eventurl_format'))) {
-				$video->{details_url} = $mt->render($config->get('eventurl_format'), {
+			if(defined($c->srconfig->get('eventurl_format'))) {
+				$video->{details_url} = $mt->render($c->srconfig->get('eventurl_format'), {
 					slug => $row->{slug},
 					room => $row->{room},
 					date => $row->{date},
