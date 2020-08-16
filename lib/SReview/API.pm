@@ -48,14 +48,14 @@ servers:
 tags:
 - name: event
   description: Managing events
-- name: talk
-  description: Managing talks
-- name: speaker
-  description: Managing speakers
 - name: room
   description: Managing rooms
+- name: speaker
+  description: Managing speakers
 - name: system
   description: System information
+- name: talk
+  description: Managing talks
 - name: track
   description: Managing tracks
 - name: user
