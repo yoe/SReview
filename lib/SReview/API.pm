@@ -48,6 +48,8 @@ servers:
 tags:
 - name: event
   description: Managing events
+- name: rawfile
+  description: Managing raw files
 - name: room
   description: Managing rooms
 - name: speaker
@@ -77,6 +79,199 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigData'
+  /collection/list:
+    get:
+      tags:
+      - system
+      summary: Get a list of the known file collections
+      operationId: get_collections
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+      x-mojo-to:
+        controller: rawfile
+        action: collections
+  /collection/{collectionName}/rawfile/list:
+    get:
+      tags:
+      - rawfile
+      summary: Get a list of the known raw files in a given collection
+      description: This operation requests a list of known raw files. It does *not* search the file system or the S3 bucket for files; it only queries the database for files that it knows about that would match the collection, and returns a list of raw files that way.
+      operationId: get_raw_files
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawFile'
+      x-mojo-to:
+        controller: rawfile
+        action: list
+  /collection/{collectionName}/rawfile/{rawId}:
+    patch:
+      tags:
+      - rawfile
+      summary: Update a raw file's metadata
+      operationId: update_raw_file
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      - name: rawId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/RawFile/properties/id'
+      requestBody:
+        description: RawFile object that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RawFile'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawFile'
+      security:
+      - api_key: []
+      x-mojo-to:
+        controller: rawfile
+        action: update
+    get:
+      tags:
+      - rawfile
+      summary: Retrieve a raw file from the database
+      operationId: get_raw_file
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      - name: rawId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/RawFile/properties/id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawFile'
+      x-mojo-to:
+        controller: rawfile
+        action: get
+    post:
+      tags:
+      - rawfile
+      summary: Add a raw file to the database
+      operationId: add_raw_file
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      - name: rawId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/RawFile/properties/id'
+      requestBody:
+        description: RawFile object to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RawFile'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawFile'
+      security:
+      - api_key: []
+      x-mojo-to:
+        controller: rawfile
+        action: add
+    delete:
+      tags:
+      - rawfile
+      summary: Remove a raw file from the database
+      operationId: delete_raw_file
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      - name: rawId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/RawFile/properties/id'
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+      - api_key: []
+      x-mojo-to:
+        controller: rawfile
+        action: delete
+  /collection/{collectionName}/rawfile/{rawId}/server:
+    patch:
+      tags:
+      - rawfile
+      summary: Update a raw file's metadata
+      description: "Update a raw file's metadata in the database. The difference between this operation and the `update_raw_file` one is that the former only adds the given metadata to the database, whereas this one will create a new `SReview::Video` object for the file's name, and compute the `endtime` property based on the `starttime` one and the file's length. This requires that the file be accessible from the server."
+      operationId: update_raw_file_server
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Collection/properties/name'
+      - name: rawId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/RawFile/properties/id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawFile'
+      security:
+      - api_key: []
+      x-mojo-to:
+        controller: rawfile
+        action: update_with_probe
   /event:
     post:
       tags:
@@ -1422,6 +1617,42 @@ components:
           type: string
         serial:
           type: string
+    Collection:
+      type: object
+      properties:
+        class:
+          type: string
+          enum:
+          - direct
+          - S3
+        baseurl:
+          type: string
+          example: "/local/path"
+        name:
+          type: string
+    RawFile: 
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        filename:
+          type: string
+          example: "/full/path/to/local/file"
+        room:
+          $ref: '#/components/schemas/Room/properties/id'
+        starttime:
+          type: string
+          format: date-time
+        endtime:
+          type: string
+          format: date-time
+        stream:
+          type: string
+          example: ''
+        mtime:
+          type: string
+          format: date-time
   securitySchemes:
     api_key:
       type: apiKey
