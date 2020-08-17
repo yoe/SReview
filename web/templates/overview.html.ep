@@ -7,6 +7,7 @@
     <select v-model="event">
       <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
     </select>
+    <button v-on:click="refresh"><span class="glyphicon glyphicon-refresh"></button>
   </p>
   <table class='table table-hover'>
     <tr>

@@ -16,6 +16,14 @@ var vm = new Vue({
     event: undefined,
     last_event: undefined,
   },
+  methods: {
+    refresh: function() {
+      fetch("/api/v1/event/" + vm.event + "/overview")
+      .then(response => response.json())
+      .then((data) => {vm.rows = data; vm.last_event = vm.event})
+      .catch(error => console.error(error));
+    }
+  }
   created: function() {
     fetch("/api/v1/config")
     .then(response => response.json())
