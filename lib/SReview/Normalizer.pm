@@ -53,7 +53,7 @@ has 'input' => (
 An L<SReview::Video> object that the normalized audio should be written
 to, together with the video from the input file.
 
-Required.
+Required. Must point to a .mkv file.
 
 =cut
 
@@ -76,54 +76,6 @@ sub _probe_tempdir {
 	return tempdir("normXXXXXX", DIR => SReview::Config::Common::setup()->get('workdir'), CLEANUP => 1);
 }
 
-=head2 audio
-
-Pre-extracted audio from the input file. Use this if the video and audio
-assets are already in separate files. Optional; if it is not provided,
-then the audio stream will be extracted from the input object.
-
-If provided, this MUST be in audio file in a C<.wav> container.
-
-=cut
-
-has 'audio' => (
-	is => 'rw',
-	isa => 'SReview::Video',
-	lazy => 1,
-	builder => '_probe_audiofile',
-);
-
-sub _probe_audiofile {
-	my $self = shift;
-
-	my $dir = $self->_tempdir;
-
-	my $rv = SReview::Video->new(url => "$dir/audio.wav");
-
-	SReview::Videopipe->new(inputs => [$self->input], output => $rv, acopy => 0, vskip => 1)->run();
-
-	return $rv;
-}
-
-=head2 audio_codec
-
-The codec to which to encode. Use if the input video object does not
-have an audio stream. Otherwise, defaults to the audio codec on the
-input video object.
-
-=cut
-
-has 'audio_codec' => (
-	is => 'rw',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_probe_audio_codec',
-);
-
-sub _probe_audio_codec {
-	return detect_to_write(shift->input->audio_codec);
-}
-
 =head1 METHODS
 
 =head2 run
@@ -135,19 +87,27 @@ Performs the normalization.
 sub run {
 	my $self = shift;
 
+	my $exten;
+
+	$self->input->url =~ /(.*)\.[^.]+$/;
+	my $base = $1;
+	if(!defined($self->input->video_codec)) {
+		$exten = "flac";
+	} else {
+		$exten = "mkv";
+	}
 	my @command = ("bs1770gain", "-a", "-o", $self->_tempdir);
 	if(SReview::Config::Common::setup()->get("command_tune")->{bs1770gain} ne "0.5") {
-		push @command, "--suffix=flac";
+		$exten = "mkv";
+		push @command, "--suffix=mkv";
 	}
-	push @command, $self->audio->url;
+	push @command, $self->input->url;
 	print "Running: '" . join("' '", @command) . "'\n";
 	system(@command);
-	my $audio_in = SReview::Video->new(url => join('/', $self->_tempdir, basename($self->audio->url, ".wav")) . ".flac");
-	my $map_v = SReview::Map->new(input => $self->input, type => "stream", choice => "video");
-	my $map_a = SReview::Map->new(input => $audio_in, type => "stream", choice => "audio");
-	$self->output->audio_codec($self->audio_codec);
 
-	SReview::Videopipe->new(inputs => [$self->input, $audio_in], output => $self->output, "map" => [$map_a, $map_v], vcopy => 1, acopy => 0)->run();
+	my $intermediate = join('.', $base, $exten);
+
+	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
 }
 
 1;
