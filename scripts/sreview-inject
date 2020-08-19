@@ -50,7 +50,7 @@ $talk->set_state("injecting", "running");
 $talk = SReview::Talk->new(talkid => $talkid);
 my $input = SReview::Video->new(url => $inputfile);
 if($audionormal) {
-	my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"));
+	my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
 	my $normalized = SReview::Video->new(url => join("/", $dirname, basename($inputfile)));
 	SReview::Normalizer->new(input => $input, output => $normalized)->run();
 	$input = $normalized;
