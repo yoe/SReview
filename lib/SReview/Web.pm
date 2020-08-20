@@ -125,13 +125,22 @@ sub startup {
 	});
 
 	my $eventid = undef;
-	my $st = $self->dbh->prepare("SELECT id FROM events WHERE name = ?");
-	$st->execute($config->get("event")) or die "Could not find event!\n";
-	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
-		die if defined($eventid);
-		$eventid = $row->{id};
-	}
 	$self->helper(eventid => sub {
+		if(!defined($eventid)) {
+			if(defined($config->get("event"))) {
+				my $st = $self->dbh->prepare("SELECT id FROM events WHERE name = ?");
+				$st->execute($config->get("event")) or die "Could not find event!\n";
+				while(my $row = $st->fetchrow_hashref("NAME_lc")) {
+					die if defined($eventid);
+					$eventid = $row->{id};
+				}
+			} else {
+				my $st = $self->dbh->prepare("SELECT max(id) FROM events");
+				$st->execute() or die "Could not query for events";
+				my $row = $st->fetchrow_hashref("NAME_lc");
+				$eventid = $row->{id};
+			}
+		}
 		return $eventid;
 	});
 
