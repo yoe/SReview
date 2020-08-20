@@ -23,7 +23,7 @@ var vm = new Vue({
       .then((data) => {vm.rows = data; vm.last_event = vm.event})
       .catch(error => console.error(error));
     }
-  }
+  },
   created: function() {
     fetch("/api/v1/config")
     .then(response => response.json())
