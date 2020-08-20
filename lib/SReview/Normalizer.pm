@@ -107,7 +107,7 @@ sub run {
 
 	my $intermediate = $self->_tempdir . "/" . basename($base) . ".$exten";
 
-	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
+	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 0)->run();
 }
 
 1;
