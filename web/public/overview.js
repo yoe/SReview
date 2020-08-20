@@ -17,7 +17,7 @@ var vm = new Vue({
     last_event: undefined,
   },
   methods: {
-    refresh: function() {
+    reloadEvent: function() {
       fetch("/api/v1/event/" + vm.event + "/overview")
       .then(response => response.json())
       .then((data) => {vm.rows = data; vm.last_event = vm.event})
