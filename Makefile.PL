@@ -28,6 +28,9 @@ WriteMakefile(
 	TEST_REQUIRES => {
 		'Test::More' => 0,
 	},
+	CONFIGURE_REQUIRES => {
+		'ExtUtils::Depends' => 0,
+	},
 	EXE_FILES => [
 		'scripts/sreview-cut',
 		'scripts/sreview-config',
