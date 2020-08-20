@@ -105,7 +105,7 @@ sub run {
 	print "Running: '" . join("' '", @command) . "'\n";
 	system(@command);
 
-	my $intermediate = join('.', $base, $exten);
+	my $intermediate = $self->_tempdir . "/" . basename($base) . ".$exten";
 
 	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
 }
