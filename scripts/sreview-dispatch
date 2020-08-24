@@ -147,10 +147,10 @@ same database if wanted.
 
 	$dbh->prepare("UPDATE talks SET state=state_next(state), progress='waiting' WHERE progress='done' AND event = (SELECT id FROM events WHERE name = ?)")->execute($config->get('event'));
 	if($config->get('query_limit') > 0) {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room JOIN events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) OR progress = 'done' LIMIT ?");
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room JOIN events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) LIMIT ?");
 		$st->execute($config->get('event'), $config->get('query_limit'));
 	} else {
-		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room JOIN events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?) OR progress = 'done'");
+		$st = $dbh->prepare("SELECT talks.id, state, progress, title, rooms.name AS room, extract(epoch from (endtime - starttime)) AS length FROM talks JOIN rooms ON rooms.id = talks.room JOIN events ON events.id = talks.event WHERE (state IN ($statelist) AND progress = 'waiting' AND events.name = ?)");
 		$st->execute($config->get('event'));
 	}
 	while(my $row = $st->fetchrow_hashref) {
