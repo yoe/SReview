@@ -1,17 +1,11 @@
 package SReview::Normalizer;
 
 use Moose;
-use File::Basename;
-use File::Temp qw/tempdir/;
-use SReview::CodecMap qw/detect_to_write/;
 use SReview::Config::Common;
-use SReview::Map;
-use SReview::Video;
-use SReview::Videopipe;
 
 =head1 NAME
 
-SReview::Normalizer - normalize the audio of a video asset using bs1770gain
+SReview::Normalizer - normalize the audio of a video asset.
 
 =head1 SYNOPSIS
 
@@ -63,19 +57,6 @@ has 'output' => (
 	required => 1,
 );
 
-has '_tempdir' => (
-	is => 'rw',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_probe_tempdir',
-);
-
-sub _probe_tempdir {
-	my $self = shift;
-
-	return tempdir("normXXXXXX", DIR => SReview::Config::Common::setup()->get('workdir'), CLEANUP => 1);
-}
-
 =head1 METHODS
 
 =head2 run
@@ -85,29 +66,10 @@ Performs the normalization.
 =cut
 
 sub run {
-	my $self = shift;
-
-	my $exten;
-
-	$self->input->url =~ /(.*)\.[^.]+$/;
-	my $base = $1;
-	if(!defined($self->input->video_codec)) {
-		$exten = "flac";
-	} else {
-		$exten = "mkv";
-	}
-	my @command = ("bs1770gain", "-a", "-o", $self->_tempdir);
-	if(SReview::Config::Common::setup()->get("command_tune")->{bs1770gain} ne "0.5") {
-		$exten = "mkv";
-		push @command, "--suffix=mkv";
-	}
-	push @command, $self->input->url;
-	print "Running: '" . join("' '", @command) . "'\n";
-	system(@command);
-
-	my $intermediate = $self->_tempdir . "/" . basename($base) . ".$exten";
-
-	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 0)->run();
+	my $config = SReview::Config::Common::setup();
+	my $pkg = "SReview::Normalizer::" . ucfirst($config->get("normalizer"));
+	require $pkg;
+	return $pkg->new(input => $self->input, output => $self->output)->run();
 }
 
 1;
