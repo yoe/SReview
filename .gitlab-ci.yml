@@ -167,6 +167,7 @@ pages:
   - debian:testing
   script:
   - mkdir public
+  - apt-get update; apt-get -y --no-install-recommends install devscripts
   - dcmd cp products/*.changes public/
   artifacts:
     paths:
