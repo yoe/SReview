@@ -169,7 +169,7 @@ pages:
   - mkdir public
   - apt-get update; apt-get -y --no-install-recommends install devscripts
   - dcmd cp products/*.changes public/
-  - for i in public/*.deb; do ln -s $i ${i%_${i#*_}}.deb; done
+  - for i in public/*.deb; do ln -s $(basename $i) ${i%_${i#*_}}.deb; done
   artifacts:
     paths:
     - public
