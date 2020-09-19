@@ -161,6 +161,19 @@ release:web:
 release:detect:
   <<: *drelease
 
+pages:
+  stage: release
+  dependencies:
+  - debian:testing
+  script:
+  - mkdir public
+  - dcmd cp products/*.changes public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - main
+
 #validate:web:
 #  allow_failure: true
 #  stage: dockertest
