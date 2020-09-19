@@ -175,6 +175,7 @@ pages:
     - public
   only:
   - main
+  needs: debian:testing
 
 #validate:web:
 #  allow_failure: true
