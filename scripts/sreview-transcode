@@ -26,6 +26,7 @@ use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
 use SReview::Talk;
+use SReview::Template;
 use SReview::Video;
 use SReview::Video::PNGGen;
 use SReview::Video::Concat;
@@ -185,6 +186,15 @@ sub process_template($$) {
 	my $subtitle = xml_escape($drow->{subtitle});
 	my $startdate = xml_escape($drow->{date});
 	my $apology = xml_escape($drow->{apologynote});
+	my $regexvars = {
+		'@SPEAKERS@' => $speakers,
+		'@ROOM@' => $room,
+		'@TITLE@' => $title,
+		'@SUBTITLE@' => $subtitle,
+		'@DATE@' => $date,
+		'@APOLOGY@' => $apology,
+	};
+	my $template_engine = SReview::Template->new(talk => $talk, regexvars => $regexvars);
 
 	if($input =~ /^http(s)?:\/\//) {
 		my $ua = Mojo::UserAgent->new->connect_timeout(60)->max_redirects(10);
@@ -198,17 +208,12 @@ sub process_template($$) {
 		open INPUT, '<:encoding(UTF-8)', $input;
 	}
 	open my $fh, ">:encoding(UTF-8)", $outputsvg;
-	$room =~ s/ \(backup\)//;
 	print "creating $output from $input\n";
+	my $content = "";
 	while(<INPUT>) {
-		s/\@SPEAKERS@/$speakers/g;
-		s/\@ROOM@/$room/g;
-		s/\@TITLE@/$title/g;
-		s/\@SUBTITLE@/$subtitle/g;
-		s/\@DATE@/$startdate/g;
-		s/\@APOLOGY@/$apology/g;
-		print $fh $_;
+		$content .= $_;
 	}
+	print $fh $template_engine->string($content);
 	close INPUT;
 	close $fh;
 	my $inkscape_options = "--batch-process -o $output";
@@ -377,9 +382,16 @@ The apology note defined for this talk.
 If one of these fields has no data for the given talk, then the tag will
 be replaced by the empty string instead.
 
+In addition, as of version 0.7, the template is processed by
+L<Mojo::Template> with the L<SReview::Talk> object for the current talk
+assigned to the C<$talk> variable, which allows for far more
+flexibility. See the documentation of L<Mojo::Template> for more details
+on that templating engine, and the documentation of L<SReview::Talk> for
+the available values from that object.
+
 =head1 SEE ALSO
 
 L<sreview-cut>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>,
-L<SReview::Video::ProfileFactory>
+L<SReview::Video::ProfileFactory>, L<SReview::Talk>, L<Mojo::Template>.
 
 =cut
