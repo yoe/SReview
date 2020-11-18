@@ -191,7 +191,7 @@ sub process_template($$) {
 		'@ROOM@' => $room,
 		'@TITLE@' => $title,
 		'@SUBTITLE@' => $subtitle,
-		'@DATE@' => $date,
+		'@DATE@' => $startdate,
 		'@APOLOGY@' => $apology,
 	};
 	my $template_engine = SReview::Template->new(talk => $talk, regexvars => $regexvars);
