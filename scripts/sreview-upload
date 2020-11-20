@@ -45,7 +45,7 @@ $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
 my $r_file = SReview::Files::Factory->create("input", $config->get('inputglob'))->get_file(fullname => $raw_file->{filename});
 $raw_file = SReview::Video->new(url => $r_file->filename);
-my $talk_st = $dbh->prepare("SELECT event, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
+my $talk_st = $dbh->prepare("SELECT event, event_output, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk_st->execute($talkid);
 my $talkdata = $talk_st->fetchrow_hashref;
 
