@@ -1583,3 +1583,58 @@ begin
   enumvals := enum_range(startval, NULL);
   return enumvals[2];
 end $_$;
+-- 4 up
+DROP VIEW talk_list;
+CREATE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    events.outputdir AS event_output,
+    rooms.name AS room,
+    rooms.outputname AS room_output,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM rooms
+     LEFT JOIN talks ON rooms.id = talks.room
+     LEFT JOIN events ON talks.event = events.id
+     LEFT JOIN tracks ON talks.track = tracks.id;
+-- 4 down
+DROP VIEW talk_list;
+CREATE VIEW talk_list AS
+ SELECT talks.id,
+    talks.event AS eventid,
+    events.name AS event,
+    rooms.name AS room,
+    rooms.outputname AS room_output,
+    speakerlist(talks.id) AS speakers,
+    talks.title AS name,
+    talks.nonce,
+    talks.slug,
+    talks.starttime,
+    talks.endtime,
+    talks.state,
+    talks.progress,
+    talks.comments,
+    rooms.id AS roomid,
+    talks.prelen,
+    talks.postlen,
+    talks.subtitle,
+    talks.apologynote,
+    tracks.name AS track
+   FROM rooms
+     LEFT JOIN talks ON rooms.id = talks.room
+     LEFT JOIN events ON talks.event = events.id
+     LEFT JOIN tracks ON talks.track = tracks.id;
