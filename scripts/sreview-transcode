@@ -108,7 +108,7 @@ my $talk = SReview::Talk->new(talkid => $talkid);
 
 my $slug = $talk->slug;
 
-my $data = $dbh->prepare("SELECT eventid, event, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, speakers, name AS title, subtitle, apologynote FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, event_output, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, speakers, name AS title, subtitle, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 
@@ -142,6 +142,11 @@ The ID number of the event that this talk was recorded at
 =item event
 
 The name of the event that this talk was recorded at
+
+=item event_output
+
+The "outputdir" value in row of the events field of the event that this
+talk was recorded at.
 
 =item room
 
