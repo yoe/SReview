@@ -17,7 +17,7 @@ sub _load_conf_url {
 }
 
 sub _load_upstreamid {
-	my $rv = [split(/-/, shift->conf_url)];
+	my $rv = [split(/-/, shift->slug)];
 	return $rv->[0];
 }
 
