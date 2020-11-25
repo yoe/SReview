@@ -46,6 +46,7 @@ WriteMakefile(
 		'scripts/sreview-previews',
 		'scripts/sreview-inject',
 		'scripts/sreview-inject-job',
+		'scripts/sreview-import',
 		'web/sreview-web',
 	],
 	META_MERGE => {
