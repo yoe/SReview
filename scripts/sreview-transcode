@@ -26,7 +26,7 @@ use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
 use SReview::Talk;
-use SReview::Template;
+use SReview::Template::SVG qw/process_template/;
 use SReview::Video;
 use SReview::Video::PNGGen;
 use SReview::Video::Concat;
@@ -181,53 +181,6 @@ when C<sreview-transcode> finishes.
 
 my $tmpdir = tempdir( "transXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
 
-sub process_template($$) {
-	my $input = shift;
-	my $output = shift;
-	my $outputsvg = "$tmpdir/tmp.svg";
-	my $speakers = xml_escape($drow->{speakers});
-	my $room = xml_escape($drow->{room});
-	my $title = xml_escape($drow->{title});
-	my $subtitle = xml_escape($drow->{subtitle});
-	my $startdate = xml_escape($drow->{date});
-	my $apology = xml_escape($drow->{apologynote});
-	my $regexvars = {
-		'@SPEAKERS@' => $speakers,
-		'@ROOM@' => $room,
-		'@TITLE@' => $title,
-		'@SUBTITLE@' => $subtitle,
-		'@DATE@' => $startdate,
-		'@APOLOGY@' => $apology,
-	};
-	my $template_engine = SReview::Template->new(talk => $talk, regexvars => $regexvars);
-
-	if($input =~ /^http(s)?:\/\//) {
-		my $ua = Mojo::UserAgent->new->connect_timeout(60)->max_redirects(10);
-		my $res = $ua->get($input)->result;
-		if(!$res->is_success) {
-			die "could not download: " . $res->message;
-		}
-		my $data = $res->body;
-		open INPUT, '<:encoding(UTF-8)', \$data;
-	} else {
-		open INPUT, '<:encoding(UTF-8)', $input;
-	}
-	open my $fh, ">:encoding(UTF-8)", $outputsvg;
-	print "creating $output from $input\n";
-	my $content = "";
-	while(<INPUT>) {
-		$content .= $_;
-	}
-	print $fh $template_engine->string($content);
-	close INPUT;
-	close $fh;
-	my $inkscape_options = "--batch-process -o $output";
-	if($config->get("command_tune")->{inkscape} eq "0.9") {
-		$inkscape_options = "--export-png=$output";
-	}
-	system("inkscape $inkscape_options $outputsvg");
-}
-
 =item preroll_template
 
 The name of an SVG template to be used for the preroll (i.e., opening
@@ -236,7 +189,7 @@ credits). Required.
 =cut
 
 my $preroll_file = $input_coll->add_file(relname => $talk->relative_name . "-pre.png");
-process_template($config->get('preroll_template'), $preroll_file->filename);
+process_template($config->get('preroll_template'), $preroll_file->filename, $talk, $config);
 $preroll_file->store_file;
 
 =item postroll_template
@@ -256,7 +209,7 @@ my $postroll_file;
 
 if(defined($config->get('postroll_template'))) {
 	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "-post.png");
-	process_template($config->get('postroll_template'), $postroll_file->filename);
+	process_template($config->get('postroll_template'), $postroll_file->filename, $talk, $config);
 	$postroll_file->store_file;
 	$postroll = $postroll_file->filename;
 } elsif(defined($config->get('postroll'))) {
@@ -295,7 +248,7 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "-sorry.png");
 
 	die unless defined($config->get('apology_template'));
-	process_template($config->get('apology_template'), $apology_file->filename);
+	process_template($config->get('apology_template'), $apology_file->filename, $talk, $config);
 	$apology_file->store_file;
 	$sorry = SReview::Video->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, duration => 5);
 	SReview::Videopipe->new(inputs => [SReview::Video::PNGGen->new(url => $apology_file->filename)], output => $sorry)->run();
