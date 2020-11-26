@@ -328,6 +328,23 @@ sub _load_title {
 	return $self->_get_pathinfo->{raw}{title};
 }
 
+=head2 subtitle
+
+The subtitle of the talk
+
+=cut
+
+has 'subtitle' => (
+	lazy => 1,
+	is => 'rw',
+	builder => '_load_subtitle',
+);
+
+sub _load_subtitle {
+	my $self = shift;
+	return $self->_get_pathinfo->{raw}{subtitle};
+}
+
 =head2 workdir
 
 The working directory where the files for this talk should be stored
