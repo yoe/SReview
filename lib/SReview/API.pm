@@ -674,6 +674,72 @@ paths:
       x-mojo-to:
         controller: talk
         action: setCorrections
+  /event/{eventId}/talk/{slug}/preroll:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the preroll image for the talk
+      operationId: talk_preroll
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "-pre.png"
+  /event/{eventId}/talk/{slug}/postroll:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the preroll image for the talk
+      operationId: talk_postroll
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "-post.png"
+  /event/{eventId}/talk/{slug}/sorry:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the preroll image for the talk
+      operationId: talk_sorry
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "-sorry.png"
   /event/{eventId}/talk/list:
     get:
       tags:
