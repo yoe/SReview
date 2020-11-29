@@ -14,8 +14,8 @@ sub init {
 			api_key => sub {
 				my ($c, $definition, $scopes, $cb) = @_;
 				return $c->$cb('API key not configured') unless defined($config->get('api_key'));
-				return $c->$cb('Authorization header not present') unless $c->req->headers->authorization;
-				return $c->$cb('API key invalid') unless $c->req->headers->authorization eq $config->get('api_key');
+				return $c->$cb('API key not present') unless $c->req->headers->x_sreview_key;
+				return $c->$cb('API key invalid') unless $c->req->headers->x_sreview_key eq $config->get('api_key');
 				return $c->$cb();
 			},
 			sreview_auth => sub {
@@ -1816,5 +1816,5 @@ components:
   securitySchemes:
     api_key:
       type: apiKey
-      name: Authorization
+      name: X-SReview-Key
       in: header
