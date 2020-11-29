@@ -75,7 +75,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
@@ -291,6 +291,22 @@ has 'eventname' => (
 sub _load_eventname {
 	my $self = shift;
 	return $self->_get_pathinfo->{raw}{event};
+}
+
+=head2 event_output
+
+The name of the event as used in output directories, if any.
+
+=cut
+
+has 'event_output' => (
+	lazy => 1,
+	is => 'ro',
+	builder => '_load_event_output',
+);
+
+sub _load_event_output {
+	return shift->_get_pathinfo->{raw}{event_output};
 }
 
 =head2 state
@@ -672,6 +688,8 @@ sub _load_eventurl {
 			room => $self->room,
 			date => $self->date,
 			event => $self->eventname,
+			event_output => $self->event_output,
+			talk => $self,
 			year => $self->_get_pathinfo->{raw}{year}});
 	}
 	return "";
