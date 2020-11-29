@@ -42,7 +42,7 @@ SKIP: {
 	$t->ua->on(start => sub {
 		my ($ua, $tx) = @_;
 		if($do_auth) {
-			$tx->req->headers->authorization("foobarbaz");
+			$tx->req->headers->x_sreview_key("foobarbaz");
 		}
 	});
 
