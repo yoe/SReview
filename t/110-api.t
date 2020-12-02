@@ -33,10 +33,16 @@ SKIP: {
 	SReview::Db::init(SReview::Config::Common::setup());
 	SReview::Db::selfdestruct(code => 0, init => 0);
 
-	my $script = path(__FILE__);
-	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
-	symlink "../t", "web/t";
-	chdir($script->dirname);
+	my $script;
+
+	if(exists($ENV{SREVIEWTEST_INSTALLED})) {
+		$script = "SReview::Web";
+	} else {
+		$script = path(__FILE__);
+		$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
+		symlink "../t", "web/t";
+		chdir($script->dirname);
+	}
 	my $t = Test::Mojo->new($script);
 
 	$t->ua->on(start => sub {
