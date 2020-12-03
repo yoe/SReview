@@ -24,6 +24,7 @@ WriteMakefile(
 		'DateTime::Format::ISO8601' => 0,
 		'DateTime::Format::Pg' => 0,
 		'Net::Amazon::S3' => 0,
+		'Net::SSH::AuthorizedKeysFile' => 0,
 	},
 	TEST_REQUIRES => {
 		'Test::More' => 0,
