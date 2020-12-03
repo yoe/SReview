@@ -1,2 +1,2 @@
-Test-Command: SREVIEWTEST_INSTALLED=1 SREVIEWTEST_DB=1 perl t/110-api.t
+Test-Command: SREVIEWTEST_INSTALLED=1 perl t/110-api.t
 Depends: sreview-web
