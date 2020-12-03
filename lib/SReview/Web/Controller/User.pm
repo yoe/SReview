@@ -8,7 +8,7 @@ sub add {
 
 	my $user = $c->req->json;
 
-	return add_with_json($c, $user, "users", $c->openapi->spec('/components/schemas/User/properties');
+	return add_with_json($c, $user, "users", $c->openapi->spec('/components/schemas/User/properties'));
 }
 
 sub update {
@@ -19,7 +19,7 @@ sub update {
 
 	$user->{id} = $userId;
 
-	return update_with_json($c, $user, "users", $c->openapi->spec('/components/schemas/User/properties');
+	return update_with_json($c, $user, "users", $c->openapi->spec('/components/schemas/User/properties'));
 }
 
 sub getById {
@@ -49,7 +49,7 @@ sub delete {
 sub list {
 	my $c = shift->openapi->valid_input or return;
 
-	$c->render(openapi => db_query($c->dbh, "SELECT users.* FROM users");
+	$c->render(openapi => db_query($c->dbh, "SELECT users.* FROM users"));
 }
 
 1;
