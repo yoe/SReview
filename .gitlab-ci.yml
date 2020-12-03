@@ -181,6 +181,11 @@ pages:
   - debian:testing
 
 validate:package:
+  image: debian:testing
+  dependencies:
+  - debian:testing
+  needs:
+  - debian:testing
   before_script:
   - apt-get update
   - apt-get -y install autopkgtest
