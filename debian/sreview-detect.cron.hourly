@@ -1,3 +1,0 @@
-if [ -x /usr/bin/sreview-import ]; then
-	exec /usr/bin/sreview-import
-fi
