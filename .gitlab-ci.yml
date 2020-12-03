@@ -2,6 +2,7 @@
 stages:
 - test
 - deb
+- autopkgtest
 - docker-pre
 - docker
 - docker-post
@@ -178,6 +179,14 @@ pages:
   - main
   needs:
   - debian:testing
+
+validate:package:
+  before_script:
+  - apt-get update
+  - apt-get -y install autopkgtest
+  stage: autopkgtest
+  script:
+  - autopkgtest products/*ges -- null
 
 #validate:web:
 #  allow_failure: true
