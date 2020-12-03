@@ -28,7 +28,7 @@ my $cfgname = path()->to_abs->child('config.pm');
 my $do_auth = 0;
 
 SKIP: {
-	skip("Need a database to play with", 1) unless exists($ENV{SREVIEWTEST_DB});
+	skip("Need a database to play with", 1) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}));
 
 	SReview::Db::init(SReview::Config::Common::setup());
 	SReview::Db::selfdestruct(code => 0, init => 0);
