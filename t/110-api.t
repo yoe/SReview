@@ -9,15 +9,15 @@ use SReview::Db;
 use SReview::Config::Common;
 
 BEGIN {
+	open my $config, ">config.pm";
 	if(exists($ENV{SREVIEWTEST_DB})) {
-		open my $config, ">config.pm";
-		print $config '$secret="foo";' . "\n";
 		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB} . '\';' . "\n";
-		print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
-		print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
-		print $config '$api_key="foobarbaz"' . "\n";
-		close $config
 	}
+	print $config '$secret="foo";' . "\n";
+	print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
+	print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
+	print $config '$api_key="foobarbaz"' . "\n";
+	close $config
 }
 
 use Test::More;
