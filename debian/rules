@@ -9,4 +9,4 @@ override_dh_install:
 
 override_dh_installinit:
 	dh_installinit -psreview-master --name=sreview-dispatch
-	dh_installinit --remaining
+	dh_installinit --remaining-packages

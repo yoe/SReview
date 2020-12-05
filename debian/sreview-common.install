@@ -1,5 +1,8 @@
 usr/share/man/man1/sreview-config*
 usr/share/man/man1/sreview-user*
+usr/share/man/man3/SReview*
+usr/share/man/man3/SReview::Config*
+usr/share/man/man3/SReview::Talk*
 usr/share/man/man3/SReview::Video*
 usr/share/perl5/SReview.pm
 usr/share/perl5/SReview/CodecMap.pm
