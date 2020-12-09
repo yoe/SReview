@@ -1,5 +1,10 @@
-sreview (0.6.1-2) unstable; urgency=medium
+sreview (0.6.2-1) UNRELEASED; urgency=medium
 
+  * New (minor) upstream release. New features: add a "Multi" schedule
+    parser, to create a "shadow" event from a main upstream event in the
+    SReview database.
+  * Drop JSON::Validator cache files, which weren't supposed to be in
+    the upload to begin with.
   * Bump debhelper compat to 13
   * Add debian/not-installed, so we can ignore the files that don't matter
 
