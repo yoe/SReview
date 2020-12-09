@@ -1,4 +1,4 @@
-sreview (0.6.2-1) UNRELEASED; urgency=medium
+sreview (0.6.2-1) unstable; urgency=medium
 
   * New (minor) upstream release. New features: add a "Multi" schedule
     parser, to create a "shadow" event from a main upstream event in the
@@ -8,7 +8,7 @@ sreview (0.6.2-1) UNRELEASED; urgency=medium
   * Bump debhelper compat to 13
   * Add debian/not-installed, so we can ignore the files that don't matter
 
- -- Wouter Verhelst <wouter@debian.org>  Sat, 05 Dec 2020 13:37:23 +0200
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 09 Dec 2020 14:57:10 +0200
 
 sreview (0.6.1-1) unstable; urgency=medium
 
