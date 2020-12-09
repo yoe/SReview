@@ -117,8 +117,10 @@ sub _load_talks {
 	my $rv = [];
 	my %rooms;
 	my $talktype = $self->talktype;
+	return $rv unless(grep(/^day$/, $self->schedref->children_names));
 	foreach my $day($self->schedref->children('day')) {
 		my $dt = DateTime::Format::ISO8601->parse_datetime($day->attribute('date'));
+		next unless(grep(/^room$/, $day->children_names));
 		foreach my $room($day->children('room')) {
 			my $roomname = $room->attribute('name');
 			if(!exists($rooms{$roomname})) {
