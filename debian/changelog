@@ -1,3 +1,9 @@
+sreview (0.6.2-2) unstable; urgency=medium
+
+  * Ensure that PostgreSQL is installed and configured in the autopkgtest
+
+ -- Wouter Verhelst <wouter@debian.org>  Thu, 10 Dec 2020 08:02:56 +0200
+
 sreview (0.6.2-1) unstable; urgency=medium
 
   * New (minor) upstream release. New features: add a "Multi" schedule
