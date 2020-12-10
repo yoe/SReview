@@ -1,2 +1,2 @@
 Test-Command: SREVIEWTEST_INSTALLED=1 perl t/110-api.t
-Depends: sreview-web
+Depends: sreview-web, postgresql, dbconfig-pgsql
