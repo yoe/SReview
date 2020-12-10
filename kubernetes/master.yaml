@@ -167,3 +167,36 @@ spec:
                 secretKeyRef:
                   name: sreview-secret
                   key: SREVIEW_DBISTRING
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: import
+spec:
+  concurrencyPolicy: Forbid
+  schedule: 0,30 * * * *
+  jobTemplate:
+    metadata:
+      labels:
+        app: sreview-import
+    spec:
+      template:
+        metadata:
+          labels:
+            app: sreview-import
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: import
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
+            imagePullPolicy: Always
+            command: ["/usr/bin/sreview-import"]
+            envFrom:
+            - configMapRef:
+                name: sreview-config
+            env:
+            - name: SREVIEW_DBISTRING
+              valueFrom:
+                secretKeyRef:
+                  name: sreview-secret
+                  key: SREVIEW_DBISTRING
