@@ -142,7 +142,7 @@ metadata:
 spec:
   concurrencyPolicy: Forbid
   schedule: 0,30 * * * *
-  jobTemplate: 
+  jobTemplate:
     metadata:
       labels:
         app: sreview-detect
