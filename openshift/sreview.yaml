@@ -617,7 +617,7 @@ objects:
   spec:
     concurrencyPolicy: Forbid
     schedule: 0,30 * * * *
-    jobTemplate: 
+    jobTemplate:
       metadata:
         labels:
           app: sreview-detect
@@ -633,6 +633,38 @@ objects:
               image: sreview-detect:${GIT_REF}
               imagePullPolicy: Always
               command: ["/usr/bin/sreview-detect"]
+              envFrom:
+              - configMapRef:
+                  name: sreview-config
+              env:
+              - name: SREVIEW_DBISTRING
+                valueFrom:
+                  secretKeyRef:
+                    name: sreview-secret
+                    key: SREVIEW_DBISTRING
+- apiVersion: batch/v1beta1
+  kind: CronJob
+  metadata:
+    name: import
+  spec:
+    concurrencyPolicy: Forbid
+    schedule: 0,30 * * * *
+    jobTemplate:
+      metadata:
+        labels:
+          app: sreview-import
+      spec:
+        template:
+          metadata:
+            labels:
+              app: sreview-import
+          spec:
+            restartPolicy: OnFailure
+            containers:
+            - name: import
+              image: sreview-detect:${GIT_REF}
+              imagePullPolicy: Always
+              command: ["/usr/bin/sreview-import"]
               envFrom:
               - configMapRef:
                   name: sreview-config
