@@ -1,2 +1,3 @@
-Test-Command: SREVIEWTEST_INSTALLED=1 perl t/110-api.t
+Test-Command: SREVIEWTEST_INSTALLED=1 su -w SREVIEWTEST_INSTALLED -c 'perl t/110-api.t' sreview
+Restrictions: needs-root
 Depends: sreview-web, postgresql, dbconfig-pgsql
