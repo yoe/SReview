@@ -1,3 +1,9 @@
+sreview (0.6.2-3) unstable; urgency=medium
+
+  * Ensure that the code under test has access to the database.
+
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 11 Dec 2020 09:29:30 +0200
+
 sreview (0.6.2-2) unstable; urgency=medium
 
   * Ensure that PostgreSQL is installed and configured in the autopkgtest
