@@ -1,3 +1,11 @@
+sreview (0.6.2-4) unstable; urgency=medium
+
+  * debian/tests/control: drop. We can't get the autopkgtest to work
+    currently, and this close to the freeze we don't have the time to
+    fix it properly. We'll review this after the release of bullseye.
+
+ -- Wouter Verhelst <wouter@debian.org>  Sun, 20 Dec 2020 11:34:33 +0200
+
 sreview (0.6.2-3) unstable; urgency=medium
 
   * Ensure that the code under test has access to the database.
