@@ -66,6 +66,7 @@ Performs the normalization.
 =cut
 
 sub run {
+	my $self = shift;
 	my $config = SReview::Config::Common::setup();
 	my $pkg = "SReview::Normalizer::" . ucfirst($config->get("normalizer"));
 	require $pkg;
