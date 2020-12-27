@@ -49,16 +49,56 @@ if(defined($talknonce)) {
 $talk->set_state("injecting", "running");
 $talk = SReview::Talk->new(talkid => $talkid);
 my $input = SReview::Video->new(url => $inputfile);
-if($audionormal) {
-	my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
-	my $normalized = SReview::Video->new(url => join("/", $dirname, basename($inputfile)));
-	SReview::Normalizer->new(input => $input, output => $normalized)->run();
-	$input = $normalized;
-}
-my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
-SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
+
+my $checks = $config->get("inject_transcode_skip_checks");
+my $do_transcode = 0;
+if(defined($checks)) {
+	foreach my $prop(keys %$checks) {
+		my $attr = $input->meta->find_attribute_by_name($prop);
+		my $val = $attr->get_value($input);
+		if(!defined($val)) {
+			print("Skip check failed: value for $prop not defined for input video. Retranscoding.\n");
+			$do_transcode = 1;
+			last;
+		}
+		if(exists($checks->{$prop}{min}) && exists($checks->{$prop}{max})) {
+			if(($val > $checks->{$prop}{max}) || ($val < $checks->{$prop}{min})) {
+				print("Skip check failed: value for $prop out of bounds on input video. Retranscoding.\n");
+				$do_transcode = 1;
+				last;
+			} else {
+				next;
+			}
+		}
+		if(exists($checks->{$prop}{val})) {
+			if($val ne $checks->{$prop}{val}) {
+				print("Skip check failed: value for $prop does not string-equal expected value. Retranscoding.\n");
+				$do_transcode = 1;
+				last;
+			} else {
+				next;
+			}
+		}
+		print("Skip check failed: configuration for $prop does not have both a minimum and maximum, or misses exact value. Retranscoding.\n");
+		last;
+	}
+}
+
+if(!$do_transcode) {
+	print("Skip check successful; not transcoding, just copying a file around.\n");
+	copy($inputfile, $outputfile->filename);
+} else {
+	if($audionormal) {
+		my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
+		my $normalized = SReview::Video->new(url => join("/", $dirname, basename($inputfile)));
+		SReview::Normalizer->new(input => $input, output => $normalized)->run();
+		$input = $normalized;
+	}
+	my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
+	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
+}
 $outputfile->store_file;
 $talk->set_flag('is_injected' => true);
 $talk->done_correcting;
