@@ -109,6 +109,9 @@ sub setup {
 	$config->define('schedule_format', 'The format in which the schedule is set. Must be implemented as a child class of SReview::Schedule::Base', 'penta');
 	$config->define('schedule_options', 'The options to pass to the schedule parser as specified through schedule_format. See the documentation of your chosen parser for details.', {});
 
+	# for sreview-inject
+	$config->define('inject_transcode_skip_checks', "Minimums and maximums, or exact values, of video assets that cause sreview-inject to skip the transcode check if they are found in the video asset");
+
 	# for tuning command stuff
 	$config->define('command_tune', 'Some commands change incompatibly from one version to the next. This option exists to deal with such incompatibilities', {});
 
