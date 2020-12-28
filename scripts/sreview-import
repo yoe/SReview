@@ -76,14 +76,14 @@ my $parser = "$pclass"->new(%$opts);
 
 $dbh->begin_work;
 
-my $update_talk = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz, title = ?, subtitle = ?, track = ?, flags = ? WHERE id = ?");
+my $update_talk = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime = ?::timestamptz, endtime = ?::timestamptz, title = ?, subtitle = ?, track = ? WHERE id = ?");
 my $search_room = $dbh->prepare("SELECT id FROM rooms WHERE name = ?");
 my $add_room = $dbh->prepare("INSERT INTO rooms(name, altname, outputname) VALUES(?, ?, ?) RETURNING id");
 my $update_room = $dbh->prepare("UPDATE rooms SET altname = ?, outputname = ? WHERE name = ?");
 my $search_track = $dbh->prepare("SELECT id FROM tracks WHERE upstreamid = ?");
 my $add_track = $dbh->prepare("INSERT INTO tracks(name, email, upstreamid) VALUES(?, ?, ?) RETURNING id");
 my $update_track = $dbh->prepare("UPDATE track SET name = ?, email = ? WHERE upstreamid = ?");
-my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description, flags) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?, ?) RETURNING id");
+my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?) RETURNING id");
 my $set_flags = $dbh->prepare("UPDATE talks SET flags = flags::jsonb || ?::jsonb WHERE id = ?");
 my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ?");
 my $update_speaker = $dbh->prepare("UPDATE speaker SET name = ?, email = ? WHERE upstreamid = ?");
@@ -146,11 +146,11 @@ foreach my $event(@{$parser->events}) {
 		}
 		my $talkid;
 		if(exists($known_talks{$talk->upstreamid})) {
-			$update_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $talk->subtitle, $track, $known_talks{$talk->upstreamid}, $talk->flags) or die $!;
+			$update_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $talk->subtitle, $track, $known_talks{$talk->upstreamid}) or die $!;
 			$talkid = $known_talks{$talk->upstreamid};
 			delete $known_talks{$talk->upstreamid};
 		} else {
-			$add_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $eventid, $talk->upstreamid, $talk->subtitle, $track, $talk->description, $talk->flags) or die $!;
+			$add_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $eventid, $talk->upstreamid, $talk->subtitle, $track, $talk->description) or die $!;
 			$row = $add_talk->fetchrow_arrayref;
 			$talkid = $row->[0];
 		}
