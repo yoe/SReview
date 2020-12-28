@@ -116,7 +116,7 @@ has 'event_suffix' => (
 has 'talk_opts' => (
 	is => 'ro',
 	isa => 'HashRef',
-	default => {},
+	default => sub { {} },
 );
 
 sub _load_talks {
