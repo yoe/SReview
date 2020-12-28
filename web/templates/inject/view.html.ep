@@ -6,7 +6,7 @@
 </div>
 % }
   <h1>
-    <small><%= $talk->eventname . " videos" =%></small>
+    <small><%= $talk->eventname =%></small>
     <%= $talk->title =%>
   </h1>
   <div class="row" id="talk_info">
@@ -32,7 +32,7 @@
     </div>
     <div class="row">
       <div class="col-sm-12">
-        <input type="submit" class="btn btn-primary btn-lg" value="Upload your files"></input>
+        <input type="submit" class="btn btn-primary btn-lg" value="Upload"></input>
       </div>
     </div>
   </form>
