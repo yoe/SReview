@@ -113,11 +113,18 @@ has 'event_suffix' => (
 	default => '',
 );
 
+has 'talk_opts' => (
+	is => 'ro',
+	isa => 'HashRef',
+	default => {},
+);
+
 sub _load_talks {
 	my $self = shift;
 	my $rv = [];
+	my $opts = $self->talk_opts;
 	foreach my $talk(@{$self->parent->talks}) {
-		push @$rv, SReview::Schedule::Multi::ShadowTalk->new(parent => $talk, prefix => $self->talk_prefix, suffix => $self->talk_suffix);
+		push @$rv, SReview::Schedule::Multi::ShadowTalk->new(parent => $talk, prefix => $self->talk_prefix, suffix => $self->talk_suffix, %$opts);
 	}
 	return $rv;
 }
