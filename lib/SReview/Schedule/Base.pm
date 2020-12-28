@@ -145,7 +145,7 @@ has 'starttime' => (
 	builder => '_load_starttime',
 );
 
-sub _load_datetime {
+sub _load_starttime {
 	return DateTime->now;
 }
 
