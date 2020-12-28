@@ -31,14 +31,6 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-4">
-        <label for="other_asset">Other files (e.g., slides):</label>
-      </div>
-      <div class="col-sm-8">
-        <input type="file" multiple="1" name="other_asset" id="other_asset"></input>
-      </div>
-    </div>
-    <div class="row">
       <div class="col-sm-12">
         <input type="submit" class="btn btn-primary btn-lg" value="Upload your files"></input>
       </div>
