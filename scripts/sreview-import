@@ -85,7 +85,7 @@ my $search_track = $dbh->prepare("SELECT id FROM tracks WHERE upstreamid = ?");
 my $add_track = $dbh->prepare("INSERT INTO tracks(name, email, upstreamid) VALUES(?, ?, ?) RETURNING id");
 my $update_track = $dbh->prepare("UPDATE track SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?) RETURNING id");
-my $set_flags = $dbh->prepare("UPDATE talks SET flags = flags::jsonb || ?::jsonb WHERE id = ?");
+my $set_flags = $dbh->prepare("UPDATE talks SET flags = COALESCE(flags::jsonb || ?::jsonb, ?::jsonb) WHERE id = ?");
 my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ?");
 my $update_speaker = $dbh->prepare("UPDATE speaker SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_speaker = $dbh->prepare("INSERT INTO speakers(email, name, upstreamid) VALUES(?, ?, ?) RETURNING id");
@@ -164,7 +164,8 @@ foreach my $event(@{$parser->events}) {
 					$flags->{$flag} = $JSON::false;
 				}
 			}
-			$set_flags->execute(encode_json($flags), $talkid);
+			$flags = encode_json($flags);
+			$set_flags->execute($flags, $flags, $talkid);
 		}
 		$clear_speakers->execute($talkid) or die $!;
 		foreach my $speaker(@{$talk->speakers}) {
