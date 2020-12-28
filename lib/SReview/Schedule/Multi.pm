@@ -154,7 +154,7 @@ has 'base_options' => (
 
 has 'shadows' => (
 	is => 'ro',
-	isa => 'ArrayRef[HashRef[Str]]',
+	isa => 'ArrayRef[HashRef[Any]]',
 	required => 1,
 );
 
