@@ -156,7 +156,15 @@ foreach my $event(@{$parser->events}) {
 			$talkid = $row->[0];
 		}
 		if(defined($talk->flags)) {
-			$set_flags->execute(encode_json($talk->flags), $talkid);
+			my $flags = $talk->flags;
+			foreach my $flag(keys %$flags) {
+				if($flags->{$flag}) {
+					$flags->{$flag} = $JSON::true;
+				} else {
+					$flags->{$flag} = $JSON::false;
+				}
+			}
+			$set_flags->execute(encode_json($flags), $talkid);
 		}
 		$clear_speakers->execute($talkid) or die $!;
 		foreach my $speaker(@{$talk->speakers}) {
