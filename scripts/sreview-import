@@ -5,6 +5,7 @@ use warnings;
 
 use SReview::Config::Common;
 use DBI;
+use JSON;
 
 =head1 SREVIEW-IMPORT
 
@@ -155,7 +156,7 @@ foreach my $event(@{$parser->events}) {
 			$talkid = $row->[0];
 		}
 		if(defined($talk->flags)) {
-			$set_flags->execute($talk->flags, $talkid);
+			$set_flags->execute(encode_json($talk->flags), $talkid);
 		}
 		$clear_speakers->execute($talkid) or die $!;
 		foreach my $speaker(@{$talk->speakers}) {
