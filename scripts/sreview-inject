@@ -87,8 +87,8 @@ if(defined($checks)) {
 }
 
 if(!$do_transcode) {
-	print("Skip check successful; not transcoding, just copying a file around.\n");
-	copy($inputfile, $outputfile->filename);
+	print("Skip check successful; not transcoding, just copying data around.\n");
+	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename), vcopy => 1, acopy => 1)->run();
 } else {
 	if($audionormal) {
 		my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
