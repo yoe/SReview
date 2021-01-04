@@ -3,7 +3,7 @@ package SReview::Web::Controller::Talk;
 use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
 use Mojo::Util;
-use Mojo::JSON qw/encode_json/;
+use Mojo::JSON qw/encode_json decode_json/;
 use DateTime::Format::Pg;
 
 use SReview::Talk;
@@ -25,6 +25,9 @@ sub listByEvent {
 	foreach my $r(@$res) {
 		$r->{starttime} = DateTime::Format::Pg->parse_datetime($r->{starttime})->iso8601();
 		$r->{endtime} = DateTime::Format::Pg->parse_datetime($r->{endtime})->iso8601();
+		if($r->{flags}) {
+			$r->{flags} = decode_json($r->{flags});
+		}
 	}
 
 	$c->render(openapi => $res);
