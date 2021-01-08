@@ -37,6 +37,8 @@ sub view {
 		$variant = 'preparing';
 	} elsif($talk->state < 'done') {
 		$variant = 'transcode';
+	} elsif($talk->state = 'injecting') {
+		$variant = 'injecting';
 	} else {
 		$variant = 'done';
 	}
