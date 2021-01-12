@@ -34,6 +34,13 @@ sub getByUpstream {
 	my $c = shift->openapi->valid_input or return;
 
 	my $speaker = db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE upstreamid = ?", $c->param("upstreamId"));
+
+	if(scalar(@$speaker) < 1) {
+		$c->res->code(404);
+		$c->render(text => "not found");
+		return;
+	}
+
 	$c->render(openapi => $speaker->[0]);
 }
 
