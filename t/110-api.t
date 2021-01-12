@@ -136,6 +136,8 @@ SKIP: {
 	$t->post_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(400);
 	$t->get_ok("$b/event/1/speaker/byupstream/foo")->status_is(200)->json_is("/name" => "Wouter Verhelst");
 	$t->get_ok("$b/event/1/speaker/byupstream/bar")->status_is(404);
+	$do_auth = 0;
+	$t->get_ok("$b/event/1/speaker/byupstream/foo")->status_is(401);
 }
 
 unlink($cfgname);

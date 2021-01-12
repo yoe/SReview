@@ -484,6 +484,8 @@ paths:
       x-mojo-to:
         controller: speaker
         action: getByUpstream
+      security:
+      - api_key: []
   /event/{eventId}/talk:
     post:
       tags:
