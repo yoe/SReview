@@ -456,6 +456,33 @@ paths:
       x-mojo-to:
         controller: event
         action: talksByState
+  /event/{eventId}/speaker/byupstream/{upstreamId}:
+    get:
+      tags:
+      - speaker
+      summary: Find speakers by their upstream ID
+      operationId: event_speaker_by_upstreamid
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: upstreamId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              $ref: '#/components/schemas/Speaker'
+      x-mojo-to:
+        controller: speaker
+        action: getByUpstream
   /event/{eventId}/talk:
     post:
       tags:
