@@ -49,7 +49,7 @@ sub view {
 
 	$c->stash(talk => $talk);
 	$c->stash(stylesheets => ['/review.css']);
-	$c->render(variant => $variant);
+	$c->render(template => "review/" . $c->srconfig->get("review_template"), variant => $variant);
 }
 
 sub update {
