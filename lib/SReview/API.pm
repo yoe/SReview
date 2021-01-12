@@ -479,7 +479,8 @@ paths:
           description: successful operation
           content:
             application/json:
-              $ref: '#/components/schemas/Speaker'
+              schema:
+                $ref: '#/components/schemas/Speaker'
       x-mojo-to:
         controller: speaker
         action: getByUpstream

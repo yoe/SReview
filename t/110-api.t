@@ -114,7 +114,7 @@ SKIP: {
 	$t->get_ok("$b/speaker/search/Wouter")->status_is(401);
 	$do_auth = 1;
 	$t->get_ok("$b/speaker/search/Wouter")->status_is(200)->json_is("" => []);
-	$t->post_ok("$b/speaker" => json => {name => "Wouter Verhelst"})->status_is(200)->json_is("/name" => "Wouter Verhelst")->json_is("/id" => 1);
+	$t->post_ok("$b/speaker" => json => {name => "Wouter Verhelst", upstreamid => "foo"})->status_is(200)->json_is("/name" => "Wouter Verhelst")->json_is("/id" => 1);
 	$t->get_ok("$b/speaker/search/Wouter")->status_is(200)->json_is("/0/name" => "Wouter Verhelst");
 	$t->patch_ok("$b/speaker/1" => json => {email => 'w@uter.be'})->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
 	$t->get_ok("$b/speaker/1")->status_is(200)->json_is("/email" => 'w@uter.be')->json_is("/name" => "Wouter Verhelst");
@@ -134,6 +134,8 @@ SKIP: {
 	ok($js[1] == 2, "speaker 2 is assigned correctly");
 	$t->put_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(200)->json_is("" => [2]);
 	$t->post_ok("$b/event/1/talk/1/speakers" => json => [2])->status_is(400);
+	$t->get_ok("$b/event/1/speaker/byupstream/foo")->status_is(200)->json_is("/name" => "Wouter Verhelst");
+	$t->get_ok("$b/event/1/speaker/byupstream/bar")->status_is(404);
 }
 
 unlink($cfgname);
