@@ -30,6 +30,13 @@ sub search {
         $c->render(openapi => db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE name ILIKE ? OR email ILIKE ?", $searchString, $searchString));
 }
 
+sub getByUpstream {
+	my $c = shift->openapi->valid_input or return;
+
+	my $speaker = db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE upstreamid = ?", $c->param("upstreamId"));
+	$c->render(openapi => $speaker->[0]);
+}
+
 sub add {
         my $c = shift->openapi->valid_input or return;
 
