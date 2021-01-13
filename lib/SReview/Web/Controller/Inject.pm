@@ -7,6 +7,7 @@ use Data::Dumper;
 use SReview::Access qw/admin_for/;
 use SReview::Files::Factory;
 use SReview::Talk;
+use SReview::Video;
 
 sub view {
 	my $c = shift;
@@ -91,6 +92,43 @@ sub update {
 			my $st = $c->dbh->prepare("INSERT INTO raw_files(filename, room, starttime, stream) VALUES(?,?,?,'injected') ON CONFLICT DO NOTHING");
 			$st->execute($file->url, $talk->roomid, $talk->corrected_times->{start});
 			$upload->move_to($file->filename);
+			$c->app->log->debug("checking video asset " . $upload->filename);
+			my $input = SReview::Video->new(url => $file->filename);
+			my $checks = $c->srconfig->get("inject_fatal_checks");
+			foreach my $prop(keys %$checks) {
+				my $attr = $input->meta->find_attribute_by_name($prop);
+				my $val = $attr->get_value($input);
+				if(!defined($val)) {
+					$c->stash(short_error => "Invalid upload");
+					$c->stash(error => "Could not find the attribute <tt>$prop</tt> of the uploaded file. Cannot process this file.");
+					$c->render(variant => "error");
+					return;
+				} elsif(exists($checks->{$prop}{min}) && exists($checks->{$prop}{max})) {
+					if(($val > $checks->{$prop}{max}) || ($val < $checks->{$prop}{min})) {
+						$c->stash(short_error => "Invalid upload");
+						$c->stash(error => "Value of property <tt>$prop</tt> out of bounds for the uploaded file. Cannot process this file.");
+						$c->render(variant => "error");
+						return;
+					}
+				} elsif(exists($checks->{$prop}{val})) {
+					if($val ne $checks->{$prop}{val}) {
+						$c->stash(short_error => "Invalid upload");
+						$c->stash(error => "Value of property <tt>$prop</tt> does not string-equal expected value. Cannot process this file.");
+						$c->render(variant => "error");
+						return;
+					}
+				} elsif(exists($checks->{$prop}{talkattr_max})) {
+					my $talkattr = $talk->meta->find_attribute_by_name($checks->{$prop}{talkattr_max});
+					if($val >= $talkattr->get_value($talk)) {
+						$c->stash(short_error => "Invalid upload");
+						$c->stash(error => "Value of property <tt>$prop</tt> is too high for this talk. Cannot process this file.");
+						$c->render(variant => "error");
+						return;
+					}
+				} else {
+					die "invalid configuration: $prop requires either minimum and maximum, or an exact value.";
+				}
+			}
 			$file->store_file;
 			$talk->active_stream("injected");
 			$talk->set_state("injecting");
