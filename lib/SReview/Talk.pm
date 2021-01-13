@@ -6,6 +6,7 @@ use Mojo::Template;
 use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
+use DateTime::Format::Pg;
 
 my $config = SReview::Config::Common::setup;
 my $pg = Mojo::Pg->new->dsn($config->get('dbistring')) or die "Cannot connect to database!";
@@ -75,7 +76,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(starttime, 'yyyy') AS year, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
@@ -710,6 +711,19 @@ has 'preview_exten' => (
 # TODO: autodetect this, rather than hardcoding it
 sub _load_preview_exten {
 	return $config->get('preview_exten');
+}
+
+has 'scheduled_length' => (
+	is => "ro",
+	lazy => 1,
+	builder => "_load_scheduled_length",
+);
+
+sub _load_scheduled_length {
+	my $self = shift;
+	my $start = DateTime::Format::Pg->parse_datetime($self->pathinfo->{starttime});
+	my $end = DateTime::Format::Pg->parse_datetime($self->pathinfo->{endtime});
+	return $end->epoch - $start->epoch;
 }
 
 =head1 METHODS
