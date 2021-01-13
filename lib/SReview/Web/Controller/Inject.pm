@@ -105,7 +105,7 @@ sub update {
 		}
 		$c->app->log->debug($upload->filename . " done");
 	}
-	$c->render(text => "ok");
+	$c->render;
 }
 
 1;
