@@ -62,6 +62,7 @@
 	  <div class="video_has_problems">
 	    <p>Please <a href="/i/<%= $talk->nonce =%>">Re-upload</a> your video.</p>
 	  </div>
+          <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} + 0 =%>"></input>
           <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
         </form>
       </div>
