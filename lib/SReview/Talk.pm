@@ -721,8 +721,8 @@ has 'scheduled_length' => (
 
 sub _load_scheduled_length {
 	my $self = shift;
-	my $start = DateTime::Format::Pg->parse_datetime($self->pathinfo->{starttime});
-	my $end = DateTime::Format::Pg->parse_datetime($self->pathinfo->{endtime});
+	my $start = DateTime::Format::Pg->parse_datetime($self->_get_pathinfo->{raw}{starttime});
+	my $end = DateTime::Format::Pg->parse_datetime($self->_get_pathinfo->{raw}{endtime});
 	return $end->epoch - $start->epoch;
 }
 
