@@ -29,12 +29,14 @@ my $inputcoll;
 my $outputcoll;
 my $filename;
 my $targetname;
+my $move;
 
 GetOptions(
 	"inputcollection|i=s" => \$inputcoll,
 	"outputcollection|o=s" => \$outputcoll,
 	"filename|f=s" => \$filename,
 	"targetname|t=s" => \$targetname,
+	"move|m" => \$move,
 );
 
 if(!defined($targetname)) {
@@ -51,3 +53,6 @@ my $inputfile = $inputcoll->get_file(relname => $filename);
 my $outputfile = $outputcoll->add_file(relname => $filename);
 copy($inputfile->filename, $outputfile->filename);
 $outputfile->store_file;
+if($move) {
+	$inputfile->delete;
+}
