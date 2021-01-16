@@ -50,7 +50,7 @@ die "filename required" unless defined($filename);
 $inputcoll = get_collection($inputcoll);
 $outputcoll = get_collection($outputcoll);
 my $inputfile = $inputcoll->get_file(relname => $filename);
-my $outputfile = $outputcoll->add_file(relname => $filename);
+my $outputfile = $outputcoll->add_file(relname => $targetname);
 copy($inputfile->filename, $outputfile->filename);
 $outputfile->store_file;
 if($move) {
