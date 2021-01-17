@@ -60,7 +60,7 @@ of C<SReview::Schedule::Base>.
 my $format = $config->get('schedule_format');
 my $pclass = 'SReview::Schedule::' . ucfirst($format);
 
-eval "require $pclass;" or die "Unknown schedule parser $format\n";
+eval "require $pclass;" or die "Could not load schedule parser for format $format: $@\n";
 
 =item schedule_options
 
