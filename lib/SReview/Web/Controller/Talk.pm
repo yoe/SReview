@@ -204,8 +204,8 @@ sub getById {
 
 	my $talk = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
-	$talk->{starttime} = DateTime::Format::Pg->parse_datetime($talk->{starttime})->iso8601();
-	$talk->{endtime} = DateTime::Format::Pg->parse_datetime($talk->{endtime})->iso8601();
+	$talk->[0]{starttime} = DateTime::Format::Pg->parse_datetime($talk->[0]{starttime})->iso8601();
+	$talk->[0]{endtime} = DateTime::Format::Pg->parse_datetime($talk->[0]{endtime})->iso8601();
 
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
