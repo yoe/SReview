@@ -8,6 +8,18 @@ use DateTime::Format::Pg;
 
 use SReview::Talk;
 
+sub format_talks {
+	my $talks = shift;
+	foreach my $talk(@$talks) {
+		$talk->{starttime} = DateTime::Format::Pg->parse_datetime($talk->{starttime})->iso8601();
+		$talk->{endtime} = DateTime::Format::Pg->parse_datetime($talk->{endtime})->iso8601();
+		if($talk->{flags}) {
+			$talk->{flags} = decode_json($talk->{flags});
+		}
+	}
+	return $talks;
+}
+
 sub listByEvent {
 	my $c = shift->openapi->valid_input or return;
 
@@ -22,13 +34,7 @@ sub listByEvent {
 	}
 
 	my $res = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ?", $eventId);
-	foreach my $r(@$res) {
-		$r->{starttime} = DateTime::Format::Pg->parse_datetime($r->{starttime})->iso8601();
-		$r->{endtime} = DateTime::Format::Pg->parse_datetime($r->{endtime})->iso8601();
-		if($r->{flags}) {
-			$r->{flags} = decode_json($r->{flags});
-		}
-	}
+	$res = format_talks($res);
 
 	$c->render(openapi => $res);
 }
@@ -204,16 +210,13 @@ sub getById {
 
 	my $talk = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
-	$talk->[0]{starttime} = DateTime::Format::Pg->parse_datetime($talk->[0]{starttime})->iso8601();
-	$talk->[0]{endtime} = DateTime::Format::Pg->parse_datetime($talk->[0]{endtime})->iso8601();
-
 	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
 		$c->render(text => "Event or talk not found");
 		return;
 	}
 
-	$c->render(openapi => $talk->[0]);
+	$c->render(openapi => format_talks($talk)->[0]);
 }
 
 sub getByNonce {
