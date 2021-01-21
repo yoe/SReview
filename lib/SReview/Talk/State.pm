@@ -12,13 +12,14 @@ my %states = (
 	preview => 4,
 	transcoding => 5,
 	uploading => 6,
-	announcing => 7,
-	done => 8,
-	injecting => 9,
-	broken => 10,
-	needs_work => 11,
-	lost => 12,
-	ignored => 13,
+	publishing => 7,
+	announcing => 8,
+	done => 9,
+	injecting => 10,
+	broken => 11,
+	needs_work => 12,
+	lost => 13,
+	ignored => 14,
 );
 
 sub new {
