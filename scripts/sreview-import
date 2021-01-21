@@ -90,7 +90,7 @@ my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ?
 my $update_speaker = $dbh->prepare("UPDATE speaker SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_speaker = $dbh->prepare("INSERT INTO speakers(email, name, upstreamid) VALUES(?, ?, ?) RETURNING id");
 my $clear_speakers = $dbh->prepare("DELETE FROM speakers_talks WHERE talk = ?");
-my $link_speaker = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES (?, ?)");
+my $link_speaker = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES (?, ?) ON CONFLICT ON CONSTRAINT spekaers_talks_pkey DO NOTHING");
 my $ignore_talk = $dbh->prepare("UPDATE talks SET state='ignored' WHERE id = ? AND state <= 'waiting_for_files'");
 my $unignore_talk = $dbh->prepare("UPDATE talks SET state='waiting_for_files' WHERE id = ? AND state = 'ignored'");
 my $all_talks = $dbh->prepare("SELECT id, upstreamid FROM talks WHERE event = ?");
