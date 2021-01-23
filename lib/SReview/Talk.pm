@@ -755,9 +755,16 @@ Looks up (and returns) the talk by slug, rather than by talk ID
 sub by_slug {
 	my $klass = shift;
 	my $slug = shift;
+	my $event = shift;
 
-	my $st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE slug = ?");
-	$st->execute($slug);
+	my $st;
+	if(defined($event)) {
+		$st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE slug = ? AND event = ?");
+		$st->execute($slug, $event);
+	} else {
+		$st = $pg->db->dbh->prepare("SELECT * FROM talks WHERE slug = ?");
+		$st->execute($slug);
+	}
 	die "Talk does not exist (or the slug is not unique in the database).\n" unless $st->rows == 1;
 	my $row = $st->fetchrow_arrayref;
 	my $rv = SReview::Talk->new(talkid => $row->[0], slug => $slug);
