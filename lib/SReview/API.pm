@@ -1561,6 +1561,7 @@ components:
           - preview
           - transcoding
           - uploading
+          - publishing
           - announcing
           - done
           - injecting
