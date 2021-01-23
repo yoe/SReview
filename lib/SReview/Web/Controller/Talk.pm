@@ -64,11 +64,11 @@ sub update {
 	my $eventId = $c->param('eventId');
 	my $talkId = $c->param('talkId');
 
-	my $event = db_query($c->dbh, "SELECT id FROM events WHERE id = ?", $eventId);
+	my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE id = ? AND event = ?", $talkId, $eventId);
 
 	if(scalar(@$event) < 1) {
 		$c->res->code(404);
-		$c->render(text => 'Event not found');
+		$c->render(text => 'Talk not found in given event');
 		return;
 	}
 
