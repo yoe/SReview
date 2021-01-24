@@ -635,6 +635,20 @@ sub _probe_extra_params {
 	return {};
 }
 
+=head2 time_offset
+
+Apply an input time offset to this video (only valid when used as an
+input video in L<SReview::Videopipe>). Can be used to apply A/V sync
+correction values.
+
+=cut
+
+has 'time_offset' => (
+	isa => 'Num',
+	is => 'ro',
+	predicate => 'has_time_offset',
+);
+
 # Only to be used by the Videopipe class when doing multiple passes
 has 'pass' => (
 	is => 'rw',
@@ -667,6 +681,9 @@ sub readopts {
 	my $self = shift;
 	my @opts = ();
 
+	if($self->has_time_offset) {
+		push @opts, ("-itsoffset", $self->time_offset);
+	}
 	push @opts, ("-i", $self->url);
 	return @opts;
 }
