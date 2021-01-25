@@ -309,7 +309,7 @@ if(defined($pre)) {
 	move($pre->url, $pre_file->filename);
 	$pre_file->store_file;
 } else {
-	$output_coll->delete_file(relname => $talk->relative_name . "-pre.mkv");
+	$output_coll->delete_files(relnames => [$talk->relative_name . "-pre.mkv"]);
 }
 if(defined($post)) {
 	$postlen_db = $post->duration;
@@ -317,7 +317,7 @@ if(defined($post)) {
 	move($post->url, $post_file->filename);
 	$post_file->store_file;
 } else {
-	$output_coll->delete_file(relname => $talk->relative_name . "-post.mkv");
+	$output_coll->delete_files(relnames => [$talk->relative_name . "-post.mkv"]);
 }
 
 my $final = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
