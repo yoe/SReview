@@ -505,7 +505,7 @@ sub _load_corrections {
 		$corrections{$name} = $val;
 	}
 
-	foreach my $prop ("offset_start", "length_adj", "offset_audio", "audio_channel", "audio_offset") {
+	foreach my $prop ("offset_start", "length_adj", "offset_audio", "audio_channel") {
 		if(!exists($corrections{$prop})) {
 			$corrections{$prop} = 0;
 		}
@@ -592,11 +592,11 @@ sub _load_avs_video_fragments {
 	my $self = shift;
 	my $corrections = $self->corrections;
 
-	if($corrections->{audio_offset} == 0) {
+	if($corrections->{offset_audio} == 0) {
 		return $self->video_fragments;
 	}
 	my $talk_data = $pg->db->dbh->prepare("SELECT talkid, rawid, raw_filename, extract(epoch from fragment_start) as fragment_start, extract(epoch from raw_length) as raw_length, extract(epoch from raw_length_corrected) as raw_length_corrected from adjusted_raw_talks(?, make_interval(secs :=?::numeric), make_interval(secs := ?::numeric), make_interval(secs := ?::numeric)) order by talk_start, raw_start");
-	$talk_data->execute($self->talkid, $corrections->{"offset_start"}, $corrections->{"length_adj"}, $corrections->{"audio_offset"});
+	$talk_data->execute($self->talkid, $corrections->{"offset_start"}, $corrections->{"length_adj"}, $corrections->{"offset_audio"});
 
 	my $rows;
 	while(my $row = $talk_data->fetchrow_hashref()) {

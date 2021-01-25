@@ -288,10 +288,10 @@ foreach my $stream(0, 1, 2) {
 	}
 }
 
-if($corrections->{audio_offset} != 0) {
+if($corrections->{offset_audio} != 0) {
 	for my $vid(@videos) {
 		my $tmp = SReview::Video->new(url => "$tempdir/temp.mkv");
-		SReview::AvSync->new(input => $vid, output => $tmp, value => $corrections->{audio_offset})->run();
+		SReview::AvSync->new(input => $vid, output => $tmp, value => $corrections->{offset_audio})->run();
 		move($tmp->url, $vid->url);
 	}
 	reload();
