@@ -266,7 +266,14 @@ sub delete_files {
 	my $self = shift;
 	my %options = @_;
 
-	my @names = sort(@{$options{files}});
+	my @names;
+	if(exists($options{files})) {
+		@names = sort(@{$options{files}});
+	} elsif(exists($options{relnames})) {
+		@names = map({join('/', $self->baseurl, $_)} sort(@{$options{relnames}}));
+	} else {
+		croak("need list of files, or list of relative names");
+	}
 	my @ownfiles = sort({$a->url cmp $b->url} @{$self->children});
 	my @to_delete = ();
 
