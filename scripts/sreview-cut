@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use DBI;
+use File::Copy;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
 use SReview::Files::Factory;
