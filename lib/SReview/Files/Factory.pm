@@ -297,11 +297,11 @@ sub delete_files {
 		} elsif ($names[0] gt $ownfiles[0]->url) {
 			shift @ownfiles;
 		} else {
-			croak "${names[0]} is not a member of this collection";
+			carp "${names[0]} is not a member of this collection, ignored";
 		}
 	} while(scalar(@names) && scalar(@ownfiles));
 	if(scalar(@names)) {
-		croak "${names[0]} is not a member of this collection";
+		carp "${names[0]} is not a member of this collection, ignored";
 	}
 	foreach my $file(@to_delete) {
 		$file->delete;
