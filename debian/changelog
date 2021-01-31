@@ -1,9 +1,9 @@
-sreview (0.7.0-1) UNRELEASED; urgency=medium
+sreview (0.7.0-1) unstable; urgency=medium
 
   * The "We're ready for FOSDEM" release.
   * New upstream release.
 
- -- Wouter Verhelst <wouter@debian.org>  Sun, 31 Jan 2021 12:34:46 +0200
+ -- Wouter Verhelst <wouter@debian.org>  Sun, 31 Jan 2021 12:47:42 +0200
 
 sreview (0.6.2-4) unstable; urgency=medium
 
