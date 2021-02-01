@@ -7,7 +7,7 @@ use SReview::Config::Common;
 use DBI;
 use JSON;
 
-=head1 SREVIEW-IMPORT
+=head1 NAME
 
 sreview-import - Import an event schedule from an event's upstream
 
