@@ -68,3 +68,6 @@ Description: SReview input detection script
  This package contains the sreview-detect script, which probes files in
  the input directory and either adds them to the database if they're
  new, or just updates their length if they're already known.
+ .
+ It also contains the sreview-import script, which is used to import
+ schedules from conference management systems.
