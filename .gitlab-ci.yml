@@ -30,11 +30,17 @@ stages:
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
   - cpanm ExtUtils::Depends
+  - cpanm Devel::Cover
   - cpanm --notest --installdeps .
   - perl Makefile.PL
   - perl .ci/setup-minio.pl
   script:
-  - make TEST_VERBOSE=1 test
+  - cover -delete
+  - HARNESS_PERL_SWITCHES=-MDevel::Cover make TEST_VERBOSE=1 test
+  - cover
+  artifacts:
+    paths:
+    - cover_db
   tags:
   - docker
 
