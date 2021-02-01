@@ -137,6 +137,39 @@ sub _load_talks {
 
 package SReview::Schedule::Penta;
 
+=head1 NAME
+
+SReview::Schedule::Penta - sreview-import schedule parser for the Pentabarf XML format
+
+=head1 SYNOPSIS
+
+  $schedule_format = "multi";
+  $schedule_options = { url => "http://..." };
+
+=head1 DESCRIPTION
+
+This module is a schedule parser for L<sreview-import> that converts a
+Pentabarf XML schedule format into the objects expected by
+sreview-import.
+
+Note that the Pentabarf XML files as created by the Wafer conference
+management tool is subtly different in ways that matter for SReview. To
+parse a Wafer file, see SReview::Schedule::Wafer.
+
+=head1 OPTIONS
+
+C<SReview::Schedule::Penta> only supports one option:
+
+=head2 url
+
+The URL where the schedule can be found.
+
+=head1 SEE ALSO
+
+L<SReview::Schedule::Multi>, L<SReview::Schedule::Wafer>
+
+=cut
+
 use Moose;
 use XML::SimpleObject;
 use SReview::Schedule::Base;
