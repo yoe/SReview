@@ -50,6 +50,7 @@ sub process_template($$$$) {
 	open my $fh, ">:encoding(UTF-8)", $outputsvg;
 	print "creating $output from $input\n";
 	print $fh $template_engine->string($content);
+	close $fh;
 	my $inkscape_options = "--batch-process -o $output";
 	if($config->get("command_tune")->{inkscape} eq "0.9") {
 		$inkscape_options = "--export-png=$output";
