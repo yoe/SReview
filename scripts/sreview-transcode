@@ -347,6 +347,10 @@ flexibility. See the documentation of L<Mojo::Template> for more details
 on that templating engine, and the documentation of L<SReview::Talk> for
 the available values from that object.
 
+(As an aside, the SVG transformations are actually implemented through
+L<SReview::Template::SVG>. See the documentation for that module for
+details)
+
 =head1 SEE ALSO
 
 L<sreview-cut>, L<sreview-previews>, L<sreview-skip>, L<sreview-config>,

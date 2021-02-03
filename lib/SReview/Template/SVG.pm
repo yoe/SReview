@@ -8,6 +8,88 @@ use File::Temp qw/tempdir/;
 use Exporter 'import';
 our @EXPORT_OK = qw/process_template/;
 
+=head1 NAME
+
+SReview::Template::SVG - module to process an SVG template into a PNG
+file
+
+=head1 SYNOPSIS
+
+  use SReview::Template::SVG qw/process_template/;
+  use SReview::Talk;
+  use SReview::Config::Common;
+
+  my $talk = SReview::Talk->new(talkid => ...);
+  my $config = SReview::Config::Common::setup();
+
+  process_template($input_svg_template, $output_png_filename, $talk, $config);
+
+  # now a PNG file is written to $output_png_filename
+
+=head1 DESCRIPTION
+
+C<SReview::Template::SVG> uses L<SReview::Template> to process an input
+file into a templated SVG file, and then runs inkscape over it to
+convert the templated SVG file to a PNG file at the given location.
+
+The input file can either be a file on the local file system, or it can
+be an HTTP or HTTPS URL (in which case the template at that location
+will first be downloaded, transparently).
+
+=head1 TEMPLATE TAGS
+
+In addition to the L<Mojo::Template> syntax on C<$talk> that
+L<SReview::Template> provides, C<SReview::Template::SVG> also passes the
+these regexvars to L<SReview::Template> (for more information, see
+SReview::Template):
+
+=over
+
+=item @SPEAKERS@
+
+The value of C<$talk-E<gt>speakers>
+
+=item @ROOM@
+
+The value of C<$talk-E<gt>room>
+
+=item @TITLE@
+
+The value of C<$talkE<gt>title>
+
+=item @SUBTITLE@
+
+The value of C<$talkE<gt>subtitle>
+
+=item @DATE@
+
+The value of C<$talkE<gt>date>
+
+=item @APOLOGY@
+
+The value of C<$talkE<gt>apology>
+
+=back
+
+Note that all these values are XML-escaped first.
+
+=head1 CONFIGURATION
+
+This module checks the following configuration values:
+
+=head2 command_tune
+
+If the value C<inkscape> in this hash is set to "C<0.9>", then the C<inkscape>
+command is invoked with command-line parameters for Inkscape version 0.9
+or below. In all other cases, command-line parameters for Inkscape
+version 1.0 or above are used instead.
+
+=head2 workdir
+
+The location for temporary files that the module needs.
+
+=cut
+
 sub process_template($$$$) {
 	my $input = shift;
 	my $output = shift;
