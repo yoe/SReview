@@ -33,6 +33,7 @@ WriteMakefile(
 		'ExtUtils::Depends' => 0,
 	},
 	EXE_FILES => [
+		'scripts/sreview-autoreview',
 		'scripts/sreview-cut',
 		'scripts/sreview-config',
 		'scripts/sreview-copy',
