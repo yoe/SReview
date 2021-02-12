@@ -23,7 +23,7 @@ my $prefile = $coll->get_file(relname => $talk->relative_name . "-pre.mkv");
 my $mainfile = $coll->get_file(relname => $talk->relative_name . ".mkv");
 my $postfile = $coll->get_file(relname => $talk->relative_name . "-post.mkv");
 
-open JSON, "-|:encoding(UTF-8)", $detector, $ARGV[0], $prefile->filename, $mainfil->filenamee, $postfil->filenamee;
+open JSON, "-|:encoding(UTF-8)", $detector, $ARGV[0], $prefile->filename, $mainfile->filenamee, $postfile->filenamee;
 my $json;
 {
 	local $/ = undef;
