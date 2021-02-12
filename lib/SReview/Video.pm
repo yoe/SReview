@@ -594,8 +594,6 @@ sub _probe_blackspots {
 	while(<R>) {
 		if(/blackdetect.*black_start:(?<start>[\d\.]+)\sblack_end:(?<end>[\d\.]+)\sblack_duration:(?<duration>[\d\.]+)/) {
 			push @$blacks, { %+ };
-		} else {
-			print $_;
 		}
 	}
 	close(R);
