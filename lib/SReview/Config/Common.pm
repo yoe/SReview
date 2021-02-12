@@ -62,6 +62,7 @@ sub setup {
 	$config->define('audio_multiplex_mode', 'The way in which the primary and backup audio are multiplexed in the input stream. One of \'stereo\' for the primary in the left channel of the first audio stream and the backup in the right channel, or \'astream\' for the primary in the first audio stream, and the backup in the second audio stream', 'stereo');
 	$config->define('normalizer', 'The implementation used to normalize audio. Currently only bs1770gain is supported', 'bs1770gain');
 	$config->define('web_pid_file', 'The PID file for the webinterface, when running under hypnotoad.','/var/run/sreview/sreview-web.pid');
+	$config->define('autoreview_detect', 'The script to run when using sreview-autoreview', undef);
 
 	# Values for detection script
 	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');

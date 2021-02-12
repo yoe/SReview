@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Mojo::JSON qw/decode_json/;
+use SReview::Config::Common;
+use SReview::Talk;
+use SReview::Template::SVG;
+use SReview::Files::Factory;
+
+my $config = SReview::Config::Common::setup();
+
+my $talk = SReview::Talk->new(talkid => $ARGV[0]);
+
+if($talk->get_flag("manual_review")) {
+	exit 0;
+}
+
+my $detector = $config->get("autoreview_detect");
+my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
+my $prefile = $coll->get_file($talk->relative_name . "-pre.mkv");
+my $mainfile = $coll->get_file($talk->relative_name . ".mkv");
+my $postfile = $coll->get_file($talk->relative_name . "-post.mkv");
+
+open JSON, "-|:encoding(UTF-8)", $detector, $ARGV[0], $prefile, $mainfile, $postfile;
+my $json;
+{
+	local $/ = undef;
+	$json = <JSON>;
+}
+close JSON;
+$json = decode_json($json);
+
+if(exists($json->{done})) {
+	$talk->state_done("preview");
+} elsif(exists($json->{broken})) {
+	$talk->comment = $json->{broken};
+	$talk->done_correcting;
+} else {
+	foreach my $key(keys %$json) {
+		$talk->add_correction($key => $json->{$key});
+	}
+	$talk->done_correcting;
+	$talk->set_state("cutting");
+}
