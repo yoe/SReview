@@ -8,10 +8,16 @@ use SReview::Config::Common;
 use SReview::Talk;
 use SReview::Template::SVG;
 use SReview::Files::Factory;
+use DBI;
 
 my $config = SReview::Config::Common::setup();
 
-my $talk = SReview::Talk->new(talkid => $ARGV[0]);
+my $talkid = shift;
+
+my $db = DBI->connect($config->get("dbistring"));
+$db->prepare("UPDATE talks SET state='preview', progress='running' WHERE id = ?")->execute($talkid);
+
+my $talk = SReview::Talk->new(talkid => $talkid);
 
 if($talk->get_flag("manual_review")) {
 	exit 0;
@@ -23,7 +29,7 @@ my $prefile = $coll->get_file(relname => $talk->relative_name . "-pre.mkv");
 my $mainfile = $coll->get_file(relname => $talk->relative_name . ".mkv");
 my $postfile = $coll->get_file(relname => $talk->relative_name . "-post.mkv");
 
-open JSON, "-|:encoding(UTF-8)", $detector, $ARGV[0], $prefile->filename, $mainfile->filename, $postfile->filename;
+open JSON, "-|:encoding(UTF-8)", $detector, $talkid, $prefile->filename, $mainfile->filename, $postfile->filename;
 my $json;
 {
 	local $/ = undef;
