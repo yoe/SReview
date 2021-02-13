@@ -43,6 +43,7 @@ if(exists($json->{done})) {
 } elsif(exists($json->{broken})) {
 	$talk->comment($json->{broken});
 	$talk->done_correcting;
+	$talk->set_state("broken");
 } else {
 	foreach my $key(keys %$json) {
 		$talk->add_correction($key => $json->{$key});
