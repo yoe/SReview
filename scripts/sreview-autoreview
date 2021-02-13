@@ -41,7 +41,7 @@ $json = decode_json($json);
 if(exists($json->{done})) {
 	$talk->state_done("preview");
 } elsif(exists($json->{broken})) {
-	$talk->comment = $json->{broken};
+	$talk->comment($json->{broken});
 	$talk->done_correcting;
 } else {
 	foreach my $key(keys %$json) {
