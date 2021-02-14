@@ -81,7 +81,6 @@ my $update_talk = $dbh->prepare("UPDATE talks SET room = ?, slug = ?, starttime 
 my $search_room = $dbh->prepare("SELECT id FROM rooms WHERE name = ?");
 my $add_room = $dbh->prepare("INSERT INTO rooms(name, altname, outputname) VALUES(?, ?, ?) RETURNING id");
 my $update_room = $dbh->prepare("UPDATE rooms SET altname = ?, outputname = ? WHERE name = ?");
-my $search_track = $dbh->prepare("SELECT id FROM tracks WHERE upstreamid = ?");
 my $add_track = $dbh->prepare("INSERT INTO tracks(name, email, upstreamid) VALUES(?, ?, ?) RETURNING id");
 my $update_track = $dbh->prepare("UPDATE track SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?) RETURNING id");
@@ -94,6 +93,7 @@ my $link_speaker = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALU
 my $ignore_talk = $dbh->prepare("UPDATE talks SET state='ignored' WHERE id = ? AND state <= 'waiting_for_files'");
 my $unignore_talk = $dbh->prepare("UPDATE talks SET state='waiting_for_files' WHERE id = ? AND state = 'ignored'");
 my $all_talks = $dbh->prepare("SELECT id, upstreamid FROM talks WHERE event = ?");
+my $all_tracks = $dbh->prepare("SELECT id, upstreamid FROM tracks");
 
 foreach my $event(@{$parser->events}) {
 	my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
@@ -113,6 +113,10 @@ foreach my $event(@{$parser->events}) {
 	$all_talks->execute($eventid) or die $!;
 	while($row = $all_talks->fetchrow_arrayref) {
 		$known_talks{$row->[1]} = $row->[0];
+	}
+	$all_tracks->execute or die $!;
+	while($row = $all_tracks->fetchrow_arrayref) {
+		$trackid{$row->[1]} = $row->[0];
 	}
 	foreach my $talk(@{$event->talks}) {
 		next if $talk->filtered;
