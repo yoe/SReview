@@ -684,7 +684,7 @@ sub _load_eventurl {
 	my $self = shift;
 	my $mt = Mojo::Template->new;
 	if(defined($config->get('eventurl_format'))) {
-		return $mt->vars(1)->render($config->get('eventurl_format'), {
+		my $rv = $mt->vars(1)->render($config->get('eventurl_format'), {
 			slug => $self->slug,
 			room => $self->room,
 			date => $self->date,
@@ -692,6 +692,8 @@ sub _load_eventurl {
 			event_output => $self->event_output,
 			talk => $self,
 			year => $self->_get_pathinfo->{raw}{year}});
+		chomp $rv;
+		return $rv;
 	}
 	return "";
 }
