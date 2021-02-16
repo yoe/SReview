@@ -24,6 +24,7 @@ use DBI;
 use Mojo::Template;
 use Mojo::UserAgent;
 use SReview::Config::Common;
+use SReview::Talk;
 
 =head1 NAME
 
