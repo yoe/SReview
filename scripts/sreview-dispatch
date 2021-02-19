@@ -201,7 +201,7 @@ stderr and a file for stdout for each script run.
 				}
 			}
 			if($is_ok) {
-				$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute();
+				$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($row->{id});
                         }
 		}
 	}
