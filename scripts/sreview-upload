@@ -40,7 +40,7 @@ my $actions = $config->get('upload_actions');
 
 exit 0 if(scalar(@$actions) < 1);
 
-my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room JOIN events ON talks.event = events.id WHERE events.name = ? LIMIT 1");
+my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room JOIN events ON talks.event = events.id WHERE events.name = ? AND stream='' LIMIT 1");
 $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
 my $r_file = SReview::Files::Factory->create("input", $config->get('inputglob'))->get_file(fullname => $raw_file->{filename});
