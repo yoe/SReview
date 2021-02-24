@@ -298,6 +298,7 @@ sub delete_files {
 			shift @ownfiles;
 		} else {
 			carp "${names[0]} is not a member of this collection, ignored";
+			shift @names;
 		}
 	} while(scalar(@names) && scalar(@ownfiles));
 	if(scalar(@names)) {
