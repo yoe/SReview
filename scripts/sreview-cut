@@ -327,6 +327,8 @@ move($main->url, $final->filename);
 
 $final->store_file;
 
+$dbh->begin_work;
+
 my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
 $update->execute("$prelen_db seconds", "$postlen_db seconds", $talkid);
 
