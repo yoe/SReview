@@ -10,7 +10,7 @@ Build-Depends: debhelper-compat (= 13), ffmpeg, dh-exec, dh-apache2, libmojo-pg-
 Package: sreview-master
 Architecture: all
 Depends: sreview-common, ${misc:Depends}
-Recommends: libxml-rss-perl, postgresql, postgresql-contrib, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect, libnet-ssh-authorizedkeysfile-perl, rsync
+Recommends: libxml-rss-perl, postgresql, postgresql-contrib, libemail-simple-perl, libemail-sender-perl, gridengine-master, sreview-detect, libnet-ssh-authorizedkeysfile-perl, libdatetime-format-pg-perl, rsync, ${perl:Depends}
 Description: SReview components for master host
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
