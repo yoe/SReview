@@ -178,10 +178,13 @@ sub get {
 		die "e: definition for config file item $name does not exist!";
 	}
 
-	if(exists($self->{defs}{$name}{sub})) {
-		return &{$self->{defs}{$name}{sub}}($self, $talk);
-	}
 	$self->{fixed} = 1;
+	if(exists($self->{defs}{$name}{sub})) {
+		my $rv = &{$self->{defs}{$name}{sub}}($self, $talk);
+		if(defined($rv)) {
+			return $rv;
+		}
+	}
 	if(exists($SReview::Config::_private::{$name})) {
 		return ${$SReview::Config::_private::{$name}};
 	}
