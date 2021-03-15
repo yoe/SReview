@@ -18,6 +18,25 @@ sub get_default_cfile {
 	return $cfile;
 }
 
+sub compute_dbistring {
+	if(!exists($ENV{SREVIEW_DBICOMPONENTS})) {
+		return undef;
+	}
+	my @comps = ();
+	foreach my $comp(split /\s/, $ENV{SREVIEW_DBICOMPONENTS}) {
+		my $COMP = uc $comp;
+		push @comps, "$comp=" . $ENV{SREVIEW_DBI_$COMP};
+	}
+	return "dbi:Pg:" . join(";", @comps);
+}
+
+sub compute_accessconfig {
+	if(!exists($ENV{SREVIEW_S3_DEFAULT_ACCESSKEY}) || !exists($ENV{SREVIEW_S3_DEFAULT_SECRETKEY})) {
+		return undef;
+	}
+	return { default => {aws_access_key_id => $ENV{SREVIEW_S3_DEFAULT_ACCESSKEY}, aws_secret_access_key => $ENV{SREVIEW_S3_DEFAULT_SECRETKEY} } };
+}
+
 sub setup {
 	my $cfile = shift;
 	if(!defined($cfile)) {
@@ -30,8 +49,10 @@ sub setup {
 	$config = SReview::Config->new($cfile);
 	# common values
 	$config->define('dbistring', 'The DBI connection string used to connect to the database', 'dbi:Pg:dbname=sreview');
+	$config->define_computed('dbistring', \&compute_dbistring);
 	$config->define('accessmethods', 'The way to access files for each collection. Can be \'direct\' or \'S3\'. For the latter, the \'$s3_access_config\' configuration needs to be set, too', {input => 'direct', output => 'direct', intermediate => 'direct'});
 	$config->define('s3_access_config', 'Configuration for accessing S3-compatible buckets. Any option that can be passed to the "new" method of the Net::Amazon::S3 Perl module can be passed to any of the child hashes of the toplevel hash. Uses the same toplevel keys as the "$accessmethods" configuration item, but falls back to "default"', {default => {}});
+	$config->define_computed('s3_access_config', \&compute_accessconfig);
 	$config->define('api_key', 'The API key, to allow access to the API', undef);
 
 	# Values for sreview-web
