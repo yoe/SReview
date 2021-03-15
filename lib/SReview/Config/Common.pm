@@ -34,7 +34,14 @@ sub compute_accessconfig {
 	if(!exists($ENV{SREVIEW_S3_DEFAULT_ACCESSKEY}) || !exists($ENV{SREVIEW_S3_DEFAULT_SECRETKEY})) {
 		return undef;
 	}
-	return { default => {aws_access_key_id => $ENV{SREVIEW_S3_DEFAULT_ACCESSKEY}, aws_secret_access_key => $ENV{SREVIEW_S3_DEFAULT_SECRETKEY} } };
+	my $rv = { default => {aws_access_key_id => $ENV{SREVIEW_S3_DEFAULT_ACCESSKEY}, aws_secret_access_key => $ENV{SREVIEW_S3_DEFAULT_SECRETKEY} } };
+	if(exists($ENV{SREVIEW_S3_DEFAULT_SECURE})) {
+		$rv->{secure} = $ENV{SREVIEW_S3_DEFAULT_SECURE};
+	}
+	if(exists($ENV{SREVIEW_S3_DEFAULT_HOST})) {
+		$rv->{host} = $ENV{SREVIEW_S3_DEFAULT_HOST};
+	}
+	return $rv;
 }
 
 sub setup {
