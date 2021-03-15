@@ -134,6 +134,19 @@ sub define_deprecated {
 	}
 }
 
+=head2 $config->define_computed('name')
+
+Defines a default value for a particular configuration parameter through
+a subroutine.
+
+If the subroutine returns C<undef>, that value will be ignored (and the
+normal logic for defining a default will be used).
+
+Should be used on a parameter that has already been defined through
+  $config->define
+
+=cut
+
 sub define_computed {
 	my $self = shift;
 	my $name = shift;
