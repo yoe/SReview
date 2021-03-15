@@ -25,7 +25,7 @@ sub compute_dbistring {
 	my @comps = ();
 	foreach my $comp(split /\s/, $ENV{SREVIEW_DBICOMPONENTS}) {
 		my $COMP = uc $comp;
-		push @comps, "$comp=" . $ENV{SREVIEW_DBI_$COMP};
+		push @comps, "$comp=" . $ENV{"SREVIEW_DBI_" . $COMP};
 	}
 	return "dbi:Pg:" . join(";", @comps);
 }
