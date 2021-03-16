@@ -411,7 +411,7 @@ sub startup {
 	$admin->any('/schedule/talk/')->to(controller => 'schedule', action => 'mod_talk');
 	$admin->any('/schedule/')->to(controller => 'schedule', action => 'index');
 
-	$admin->get('/')->to('admin#main');
+	$admin->get('/')->to('admin#main')->name("admin_talk");
 
 	$admin->get('/logout' => sub {
 		my $c = shift;
