@@ -5,6 +5,7 @@ use SReview::Config;
 use strict;
 use warnings;
 use feature 'state';
+use Mojo::JSON qw/decode_json/;
 
 sub get_default_cfile {
 	my $dir = $ENV{SREVIEW_WDIR};
@@ -40,6 +41,12 @@ sub compute_accessconfig {
 	}
 	if(exists($ENV{SREVIEW_S3_DEFAULT_HOST})) {
 		$rv->{host} = $ENV{SREVIEW_S3_DEFAULT_HOST};
+	}
+	if(exists($ENV{SREVIEW_S3_EXTRA_CONFIGS})) {
+		my $extras = decode_json($ENV{SREVIEW_S3_EXTRA_CONFIGS});
+		foreach my $extra(keys %$extras) {
+			$rv->{$extra} = $extras->{$extra};
+		}
 	}
 	return $rv;
 }
