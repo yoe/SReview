@@ -25,7 +25,7 @@ sub main {
 			$room = [];
 		}
 		$lastroom = $row->{'room'};
-		next unless defined($row->{id});
+		next unless defined($row->{nonce});
 		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'nonce'}];
 	}
 	if(defined($room)) {
