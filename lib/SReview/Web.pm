@@ -420,7 +420,7 @@ sub startup {
 		$c->redirect_to('/');
 	});
 
-	$admin->get('/talk')->to('review#view')
+	$admin->get('/talk')->to('review#view');
 
 	$admin->get('/brokens' => sub {
 		my $c = shift;
