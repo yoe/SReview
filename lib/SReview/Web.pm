@@ -420,75 +420,7 @@ sub startup {
 		$c->redirect_to('/');
 	});
 
-	$admin->get('/talk' => sub {
-		my $c = shift;
-		my $id = $c->param("talk");
-		my $st;
-
-		if(defined($c->session->{room})) {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote, nonce FROM talk_list WHERE id = ? AND roomid = ?');
-			$st->execute($id, $c->session->{room});
-		} else {
-			$st = $c->dbh->prepare('SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments, apologynote, nonce FROM talk_list WHERE id = ?');
-			$st->execute($id);
-		}
-		my $row = $st->fetchrow_hashref("NAME_lc");
-		my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, properties.helptext, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND corrections.talk = ?) ORDER BY properties.description");
-		$stp->execute($id);
-
-		if(!defined($row)) {
-			$c->stash(message => "Unknown talk.");
-			$c->render('error');
-			return undef;
-		}
-		my $viddata = {};
-		$viddata->{corrvals} = {};
-		$viddata->{corrdescs} = {};
-		$viddata->{corrhelps} = {};
-		while(my $corrrow = $stp->fetchrow_hashref) {
-			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
-			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
-			$viddata->{corrhelps}{$corrrow->{name}} = $corrrow->{helptext};
-		}
-		$viddata->{mainlen} = $row->{length} + 0;
-		$viddata->{prelen} = $row->{prelen} + 0;
-		$viddata->{postlen} = $row->{postlen} + 0;
-
-		$c->stash(talk_title => $row->{name});
-		$c->stash(talk_speakers => $row->{speakers});
-		$c->stash(talk_start => $row->{starttime});
-		$c->stash(talk_end => $row->{endtime});
-		$c->stash(talk_nonce => $row->{nonce});
-		$c->stash(slug => $row->{slug});
-		$c->stash(event => $config->get("event"));
-		$c->stash(eventid => $c->eventid);
-		$c->stash(room => $row->{room});
-		$c->stash(state => $row->{state});
-		$c->stash(comments => $row->{comments});
-		$c->stash(corrections => $viddata);
-		$c->stash(target => "talk_update_admin");
-		$c->stash(scripts_raw => ['sreview_viddata = ' . encode_json($viddata) . ';']);
-		$c->stash(scripts_extra => ['/mangler.js']);
-		$c->stash(type => "admin");
-		$c->stash(apology => $row->{apologynote});
-		$c->stash(vid_hostname => $config->get("vid_prefix"));
-		$c->stash(exten => $config->get('preview_exten'));
-		$c->render(template => 'talk');
-	} => 'admin_talk');
-
-	$admin->post('/talk_update' => sub {
-		my $c = shift;
-		my $talk = $c->param("talk");
-		if(!defined($talk)) {
-			$c->stash(message => "Required parameter talk missing.");
-			$c->render("error");
-			return undef;
-		}
-		$c->stash(template => 'talk');
-		$c->flash(completion_message => 'Your change has been accepted. Thanks for your help!');
-		$c->talk_update($talk);
-		$c->redirect_to("/admin/talk?talk=$talk");
-	} => 'talk_update_admin');
+	$admin->get('/talk')->to('review#view')
 
 	$admin->get('/brokens' => sub {
 		my $c = shift;

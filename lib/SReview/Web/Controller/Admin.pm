@@ -11,10 +11,10 @@ sub main {
 	my $lastroom = '';
 
 	if(defined($c->session->{room})) {
-		$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
+		$st = $c->dbh->prepare('SELECT nonce, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? AND roomid = ? ORDER BY starttime');
 		$st->execute($c->eventid, $c->session->{room});
 	} else {
-		$st = $c->dbh->prepare('SELECT id, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
+		$st = $c->dbh->prepare('SELECT nonce, room, name, starttime, speakers, state FROM talk_list WHERE eventid = ? ORDER BY room, starttime');
 		$st->execute($c->eventid);
 	}
 	while(my $row = $st->fetchrow_hashref("NAME_lc")) {
@@ -26,7 +26,7 @@ sub main {
 		}
 		$lastroom = $row->{'room'};
 		next unless defined($row->{id});
-		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'id'}];
+		push @$room, [$row->{'starttime'} . ': ' . $row->{'name'} . ' by ' . $row->{'speakers'} . ' (' . $row->{'state'} . ')' => $row->{'nonce'}];
 	}
 	if(defined($room)) {
 		push @$talks, c($lastroom => $room);
