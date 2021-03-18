@@ -1,0 +1,14 @@
+apiVersion: v2
+appVersion: "latest"
+description: Helm chart for deploying SReview
+name: sreview
+version: 0.1.0
+dependencies:
+- name: minio
+  version: 8.0.10
+  repository: "https://helm.min.io/"
+  condition: use_internal_minio
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.3.11
+  condition: use_internal_pg
