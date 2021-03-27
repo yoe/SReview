@@ -141,5 +141,9 @@ SKIP: {
 }
 
 unlink($cfgname);
+if(!exists($ENV{SREVIEWTEST_INSTALLED})) {
+	chdir('..');
+	unlink('web/t');
+}
 
 done_testing;

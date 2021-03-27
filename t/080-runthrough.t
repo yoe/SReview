@@ -15,7 +15,6 @@ use SReview::Config::Common;
 use File::Path qw/make_path remove_tree/;
 use_ok("SReview::Files::Factory");
 
-remove_tree("t/inputdir", "t/outputdir", "t/pubdir");
 sub run {
 	my @command = @_;
 
@@ -94,3 +93,4 @@ SKIP: {
 }
 
 unlink("config.pm");
+remove_tree("t/inputdir", "t/outputdir", "t/pubdir");
