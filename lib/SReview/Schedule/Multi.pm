@@ -1,15 +1,9 @@
 package SReview::Schedule::Multi::ShadowTalk;
 
 use Moose;
-use SReview::Schedule::Base;
+use SReview::Schedule::WithShadow;
 
-extends 'SReview::Schedule::Base::Talk';
-
-has 'parent' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Talk',
-	required => 1,
-);
+extends 'SReview::Schedule::WithShadow::ShadowedTalk';
 
 has 'prefix' => (
 	is => 'ro',
@@ -23,57 +17,9 @@ has 'suffix' => (
 	default => '',
 );
 
-sub _load_room {
-	return shift->parent->room;
-}
-
-sub _load_slug {
-	return shift->parent->slug;
-}
-
-sub _load_starttime {
-	return shift->parent->starttime;
-}
-
-sub _load_endtime {
-	return shift->parent->endtime;
-}
-
-sub _load_length {
-	return shift->parent->length;
-}
-
 sub _load_title {
 	my $self = shift;
-	return $self->prefix . $self->parent->title . $self->suffix;
-}
-
-sub _load_upstreamid {
-	return shift->parent->upstreamid;
-}
-
-sub _load_subtitle {
-	return shift->parent->subtitle;
-}
-
-sub _load_track {
-	return shift->parent->track;
-}
-
-sub _load_description {
-	return shift->parent->description;
-}
-
-sub _load_flags {
-	return shift->parent->flags;
-}
-
-sub _load_speakers {
-	return shift->parent->speakers;
-}
-
-sub _load_filtered {
-	return shift->parent->filtered;
+	return $self->prefix . $self->shadow->title . $self->suffix;
 }
 
 no Moose;
@@ -81,9 +27,9 @@ no Moose;
 package SReview::Schedule::Multi::ShadowEvent;
 
 use Moose;
-use SReview::Schedule::Base;
+use SReview::Schedule::WithShadow;
 
-extends 'SReview::Schedule::Base::Event';
+extends 'SReview::Schedule::WithShadow::ShadowedEvent';
 
 has 'talk_prefix' => (
 	is => 'ro',
@@ -93,12 +39,6 @@ has 'talk_prefix' => (
 has 'talk_suffix' => (
 	is => 'ro',
 	isa => 'Str',
-);
-
-has 'parent' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Event',
-	required => 1,
 );
 
 has 'event_prefix' => (
@@ -123,15 +63,15 @@ sub _load_talks {
 	my $self = shift;
 	my $rv = [];
 	my $opts = $self->talk_opts;
-	foreach my $talk(@{$self->parent->talks}) {
-		push @$rv, SReview::Schedule::Multi::ShadowTalk->new(parent => $talk, prefix => $self->talk_prefix, suffix => $self->talk_suffix, %$opts);
+	foreach my $talk(@{$self->shadow->talks}) {
+		push @$rv, SReview::Schedule::Multi::ShadowTalk->new(shadow => $talk, prefix => $self->talk_prefix, suffix => $self->talk_suffix, %$opts);
 	}
 	return $rv;
 }
 
 sub _load_name {
 	my $self = shift;
-	return $self->event_prefix . $self->parent->name . $self->event_suffix;
+	return $self->event_prefix . $self->shadow->name . $self->event_suffix;
 }
 
 package SReview::Schedule::Multi;
@@ -207,20 +147,9 @@ L<SReview::Schedule::Penta>, L<SReview::Schedule::Wafer>
 =cut
 
 use Moose;
-use SReview::Schedule::Base;
+use SReview::Schedule::WithShadow;
 
-extends 'SReview::Schedule::Base';
-
-has 'base_type' => (
-	is => 'ro',
-	isa => 'Str',
-	required => 1,
-);
-
-has 'base_options' => (
-	is => 'ro',
-	isa => 'HashRef[Any]',
-);
+extends 'SReview::Schedule::WithShadow';
 
 has 'shadows' => (
 	is => 'ro',
@@ -240,7 +169,7 @@ sub _load_events {
 	foreach my $event(@{$base_parser->events}) {
 		push @$rv, $event;
 		foreach my $shadow(@{$self->shadows}) {
-			push @$rv, SReview::Schedule::Multi::ShadowEvent->new(parent => $event, %$shadow);
+			push @$rv, SReview::Schedule::Multi::ShadowEvent->new(shadow => $event, %$shadow);
 		}
 	}
 	return $rv;
