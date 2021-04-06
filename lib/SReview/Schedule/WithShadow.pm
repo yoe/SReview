@@ -1,90 +1,90 @@
-package SReview::Schedule::WithParent::ParentedSpeaker;
+package SReview::Schedule::WithShadow::ShadowedSpeaker;
 
 use Moose;
 use SReview::Schedule::Base;
 
 extends 'SReview::Schedule::Base::Speaker';
 
-has 'parent' => (
+has 'shadow' => (
 	is => 'ro',
 	isa => 'SReview::Schedule::Base::Speaker',
 	required => 1,
 );
 
 sub _load_name {
-	return shift->parent->name;
+	return shift->shadow->name;
 }
 
 sub _load_email {
-	return shift->parent->email;
+	return shift->shadow->email;
 }
 
 sub _load_upstreamid {
-	return shift->parent->upstreamid;
+	return shift->shadow->upstreamid;
 }
 
 no Moose;
 
-package SReview::Schedule::WithParent::ParentedRoom;
+package SReview::Schedule::WithShadow::ShadowedRoom;
 
 use Moose;
 
 extends 'SReview::Schedule::Base::Room';
 
-has 'parent' => (
+has 'shadow' => (
 	is => 'ro',
 	isa => 'SReview::Schedule::Base::Room',
 	required => 1,
 );
 
 sub _load_name {
-	return shift->parent->name;
+	return shift->shadow->name;
 }
 
 sub _load_altname {
-	return shift->parent->altname;
+	return shift->shadow->altname;
 }
 
 sub _load_outputname {
-	return shift->parent->outputname;
+	return shift->shadow->outputname;
 }
 
 no Moose;
 
-package SReview::Schedule::WithParent::ParentedTrack;
+package SReview::Schedule::WithShadow::ShadowedTrack;
 
 use Moose;
 
 extends 'SReview::Schedule::Base::Track';
 
-has 'parent' => (
+has 'shadow' => (
 	is => 'ro',
 	isa => 'SReview::Schedule::Base::Track',
 	required => 1,
 );
 
 sub _load_name {
-	return shift->parent->name;
+	return shift->shadow->name;
 }
 
 sub _load_email {
-	return shift->parent->email;
+	return shift->shadow->email;
 }
 
 sub _load_upstreamid {
-	return shift->parent->upstreamid;
+	return shift->shadow->upstreamid;
 }
 
 no Moose;
 
-package SReview::Schedule::WithParent::ParentedTalk;
+package SReview::Schedule::WithShadow::ShadowedTalk;
 
 use Moose;
 use SReview::Schedule::Base;
 
 extends 'SReview::Schedule::Base::Talk';
 
-has 'parent' => (
+has 'shadow' => (
 	is => 'ro',
 	isa => 'SReview::Schedule::Base::Talk',
 	required => 1,
@@ -98,7 +98,7 @@ has 'speaker_type' => (
 );
 
 sub _load_speaker_type {
-	return 'SReview::Schedule::WithParent::ParentedSpeaker';
+	return 'SReview::Schedule::WithShadow::ShadowedSpeaker';
 }
 
 has 'speaker_opts' => (
@@ -115,7 +115,7 @@ has 'track_type' => (
 );
 
 sub _load_track_type {
-	return 'SReview::Schedule::WithParent::ParentedTrack';
+	return 'SReview::Schedule::WithShadow::ShadowedTrack';
 }
 
 has 'track_opts' => (
@@ -132,7 +132,7 @@ has 'room_type' => (
 );
 
 sub _load_room_type {
-	return 'SReview::Schedule::WithParent::ParentedRoom';
+	return 'SReview::Schedule::WithShadow::ShadowedRoom';
 }
 
 has 'room_opts' => (
@@ -144,75 +144,75 @@ has 'room_opts' => (
 sub _load_room {
 	my $self = shift;
 	my $type = $self->room_type;
-	return $type->new(parent => $self->parent->room, %{$self->room_opts});
+	return $type->new(shadow => $self->shadow->room, %{$self->room_opts});
 }
 
 sub _load_slug {
-	return shift->parent->slug;
+	return shift->shadow->slug;
 }
 
 sub _load_starttime {
-	return shift->parent->starttime;
+	return shift->shadow->starttime;
 }
 
 sub _load_endtime {
-	return shift->parent->endtime;
+	return shift->shadow->endtime;
 }
 
 sub _load_length {
-	return shift->parent->length;
+	return shift->shadow->length;
 }
 
 sub _load_title {
-	return shift->parent->title;
+	return shift->shadow->title;
 }
 
 sub _load_upstreamid {
-	return shift->parent->upstreamid;
+	return shift->shadow->upstreamid;
 }
 
 sub _load_subtitle {
-	return shift->parent->subtitle;
+	return shift->shadow->subtitle;
 }
 
 sub _load_track {
 	my $self = shift;
 	my $type = $self->track_type;
-	return $type->new(parent => $self->parent->track, %{$self->track_opts});
+	return $type->new(shadow => $self->shadow->track, %{$self->track_opts});
 }
 
 sub _load_description {
-	return shift->parent->description
+	return shift->shadow->description
 }
 
 sub _load_flags {
-	return shift->parent->flags;
+	return shift->shadow->flags;
 }
 
 sub _load_speakers {
 	my $self = shift;
 	my $rv = [];
 	my $type = $self->speaker_type;
-	foreach my $speaker(@{$self->parent->speakers}) {
-		push @$rv, "$type"->new(parent => $speaker, %{$self->speaker_opts});
+	foreach my $speaker(@{$self->shadow->speakers}) {
+		push @$rv, "$type"->new(shadow => $speaker, %{$self->speaker_opts});
 	}
 	return $rv;
 }
 
 sub _load_filtered {
-	return shift->parent->filtered;
+	return shift->shadow->filtered;
 }
 
 no Moose;
 
-package SReview::Schedule::WithParent::ParentedEvent;
+package SReview::Schedule::WithShadow::ShadowedEvent;
 
 use Moose;
 use SReview::Schedule::Base;
 
 extends 'SReview::Schedule::Base::Event';
 
-has 'parent' => (
+has 'shadow' => (
 	is => 'ro',
 	isa => 'SReview::Schedule::Base::Event',
 	required => 1,
@@ -232,7 +232,7 @@ has 'talk_opts' => (
 );
 
 sub _load_talk_type {
-	return "SReview::Schedule::WithParent::ParentedTalk";
+	return "SReview::Schedule::WithShadow::ShadowedTalk";
 }
 
 sub _load_talks {
@@ -240,19 +240,19 @@ sub _load_talks {
 	my $rv = [];
 	my $type = $self->talk_type;
 	my $opts = $self->talk_opts;
-	foreach my $talk(@{$self->parent->talks}) {
-		push @$rv, $type->new(parent => $talk, %$opts);
+	foreach my $talk(@{$self->shadow->talks}) {
+		push @$rv, $type->new(shadow => $talk, %$opts);
 	}
 	return $rv;
 }
 
 sub _load_name {
-	return shift->parent->name;
+	return shift->shadow->name;
 }
 
 no Moose;
 
-package SReview::Schedule::WithParent;
+package SReview::Schedule::WithShadow;
 
 use Moose;
 
@@ -291,7 +291,7 @@ sub _load_events {
 	my $event_opts = $self->event_opts;
 	my $rv = [];
 	foreach my $event(@{$base_type->new(url => $self->url)->events}) {
-		push @$rv, $event_type->new(parent => $event, %$event_opts);
+		push @$rv, $event_type->new(shadow => $event, %$event_opts);
 	}
 	return $rv;
 }
