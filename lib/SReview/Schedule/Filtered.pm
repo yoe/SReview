@@ -21,12 +21,12 @@ sub _load_filtered {
 	my $self = shift;
 
 	foreach my $filter(keys %{$self->require_match}) {
-		if($self->meta->find_attribute_by_name($filter)->get_value($self) !~ $self->require_match->{$filter}) {
+		if($self->parent->meta->find_attribute_by_name($filter)->get_value($self->parent) !~ $self->require_match->{$filter}) {
 			return 1;
 		}
 	}
 	foreach my $filter(keys %{$self->forbid_match}) {
-		if($self->meta->find_attribute_by_name($filter)->get_value($self) =~ $self->forbid_match->{$filter}) {
+		if($self->parent->meta->find_attribute_by_name($filter)->get_value($self->parent) =~ $self->forbid_match->{$filter}) {
 			return 1;
 		}
 	}
