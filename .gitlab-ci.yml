@@ -50,6 +50,18 @@ perl:latest:
 perl:5.28:
   <<: *build
 
+test:committed:
+  stage: test
+  image: perl:latest
+  before_script:
+  - apt-get update; apt-get -y --no-install-recommends install git
+  - cpanm ExtUtils::Depends
+  - cpanm --notest --installdeps .
+  - perl Makefile.PL
+  script:
+  - make manifest
+  - git diff --exit-code
+
 .deb: &deb
   stage: deb
   image: $CI_JOB_NAME
