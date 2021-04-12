@@ -3,6 +3,7 @@
 .travis.yml
 debian/*
 docs/*
-kubernetes/*
+helm/*
 dockerfiles/*
 javascript-test/*
+MANIFEST.bak

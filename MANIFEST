@@ -1,17 +1,4 @@
 COPYING
-helm/sreview/.helmignore
-helm/sreview/Chart.lock
-helm/sreview/Chart.yaml
-helm/sreview/requirements.lock
-helm/sreview/templates/_helpers.tpl
-helm/sreview/templates/configmaps.yaml
-helm/sreview/templates/cronjobs.yaml
-helm/sreview/templates/deployments.yaml
-helm/sreview/templates/ingress.yaml
-helm/sreview/templates/rbac.yaml
-helm/sreview/templates/services.yaml
-helm/sreview/values.yaml
-helm/testvals.yaml
 lib/SReview.pm
 lib/SReview/Access.pm
 lib/SReview/API.pm
