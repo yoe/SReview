@@ -20,6 +20,7 @@ WriteMakefile(
 		'Mojo::Pg' => 0,
 		'Mojolicious::Plugin::OpenAPI' => '< v4.0.0',
 		'Moose' => 0,
+		'Class::Type::Enum' => 0,
 		'DateTime' => 0,
 		'DateTime::Format::ISO8601' => 0,
 		'DateTime::Format::Pg' => 0,

@@ -1,49 +1,36 @@
 package SReview::Talk::State;
 
-use overload '<=>' => 'statecmp', 'cmp' => 'statecmp', '""' => 'output';
+use Class::Type::Enum values => [qw(
+	waiting_for_files
+	cutting
+	generating_previews
+	notification
+	preview
+	transcoding
+	uploading
+	publishing
+	announcing
+	done
+	injecting
+	broken
+	needs_work
+	lost
+	ignored
+)];
 
-use Carp;
 
-my %states = (
-	waiting_for_files => 0,
-	cutting => 1,
-	generating_previews => 2,
-	notification => 3,
-	preview => 4,
-	transcoding => 5,
-	uploading => 6,
-	publishing => 7,
-	announcing => 8,
-	done => 9,
-	injecting => 10,
-	broken => 11,
-	needs_work => 12,
-	lost => 13,
-	ignored => 14,
-);
+use overload '<=>' => 'cmp', '++' => "incr", '--' => "decr";
 
-sub new {
-	my $class = shift;
-	my $val = shift;
-        croak "Unknown talk state value: $val" unless exists($states{$val});
-	return bless \$val, $class;
-}
-
-sub statecmp {
-	my $self = shift;
-	my $other = shift;
-	my $swapped = shift;
-
-        croak "Unknown talk state value: $other" unless exists($states{$other});
-
-	if($swapped) {
-		return $states{$other} <=> $states{$$self};
+sub incr {
+	if($_[0] eq "injecting") {
+		${$_[0]} = $_[0]->sym_to_ord->{generating_previews};
 	} else {
-		return $states{$$self} <=> $states{$other};
+		++${$_[0]};
 	}
 }
 
-sub output {
-	my $self = shift;
-	return $$self;
+sub decr {
+	--${$_[0]};
 }
+
+1;
