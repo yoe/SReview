@@ -1146,6 +1146,55 @@ ALTER TABLE talks ALTER flags TYPE jsonb;
 -- 23 down
 ALTER TABLE raw_files DROP CONSTRAINT unique_filename;
 ALTER TABLE talks ALTER flags TYPE json;
+-- 24 up
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'finalreview',
+    'announcing',
+    'done',
+    'injecting',
+    'removing',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 24 down
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'announcing',
+    'done',
+    'injecting',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+UPDATE talks SET state='publishing' WHERE state IN ('finalreview','removing');
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
@@ -1638,3 +1687,45 @@ CREATE VIEW talk_list AS
      LEFT JOIN talks ON rooms.id = talks.room
      LEFT JOIN events ON talks.event = events.id
      LEFT JOIN tracks ON talks.track = tracks.id;
+-- 5 up
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    enumvals talkstate[];
+    startval ALIAS FOR $1;
+BEGIN
+  IF startval = 'injecting' THEN
+    return 'generating_previews'::talkstate;
+  ELSE
+    IF startval = 'removing' THEN
+      return 'waiting_for_files'::talkstate;
+    ELSE
+      IF startval >= 'done' THEN
+        return startval;
+      ELSE
+        enumvals := enum_range(startval, NULL);
+        return enumvals[2];
+      END IF;
+    END IF;
+  END IF;
+END $_$;
+-- 5 down
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  enumvals talkstate[];
+  startval ALIAS FOR $1;
+BEGIN
+  IF startval = 'injecting' THEN
+    return 'generating_previews'::talkstate;
+  ELSE
+    IF startval >= 'done' THEN
+      return startval;
+    ELSE
+      enumvals := enum_range(startval, NULL);
+      return enumvals[2];
+    END IF;
+  END IF;
+END $_$;

@@ -1562,9 +1562,11 @@ components:
           - transcoding
           - uploading
           - publishing
+          - finalreview
           - announcing
           - done
           - injecting
+          - removing
           - broken
           - needs_work
           - lost
