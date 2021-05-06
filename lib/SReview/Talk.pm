@@ -698,7 +698,7 @@ sub _load_eventurl {
 	return "";
 }
 
-=head2
+=head2 preview_exten
 
 The file extension of the preview file (.webm or .mp4)
 
