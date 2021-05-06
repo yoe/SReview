@@ -29,6 +29,7 @@ WriteMakefile(
 	},
 	TEST_REQUIRES => {
 		'Test::More' => 0,
+		'YAML::XS' => 0,
 	},
 	CONFIGURE_REQUIRES => {
 		'ExtUtils::Depends' => 0,
