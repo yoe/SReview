@@ -103,6 +103,7 @@ sub update {
 			$c->render(variant => "error");
 			return;
 		}
+                $talk->done_correcting;
                 $talk->state_done("preview");
                 $c->render(variant => 'done');
                 return;
