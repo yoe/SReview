@@ -13,6 +13,7 @@ use Class::Type::Enum values => [qw(
 	announcing
 	done
 	injecting
+	removing
 	broken
 	needs_work
 	lost
