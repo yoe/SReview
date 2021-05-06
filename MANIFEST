@@ -42,6 +42,7 @@ lib/SReview/Web/Controller/Admin.pm
 lib/SReview/Web/Controller/Config.pm
 lib/SReview/Web/Controller/CreditPreviews.pm
 lib/SReview/Web/Controller/Event.pm
+lib/SReview/Web/Controller/Finalreview.pm
 lib/SReview/Web/Controller/Inject.pm
 lib/SReview/Web/Controller/Review.pm
 lib/SReview/Web/Controller/Room.pm
@@ -94,6 +95,7 @@ t/090-talk.t
 t/095-files.t
 t/100-mojo.t
 t/110-api.t
+t/120-types.t
 t/test.cf
 t/testvids/bbb.mp4
 t/testvids/just-title.svg
@@ -106,6 +108,10 @@ web/sreview-web
 web/templates/admin/dashboard.html.ep
 web/templates/admin/main.html.ep
 web/templates/error.html.ep
+web/templates/finalreview/update.html+done.ep
+web/templates/finalreview/update.html+error.ep
+web/templates/finalreview/update.html+unpublish.ep
+web/templates/finalreview/view.html.ep
 web/templates/index.html.ep
 web/templates/inject/update.html+error.ep
 web/templates/inject/update.html.ep
