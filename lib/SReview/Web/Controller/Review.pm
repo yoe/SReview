@@ -86,7 +86,7 @@ sub update {
                 $talk->comment($c->param("comment_text"));
         }
 
-        if(defined($c->param("complete_reset")) && $c->param("complete_reset") == 1) {
+        if(defined($c->param("complete_reset")) && $c->param("complete_reset") eq "1") {
                 $talk->reset_corrections();
                 $talk->set_state("cutting");
                 $c->render(variant => 'reset');
