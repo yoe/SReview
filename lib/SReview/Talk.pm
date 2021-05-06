@@ -816,7 +816,7 @@ sub done_correcting {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);
         }
         if($self->has_comment) {
-                $db->prepare("INSERT INTO commentlog(comment, talk) VALUES (?, ?)")->execute($self->comment, $self->talkid);
+                $db->prepare("INSERT INTO commentlog(comment, talk, state) VALUES (?, ?, ?)")->execute($self->comment, $self->talkid, $self->state);
         }
 	if($self->has_apology) {
 		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);

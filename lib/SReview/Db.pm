@@ -1200,6 +1200,7 @@ CREATE TABLE commentlog (
     id SERIAL PRIMARY KEY,
     talk integer REFERENCES talks(id),
     comment TEXT,
+    state varchar,
     logdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 INSERT INTO commentlog(talk, comment) SELECT id, comments FROM talks WHERE comments IS NOT NULL;
