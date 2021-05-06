@@ -82,6 +82,9 @@ sub update {
                 $c->render(variant => 'error');
                 return;
         }
+        if(defined($c->param("comment_text")) && length($c->param("comment_text")) > 0) {
+                $talk->comment($c->param("comment_text"));
+        }
 
         if(defined($c->param("complete_reset")) && $c->param("complete_reset") == 1) {
                 $talk->reset_corrections();
@@ -152,8 +155,7 @@ sub update {
                 $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
                 $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
-        if(defined($c->param("comment_text")) && length($c->param("comment_text")) > 0) {
-                $talk->comment($c->param("comment_text"));
+        if(defined($c->param("broken")) && $c->param("broken") eq "yes") {
                 $talk->set_state("broken");
                 $c->stash(other_msg => $c->param("comment_text"));
                 $talk->done_correcting;

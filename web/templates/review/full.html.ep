@@ -294,21 +294,35 @@
             <legend>Other brokenness</legend>
             <div class="row">
               <div class="col-sm-6">
-                <label>Please explain:</label>
-                <textarea class="form-control" id="comment_text" name="comment_text" rows="5"><%= $talk->comment %></textarea>
-		<p><strong>Note:</strong> if you enter anything in the
-		  field above, the video will be <strong>marked as
+                <p>Please explain the issue in the comments element, below.</p>
+		<label>
+		  <input type="checkbox" name="broken" value="yes" <%= $talk->state eq "broken" ?  "checked" : "" %> ></input>
+		  An administrator should look at this talk.
+		</label>
+		<p><strong>Note:</strong> if you select the 
+		  option above, the video will be <strong>marked as
 		  broken</strong>, and will <em>not</em> be released
 		  <strong>until an administrator has looked at
-		  it</strong> (or you remove the text again). If that's not
-		  what you want, please leave the field empty.</p>
+		  it</strong> (or you clear the option again). If that's not
+		  what you want, please don't select the option.</p>
 		<p>For feedback that is not critical for the release of
-		  your talk, you may contact us through <a
-		  href="mailto:debconf-video@lists.debian.org">email</a> or <a
-		  href="irc://irc.oftc.net/debconf-video">IRC</a></p>
+		  your talk, please contact the administrators directly.</p>
               </div>
             </div>
           </fieldset>
+	  <fieldset class="comments">
+	    <legend>Comments</legend>
+	    <div class="row">
+	      <div class="col-sm-6">
+	        <p>Please enter your comments about this talk below.</p>
+                <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
+	        <p>Previous comments:</p>
+	        <pre>
+<%= $talk->comment %>
+	        </pre>
+	      </div>
+	    </div>
+	  </fieldset>
           <input type="hidden" name="start_time_corrval" id="start_time_corrval"></input>
           <input type="hidden" name="end_time_corrval" id="end_time_corrval"></input>
           <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} + 0 =%>"></input>

@@ -176,7 +176,7 @@ has 'comment' => (
 
 sub _load_comment {
         my $self = shift;
-        my $st = $pg->db->dbh->prepare("SELECT comments FROM talks WHERE id = ?");
+        my $st = $pg->db->dbh->prepare("WITH orderedlog(talk, comment, logdate) AS (SELECT talk, comment, logdate FROM commentlog ORDER BY logdate DESC) SELECT talk, string_agg(logdate || E'\n' || comment, E'\n\n') AS comments FROM orderedlog WHERE talk = ? GROUP BY talk");
         $st->execute($self->talkid);
         my $row = $st->fetchrow_hashref;
         return $row->{comments};
@@ -816,9 +816,7 @@ sub done_correcting {
                 $st->execute($self->talkid, $pair->[0], $pair->[1]);
         }
         if($self->has_comment) {
-                $db->prepare("UPDATE talks SET comments=? WHERE id = ?")->execute($self->comment, $self->talkid);
-        } else {
-                $db->prepare("UPDATE talks SET comments = NULL WHERE id = ?")->execute($self->talkid);
+                $db->prepare("INSERT INTO commentlog(comment, talk) VALUES (?, ?)")->execute($self->comment, $self->talkid);
         }
 	if($self->has_apology) {
 		$db->prepare("UPDATE talks SET apologynote=? WHERE id = ?")->execute($self->apology, $self->talkid);

@@ -1195,6 +1195,26 @@ ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstat
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
 ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 25 up
+CREATE TABLE commentlog (
+    id SERIAL PRIMARY KEY,
+    talk integer REFERENCES talks(id),
+    comment TEXT,
+    logdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+INSERT INTO commentlog(talk, comment) SELECT id, comments FROM talks WHERE comments IS NOT NULL;
+UPDATE talks SET comments = NULL;
+-- 25 down
+WITH logtexts(talk, comments) AS
+(WITH orderedlog(talk, comment, logdate) AS
+(SELECT talk, comment, logdate FROM commentlog ORDER BY logdate)
+SELECT talk, string_agg(logdate || E'\n' || comment, E'\n\n') AS comments
+FROM orderedlog
+GROUP BY talk)
+UPDATE talks SET comments = logtexts.comments
+FROM logtexts
+WHERE talks.id = logtexts.talk;
+DROP TABLE commentlog;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
