@@ -1,0 +1,69 @@
+<h1>
+  <small><%= $talk->eventname . " videos" =%></small>
+  <%= $talk->title =%>
+</h1>
+<div class="row" id="talk_info">
+  <div class="col-sm-12">
+    <dl class="dl-horizontal">
+      <dt>Speakers:</dt>
+      <dd><%= $talk->speakers =%></dd>
+      <dt>Date:</dt>
+      <dd><%= $talk->readable_date =%></dd>
+      <dt>Room:</dt>
+      <dd><%= $talk->room =%></dd>
+    </dl>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-8">
+    <h2>What to check when doing final review of this video</h2>
+    <ol>
+      <li><strong>Check the beginning</strong> of the video to make sure it starts at the right time.</li>
+      <li><strong>Check the end</strong> of the video to make sure the transcode completed correctly.</li>
+      <li><strong>Check the titles</strong> to make sure they match the content</li>
+      <li><strong>Check the rendering of the titles</strong> to make sure they look good</li>
+    </ol>
+    <p>Then answer the <a href="#big_question">How is this video</a> question at the bottom of the page.</p>
+  </div>
+</div>
+<div class="row" id="main_video">
+  <div class="col-sm-8">
+    <div class="embed-responsive embed-responsive-16by9">
+      <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $talk->eventurl =%>"></video>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <h2 id="big_question">How is this video?</h2>
+    <form id="main_form" action="/f/<%= $talk->nonce =%>/update" method="POST">
+      <fieldset>
+        <div class="radio">
+	  <label>
+	    <input type="radio" name="video_state" value="ok" checked>
+	    Perfect! Please release it to the world.
+	  </label>
+	</div>
+	<div class="radio">
+	  <label>
+	    <input type="radio" name="video_state" value="not_ok">
+	    The video has problems.
+	  </label>
+	</div>
+      </fieldset>
+      <fieldset class="comments">
+        <legend>Comments</legend>
+        <div class="row">
+	  <div class="col-sm-6">
+	    <label>Please explain:</label>
+	    <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
+            <p>Previous comments:</p>
+            <pre>
+<%= $talk->comment %>
+            </pre>
+	  </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>

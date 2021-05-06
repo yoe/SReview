@@ -47,11 +47,17 @@ sub startup {
 	$self->hook(before_dispatch => sub {
 		my $c = shift;
 		my $vpr = $config->get('vid_prefix');
-		my $media = "media-src 'self'";
-		my $url = Mojo::URL->new($vpr);
-		if(defined($url->host)) {
-			$vpr = $url->host;
-			$media = "media-src $vpr;";
+		state $media = undef;
+		if(!defined($media)) {
+			$media = "media-src 'self'";
+			my $url = Mojo::URL->new($vpr);
+			if(defined($url->host)) {
+				$vpr = $url->host;
+				$media = "media-src $vpr;";
+			}
+			if(defined($config->get("finalhosts"))) {
+				$media .= " " . $config->get("finalhosts");
+			}
 		}
 		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
 	});
@@ -208,6 +214,7 @@ sub startup {
 	$r->get('/r/:nonce')->to(controller => 'review', action => 'view', layout => 'default');
 	$r->post('/r/:nonce/update')->to(controller => 'review', layout => 'default', action => 'update');
         $r->get('/r/:nonce/data')->to(controller => 'review', action => 'data');
+	$r->get('/f/:nonce')->to(controller => 'finalreview', action => 'view', layout => 'default');
 
 	$r->get('/review/:nonce' => sub {
 		my $c = shift;

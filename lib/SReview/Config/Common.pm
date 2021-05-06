@@ -153,6 +153,9 @@ sub setup {
 	# for tuning command stuff
 	$config->define('command_tune', 'Some commands change incompatibly from one version to the next. This option exists to deal with such incompatibilities', {});
 
+	# for final review
+	$config->define('finalhosts', 'A list of hosts that may host videos for final review, to be added to Content-Security-Policy "media-src" directive.', undef);
+
 	return $config;
 }
 
