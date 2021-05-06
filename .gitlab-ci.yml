@@ -66,8 +66,9 @@ test:committed:
   stage: deb
   image: $CI_JOB_NAME
   before_script:
-  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential
+  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential cpanminus
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
+  - cpanm Class::Type::Enum
   script:
   - dpkg-buildpackage -us -uc -i -I.git
   after_script:
