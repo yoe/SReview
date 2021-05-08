@@ -1226,6 +1226,7 @@ CREATE TYPE talkstate_new AS ENUM (
     'transcoding',
     'uploading',
     'publishing',
+    'notify_final',
     'finalreview',
     'announcing',
     'done',

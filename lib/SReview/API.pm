@@ -1562,6 +1562,7 @@ components:
           - transcoding
           - uploading
           - publishing
+          - notify_final
           - finalreview
           - announcing
           - done

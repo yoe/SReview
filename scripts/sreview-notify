@@ -116,7 +116,11 @@ my $urlbase = $config->get('urlbase');
 $/ = '/';
 chomp($urlbase);
 $/ = $save;
-$url = join('/', ($urlbase, "r", $talk->nonce));
+if($configprefix eq 'notify_final') {
+	$url = join('/', ($urlbase, "f", $talk->nonce));
+} else {
+	$url = join('/', ($urlbase, "r", $talk->nonce));
+}
 $overview = join('/', ($urlbase, "overview"));
 
 foreach my $action(@$actions) {

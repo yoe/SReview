@@ -9,6 +9,7 @@ use Class::Type::Enum values => [qw(
 	transcoding
 	uploading
 	publishing
+	notify_final
 	finalreview
 	announcing
 	done
