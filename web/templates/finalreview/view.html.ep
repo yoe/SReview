@@ -1,3 +1,10 @@
+% if ( $adminspecil ) {
+<div class="alert alert-warning alert-dismissable fade in">
+  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  <p><strong>Note</strong>: this talk is currently in the state <strong><%= $talk->state %></strong>, <em>not</em> in the finalreview state. You can only see this review page because you are admin!</p>
+  <p>Please <strong>use caution</strong> when making changes.</p>
+</div>
+% }
 <h1>
   <small><%= $talk->eventname . " videos" =%></small>
   <%= $talk->title =%>
