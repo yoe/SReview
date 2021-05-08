@@ -18,7 +18,7 @@ WriteMakefile(
 	PREREQ_PM => {
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
-		'Mojolicious::Plugin::OpenAPI' => '>= 4.17',
+		'Mojolicious::Plugin::OpenAPI' => '>= 4.03',
 		'Moose' => 0,
 		'Class::Type::Enum' => 0,
 		'DateTime' => 0,
