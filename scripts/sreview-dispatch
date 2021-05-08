@@ -125,7 +125,7 @@ while(1) {
 	$dbh->begin_work or die $!;
 	print "==> Checking for new work...\n";
 	my $start = $dbh->prepare("UPDATE talks SET progress = 'scheduled' WHERE id = ?");
-	my $publishing = $dbh->prepare("SELECT talks.id FROM talks JOIN events ON events.id = talks.event WHERE state='publishing' AND events.name = ?");
+	my $publishing = $dbh->prepare("SELECT talks.id, state FROM talks JOIN events ON events.id = talks.event WHERE state IN ('publishing','removing') AND events.name = ?");
 
 	my $st;
 	my $statelist = "'" . join("','", keys(%{$state_actions})) . "'";
@@ -173,19 +173,19 @@ stderr and a file for stdout for each script run.
 			system $mt->render($statetrans, {talkid => $row->{id}, room => $row->{room}, length => $row->{length}, output_dir => $config->get('script_output')});
 		}
 	}
-	$publishing->execute($config->get('event'));
 	if(!defined($config->get('published_headers')) || !defined($config->get('eventurl_format'))) {
-		$dbh->prepare("UPDATE talks SET progress='done' WHERE state='publishing' AND event = (SELECT id FROM events WHERE name = ?)")->execute($config->get('event'));
+		$dbh->prepare("UPDATE talks SET progress='done' WHERE state IN ('publishing', 'removing') AND event = (SELECT id FROM events WHERE name = ?)")->execute($config->get('event'));
 	} else {
+		$publishing->execute($config->get('event'));
 		while(my $row = $publishing->fetchrow_hashref) {
                         my $url = SReview::Talk->new(talkid => $row->{id})->eventurl;
 			my $res = $ua->head($url)->result;
-			my $is_ok = 1;
+			my $is_published = 1;
 			my $headers = $config->get('published_headers');
 			foreach my $header(keys %{$headers}) {
 				if($header eq '_code') {
 					if($res->code ne $headers->{_code}) {
-						$is_ok = 0;
+						$is_published = 0;
 						last;
 					}
 				} else {
@@ -195,12 +195,12 @@ stderr and a file for stdout for each script run.
 						die $!
 					}
 					if($headers->{$header} ne $val) {
-						$is_ok = 0;
+						$is_published = 0;
 						last;
 					}
 				}
 			}
-			if($is_ok) {
+			if(($is_published && $row->{state} eq 'publishing') || (!$is_published && $row->{state} eq 'removing')) {
 				$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($row->{id});
                         }
 		}

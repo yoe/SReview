@@ -33,7 +33,7 @@ sub view {
 		$c->stash(adminspecial => 1);
 	} elsif($talk->state gt "finalreview" && $talk->state lt "done") {
 		$variant = 'working';
-	} elsif($talk->state eq 'removing') {
+	} elsif($talk->state ge 'remove' && $talk->state le 'removing') {
 		$variant = 'working';
 	} else {
 		$variant = 'done';
@@ -86,7 +86,7 @@ sub update {
 		$c->render(variant => "done");
 		return;
 	}
-	$talk->set_state("removing");
+	$talk->set_state("remove");
 	$c->render(variant => "unpublish");
 }
 

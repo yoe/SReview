@@ -1566,6 +1566,7 @@ components:
           - announcing
           - done
           - injecting
+          - remove
           - removing
           - broken
           - needs_work
