@@ -25,7 +25,7 @@ use SReview::Video;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 31) unless exists($ENV{SREVIEWTEST_DB});
+	skip("Need a database to play with", 34) unless exists($ENV{SREVIEWTEST_DB});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
