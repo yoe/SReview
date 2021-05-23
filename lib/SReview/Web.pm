@@ -215,6 +215,7 @@ sub startup {
 	$r->post('/r/:nonce/update')->to(controller => 'review', layout => 'default', action => 'update');
         $r->get('/r/:nonce/data')->to(controller => 'review', action => 'data');
 	$r->get('/f/:nonce')->to(controller => 'finalreview', action => 'view', layout => 'default');
+	$r->post('/f/:nonce/update')->to(controller => 'finalreview', action => 'update', layout => 'default');
 
 	$r->get('/review/:nonce' => sub {
 		my $c = shift;
