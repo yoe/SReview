@@ -34,6 +34,9 @@ WriteMakefile(
 	CONFIGURE_REQUIRES => {
 		'ExtUtils::Depends' => 0,
 	},
+	CONFIGURE_REQUIRES => {
+		'ExtUtils::Depends' => 0,
+	},
 	EXE_FILES => [
 		'scripts/sreview-autoreview',
 		'scripts/sreview-cut',

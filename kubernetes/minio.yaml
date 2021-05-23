@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sreview-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sreview-storage
+  serviceName: "sreview-storage"
+  template:
+    metadata:
+      labels:
+        app: sreview-storage
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio
+        volumeMounts:
+        - mountPath: "/data"
+          name: "minio"
+        ports:
+        - containerPort: 9000
+          name: minio
+        args:
+        - server
+        - "/data"
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: adminuser
+        - name: MINIO_SECRET_KEY
+          value: adminpass
+      volumes:
+      - name: "minio"
+        persistentVolumeClaim:
+          claimName: "minio"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sreview-storage
+  labels:
+    app: sreview-storage
+spec:
+  ports:
+  - port: 9000
+    name: minio
+  clusterIP: None
+  selector:
+    app: sreview-storage
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: sreview-storage
+spec:
+  rules:
+  - host: minio.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: sreview-storage
+          servicePort: 9000

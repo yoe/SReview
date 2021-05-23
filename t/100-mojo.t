@@ -94,6 +94,19 @@ SKIP: {
 	$talk = SReview::Talk->new(talkid => 1);
 	ok($talk->corrections->{offset_audio} == 0, "video delay A/V sync value is set correctly");
 
+	$talk->set_state("finalreview");
+
+	$formdata = {
+		video_state => "ok",
+		serial => $talk->corrections->{serial},
+	};
+
+	$talkurl = "/f/" . $talk->nonce;
+
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
+	$talk = SReview::Talk->new(talkid => 1);
+	ok($talk->state eq 'finalreview' && $talk->corrections->{serial} == $formdata->{serial} + 1, 'confirmation in final review is handled correctly');
+
 	chdir("..");
 	unlink("web/t");
 };

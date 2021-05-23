@@ -69,7 +69,10 @@ sub run {
 	my $self = shift;
 	my $config = SReview::Config::Common::setup();
 	my $pkg = "SReview::Normalizer::" . ucfirst($config->get("normalizer"));
-	require $pkg;
+	eval "require $pkg;";
+	if($@) {
+		die "$@: $!";
+	}
 	return $pkg->new(input => $self->input, output => $self->output)->run();
 }
 

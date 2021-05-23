@@ -9,7 +9,7 @@ use SReview::Map;
 use SReview::Video;
 use SReview::Videopipe;
 
-extends 'Sreview::Normalizer';
+extends 'SReview::Normalizer';
 
 =head1 NAME
 
@@ -72,7 +72,8 @@ sub run {
 		$exten = "mkv";
 	}
 	my @command = ("bs1770gain", "-a", "-o", $self->_tempdir);
-	if(SReview::Config::Common::setup()->get("command_tune")->{bs1770gain} ne "0.5") {
+	my $tune = SReview::Config::Common::setup()->get("command_tune");
+	if(exists($tune->{bs1770gain}) && $tune->{bs1770gain} ne "0.5") {
 		$exten = "mkv";
 		push @command, "--suffix=mkv";
 	}
@@ -82,7 +83,7 @@ sub run {
 
 	my $intermediate = $self->_tempdir . "/" . basename($base) . ".$exten";
 
-	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 0)->run();
+	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
 }
 
 1;
