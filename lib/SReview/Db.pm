@@ -472,6 +472,7 @@ CREATE TYPE talkstate_new AS ENUM (
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
 DROP VIEW talk_list;
+UPDATE talks SET state='broken' WHERE state='ignored';
 ALTER TABLE talks ALTER state TYPE talkstate_new USING (state::varchar)::talkstate_new;
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 CREATE VIEW talk_list AS
@@ -762,6 +763,7 @@ CREATE TYPE talkstate_new AS ENUM (
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
 DROP VIEW talk_list;
+UPDATE talks SET state='done' WHERE state='announcing';
 ALTER TABLE talks ALTER state TYPE talkstate_new USING (state::varchar)::talkstate_new;
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 CREATE VIEW talk_list AS
@@ -1087,6 +1089,7 @@ CREATE TYPE talkstate_new AS ENUM (
     'ignored'
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
+UPDATE talks SET state='announcing' WHERE state='publishing';
 ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
@@ -1136,6 +1139,7 @@ CREATE TYPE talkstate_new AS ENUM (
     'ignored'
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
+UPDATE talks SET state='broken' WHERE state='injecting';
 ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
@@ -1264,6 +1268,7 @@ CREATE TYPE talkstate_new AS ENUM (
     'ignored'
 );
 ALTER TABLE talks ALTER state DROP DEFAULT;
+UPDATE talks SET state='finalreview' WHERE state='notify_final';
 ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
