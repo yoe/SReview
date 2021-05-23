@@ -77,7 +77,7 @@ sub update {
                 return;
         }
         $talk->add_correction(serial => 0);
-        if($c->param('serial') ne $talk->corrections->{serial}) {
+        if($c->param('serial') != $talk->corrections->{serial}) {
                 $c->stash(error => 'This talk was updated (probably by someone else) since you last loaded it. Please reload the page, and try again.');
                 $c->render(variant => 'error');
                 return;
