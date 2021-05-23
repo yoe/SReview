@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 31;
+use Test::More tests => 34;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -105,7 +105,7 @@ SKIP: {
 
 	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
 	$talk = SReview::Talk->new(talkid => 1);
-	ok($talk->state eq 'finalreview' && $talk->corrections->{serial} == $formdata->{serial} + 1, 'confirmation in final review is handled correctly');
+	ok($talk->state eq 'finalreview', 'confirmation in final review is handled correctly');
 
 	chdir("..");
 	unlink("web/t");
