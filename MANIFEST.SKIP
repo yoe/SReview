@@ -7,3 +7,4 @@ helm/*
 dockerfiles/*
 javascript-test/*
 MANIFEST.bak
+Makefile
