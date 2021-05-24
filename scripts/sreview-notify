@@ -72,9 +72,12 @@ sub notify_email() {
 	my $nonce = $talk->nonce;
 	my $refid = $talk->corrections->{serial};
 	my $action = 'ntf';
-	if($configprefix ne 'notify') {
+	if($configprefix eq 'announce') {
 		$refid--;
 		$action = 'ann';
+	} elsif ($configprefix eq 'notify_final') {
+		$refid--;
+		$action = 'fnt';
 	}
 	for (; $refid >= 0; $refid--) {
 		push @references, "sreview-$nonce-$refid-ntf";
