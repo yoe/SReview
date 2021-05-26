@@ -754,6 +754,7 @@ sub _load_output_urls {
 			my $exten = SReview::Video::ProfileFactory->create($prof, $vid)->exten;
 			my $url = $mt->vars(1)->render($form, {
 				talk => $self,
+				year => $self->_get_pathinfo->{raw}{year},
 				exten => $exten
 			});
 			chomp $url;
