@@ -159,6 +159,7 @@ sub setup {
 
 	# for final review
 	$config->define('finalhosts', 'A list of hosts that may host videos for final review, to be added to Content-Security-Policy "media-src" directive.', undef);
+	$config->define('output_video_url_format', 'A Mojo::Template that will produce the URLs for the produced videos. Can use the $talk variable for the SReview::Talk, and the $exten variable for the extension of the current video profile');
 
 	return $config;
 }

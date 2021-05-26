@@ -6,6 +6,8 @@ use Mojo::Template;
 use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
+use SReview::Video;
+use SReview::Video::ProfileFactory;
 use DateTime::Format::Pg;
 
 my $config = SReview::Config::Common::setup;
@@ -723,6 +725,40 @@ sub _load_eventurl {
 		return $rv;
 	}
 	return "";
+}
+
+=head2 output_video_urls
+
+An array of URLs for the output videos, as they will be published. Used by final review.
+
+=cut
+
+has 'output_video_urls' => (
+	lazy => 1,
+	is => 'ro',
+	builder => '_load_output_urls',
+);
+
+sub _load_output_urls {
+	my $self = shift;
+	my $mt = Mojo::Template->new;
+	my $form = $config->get("output_video_url_format");
+	my $rv = [];
+	if(defined($form)) {
+		my $vid = SReview::Video->new(url => "");
+		foreach my $prof(@{$config->get("output_profiles")}) {
+			if($prof eq "copy") {
+				$prof = $config->get("input_profile");
+			}
+			my $exten = SReview::Video::ProfileFactory->create($prof, $vid)->exten;
+			my $url = $mt->vars(1)->render($form), {
+				talk => $self,
+				exten => $exten
+			});
+			chomp $url;
+			push @$rv, $url;
+		}
+	}
 }
 
 =head2 preview_exten
