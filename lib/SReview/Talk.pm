@@ -736,6 +736,7 @@ An array of URLs for the output videos, as they will be published. Used by final
 has 'output_video_urls' => (
 	lazy => 1,
 	is => 'ro',
+	isa => 'Array[Str]',
 	builder => '_load_output_urls',
 );
 
