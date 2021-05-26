@@ -62,7 +62,7 @@
         <legend>Comments</legend>
         <div class="row">
 	  <div class="col-sm-6">
-	    <label>Please explain:</label>
+	    <label>Add comment:<br><small>comments are optional, but can help explain your decision to future reviewers</small></label>
 	    <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
             <p>Previous comments:</p>
             <pre>
