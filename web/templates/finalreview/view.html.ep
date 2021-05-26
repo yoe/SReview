@@ -35,9 +35,12 @@
 </div>
 % foreach my $url(@{$talk->output_video_urls}) {
 <div class="row">
+  <div class="col-sm-1">
+    <p>Profile <%= $url->{prof} =%>:</p>
+  </div>
   <div class="col-sm-8">
     <div class="embed-responsive embed-responsive-16by9">
-      <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $url =%>"></video>
+      <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $url->{url} =%>"></video>
     </div>
   </div>
 </div>

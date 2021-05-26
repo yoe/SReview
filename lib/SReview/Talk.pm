@@ -736,7 +736,7 @@ An array of URLs for the output videos, as they will be published. Used by final
 has 'output_video_urls' => (
 	lazy => 1,
 	is => 'ro',
-	isa => 'Array[Str]',
+	isa => 'ArrayRef[HashRef[Str]]',
 	builder => '_load_output_urls',
 );
 
@@ -748,6 +748,7 @@ sub _load_output_urls {
 	if(defined($form)) {
 		my $vid = SReview::Video->new(url => "");
 		foreach my $prof(@{$config->get("output_profiles")}) {
+			my $item = {prof => $prof};
 			if($prof eq "copy") {
 				$prof = $config->get("input_profile");
 			}
@@ -758,9 +759,11 @@ sub _load_output_urls {
 				exten => $exten
 			});
 			chomp $url;
-			push @$rv, $url;
+			$item->{url} = $url;
+			push @$rv, $item;
 		}
 	}
+	return $rv;
 }
 
 =head2 preview_exten
