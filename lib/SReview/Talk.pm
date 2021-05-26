@@ -752,7 +752,7 @@ sub _load_output_urls {
 				$prof = $config->get("input_profile");
 			}
 			my $exten = SReview::Video::ProfileFactory->create($prof, $vid)->exten;
-			my $url = $mt->vars(1)->render($form), {
+			my $url = $mt->vars(1)->render($form, {
 				talk => $self,
 				exten => $exten
 			});
