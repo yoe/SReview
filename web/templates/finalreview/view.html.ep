@@ -33,13 +33,15 @@
     <p>Then answer the <a href="#big_question">How is this video</a> question at the bottom of the page.</p>
   </div>
 </div>
-<div class="row" id="main_video">
+% foreach my $url(@{$talk->output_video_urls}) {
+<div class="row">
   <div class="col-sm-8">
     <div class="embed-responsive embed-responsive-16by9">
-      <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $talk->eventurl =%>"></video>
+      <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $url =%>"></video>
     </div>
   </div>
 </div>
+% }
 <div class="row">
   <div class="col-sm-12">
     <h2 id="big_question">How is this video?</h2>
