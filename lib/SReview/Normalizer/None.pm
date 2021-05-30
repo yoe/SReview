@@ -8,7 +8,7 @@ extends 'SReview::Normalizer';
 
 sub run {
 	my $self = shift;
-	if ($self->input->filename ne $self->output->filename) {
-		copy($self->input->filename, $self->output->filename);
+	if ($self->input->url ne $self->output->url) {
+		copy($self->input->url, $self->output->url);
 	}
 }
