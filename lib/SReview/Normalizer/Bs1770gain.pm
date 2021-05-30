@@ -82,8 +82,14 @@ sub run {
 	system(@command);
 
 	my $intermediate = $self->_tempdir . "/" . basename($base) . ".$exten";
+	my $check = SReview::Video->new(url => $intermediate);
 
-	SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
+	if($check->audio_codec eq $self->input->audio_codec) {
+		SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 1)->run();
+	} else {
+		$self->output->audio_codec($self->input->audio_codec);
+		SReview::Videopipe->new(inputs => [SReview::Video->new(url => $intermediate)], output => $self->output, vcopy => 1, acopy => 0)->run();
+	}
 }
 
 1;
