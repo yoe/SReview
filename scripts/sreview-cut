@@ -4,16 +4,16 @@ use strict;
 use warnings;
 
 use DBI;
+use File::Copy;
 use File::Temp qw/tempdir/;
-use File::Path qw/make_path/;
-use SReview::CodecMap qw/detect_to_write/;
+use SReview::Config::Common;
+use SReview::Files::Factory;
 use SReview::Map;
+use SReview::Normalizer;
 use SReview::Talk;
 use SReview::Video;
 use SReview::Video::Concat;
 use SReview::Videopipe;
-use SReview::Config::Common;
-use SReview::Files::Factory;
 
 =head1 NAME
 
@@ -31,42 +31,44 @@ C<sreview-cut> performs the following actions:
 
 =item *
 
-Look up the talk with id TALKID in the database.
+Look up the talk with id TALKID in teh database
 
 =item *
 
 From the raw files, extract the amount of video that, according to the
-schedule, is part of the talk of which the event was given as the main video
-(with adjustments as specified by the reviewer, if any, applied).
+schedule, is part of the talk of which the event was given as the main
+video (with adjustments as specified by the reviewer, if any, applied).
 
 =item *
 
-Extract the 20 minutes just before and the 20 minutes just after the
-main video into the pre and post videos.
+Extract the 20 minutes just before and the 20 minuts just after the main
+video into the pre and post videos.
 
 =item *
 
-Apply A/V sync correction values if any exist by removing either some
-video or some audio from the beginning of the extracted region.
+Apply A/V sync correction values if any exist.
 
 =item *
 
-Run C<bs1770gain> over the audio of the main video, and re-integrate it
-with that main video.
+Perform audio normalization, if enabled in the configuration
 
 =item *
 
-Set the C<progress> field of the talk in the database to C<done>,
-provided its C<state> field is still at C<cutting>.
+Extract sample videos from all three channels into preview audio
+streams, if enabled in the configuration
+
+=item *
+
+Move the talk to the next state.
 
 =back
 
 sreview-cut will B<never> re-encode the original video, and will
-re-encode the original audio of the main video precisely once, after the
-C<bs1770gain> call.
+re-encode the original audio of the main video at most once, after audio
+normalization if that was enabled in the configuration.
 
 Any re-transcodes should be performed by C<sreview-transcode> (for
-production) and/or C<sreview-previews> (for reviewers).
+production) and/or C<sreview-previews> (for review previews)
 
 =head1 CONFIGURATION
 
@@ -81,12 +83,12 @@ my $config = SReview::Config::Common::setup;
 =item workdir
 
 The location where any temporary files are stored. Defaults to C</tmp>,
-but can be overriden if necessary. These temporary files are removed
+but can be overridden if necessary. These temporary files are removed
 when C<sreview-cut> finishes.
 
 =cut
 
-my $tempdir = tempdir("cutXXXXXX", DIR => $config->get('workdir'), CLEANUP => 1);
+my $tempdir = tempdir("cutXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
 
 =item dbistring
 
@@ -94,40 +96,71 @@ The DBI string used to connect to the database.
 
 =cut
 
-my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 my $talkid = $ARGV[0];
 
+=item audio_multiplex_mode
+
+The way in which the primary and backup audio channels are encoded in
+the video. Can be one of:
+
+=over
+
+=item stereo
+
+The primary audio is in the left channel, and the backup audio is in the
+right channel.
+
+=item stream
+
+The primary audio is in the first audio stream (a mono stream), and the
+backup audio is in the second audio stream (also a mono stream).
+
+=item none
+
+There is only one audio stream, and if it is a stereo channel then the
+right channel is not the backup audio.
+
+=back
+
+=cut
+
+my $multiplex_mode = $config->get("audio_multiplex_mode");
 my $maptype;
 my $primary_audio;
 my $backup_audio;
 my $both_audio;
 
-if($config->get('audio_multiplex_mode') eq 'stereo') {
-	$maptype = 'channel';
-	$primary_audio = 'left';
-	$backup_audio = 'right';
-	$both_audio = 'both';
+if($multiplex_mode eq "stereo") {
+	$maptype = "channel";
+	$primary_audio = "left";
+	$backup_audio = "right";
+	$both_audio = "both";
+} elsif($multiplex_mode eq "stream") {
+	$maptype = "astream";
+	$primary_audio = "0";
+	$backup_audio = "1";
+	$both_audio = "-1";
 } else {
-	$maptype = 'astream';
-	$primary_audio = '0';
-	$backup_audio = '1';
-	$both_audio = '-1';
+	$maptype = "none";
+	$primary_audio = "both";
+	$backup_audio = "both";
+	$both_audio = "both";
 }
+
+my $dbh = DBI->connect($config->get("dbistring"));
 
 $dbh->begin_work;
 
-my $started = $dbh->prepare("UPDATE talks SET progress='running', state='cutting' WHERE id=?");
+my $started = $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ? AND state = 'cutting'");
 $started->execute($talkid);
 
 $dbh->commit;
 
-$dbh->begin_work;
-
 my $talk = SReview::Talk->new(talkid => $talkid);
 
 if($talk->get_flag("is_injected")) {
-	$dbh->prepare("UPDATE talks SET progress='broken', comments='tried to re-cut an injected talk' WHERE id = ?")->execute($talkid);
-	exit;
+		$dbh->prepare("UPDATE talks SET progress='broken', comments='tried to re-cut an injected talk' WHERE id = ?")->execute($talkid);
+		exit;
 }
 
 my $corrections = $talk->corrections;
@@ -136,29 +169,39 @@ my @segments_pre;
 my @segments_main;
 my @segments_post;
 
-
 my $prelen = 0;
 my $mainlen = 0;
 my $postlen = 0;
 
+=item inputglob
+
+The location of the (raw) input files. These files should have been put
+into the database by way of C<sreview-detect>
+
+=item pubdir
+
+The location of the intermediate files that are published to reviewers.
+
+=item accessmethods
+
+The L<SReview::Files> implementation used to access the input files
+and/or the intermediate files.
+
+=cut
+
 my $input_coll = SReview::Files::Factory->create("input", $config->get("inputglob"));
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 
-foreach my $row (@{$talk->video_fragments}) {
+foreach my $row(@{$talk->avs_video_fragments}) {
+	next if($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0);
 	my $start;
 	my $stop;
 	my $target;
 	my $segments;
 
-	next if ($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0);
 	if($row->{talkid} == -1) {
 		$target = "pre";
 		$segments = \@segments_pre;
-		if($prelen == 0 && $corrections->{offset_audio} > 0) {
-			if($row->{fragment_start} > 0) {
-				$row->{fragment_start} -= ($corrections->{offset_audio} > $row->{fragment_start} ? $row->{fragment_start} : $corrections->{offset_audio});
-			}
-		}
 		$prelen += $row->{raw_length_corrected};
 	} elsif($row->{talkid} == -2) {
 		$target = "post";
@@ -182,147 +225,115 @@ foreach my $row (@{$talk->video_fragments}) {
 	push @$segments, SReview::Video->new(url => $output->url);
 }
 
-my $full_input = SReview::Video::Concat->new(url => "$tempdir/full.txt", components => [@segments_pre, @segments_main, @segments_post]);
-my $full_output = SReview::Video->new(url => "$tempdir/full.mkv");
+my $pre = undef;
+my $main = undef;
+my $post = undef;
 
-SReview::Videopipe->new(inputs => [$full_input], "map" => [SReview::Map->new(input => $full_input, type => "allcopy")], output => $full_output)->run();
+if(scalar(@segments_pre)>0) {
+	$pre = SReview::Video::Concat->new(url => "$tempdir/pre.txt", components => \@segments_pre);
+}
+$main = SReview::Video::Concat->new(url => "$tempdir/main.txt", components => \@segments_main);
+if(scalar(@segments_post)>0) {
+	$post = SReview::Video::Concat->new(url => "$tempdir/post.txt", components => \@segments_post);
+}
 
-my $eventname = $dbh->prepare("SELECT events.id AS eventid, events.name AS event, rooms.name AS room, talks.starttime::date, talks.slug FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
-$eventname->execute($talkid);
-my $row = $eventname->fetchrow_hashref();
+my $pre_new = undef;
+my $main_new = SReview::Video->new(url => "$tempdir/main.mkv");
+my $post_new = undef;
+my @videos;
 
-=item pubdir
+if(defined($pre)) {
+	$pre_new = SReview::Video->new(url => "$tempdir/pre.mkv");
+	SReview::Videopipe->new(inputs => [$pre], output => $pre_new, map => [SReview::Map->new(input => $pre, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+	push @videos, $pre_new;
+}
+SReview::Videopipe->new(inputs => [$main], output => $main_new, map => [SReview::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+push @videos, $main;
+if(defined($post)) {
+	$post_new = SReview::Video->new(url => "$tempdir/post.mkv");
+	SReview::Videopipe->new(inputs => [$post], output => $post_new, map => [SReview::Map->new(input => $post, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+	push @videos, $post_new;
+}
 
-The directory where files available to the review system should be
-stored. It should be made available to users as C</video/> under the
-virtual host top level.
+$pre = $pre_new;
+$post = $post_new;
+$main = $main_new;
 
-=cut
-
-# Extract the correct audio
-my $full = SReview::Video->new(url => $full_output->url);
-my $map = SReview::Map->new(input => $full, type => $maptype);
-
-if(exists($corrections->{audio_channel})) {
-	if($corrections->{audio_channel} == 0) {
-		$map->choice($primary_audio);
-	} elsif($corrections->{audio_channel} == 1) {
-		$map->choice($backup_audio);
-	} elsif($corrections->{audio_channel} == 2) {
-		$map->choice($both_audio);
+sub reload {
+	@videos = ();
+	if(defined($pre)) {
+		$pre = SReview::Video->new(url => $pre->url);
+		push @videos, $pre;
+	}
+	$main = SReview::Video->new(url => $main->url);
+	push @videos, $main;
+	if(defined($post)) {
+		$post = SReview::Video->new(url => $post->url);
+		push @videos, $post;
 	}
 }
 
-my $full_wav = SReview::Video->new(url => "$tempdir/full.wav");
-SReview::Videopipe->new(inputs => [$full], output => $full_wav, "map" => [$map], acopy => 0, vcopy => 0)->run();
+reload();
 
-# Create preview audio streams
 my $samplestart = ($mainlen - $prelen) / 2 + $prelen - 30;
 my $samplelen = 60;
 $samplestart = ($samplestart > 0) ? $samplestart : 0;
 $samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
-my @audionames = (
-	$output_coll->add_file(relname => $talk->relative_name . "-audio0.wav"),
-	$output_coll->add_file(relname => $talk->relative_name . "-audio1.wav"),
-	$output_coll->add_file(relname => $talk->relative_name . "-audio2.wav"),
-);
-my @samples = (
-        SReview::Video->new(url => $audionames[0]->filename, fragment_start => $samplestart, duration => $samplelen),
-        SReview::Video->new(url => $audionames[1]->filename, fragment_start => $samplestart, duration => $samplelen),
-        SReview::Video->new(url => $audionames[2]->filename, fragment_start => $samplestart, duration => $samplelen),
-);
-SReview::Videopipe->new(inputs => [$full], output => $samples[0], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $primary_audio)], acopy => 0, vcopy => 0)->run();
-SReview::Videopipe->new(inputs => [$full], output => $samples[1], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $backup_audio)], acopy => 0, vcopy => 0)->run();
-SReview::Videopipe->new(inputs => [$full], output => $samples[2], "map" => [SReview::Map->new(input => $full, type => $maptype, choice => $both_audio)], acopy => 0, vcopy => 0)->run();
+my @choices = ($primary_audio, $backup_audio, $both_audio);
 foreach my $stream(0, 1, 2) {
-	$audionames[$stream]->store_file;
+	my $sample_wav_file = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.wav");
+	my $sample_wav = SReview::Video->new(url => $sample_wav_file->filename, fragment_start => $samplestart, duration => $samplelen);
+	SReview::Videopipe->new(inputs => [$main], output => $sample_wav, map => [SReview::Map->new(input => $main, type => $maptype, choice => $choices[$stream])], acopy => 0, vskip => 1)->run();
+	$sample_wav_file->store_file;
 	foreach my $codec(qw/mp3 ogg/) {
-		my $temp_output = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.$codec");
-                SReview::Videopipe->new(inputs => [$samples[$stream]], output => SReview::Video->new(url => $temp_output->filename), acopy => 0, vcopy => 0)->run();
-		$temp_output->store_file;
-        }
-}
-
-# If necessary, fickle with A/V sync values
-if($corrections->{offset_audio} != 0) {
-	if($corrections->{offset_audio} > 0) {
-		# Delay audio by cutting off some of the video at the start
-		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.mkv", fragment_start => $corrections->{offset_audio});
-		$prelen -= $corrections->{offset_audio};
-		if($prelen < 0) {
-			$mainlen -= abs($prelen);
-			$prelen = 0;
-		}
-		SReview::Videopipe->new(inputs => [$full], output => $full_corrected)->run();
-		unlink("$tempdir/full.mkv");
-		rename("$tempdir/full-new.mkv", "$tempdir/full.mkv");
-	} else {
-		# Delay video by cutting off some of the audio at the start
-		my $full_corrected = SReview::Video->new(url => "$tempdir/full-new.wav", fragment_start => abs($corrections->{offset_audio}));
-		$postlen -= abs($corrections->{offset_audio});
-		if($postlen < 0) {
-			$mainlen -= abs($postlen);
-			$postlen = 0;
-		}
-		SReview::Videopipe->new(inputs => [$full_wav], output => $full_corrected)->run();
-		unlink("$tempdir/full.wav");
-		rename("$tempdir/full-new.wav", "$tempdir/full.wav");
+		my $tmp = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.$codec");
+		SReview::Videopipe->new(inputs => [$sample_wav], output => SReview::Video->new(url => $tmp->filename), acopy => 0, vskip => 1)->run();
+		$tmp->store_file;
 	}
 }
 
-# Now split and merge the full video and audio files back into three video files with the audio reattached
-my $map_v = SReview::Map->new(input => $full, type => 'stream', choice => 'video');
-my $map_a = SReview::Map->new(input => $full_wav, type => 'stream', choice => 'audio');
-my $prelen_db = 0;
+if($corrections->{offset_audio} != 0) {
+	for my $vid(@videos) {
+		my $tmp = SReview::Video->new(url => "$tempdir/temp.mkv");
+		SReview::AvSync->new(input => $vid, output => $tmp, value => $corrections->{offset_audio})->run();
+		move($tmp->url, $vid->url);
+	}
+	reload();
+}
+
+SReview::Normalizer->new(input => $main, output => SReview::Video->new(url => "$tempdir/temp.mkv"))->run();
+move("$tempdir/temp.mkv", $main->url);
+reload();
+
 my $postlen_db = 0;
-if($prelen > 0) {
-	my $prefile = $output_coll->add_file(relname => $talk->relative_name . "-pre.mkv");
-	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => $prefile->filename, audio_codec => detect_to_write($full->audio_codec), duration => $prelen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
-	$prelen_db = SReview::Video->new(url => $prefile->filename)->duration();
-	$prefile->store_file;
+my $prelen_db = 0;
+if(defined($pre)) {
+	$prelen_db = $pre->duration;
+	my $pre_file = $output_coll->add_file(relname => $talk->relative_name . "-pre.mkv");
+	move($pre->url, $pre_file->filename);
+	$pre_file->store_file;
 } else {
-	print "Skipping generation of pre video, no data\n";
+	$output_coll->delete_files(relnames => [$talk->relative_name . "-pre.mkv"]);
 }
-if($postlen > 0) {
-	my $postfile = $output_coll->add_file(relname => $talk->relative_name . "-post.mkv");
-	SReview::Videopipe->new(inputs => [$full, $full_wav], output => SReview::Video->new(url => $postfile->filename, audio_codec => detect_to_write($full->audio_codec), fragment_start => ($prelen + $mainlen), duration => $postlen), "map" => [$map_v, $map_a], vcopy => 1, acopy => 0)->run();
-	$postlen_db = SReview::Video->new(url => $postfile->filename)->duration();
-	$postfile->store_file;
+if(defined($post)) {
+	$postlen_db = $post->duration;
+	my $post_file = $output_coll->add_file(relname => $talk->relative_name . "-post.mkv");
+	move($post->url, $post_file->filename);
+	$post_file->store_file;
 } else {
-	print "Skipping generation of post video, no data\n";
+	$output_coll->delete_files(relnames => [$talk->relative_name . "-post.mkv"]);
 }
-SReview::Videopipe->new(inputs => [$full_wav], output => SReview::Video->new(url => "$tempdir/audio.wav", fragment_start => $prelen, duration => $mainlen), acopy => 1)->run();
-SReview::Videopipe->new(inputs => [$full], output => SReview::Video->new(url => "$tempdir/preaudio.mkv", fragment_start => $prelen, duration => $mainlen), vcopy => 1)->run();
-# Run bs1770gain (no class, maybe do that later)
 
-=item command_tune
+my $final = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
 
-Set the C<bs1770gain> key to C<0.5> to remove the C<--suffix> parameter,
-required in 0.6 (but not allowed in 0.5)
+move($main->url, $final->filename);
 
-=cut
+$final->store_file;
 
-my $bsextraopts = "";
-
-if($config->get("command_tune")->{bs1770gain} ne "0.5") {
-	$bsextraopts = "--suffix=flac";
-}
-system("bs1770gain -a -o $tempdir $bsextraopts $tempdir/audio.wav");
-my $preaudio = SReview::Video->new(url => "$tempdir/preaudio.mkv");
-my $flac = SReview::Video->new(url => "$tempdir/audio.flac");
-$map_v->input($preaudio);
-$map_a->input($flac);
-my $finalname = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
-SReview::Videopipe->new(inputs => [$preaudio, $flac], output => SReview::Video->new(url => $finalname->filename, audio_codec => detect_to_write($full->audio_codec)), vcopy => 1, acopy => 0, "map" => [$map_v, $map_a])->run();
+$dbh->begin_work;
 
 my $update = $dbh->prepare("UPDATE talks SET progress='done', prelen = ?::interval, postlen = ?::interval WHERE id = ? AND state='cutting'");
-
-$postlen_db = defined($postlen_db) ? $postlen_db : 0;
-$prelen_db = defined($prelen_db) ? $prelen_db : 0;
-
 $update->execute("$prelen_db seconds", "$postlen_db seconds", $talkid);
-
-$finalname->store_file;
 
 $dbh->commit;
 
