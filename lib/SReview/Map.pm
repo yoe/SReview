@@ -61,6 +61,8 @@ sub arguments($$) {
 		return ('-map', "$index:a:$choice");
 	} elsif($self->type eq "allcopy") {
 		return ('-map', '0');
+	} elsif($self->type eq "none") {
+		return ();
 	} else {
 		...
 	}
