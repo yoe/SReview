@@ -15,6 +15,7 @@ lib/SReview/Model/DbElement.pm
 lib/SReview/Model/Event.pm
 lib/SReview/Normalizer.pm
 lib/SReview/Normalizer/Bs1770gain.pm
+lib/SReview/Normalizer/Ffmpeg.pm
 lib/SReview/Normalizer/None.pm
 lib/SReview/Schedule/Base.pm
 lib/SReview/Schedule/Filtered.pm
