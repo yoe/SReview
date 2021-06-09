@@ -23,7 +23,7 @@ sub run {
 }
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 10) unless defined($ENV{SREVIEWTEST_DB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 14) unless defined($ENV{SREVIEWTEST_DB});
 
 	# Prepare an input directory
 	make_path('t/inputdir/room1/2017-11-10');
