@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 15;
 
 use Cwd 'abs_path';
 
@@ -65,7 +65,7 @@ SKIP: {
 	my $row = $st->fetchrow_hashref();
 
 	my $input = SReview::Video->new(url => abs_path("t/testvids/bbb.mp4"));
-	# perform cut
+	# perform cut with default normalizer
 	run("perl", "-I./blib/lib", "blib/script/sreview-cut", $row->{talkid});
 
 	my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
@@ -73,6 +73,18 @@ SKIP: {
 	my $file = $coll->get_file(relname => "1/2017-11-10/r/test-talk.mkv");
 	my $check = SReview::Video->new(url => $file->filename);
 	my $length = $check->duration;
+	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
+	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
+	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
+
+	# perform cut with ffmpeg normalizer
+	$ENV{SREVIEW_NORMALIZER} = '"ffmpeg"';
+	run("perl", "-I./blib/lib", "blib/script/sreview-cut", $row->{talkid});
+
+	ok($coll->has_file("1/2017-11-10/r/test-talk.mkv"), "The file is created and added to the collection");
+	$file = $coll->get_file(relname => "1/2017-11-10/r/test-talk.mkv");
+	$check = SReview::Video->new(url => $file->filename);
+	$length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
 	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
