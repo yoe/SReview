@@ -217,59 +217,6 @@ sub startup {
 	$r->get('/f/:nonce')->to(controller => 'finalreview', action => 'view', layout => 'default');
 	$r->post('/f/:nonce/update')->to(controller => 'finalreview', action => 'update', layout => 'default');
 
-	$r->get('/review/:nonce' => sub {
-		my $c = shift;
-		my $stt = $c->dbh->prepare("SELECT state, name, id, extract(epoch from prelen) as prelen, extract(epoch from postlen) as postlen, extract(epoch from (endtime - starttime)) as length, speakers, starttime, endtime, slug, room, comments FROM talk_list WHERE nonce=?");
-		my $rv = $stt->execute($c->param("nonce"));
-		if($rv == 0) {
-			$c->res->code(404);
-			$c->render(text => "Invalid URL");
-			return undef;
-		}
-		my $row = $stt->fetchrow_hashref("NAME_lc");
-		if($row->{state} ne 'preview' && $row->{state} ne 'broken') {
-			$c->stash(message => "The talk <q>" . $row->{name} . "</q> is not currently available for review. It is in the state <tt>" . $row->{state} . "</tt>, whereas we need the <tt>preview</tt> state to do review. For more information, please see <a href='https://yoe.github.io/sreview/'>the documentation</a>");
-			$c->stash(title => 'Review finished or not yet available.');
-			$c->render('msg');
-			return undef;
-		}
-		my $stp = $c->dbh->prepare("SELECT properties.name, properties.description, properties.helptext, corrections.property_value FROM properties left join corrections on (properties.id = corrections.property AND talk = ?) ORDER BY properties.description");
-		$stp->execute($row->{id});
-		my $viddata = {};
-		$viddata->{corrvals} = {};
-		$viddata->{corrdescs} = {};
-		$viddata->{corrhelps} = {};
-		while(my $corrrow = $stp->fetchrow_hashref) {
-			$viddata->{corrdescs}{$corrrow->{name}} = $corrrow->{description};
-			$viddata->{corrhelps}{$corrrow->{name}} = $corrrow->{helptext};
-			$viddata->{corrvals}{$corrrow->{name}} = $corrrow->{property_value} + 0;
-		}
-
-		$viddata->{mainlen} = $row->{length} + 0;
-		$viddata->{prelen} = $row->{prelen} + 0;
-		$viddata->{postlen} = $row->{postlen} + 0;
-
-		$c->stash(title => 'Review for ' . $row->{name});
-		$c->stash(talk_title => $row->{name});
-		$c->stash(talk_speakers => $row->{speakers});
-		$c->stash(talk_start => $row->{starttime});
-		$c->stash(talk_end => $row->{endtime});
-		$c->stash(talk_nonce => $c->param("nonce"));
-		$c->stash(slug => $row->{slug});
-		$c->stash(event => $config->get("event"));
-		$c->stash(eventid => $c->eventid);
-		$c->stash(room => $row->{room});
-		$c->stash(state => $row->{state});
-		$c->stash(corrections => $viddata);
-		$c->stash(comments => $row->{comments});
-		$c->stash(target => "talk_update");
-		$c->stash(layout => 'default');
-		$c->stash(scripts_raw => ['sreview_viddata = ' . encode_json($viddata) . ';']);
-		$c->stash(scripts_extra => ['/mangler.js']);
-		$c->stash(exten => $config->get('preview_exten'));
-		$c->stash(vid_hostname => $config->get("vid_prefix"));
-	} => 'talk');
-
 	$r->get('/released' => sub {
 		my $c = shift;
 		my $st;
