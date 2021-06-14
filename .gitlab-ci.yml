@@ -37,7 +37,7 @@ stages:
   script:
   - cover -delete
   - HARNESS_PERL_SWITCHES=-MDevel::Cover make TEST_VERBOSE=1 test
-  - cover
+  - cover -report html_basic
   artifacts:
     paths:
     - cover_db
