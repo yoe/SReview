@@ -16,8 +16,11 @@ BEGIN {
 	print $config '$secret="foo";' . "\n";
 	print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
 	print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
-	print $config '$api_key="foobarbaz"' . "\n";
-	close $config
+	print $config '$api_key="foobarbaz";' . "\n";
+	print $config '$preroll_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
+	print $config '$postroll_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
+	print $config '$apology_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
+	close $config;
 }
 
 use Test::More;
@@ -138,6 +141,10 @@ SKIP: {
 	$t->get_ok("$b/event/1/speaker/byupstream/bar")->status_is(404);
 	$do_auth = 0;
 	$t->get_ok("$b/event/1/speaker/byupstream/foo")->status_is(401);
+
+	$t->get_ok("$b/event/1/talk/test/preroll")->status_is(200)->content_type_is("image/png");
+	$t->get_ok("$b/event/1/talk/test/postroll")->status_is(200)->content_type_is("image/png");
+	$t->get_ok("$b/event/1/talk/test/sorry")->status_is(200)->content_type_is("image/png");
 }
 
 unlink($cfgname);
