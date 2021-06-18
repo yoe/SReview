@@ -175,7 +175,7 @@ sub get {
 	my $talk = shift;
 
 	if(!exists($self->{defs}{$name})) {
-		die "e: definition for config file item $name does not exist!";
+		croak "e: definition for config file item $name does not exist!";
 	}
 
 	$self->{fixed} = 1;
