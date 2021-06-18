@@ -725,7 +725,7 @@ paths:
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
-        suffix: "-pre.png"
+        suffix: "pre"
   /event/{eventId}/talk/{slug}/postroll:
     get:
       tags:
@@ -747,7 +747,7 @@ paths:
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
-        suffix: "-post.png"
+        suffix: "post"
   /event/{eventId}/talk/{slug}/sorry:
     get:
       tags:
@@ -769,7 +769,7 @@ paths:
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
-        suffix: "-sorry.png"
+        suffix: "sorry"
   /event/{eventId}/talk/list:
     get:
       tags:
