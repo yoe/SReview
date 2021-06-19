@@ -47,7 +47,8 @@ sub serve_png {
 	}
 	$c->app->log->debug("looking for render of template $template");
 	my $relname = $talk->relative_name . "-" . $suffix . ".png";
-	if($c->param("force") || !($input_coll->has_file($relname))) {
+	my $force = $c->param("force");
+	if((defined($force) && $force ne "false") || !($input_coll->has_file($relname))) {
 		$c->app->log->debug("file does not exist or force specified, rerendering");
 		my $preroll_file = $input_coll->add_file(relname => $relname);
 		process_template($template, $preroll_file->filename, $talk, $c->srconfig);
