@@ -15,11 +15,15 @@ sub serve_png {
 	my $nonce = $c->param("nonce");
 	my $talk;
 	if(defined($slug)) {
-		my $talk = SReview::Talk->by_slug($slug);
+		$talk = SReview::Talk->by_slug($slug);
 	} elsif(defined($nonce)) {
-		my $talk = SReview::Talk->by_nonce($nonce);
+		$talk = SReview::Talk->by_nonce($nonce);
 	} else {
 		$c->app->log->debug("no slug or nonce, can't generate a preview");
+		return $c->reply->not_found;
+	}
+	if(!defined($talk)) {
+		$c->app->log->debug("talk not found");
 		return $c->reply->not_found;
 	}
 	my $input_coll = SReview::Files::Factory->create("intermediate", $c->srconfig->get("pubdir"));
