@@ -730,7 +730,7 @@ paths:
     get:
       tags:
       - talk
-      summary: Retrieve the preroll image for the talk
+      summary: Retrieve the postroll image for the talk
       operationId: talk_postroll
       parameters:
       - name: eventId
@@ -752,7 +752,7 @@ paths:
     get:
       tags:
       - talk
-      summary: Retrieve the preroll image for the talk
+      summary: Retrieve the apology image for the talk
       operationId: talk_sorry
       parameters:
       - name: eventId
