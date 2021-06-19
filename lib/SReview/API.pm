@@ -1784,6 +1784,10 @@ components:
       properties:
         title:
           $ref: '#/components/schemas/Talk/properties/title'
+        reviewurl:
+          type: string
+          format: path
+          example: '/r/685982011ffda40c772395355db9dc9b699afb4957eb3478d3c3f9e144f995c9'
         nonce:
           $ref: '#/components/schemas/Talk/properties/nonce'
         speakers:
