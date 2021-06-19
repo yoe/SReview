@@ -1,6 +1,4 @@
 %layout "default", scripts_extra => [ "/vue/vue.min.js" ];
-% my $event = stash('event');
-% my $e = stash('events');
 <div id="overview">
   <h1>Video status overview</h1>
   <p v-if="events.length > 0">Event:

@@ -294,19 +294,7 @@ sub startup {
 	});
 
 	$r->get('/overview' => sub {
-		my $c = shift;
-		$c->stash(event => $c->eventid);
-		my $events = $c->dbh->prepare("SELECT id, name FROM events");
-		$events->execute();
-		my $event_res = [];
-		while(my $e = $events->fetchrow_hashref) {
-			my $v = {};
-			$v->{id} = $e->{id};
-			$v->{name} = $e->{name};
-			push @$event_res, $v;
-		}
-		$c->stash(events => $event_res);
-		$c->render;
+		shift->render;
 	});
 
 	$r->get("/credits" => sub {
