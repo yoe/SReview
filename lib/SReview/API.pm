@@ -926,6 +926,69 @@ paths:
       x-mojo-to:
         controller: talk
         action: addSpeakers
+  /nonce/{nonce}/preroll:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the preroll image for a talk, by nonce
+      operationId: talk_nonce_preroll
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "pre"
+  /nonce/{nonce}/postroll:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the postroll image for a talk, by nonce
+      operationId: talk_nonce_postroll
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "post"
+  /nonce/{nonce}/sorry:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the apology image for a talk, by nonce
+      operationId: talk_nonce_sorry
+      parameters:
+      - name: nonce
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            image/png: {}
+      x-mojo-to:
+        controller: CreditPreviews
+        action: serve_png
+        suffix: "pre"
   /nonce/{nonce}/data:
     get:
       tags:

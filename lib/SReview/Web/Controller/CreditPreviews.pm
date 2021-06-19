@@ -12,7 +12,16 @@ sub serve_png {
 	my $c = shift->openapi->valid_input or return;;
 	my $slug = $c->param("slug");
 	my $suffix = $c->stash("suffix");
-	my $talk = SReview::Talk->by_slug($slug);
+	my $nonce = $c->param("nonce");
+	my $talk;
+	if(defined($slug)) {
+		my $talk = SReview::Talk->by_slug($slug);
+	} elsif(defined($nonce)) {
+		my $talk = SReview::Talk->by_nonce($nonce);
+	} else {
+		$c->app->log->debug("no slug or nonce, can't generate a preview");
+		return $c->reply->not_found;
+	}
 	my $input_coll = SReview::Files::Factory->create("intermediate", $c->srconfig->get("pubdir"));
 	my $template;
 	if(!exists($valid_suffix{$suffix})) {
