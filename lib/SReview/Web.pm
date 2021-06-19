@@ -309,6 +309,10 @@ sub startup {
 		$c->render;
 	});
 
+	$r->get("/credits" => sub {
+		shift->render;
+	});
+
 	$r->post('/talk_update' => sub {
 		my $c = shift;
 		my $nonce = $c->param("nonce");
