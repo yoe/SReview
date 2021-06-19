@@ -99,6 +99,7 @@ t/test.cf
 t/testvids/bbb.mp4
 t/testvids/just-title.svg
 t/testvids/README.md
+web/public/credits.js
 web/public/mangler.js
 web/public/overview.js
 web/public/review.css
@@ -106,6 +107,7 @@ web/public/style.css
 web/sreview-web
 web/templates/admin/dashboard.html.ep
 web/templates/admin/main.html.ep
+web/templates/credits.html.ep
 web/templates/error.html.ep
 web/templates/finalreview/update.html+done.ep
 web/templates/finalreview/update.html+error.ep
