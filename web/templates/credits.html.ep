@@ -10,6 +10,9 @@
   <span v-if="rows.length > 0">
     <span v-if="rows[0].nonce">
       <div class="row" v-for="row in rows">
+        <div class="col-12">
+	  "{{row.name}}", by {{row.speakers}}
+	</div>
         <talk-preview v-bind:talk="row" which="preroll"></talk-preview>
         <talk-preview v-bind:talk="row" which="sorry"></talk-preview>
         <talk-preview v-bind:talk="row" which="postroll"></talk-preview>

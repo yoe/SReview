@@ -1,13 +1,13 @@
 Vue.component("talk-preview", {
   template: `
-    <div class="col-md-4">
+    <div class="col-md-4 text-center">
       <img class="img-responsive" v-bind:src="'/api/v1/nonce/' + talk.nonce + '/' + which + '?force=' + force">
-      <button v-on:click="setForce">x</button>
+      <button class="btn btn-primary" v-on:click="setForce"><span class="glyphicon glyphicon-refresh"></span></button>
     </div>`,
   props: ["talk", "which"],
   methods: {
     setForce: function() {
-      this.force = true;
+      this.force = Date.now();
     }
   },
   data: function() {
