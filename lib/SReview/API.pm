@@ -717,6 +717,15 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: force
+        in: query
+        schema:
+          type: string
       responses:
         200:
           description: successful operation
@@ -739,6 +748,15 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: force
+        in: query
+        schema:
+          type: string
       responses:
         200:
           description: successful operation
@@ -761,6 +779,15 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: force
+        in: query
+        schema:
+          type: string
       responses:
         200:
           description: successful operation
@@ -938,6 +965,10 @@ paths:
         required: true
         schema:
           type: string
+      - name: force
+        in: query
+        schema:
+          type: string
       responses:
         200:
           description: OK
@@ -959,6 +990,10 @@ paths:
         required: true
         schema:
           type: string
+      - name: force
+        in: query
+        schema:
+          type: string
       responses:
         200:
           description: OK
@@ -978,6 +1013,10 @@ paths:
       - name: nonce
         in: path
         required: true
+        schema:
+          type: string
+      - name: force
+        in: query
         schema:
           type: string
       responses:
