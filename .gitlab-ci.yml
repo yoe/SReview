@@ -2,7 +2,7 @@
 stages:
 - test
 - deb
-#- autopkgtest
+- autopkgtest
 - docker-pre
 - docker
 - docker-post
@@ -198,26 +198,26 @@ pages:
   needs:
   - debian:testing
 
-#validate:package:
-#  image: debian:unstable
-#  dependencies:
-#  - debian:unstable
-#  needs:
-#  - debian:unstable
-#  before_script:
-#  - apt-get update
-#  - apt-get -y install autopkgtest
-#  stage: autopkgtest
-#  services:
-#  - postgres:latest
-#  variables:
-#    POSTGRES_DB: sreview
-#    POSTGRES_USER: sreview
-#    POSTGRES_PASSWORD: ""
-#    POSTGRES_HOST_AUTH_METHOD: trust
-#    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
-#  script:
-#  - autopkgtest products/*ges -- null
+validate:package:
+  image: debian:unstable
+  dependencies:
+  - debian:unstable
+  needs:
+  - debian:unstable
+  before_script:
+  - apt-get update
+  - apt-get -y install autopkgtest
+  stage: autopkgtest
+  services:
+  - postgres:latest
+  variables:
+    POSTGRES_DB: sreview
+    POSTGRES_USER: sreview
+    POSTGRES_PASSWORD: ""
+    POSTGRES_HOST_AUTH_METHOD: trust
+    SREVIEW_DBISTRING: '"dbi:Pg:dbname=sreview;host=postgres;user=sreview"'
+  script:
+  - autopkgtest products/*ges -- null
 
 #validate:web:
 #  allow_failure: true

@@ -49,6 +49,7 @@ Description: SReview encoder code
 Package: sreview-common
 Architecture: all
 Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl
+Suggests: libwww-curl-perl
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
