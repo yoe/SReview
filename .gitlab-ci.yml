@@ -204,9 +204,6 @@ validate:package:
   - debian:unstable
   needs:
   - debian:unstable
-  before_script:
-  - apt-get update
-  - apt-get -y install autopkgtest
   stage: autopkgtest
   services:
   - postgres:latest
@@ -228,6 +225,7 @@ validate:package:
   - perl .ci/setup-minio.pl
   - apt-get --purge -y remove libnet-amazon-s3-perl libmojolicious-perl
   - apt-get --purge -y autoremove
+  - apt-get -y install autopkgtest
   script:
   - autopkgtest products/*ges -- null
 
