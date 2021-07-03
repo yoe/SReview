@@ -216,6 +216,7 @@ validate:package:
     POSTGRES_PASSWORD: ""
     POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEWTEST_DB: 'sreview;host=postgres;user=sreview'
+    SREVIEWTEST_INSTALLED: 1
   script:
   - autopkgtest products/*ges -- null
 

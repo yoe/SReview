@@ -21,16 +21,21 @@ use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
 use SReview::Video;
+use SReview::Web;
 
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 34) unless exists($ENV{SREVIEWTEST_DB});
+	skip("Need a database to play with", 34) unless exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED});
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
-	symlink "../t", "web/t";
-	chdir($script->dirname);
+	if(exists($ENV{SREVIEWTEST_INSTALLED})) {
+		$script = "SReview::Web";
+	} else {
+		symlink "../t", "web/t";
+		chdir($script->dirname);
+	}
 	my $t = Test::Mojo->new($script);
 
 	my $talk = SReview::Talk->new(talkid => 1);
