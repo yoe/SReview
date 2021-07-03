@@ -210,6 +210,7 @@ validate:package:
   stage: autopkgtest
   services:
   - postgres:latest
+  - minio/minio:latest
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
@@ -217,6 +218,13 @@ validate:package:
     POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEWTEST_DB: 'sreview;host=postgres;user=sreview'
     SREVIEWTEST_INSTALLED: 1
+    SREVIEWTEST_S3_CONFIG: '{"default": {"aws_access_key_id": "minioadmin", "awws_secret_access_key":"minioamin","secure":0,"host":"minio-minio:9000"}}'
+    SREVIEWTEST_BUCKET: 'test'
+  before_script:
+  - apt-get update; apt-get -y --no-install-recommends install libnet-amazon-s3-perl libmojolicious-perl
+  - perl .ci/setup-minio.pl
+  - apt-get --purge remove libnet-amazon-s3-perl libmojolicious-perl
+  - apt-get --purge autoremove
   script:
   - autopkgtest products/*ges -- null
 
