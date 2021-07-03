@@ -26,11 +26,11 @@ use SReview::Web;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 34) unless exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED});
+	skip("Need a database to play with", 34) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
-	if(exists($ENV{SREVIEWTEST_INSTALLED})) {
+	if(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP})) {
 		$script = "SReview::Web";
 	} else {
 		symlink "../t", "web/t";

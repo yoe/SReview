@@ -31,14 +31,14 @@ my $cfgname = path()->to_abs->child('config.pm');
 my $do_auth = 0;
 
 SKIP: {
-	skip("Need a database to play with", 1) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}));
+	skip("Need a database to play with", 1) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP});
 
 	SReview::Db::init(SReview::Config::Common::setup());
 	SReview::Db::selfdestruct(code => 0, init => 0);
 
 	my $script;
 
-	if(exists($ENV{SREVIEWTEST_INSTALLED})) {
+	if(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP})) {
 		$script = "SReview::Web";
 	} else {
 		$script = path(__FILE__);
@@ -148,7 +148,7 @@ SKIP: {
 }
 
 unlink($cfgname);
-if(!exists($ENV{SREVIEWTEST_INSTALLED})) {
+if(!(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}))) {
 	chdir('..');
 	unlink('web/t');
 }
