@@ -210,7 +210,10 @@ validate:package:
   stage: autopkgtest
   services:
   - postgres:latest
-  - minio/minio:latest
+  - name: minio/minio:latest
+    command:
+    - server
+    - /data
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
