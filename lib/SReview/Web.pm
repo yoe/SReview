@@ -32,11 +32,12 @@ sub startup {
 
 	SReview::Db::init($config);
 
-	if($self->mode eq "production") {
+	if(-d "/usr/share/sreview/templates") {
 		push @{$self->renderer->paths}, "/usr/share/sreview/templates";
 		push @{$self->static->paths}, "/usr/share/sreview/public";
 		push @{$self->static->paths}, "/usr/share/javascript";
-	} else {
+	}
+	if(-d "public") {
 		push @{$self->static->paths}, "./public";
 		push @{$self->renderer->paths}, "./templates";
 	}
