@@ -86,6 +86,7 @@ test:committed:
 #  <<: *deb
 debian:testing:
   <<: *deb
+  allow_failure: true
 
 debian:unstable:
   <<: *deb
