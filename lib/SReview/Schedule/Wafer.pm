@@ -5,29 +5,12 @@ use Mojo::Util 'slugify';
 
 extends 'SReview::Schedule::Penta::Talk';
 
-has 'conf_url' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_conf_url',
-);
-
-sub _load_conf_url {
-	return shift->xml_helper('conf_url');
-}
-
 sub _load_upstreamid {
-	my $rv = [split(/-/, shift->slug)];
-	return $rv->[0];
+	return shift->schedref->attribute('guid');
 }
 
 sub _load_slug {
-	my $self = shift;
-	my $rv = [split('/', $self->conf_url)];
-	if(scalar(@$rv) > 2) {
-		return $rv->[2];
-	}
-	return slugify($self->conf_url);
+	return shift->xml_helper('slug');
 }
 
 sub _load_speakers {
@@ -38,12 +21,8 @@ sub _load_speakers {
 }
 
 sub _load_filtered {
-	my $self = shift;
-
-	my @elems = split('/', $self->conf_url);
-	return 1 if scalar(@elems) < 3;
-
-	return 0;
+	return 0 if defined(shift->xml_helper('type'));
+	return 1;
 }
 
 no Moose;
