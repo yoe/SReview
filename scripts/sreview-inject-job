@@ -11,7 +11,15 @@ use DBI;
 my $talkid = shift;
 my $config = SReview::Config::Common::setup();
 my $talk = SReview::Talk->new(talkid => $talkid);
-my $input = SReview::Files::Factory->create("input", $config->get("inputglob"));
+my $collname = $config->get("inject_collection");
+my $input;
+if($collname eq "input") {
+	$input = SReview::Files::Factory->create("input", $config->get("inputglob"), $config);
+} elsif($collname eq "pub") {
+	$input = SReview::Files::Factory->create("intermediate", $config->get("pubdir"), $config);
+} else {
+	$input = SReview::Files::Factory->create($collname, $config->get("extra_collections")->{$collname}, $config);
+}
 die "talk not in correct stream" unless $talk->active_stream eq 'injected';
 my $db = DBI->connect($config->get("dbistring"), '', '') or die "Cannot connect to database!";
 my $st = $db->prepare("SELECT filename FROM raw_files WHERE room = ? AND stream = ? AND filename LIKE ?");
