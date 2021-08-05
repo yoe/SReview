@@ -783,6 +783,12 @@ sub _load_preview_exten {
 	return $config->get('preview_exten');
 }
 
+=head2 scheduled_length
+
+The length of the talk, as scheduled
+
+=cut
+
 has 'scheduled_length' => (
 	is => "ro",
 	lazy => 1,
