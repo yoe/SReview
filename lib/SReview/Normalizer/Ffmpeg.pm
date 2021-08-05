@@ -7,6 +7,7 @@ extends 'SReview::Normalizer';
 use Mojo::JSON qw/decode_json/;
 use Symbol 'gensym';
 use IPC::Open3;
+use SReview::CodecMap qw/detect_to_write/;
 
 =head1 NAME
 
@@ -60,7 +61,7 @@ sub run {
 	# SReview::Videopipe. Not now.
 	my $codec = $self->output->audio_codec;
 	if(!defined($codec)) {
-		$codec = $input->audio_codec;
+		$codec = detect_to_write($input->audio_codec);
 	}
 	@command = ("ffmpeg", "-loglevel", "warning", "-y", "-i", $input->url, "-af", "loudnorm=i=-23.0:dual_mono=true:measured_i=" . $json->{input_i} . ":measured_tp=" . $json->{input_tp} . ":measured_lra=" . $json->{input_lra} . ":measured_thresh=" . $json->{input_thresh}, "-c:v", "copy", "-c:a", $codec, $self->output->url);
 	print "Running: '" . join("' '", @command) . "'\n";
