@@ -1027,7 +1027,7 @@ paths:
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
-        suffix: "pre"
+        suffix: "sorry"
   /nonce/{nonce}/data:
     get:
       tags:
