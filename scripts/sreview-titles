@@ -22,8 +22,8 @@ my %templates = ("pre" => $config->get("preroll_template"),
 
 my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 
-while(my $row = $rv->fetchrow_hashref) {
-	my $talk = SReview::Talk->new($row->{id});
+while(my $row = $talklist->fetchrow_hashref) {
+	my $talk = SReview::Talk->new(talkid => $row->{id});
 	foreach my $type("pre", "post", "sorry") {
 		next unless(-f $templates{$type});
 		my $relname = $talk->relative_name . "-" . $type . ".png";
