@@ -23,7 +23,7 @@ ok($val =~ /^Warning: could not find configuration file config, falling back to 
 isa_ok($config, 'SReview::Config');
 
 $val = '';
-$config = SReview::Config->new('t/test.cf');
+$config = SReview::Config->new('./t/test.cf');
 ok(length($val) == 0, 'loading an existing config file succeeds and prints no warning');
 
 $config->define('test', 'testingk', 1);
