@@ -74,6 +74,7 @@ scripts/sreview-keys
 scripts/sreview-notify
 scripts/sreview-previews
 scripts/sreview-skip
+scripts/sreview-titles
 scripts/sreview-transcode
 scripts/sreview-upload
 scripts/sreview-user
