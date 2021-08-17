@@ -24,10 +24,10 @@ sub run {
 
 my $scriptpath;
 
-if(-f "blib/script/sreview-detect") {
-	$scriptpath = "blib/script";
-} else {
+if(-f "/usr/bin/sreview-detect") {
 	$scriptpath = "/usr/bin";
+} else {
+	$scriptpath = "./scripts/";
 }
 
 SKIP: {
