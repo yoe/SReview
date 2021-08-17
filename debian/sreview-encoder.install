@@ -8,6 +8,7 @@ usr/bin/sreview-notify
 usr/bin/sreview-upload
 usr/bin/sreview-encode
 usr/bin/sreview-inject*
+usr/bin/sreview-titles
 usr/share/man/man1/sreview-skip*
 usr/share/man/man1/sreview-cut*
 usr/share/man/man1/sreview-previews*
