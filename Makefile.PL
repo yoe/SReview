@@ -50,6 +50,7 @@ WriteMakefile(
 		'scripts/sreview-notify',
 		'scripts/sreview-upload',
 		'scripts/sreview-transcode',
+		'scripts/sreview-titles',
 		'scripts/sreview-previews',
 		'scripts/sreview-inject',
 		'scripts/sreview-inject-job',
