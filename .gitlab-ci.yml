@@ -42,7 +42,8 @@ stages:
   artifacts:
     paths:
     - cover_db
-    junit:
+    reports:
+      junit: junit_output.xml
   tags:
   - docker
 
