@@ -79,6 +79,7 @@ sub update {
 		$c->render(variant => 'error');
 		return;
 	}
+	my $collname = $c->srconfig->get("inject_collection");
 	foreach my $upload(@{$c->req->uploads}) {
 		if($upload->name eq "video_asset") {
 			next unless defined($upload->filename) && length($upload->filename) > 0;
@@ -86,7 +87,6 @@ sub update {
 			my @parts = split /\./, $upload->filename;
 			my $ext = pop @parts;
 			my $fn = join('.', $talk->slug, $ext);
-			my $collname = $c->srconfig->get("inject_collection");
 			my $coll;
 			if($collname eq "input") {
 				$coll = SReview::Files::Factory->create("input", $c->srconfig->get("inputglob"), $c->srconfig);
@@ -144,8 +144,8 @@ sub update {
 		} elsif($upload->name eq "other_asset") {
 			next unless defined($upload->filename) && length($upload->filename) > 0;
 			$c->app->log->debug("copying other asset " . $upload->filename);
-			my $coll = SReview::Files::Factory->create("upload", $c->srconfig->get("extra_collections")->{upload}, $c->srconfig);
-			my $file = $coll->add_file(relname => join("/", $talk->slug, $upload->filename));
+			my $coll = SReview::Files::Factory->create($collname, $c->srconfig->get("extra_collections")->{$collname}, $c->srconfig);
+			my $file = $coll->add_file(relname => join("/", "assets", $talk->slug, $upload->filename));
 			$upload->move_to($file->filename);
 			$file->store_file;
 		}
