@@ -245,15 +245,15 @@ sub getCorrections {
 	my $eventId = $c->param("eventId");
 	my $talkId = $c->param("talkId");
 
-	$talkId = db_query("SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
+	my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
-	if(scalar(@$talkId) < 1) {
+	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
 		$c->render(text => "event or talk not found");
 		return;
 	}
 
-	my $talk = SReview::Talk->new(talkid => $talkId);
+	$talk = SReview::Talk->new(talkid => $talkId);
 
 	$c->render(openapi => $talk->corrections);
 }
@@ -264,15 +264,15 @@ sub getRelativeName {
 	my $eventId = $c->param("eventId");
 	my $talkId = $c->param("talkId");
 
-	$talkId = db_query("SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
+	my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
-	if(scalar(@$talkId) < 1) {
+	if(scalar(@$talk) < 1) {
 		$c->res->code(404);
 		$c->render(text => "event or talk not found");
 		return;
 	}
 
-	my $talk = SReview::Talk->new(talkid => $talkId);
+	$talk = SReview::Talk->new(talkid => $talkId);
 
 	$c->render(openapi => $talk->relative_name);
 }
