@@ -21,7 +21,15 @@ function updated(app) {
   if(app.event !== app.last_event) {
     fetch("/api/v1/event/" + app.event + "/overview")
     .then(response => response.json())
-    .then((data) => {app.rows = data; app.last_event = app.event})
+    .then((data) => {
+      app.rows = [];
+      for(row of data) {
+	if(row.state !== "ignored") {
+	  app.rows.push(row);
+	}
+      }
+      app.last_event = app.event
+    })
     .catch(error => console.error(error));
   }
 }
