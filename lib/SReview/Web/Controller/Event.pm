@@ -80,7 +80,7 @@ sub talksByState {
 	my $eventId = $c->param("eventId");
 	my $state = SReview::Talk::State->new($c->param("state"));
 
-	my $st = $c->dbh->prepare("SELECT MIN(starttime::date) AS start, MAX(endtime::date) AS end, title FROM events WHERE id = ?");
+	my $st = $c->dbh->prepare("SELECT MIN(starttime::date) AS start, MAX(endtime::date) AS end, name AS title FROM events JOIN talks ON events.id = talks.event WHERE events.id = ? GROUP BY events.name");
 	$st->execute($eventId);
 	if($st->rows < 1) {
 		return $c->render(openapi => {errors => [{message => "not found"}]},status => 404);
