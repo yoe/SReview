@@ -704,6 +704,37 @@ paths:
       x-mojo-to:
         controller: talk
         action: setCorrections
+  /event/{eventId}/talk/{talkId}/relative_name:
+    get:
+      tags:
+      - talk
+      summary: Retrieve the relative name for the assets for this talk
+      operationId: talk_relative_name
+      parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: talkId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+      - api_key: []
+      x-mojo-to:
+        controller: talk
+        action: getRelativeName
   /event/{eventId}/talk/{slug}/preroll:
     get:
       tags:
