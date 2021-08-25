@@ -2,6 +2,7 @@ package SReview::Schedule::Wafer::Talk;
 
 use Moose;
 use Mojo::Util 'slugify';
+use DateTime::Format::ISO8601;
 
 extends 'SReview::Schedule::Penta::Talk';
 
@@ -23,6 +24,10 @@ sub _load_speakers {
 sub _load_filtered {
 	return 0 if defined(shift->xml_helper('type'));
 	return 1;
+}
+
+sub _load_starttime {
+	return DateTime::Format::ISO8601->parse_datetime(shift->xml_helper('date'));
 }
 
 no Moose;
