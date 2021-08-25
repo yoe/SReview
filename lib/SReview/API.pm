@@ -1857,6 +1857,7 @@ components:
         reviewurl:
           type: string
           example: '/r/685982011ffda40c772395355db9dc9b699afb4957eb3478d3c3f9e144f995c9'
+          nullable: true
         nonce:
           $ref: '#/components/schemas/Talk/properties/nonce'
         speakers:
