@@ -63,6 +63,7 @@
 	  </label>
 	</div>
       </fieldset>
+      <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
       <fieldset class="comments">
         <legend>Comments</legend>
         <div class="row">
