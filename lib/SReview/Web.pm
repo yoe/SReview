@@ -54,11 +54,12 @@ sub startup {
 			my $url = Mojo::URL->new($vpr);
 			if(defined($url->host)) {
 				$vpr = $url->host;
-				$media = "media-src $vpr;";
+				$media = "media-src $vpr";
 			}
 			if(defined($config->get("finalhosts"))) {
 				$media .= " " . $config->get("finalhosts");
 			}
+			$media .= ";";
 		}
 		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
 	});
