@@ -11,6 +11,7 @@ use SReview::Files::Factory;
 use SReview::Map;
 use SReview::Normalizer;
 use SReview::Talk;
+use SReview::AvSync;
 use SReview::Video;
 use SReview::Video::Concat;
 use SReview::Videopipe;
