@@ -1807,3 +1807,53 @@ BEGIN
     END IF;
   END IF;
 END $_$;
+-- 6 up
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE Plpgsql
+    AS $_$
+DECLARE
+  enumvals talkstate[];
+  startval ALIAS FOR $1;
+BEGIN
+  IF startval = 'injecting' THEN
+    return 'generating_previews'::talkstate;
+  ELSE
+    IF startval = 'remove' THEN
+      return 'removing'::talkstate;
+    ELSE
+      IF startval = 'removing' THEN
+        return 'waiting_for_files'::talkstate;
+      ELSE
+        IF startval >= 'done' THEN
+          return startval;
+        ELSE
+          enumvals := enum_range(startval, NULL);
+          return enumvals[2];
+        END IF;
+      END IF;
+    END IF;
+  END IF;
+END $_$;
+-- 6 down
+CREATE OR REPLACE FUNCTION state_next(talkstate) RETURNS talkstate
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    enumvals talkstate[];
+    startval ALIAS FOR $1;
+BEGIN
+  IF startval = 'injecting' THEN
+    return 'generating_previews'::talkstate;
+  ELSE
+    IF startval = 'removing' THEN
+      return 'waiting_for_files'::talkstate;
+    ELSE
+      IF startval >= 'done' THEN
+        return startval;
+      ELSE
+        enumvals := enum_range(startval, NULL);
+        return enumvals[2];
+      END IF;
+    END IF;
+  END IF;
+END $_$;
