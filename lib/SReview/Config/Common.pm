@@ -137,6 +137,7 @@ sub setup {
 
 	# Values for upload script
 	$config->define('upload_actions', 'An array of commands to run on each file to be uploaded. Each component is passed through Mojo::Template before processing. To avoid quoting issues, it is a two-dimensional array, so that no shell will be called to run this.', [['echo', '<%== $file %>', 'ready for upload']]);
+	$config->define('remove_actions', 'An array of commands to run on each file to be removed, when final review determines that the file needs to be reprocessed. Same format as upload_actions', [['echo', '<%== $file %>', 'ready for removal']]);
 	$config->define('cleanup', 'Whether to remove files after they have been published. Possible values: "all" (removes all files), "previews" (removes the output of sreview-cut, but not that of sreview-transcode), and "output" (removes the output of sreview-transcode, but not the output of sreview-cut). Other values will not remove files', 'none');
 	# for sreview-copy
 	$config->define('extra_collections', 'A hash of extra collection basenames. Can be used by sreview-copy.', undef);
