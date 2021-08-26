@@ -3,6 +3,7 @@ lib/SReview.pm
 lib/SReview/Access.pm
 lib/SReview/API.pm
 lib/SReview/API/Helpers.pm
+lib/SReview/AvSync.pm
 lib/SReview/CodecMap.pm
 lib/SReview/Config.pm
 lib/SReview/Config/Common.pm
