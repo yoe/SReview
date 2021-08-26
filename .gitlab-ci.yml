@@ -202,7 +202,7 @@ pages:
   - debian:testing
 
 validate:package:
-  image: debian:unstable
+  image: debian:testing
   dependencies:
   - debian:testing
   needs:
