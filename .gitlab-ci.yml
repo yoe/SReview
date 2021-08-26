@@ -204,9 +204,9 @@ pages:
 validate:package:
   image: debian:unstable
   dependencies:
-  - debian:unstable
+  - debian:testing
   needs:
-  - debian:unstable
+  - debian:testing
   stage: autopkgtest
   services:
   - postgres:latest
