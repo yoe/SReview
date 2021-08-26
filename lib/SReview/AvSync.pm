@@ -39,5 +39,6 @@ sub run() {
 	my $input_video = SReview::Video->new(url => "$tempdir/pre.mkv");
 	my $sync_video = SReview::Video->new(url => "$tempdir/synced.mkv");
 	SReview::Videopipe->new(inputs => [$input_audio, $input_video], map => [SReview::Map->new(input => $input_audio, type => "stream", choice => "audio"), SReview::Map->new(input => $input_video, type => "stream", choice => "video")], output => $sync_video)->run();
-	SReview::Videopipe->new(inputs => [$sync_video], output => $self->output, fragment_start => abs($self->value))->run();
+	$self->output->fragment_start(abs($self->value));
+	SReview::Videopipe->new(inputs => [$sync_video], output => $self->output)->run();
 }
