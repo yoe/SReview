@@ -67,6 +67,16 @@ has 'progress' => (
 	predicate => 'has_progress',
 );
 
+has 'has_run' => (
+	isa => 'Bool',
+	is => 'rw',
+	default => 0,
+	traits => ['Bool'],
+	handles => {
+		run_complete => 'set',
+	}
+);
+
 sub run_progress {
 	my $self = shift;
 	my $command = shift;
@@ -102,6 +112,7 @@ sub run_progress {
 			}
 		}
 	}
+	$self->run_complete;
 }
 
 sub run {
@@ -183,6 +194,13 @@ sub run {
 		$input->clear_pass;
 	}
 	$self->output->clear_pass;
+	$self->run_complete;
+}
+
+sub DESTROY {
+	if(!(shift->has_run)) {
+		croak "object destructor for videopipe entered without having seen a run!";
+	}
 }
 
 no Moose;
