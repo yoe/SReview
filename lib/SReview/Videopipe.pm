@@ -2,6 +2,7 @@ package SReview::Videopipe;
 
 use Mojo::JSON qw(decode_json);
 use Moose;
+use Carp;
 
 has 'inputs' => (
 	traits => ['Array'],
@@ -199,7 +200,7 @@ sub run {
 
 sub DESTROY {
 	if(!(shift->has_run)) {
-		croak "object destructor for videopipe entered without having seen a run!";
+		confess "object destructor for videopipe entered without having seen a run!";
 	}
 }
 
