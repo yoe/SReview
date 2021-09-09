@@ -1,3 +1,26 @@
+sreview (0.8.0-1) unstable; urgency=medium
+
+  * The "DebConf is a wrap" release.
+  * New upstream release. New features:
+    - Support for fully automatic review, through "sreview-autoreview".
+      Useful if markers are used, or start/stop positions are created
+      out of band (SReview is reduced to just a transcoder then).
+    - Audio normalization is now a module that has multiple
+      implementations: bs1770gain (the default for backcompat reasons),
+      ffmpeg (using ffmpeg's "loudnorm" filter), and none (no audio
+      normalization)
+    - A/V synchronization is now a module, too.
+    - New state: final review, for reviewing the videos post-transcode
+      (in case there are errors there).
+    - The old review form is now completely gone. It was already no
+      longer active and probably didn't work anymore, but the code was
+      still there.
+    - Added the ability to pre-generate and preview (on a single page)
+      all the credit slides.
+    - Plus a bunch of smaller improvements and bug fixes.
+
+ -- Wouter Verhelst <wouter@debian.org>  Thu, 09 Sep 2021 10:34:16 +0200
+
 sreview (0.7.1-1) unstable; urgency=medium
 
   * The "We're ready for FOSDEM" release.
