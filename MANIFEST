@@ -144,6 +144,4 @@ web/templates/review/update.html+other.ep
 web/templates/review/update.html+reset.ep
 web/templates/schedule/index.html.ep
 web/templates/table.html.ep
-web/templates/talk.html.ep
-web/templates/talk_update.html.ep
 web/templates/volunteer/list.html.ep
