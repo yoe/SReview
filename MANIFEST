@@ -20,6 +20,7 @@ lib/SReview/Normalizer/Ffmpeg.pm
 lib/SReview/Normalizer/None.pm
 lib/SReview/Schedule/Base.pm
 lib/SReview/Schedule/Filtered.pm
+lib/SReview/Schedule/Ics.pm
 lib/SReview/Schedule/Multi.pm
 lib/SReview/Schedule/Penta.pm
 lib/SReview/Schedule/Wafer.pm
