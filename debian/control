@@ -60,7 +60,7 @@ Description: SReview -- common code
 
 Package: sreview-detect
 Architecture: all
-Depends: sreview-common, ${misc:Depends}, libjson-perl, libxml-simpleobject-perl
+Depends: sreview-common, ${misc:Depends}, libjson-perl, libxml-simpleobject-perl, libical-parser-perl
 Description: SReview input detection script
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
