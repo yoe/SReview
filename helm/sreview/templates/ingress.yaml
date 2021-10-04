@@ -1,5 +1,5 @@
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
@@ -8,7 +8,10 @@ spec:
   - host: {{ .Values.webHostname | default "sreview.example.com" }}
     http:
       paths:
-      - path:
+      - path: /
+        pathType: Prefix
         backend:
-          serviceName: {{ .Release.Name }}-web
-          servicePort: 8080
+          service:
+            name: {{ .Release.Name }}-web
+            port: 
+              number: 8080
