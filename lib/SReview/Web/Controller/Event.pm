@@ -47,7 +47,7 @@ sub getById {
 sub list {
 	my $c = shift->openapi->valid_input or return;
 
-	my $events = db_query($c->dbh, "SELECT events.* FROM events");
+	my $events = db_query($c->dbh, "SELECT events.* FROM events ORDER BY events.name");
 
 	$c->render(openapi => $events);
 }
