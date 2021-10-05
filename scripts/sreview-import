@@ -21,12 +21,9 @@ C<sreview-import> instantiates a C<schedule_format> schedule parser, and
 makes sure that first, all events and talks in the parsed schedule exist
 in the SReview database, and second, that all events and talks which
 exist in the SReview database for a found event but which do I<not>
-exist in the parsed schedule are marked as C<ignored>. Currently two
-parsers are implemented: the C<penta> parser which parses the Pentabarf
-XML format as implemented by Pentabarf itself, and the C<wafer> parser
-which parses the Pentabarf XML format as implemented by the C<wafer>
-event management software (which has a few differences that would
-otherwise break C<sreview-import>'s idempotency).
+exist in the parsed schedule are marked as C<ignored>. Parsers are implemented
+as classes under the C<SReview::Schedule::> namespace; e.g., the
+L<SReview::Schedule::Penta> class implements the C<penta> parser.
 
 The location of the event schedule is to be passed to the schedule
 parser using the relevant option of that parser; most support the C<url>
