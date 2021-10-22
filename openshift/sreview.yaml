@@ -86,7 +86,7 @@ objects:
                 && cd /sreview \
                 && mk-build-deps -r -i -t 'apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends' \
                 && dpkg-buildpackage -uc -us -i -I.git \
-                && sed -i -e "/^ARG/d;s/@git_describe@/unknown/" dockerfiles/*/Dockerfile \
+                && sed -i -e "/^ARG/d;/@git_describe@/d" dockerfiles/*/Dockerfile \
                 && sed -i -e 's,^COPY.*$,ADD packages.tar.gz /root/,' dockerfiles/common/Dockerfile \
                 && apt-get -y --purge autoremove \
                 && cd .. \

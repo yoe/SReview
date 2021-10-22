@@ -164,7 +164,11 @@ sub startup {
 			if(exists($ENV{GIT_DESCRIBE})) {
 				$rv = $ENV{GIT_DESCRIBE};
 			} else {
-				$rv = $SReview::VERSION;
+				if(exists($ENV{OPENSHIFT_BUILD_COMMIT})) {
+					$rv = $SReview::VERSION . ", built from commit " . $ENV{OPENSHIFT_BUILD_COMMIT};
+				} else {
+					$rv = $SReview::VERSION;
+				}
 			}
 		}
 		chomp $rv;
