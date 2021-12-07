@@ -22,7 +22,9 @@ SKIP: {
 	my $talk = SReview::Talk->new(talkid => 1);
 	isa_ok($talk, 'SReview::Talk');
 
-	ok($talk->workdir eq "/srv/sreview/web/public/video/1/2017-11-10/r", 'The workdir resolves to the correct value');
+	my $relname = join("/", substr($talk->nonce, 0, 1), substr($talk->nonce, 1, 2), substr($talk->nonce, 3), $talk->has_correction("serial") ? $talk->corrections->{serial} : 0);
+
+	ok($talk->workdir eq "/srv/sreview/web/public/video/$relname", 'The workdir resolves to the correct value');
 
 	ok($talk->finaldir eq "/srv/sreview/output/1/Test event/room1/2017-11-10/2017", 'The output directory resolves to the correct value');
 
