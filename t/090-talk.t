@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use SReview::Config::Common;
 use Data::Dumper;
 use Cwd;
@@ -44,4 +44,5 @@ SKIP: {
 	my $newtalk = SReview::Talk->new(talkid => 1);
 	ok($newtalk->corrections->{offset_start} == 2, 'Corrections are written to the database');
 	ok($newtalk->corrections->{length_adj} == -2, 'Start offset changes length adjustment');
+	ok($newtalk->corrections->{serial} == 1, 'Setting corrections bumps the serial');
 }
