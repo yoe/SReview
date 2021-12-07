@@ -188,7 +188,7 @@ credits). Required.
 
 =cut
 
-my $preroll_file = $input_coll->add_file(relname => $talk->relative_name . "-pre.png");
+my $preroll_file = $input_coll->add_file(relname => $talk->relative_name . "/pre.png");
 process_template($config->get('preroll_template'), $preroll_file->filename, $talk, $config);
 $preroll_file->store_file;
 
@@ -208,7 +208,7 @@ my $postroll;
 my $postroll_file;
 
 if(defined($config->get('postroll_template'))) {
-	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "-post.png");
+	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "/post.png");
 	process_template($config->get('postroll_template'), $postroll_file->filename, $talk, $config);
 	$postroll_file->store_file;
 	$postroll = $postroll_file->filename;
@@ -219,7 +219,7 @@ if(defined($config->get('postroll_template'))) {
 	die "need postroll or postroll template!";
 }
 
-my $main_input_file = $input_coll->get_file(relname => $talk->relative_name . ".mkv");
+my $main_input_file = $input_coll->get_file(relname => $talk->relative_name . "/main.mkv");
 my $main_input = SReview::Video->new(url => $main_input_file->filename);
 
 =item apology_template
@@ -245,7 +245,7 @@ if(defined($config->get("input_profile"))) {
 
 my $sorry;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
-	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "-sorry.png");
+	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "/sorry.png");
 
 	die unless defined($config->get('apology_template'));
 	process_template($config->get('apology_template'), $apology_file->filename, $talk, $config);

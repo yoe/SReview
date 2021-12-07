@@ -46,7 +46,7 @@ sub serve_png {
 		return $c->reply->not_found;
 	}
 	$c->app->log->debug("looking for render of template $template");
-	my $relname = $talk->relative_name . "-" . $suffix . ".png";
+	my $relname = $talk->relative_name . "/" . $suffix . ".png";
 	my $force = $c->param("force");
 	if((defined($force) && $force ne "false") || !($input_coll->has_file($relname))) {
 		$c->app->log->debug("file does not exist or force specified, rerendering");

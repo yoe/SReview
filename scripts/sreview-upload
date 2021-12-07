@@ -72,22 +72,22 @@ my @files = ();
 
 if($configprefix eq "upload" && ($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'previews')) {
 	push @files, (
-		$inter_coll->get_file(relname => $talk->relative_name . ".mkv"),
-		$inter_coll->get_file(relname => $talk->relative_name . ".webm"),
-		$inter_coll->get_file(relname => $talk->relative_name . ".webm"),
-		$inter_coll->get_file(relname => $talk->relative_name . ".mp4"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-post.mkv"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-post.webm"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-post.mp4"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-post.png"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-pre.mkv"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-pre.webm"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-pre.mp4"),
-		$inter_coll->get_file(relname => $talk->relative_name . "-pre.png"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/main.mkv"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/main.webm"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/main.mp4"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/post.mkv"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/post.webm"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/post.mp4"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/post.png"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/pre.mkv"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/pre.webm"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/pre.mp4"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/pre.png"),
+		$inter_coll->get_file(relname => $talk->relative_name . "/sorry.png"),
 	);
 	for my $count(0, 1, 2) {
 		for my $ext(qw/wav mp3 ogg/) {
-			push @files, $inter_coll->get_file(relname => $talk->relative_name . "-audio$count.$ext");
+			push @files, $inter_coll->get_file(relname => $talk->relative_name . "/audio$count.$ext");
 		}
 	}
 }
@@ -99,7 +99,7 @@ foreach my $profile(@{$config->get('output_profiles')}) {
 	if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'output') {
 		push @files, (
 			$file,
-			$output_coll->get_file(relname => $file->relname . "-multipass-0.log"),
+			$output_coll->get_file(relname => $file->relname . "/multipass-0.log"),
 		);
 	}
 }

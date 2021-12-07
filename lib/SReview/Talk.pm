@@ -82,8 +82,6 @@ sub _load_pathinfo {
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
-	$pathinfo->{"workdir"} = join('/', $row->{eventid}, $row->{date}, substr($row->{room}, 0, 1));
-
 	my @elements = ($config->get('outputdir'));
 	foreach my $element(@{$config->get('output_subdirs')}) {
 		push @elements, $row->{$element};
@@ -378,7 +376,8 @@ has 'workdir' => (
 
 sub _load_workdir {
 	my $self = shift;
-	return join('/', $config->get("pubdir"), $self->_get_pathinfo->{"workdir"});
+	my $serial = $self->has_correction("serial") ? ${self->corrections}{serial} : 0;
+	return join('/', $config->get("pubdir"), $self->relative_name, $serial);
 }
 
 =head2 relative_name
@@ -396,7 +395,8 @@ has 'relative_name' => (
 
 sub _load_relative_name {
 	my $self = shift;
-	return join('/', $self->_get_pathinfo->{"workdir"}, $self->_get_pathinfo->{'slug'});
+	my $n = $self->nonce;
+	return join('/', substr($n, 0, 1), substr($n, 1, 2), substr($n, 3));
 }
 
 =head2 outname

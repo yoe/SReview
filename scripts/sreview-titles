@@ -26,7 +26,7 @@ while(my $row = $talklist->fetchrow_hashref) {
 	my $talk = SReview::Talk->new(talkid => $row->{id});
 	foreach my $type("pre", "post", "sorry") {
 		next unless(-f $templates{$type});
-		my $relname = $talk->relative_name . "-" . $type . ".png";
+		my $relname = $talk->relative_name . "/" . $type . ".png";
 		my $file = $coll->add_file(relname => $relname);
 		process_template($templates{$type}, $file->filename, $talk, $config);
 		$file->store_file

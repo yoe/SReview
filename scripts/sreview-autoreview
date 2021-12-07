@@ -25,9 +25,10 @@ if($talk->get_flag("manual_review")) {
 
 my $detector = $config->get("autoreview_detect");
 my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
-my $prefile = $coll->get_file(relname => $talk->relative_name . "-pre.mkv");
-my $mainfile = $coll->get_file(relname => $talk->relative_name . ".mkv");
-my $postfile = $coll->get_file(relname => $talk->relative_name . "-post.mkv");
+$coll->delete_files(relnames => [dirname($talk->relative_name)]);
+my $prefile = $coll->get_file(relname => $talk->relative_name . "/pre.mkv");
+my $mainfile = $coll->get_file(relname => $talk->relative_name . "/main.mkv");
+my $postfile = $coll->get_file(relname => $talk->relative_name . "/post.mkv");
 
 open JSON, "-|:encoding(UTF-8)", $detector, $talkid, $prefile->filename, $mainfile->filename, $postfile->filename;
 my $json;

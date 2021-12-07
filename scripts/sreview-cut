@@ -282,12 +282,12 @@ $samplestart = ($samplestart > 0) ? $samplestart : 0;
 $samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
 my @choices = ($primary_audio, $backup_audio, $both_audio);
 foreach my $stream(0, 1, 2) {
-	my $sample_wav_file = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.wav");
+	my $sample_wav_file = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.wav");
 	my $sample_wav = SReview::Video->new(url => $sample_wav_file->filename, fragment_start => $samplestart, duration => $samplelen);
 	SReview::Videopipe->new(inputs => [$main], output => $sample_wav, map => [SReview::Map->new(input => $main, type => $maptype, choice => $choices[$stream])], acopy => 0, vskip => 1)->run();
 	$sample_wav_file->store_file;
 	foreach my $codec(qw/mp3 ogg/) {
-		my $tmp = $output_coll->add_file(relname => $talk->relative_name . "-audio$stream.$codec");
+		my $tmp = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.$codec");
 		SReview::Videopipe->new(inputs => [$sample_wav], output => SReview::Video->new(url => $tmp->filename), acopy => 0, vskip => 1)->run();
 		$tmp->store_file;
 	}
@@ -310,22 +310,22 @@ my $postlen_db = 0;
 my $prelen_db = 0;
 if(defined($pre)) {
 	$prelen_db = $pre->duration;
-	my $pre_file = $output_coll->add_file(relname => $talk->relative_name . "-pre.mkv");
+	my $pre_file = $output_coll->add_file(relname => $talk->relative_name . "/pre.mkv");
 	move($pre->url, $pre_file->filename);
 	$pre_file->store_file;
 } else {
-	$output_coll->delete_files(relnames => [$talk->relative_name . "-pre.mkv"]);
+	$output_coll->delete_files(relnames => [$talk->relative_name . "/pre.mkv"]);
 }
 if(defined($post)) {
 	$postlen_db = $post->duration;
-	my $post_file = $output_coll->add_file(relname => $talk->relative_name . "-post.mkv");
+	my $post_file = $output_coll->add_file(relname => $talk->relative_name . "/post.mkv");
 	move($post->url, $post_file->filename);
 	$post_file->store_file;
 } else {
-	$output_coll->delete_files(relnames => [$talk->relative_name . "-post.mkv"]);
+	$output_coll->delete_files(relnames => [$talk->relative_name . "/post.mkv"]);
 }
 
-my $final = $output_coll->add_file(relname => $talk->relative_name . ".mkv");
+my $final = $output_coll->add_file(relname => $talk->relative_name . "/main.mkv");
 
 move($main->url, $final->filename);
 

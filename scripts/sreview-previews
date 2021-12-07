@@ -109,9 +109,9 @@ which to write the previews
 
 my $relname = $talk->relative_name;
 
-convert($relname . "-pre");
-convert($relname);
-convert($relname . "-post");
+convert($relname . "/pre");
+convert($relname . "/main");
+convert($relname . "/post");
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='generating_previews'")->execute($talkid);
 
