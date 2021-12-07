@@ -31,13 +31,13 @@
           <dt>Room:</dt>
           <dd><%= $talk->room =%></dd>
         </dl>
-        <a href="<%= $vid_prefix =%>/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>">Download video</a>
+        <a href="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/main.<%= $talk->preview_exten =%>">Download video</a>
       </div>
     </div>
     <div class="row" id="main_video">
       <div class="col-sm-8">
         <div class="embed-responsive embed-responsive-16by9">
-          <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>.<%= $talk->preview_exten =%>?nocache=<%= localtime %>"></video>
+          <video id="video-main" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/main.<%= $talk->preview_exten =%>"></video>
         </div>
       </div>
     </div>
