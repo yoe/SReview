@@ -281,10 +281,11 @@ sub delete_files {
 		if($ownfiles[0]->is_collection) {
 			if($names[0] eq $ownfiles[0]->baseurl) {
 				push @to_delete, shift @ownfiles;
+				shift @names;
 			} elsif(substr($names[0], 0, length($ownfiles[0]->baseurl)) eq $ownfiles[0]->baseurl) {
 				$ownfiles[0]->delete_files(files => [$names[0]]);
+				shift @names;
 			}
-			shift @names;
 			shift @ownfiles;
 		} elsif($names[0] eq $ownfiles[0]->url) {
 			shift @names;
@@ -312,7 +313,7 @@ sub delete_files {
 sub delete {
 	my $self = shift;
 
-	foreach my $child($self->children) {
+	foreach my $child(@{$self->children}) {
 		$child->delete;
 	}
 }
