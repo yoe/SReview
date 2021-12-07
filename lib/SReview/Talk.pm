@@ -376,8 +376,7 @@ has 'workdir' => (
 
 sub _load_workdir {
 	my $self = shift;
-	my $serial = $self->has_correction("serial") ? ${self->corrections}{serial} : 0;
-	return join('/', $config->get("pubdir"), $self->relative_name, $serial);
+	return join('/', $config->get("pubdir"), $self->relative_name);
 }
 
 =head2 relative_name
@@ -396,7 +395,8 @@ has 'relative_name' => (
 sub _load_relative_name {
 	my $self = shift;
 	my $n = $self->nonce;
-	return join('/', substr($n, 0, 1), substr($n, 1, 2), substr($n, 3));
+	my $serial = $self->has_correction("serial") ? ${$self->corrections}{serial} : 0;
+	return join('/', substr($n, 0, 1), substr($n, 1, 2), substr($n, 3), $serial);
 }
 
 =head2 outname
