@@ -33,7 +33,7 @@ C<sreview-cut> performs the following actions:
 
 =item *
 
-Look up the talk with id TALKID in teh database
+Look up the talk with id TALKID in the database
 
 =item *
 
