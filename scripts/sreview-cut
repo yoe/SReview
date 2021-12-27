@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use DBI;
+use File::Basename;
 use File::Copy;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
@@ -192,6 +193,8 @@ and/or the intermediate files.
 
 my $input_coll = SReview::Files::Factory->create("input", $config->get("inputglob"));
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
+
+$output_coll->delete_files(relnames => dirname($talk->relative_name));
 
 foreach my $row(@{$talk->avs_video_fragments}) {
 	next if($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0);
