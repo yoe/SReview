@@ -101,5 +101,6 @@ if(!$do_transcode) {
 }
 $outputfile->store_file;
 $talk->set_flag('is_injected' => true);
+$talk->add_correction(serial => -1);
 $talk->done_correcting;
 $talk->state_done("injecting");
