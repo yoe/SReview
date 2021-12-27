@@ -52,6 +52,8 @@ my $input = SReview::Video->new(url => $inputfile);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . "/main.mkv");
 
+$output_coll->delete_files(relnames => [dirname($talk->relative_name)]);
+
 my $checks = $config->get("inject_transcode_skip_checks");
 my $do_transcode = 0;
 if(defined($checks)) {
