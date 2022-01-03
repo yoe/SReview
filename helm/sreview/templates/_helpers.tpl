@@ -3,6 +3,8 @@ envFrom:
 - configMapRef:
     name: {{ .Release.Name }}-config
 env:
+- name: SREVIEWSECRET_NAME
+  value: {{ .Release.Name }}-secret
 {{- if .Values.use_internal_pg }}
 - name: SREVIEW_DBICOMPONENTS
   value: "host password dbname user"

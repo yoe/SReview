@@ -65,7 +65,7 @@ my $yamldata = {
 						name => "SREVIEW_DBISTRING",
 						valueFrom => {
 							secretKeyRef => {
-								name => "sreview-secret",
+								name => $ENV{SREVIEWSECRET_NAME},
 								key => "SREVIEW_DBISTRING",
 							},
 						}
