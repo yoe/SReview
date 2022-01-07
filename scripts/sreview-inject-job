@@ -23,7 +23,7 @@ if($collname eq "input") {
 die "talk not in correct stream" unless $talk->active_stream eq 'injected';
 my $db = DBI->connect($config->get("dbistring"), '', '') or die "Cannot connect to database!";
 my $st = $db->prepare("SELECT filename FROM raw_files WHERE room = ? AND stream = ? AND filename LIKE ?");
-$st->execute($talk->roomid, $talk->active_stream, '%' . $talk->slug . '%');
+$st->execute($talk->roomid, $talk->active_stream, '%' . $talk->relative_name . '%');
 my $row = $st->fetchrow_arrayref;
 my $inputfile = $input->get_file(fullname => $row->[0]);
 my @command = ("sreview-inject", "-t", $talkid, "-i", $inputfile->filename);
