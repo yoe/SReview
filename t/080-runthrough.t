@@ -91,8 +91,8 @@ SKIP: {
 
 	$coll->delete_files(relnames => [$relname]);
 
-	# perform cut with ffmpeg normalizer
-	$ENV{SREVIEW_NORMALIZER} = '"ffmpeg"';
+	# perform cut with bs1770gain normalizer
+	$ENV{SREVIEW_NORMALIZER} = '"bs1770gain"';
 	run("perl", "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
 
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
