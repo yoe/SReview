@@ -8,6 +8,7 @@ lib/SReview/CodecMap.pm
 lib/SReview/Config.pm
 lib/SReview/Config/Common.pm
 lib/SReview/Db.pm
+lib/SReview/Files/Collection/HTTP.pm
 lib/SReview/Files/Collection/S3.pm
 lib/SReview/Files/Factory.pm
 lib/SReview/Job.pm
