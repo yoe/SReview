@@ -277,7 +277,7 @@ sub delete_files {
 	my @ownfiles = sort({$a->url cmp $b->url} @{$self->children});
 	my @to_delete = ();
 
-	do {
+	while(scalar(@names) && scalar(@ownfiles)) {
 		if($ownfiles[0]->is_collection) {
 			if($names[0] eq $ownfiles[0]->baseurl) {
 				push @to_delete, shift @ownfiles;
@@ -301,7 +301,7 @@ sub delete_files {
 			carp "${names[0]} is not a member of this collection, ignored";
 			shift @names;
 		}
-	} while(scalar(@names) && scalar(@ownfiles));
+	};
 	if(scalar(@names)) {
 		carp "${names[0]} is not a member of this collection, ignored";
 	}
