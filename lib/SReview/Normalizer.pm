@@ -14,7 +14,7 @@ SReview::Normalizer - normalize the audio of a video asset.
 =head1 DESCRIPTION
 
 C<SReview::Normalizer> is a class to normalize the audio of
-a given SReview::Video asset, using bs1770gain at its default settings.
+a given SReview::Video asset, using ffmpeg at its default settings.
 
 It looks at the C<command_tune> configuration parameter to decide
 whether to pass the C<--suffix> option to bs1770gain: if the installed
