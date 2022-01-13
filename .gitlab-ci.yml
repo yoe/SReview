@@ -1,7 +1,7 @@
 ---
 stages:
 - test
-- deb
+- build
 - autopkgtest
 - docker-pre
 - docker
@@ -65,7 +65,7 @@ test:committed:
   - git diff --exit-code
 
 .deb: &deb
-  stage: deb
+  stage: build
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential
@@ -154,6 +154,34 @@ docker:web:
   needs:
   - debian:testing
   - docker:common
+
+helm:build:
+  stage: build
+  image: alpine/helm
+  allow_failure: true
+  script:
+  - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
+  - cd helm
+  - helm package sreview
+  - mkdir -p products/helm
+  - mv helm/sreview-$VERSION.tar.gz products/helm
+  - echo $VERSION > products/helm/version.txt
+  artifacts:
+    paths:
+    - products/helm
+
+release:helm:
+   stage: release
+   image: debian:stable
+   allow_failure: true
+   dependencies:
+   - helm:build
+   before_script:
+   - apt-get update
+   - apt-get -y install curl
+   script:
+   - VERSION=$(cat products/helm/version.txt)
+   - curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@products/helm/sreview-$VERSION.tar.gz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/dev/charts"
 
 .drelease: &drelease
   stage: release
