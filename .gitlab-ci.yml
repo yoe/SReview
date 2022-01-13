@@ -157,7 +157,9 @@ docker:web:
 
 helm:build:
   stage: build
-  image: alpine/helm
+  image:
+    name: alpine/helm
+    entrypoint: ["/bin/sh"]
   allow_failure: true
   script:
   - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
