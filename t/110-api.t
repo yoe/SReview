@@ -8,26 +8,24 @@ use Cwd 'abs_path';
 use SReview::Db;
 use SReview::Config::Common;
 
-BEGIN {
-	open my $config, ">config.pm";
-	if(exists($ENV{SREVIEWTEST_DB})) {
-		print $config '$dbistring=\'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB} . '\';' . "\n";
-	}
-	print $config '$secret="foo";' . "\n";
-	print $config '$outputdir="' . abs_path('t/outputdir') . '";' . "\n";
-	print $config '$pubdir="' . abs_path('t/pubdir') . '";' . "\n";
-	print $config '$api_key="foobarbaz";' . "\n";
-	print $config '$preroll_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
-	print $config '$postroll_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
-	print $config '$apology_template="' . abs_path('t/testvids/just-title.svg') . '";' . "\n";
-	close $config;
+my $config = SReview::Config::Common::setup;
+
+$config->set(secret => "foo",
+	     outputdir => abs_path('t/outputdir'),
+	     pubdir => abs_path('t/pubdir'),
+	     api_key => "foobarbaz",
+	     preroll_template => abs_path('t/testvids/just-title.svg'),
+	     postroll_template => abs_path('t/testvids/just-title.svg'),
+	     apology_template => abs_path('t/testvids/just-title.svg'));
+
+if(exists($ENV{SREVIEWTEST_DB})) {
+	$config->set(dbistring => 'dbi:Pg:dbname=' . $ENV{SREVIEWTEST_DB});
 }
 
 use Test::More;
 use Test::Mojo;
 use Mojo::File qw/path/;
 
-my $cfgname = path()->to_abs->child('config.pm');
 my $do_auth = 0;
 
 SKIP: {
@@ -147,7 +145,6 @@ SKIP: {
 	$t->get_ok("$b/event/1/talk/test/sorry")->status_is(200)->content_type_is("image/png");
 }
 
-unlink($cfgname);
 if(!(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}))) {
 	chdir('..');
 	unlink('web/t');
