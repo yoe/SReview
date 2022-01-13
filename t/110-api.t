@@ -13,7 +13,6 @@ my $config = SReview::Config::Common::setup;
 $config->set(secret => "foo",
 	     outputdir => abs_path('t/outputdir'),
 	     pubdir => abs_path('t/pubdir'),
-	     api_key => "foobarbaz",
 	     preroll_template => abs_path('t/testvids/just-title.svg'),
 	     postroll_template => abs_path('t/testvids/just-title.svg'),
 	     apology_template => abs_path('t/testvids/just-title.svg'));
@@ -35,6 +34,7 @@ SKIP: {
 	SReview::Db::selfdestruct(code => 0, init => 0);
 
 	my $script;
+	my $b = '/api/v1';
 
 	if(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP})) {
 		$script = "SReview::Web";
@@ -45,6 +45,9 @@ SKIP: {
 		chdir($script->dirname);
 	}
 	my $t = Test::Mojo->new($script);
+	$t->get_ok("$b/speaker/search/Wouter" => { "X-SReview-Key" => "foobarbaz" })->status_is(401);
+	$config->set(api_key => "foobarbaz");
+	$t = Test::Mojo->new($script);
 
 	$t->ua->on(start => sub {
 		my ($ua, $tx) = @_;
@@ -53,8 +56,8 @@ SKIP: {
 		}
 	});
 
-	my $b = '/api/v1';
-
+	# Invalid authentication key
+	$t->get_ok("$b/event/1/talk/list" => { "X-SReview-Key" => "foobar" })->status_is(401);
 	# Events
 	$t->get_ok("$b/")->status_is(200)->json_is("/info/title" => "SReview API")->json_is("/info/version" => "1.0.0");
 	$t->get_ok("$b/event/list")->status_is(200)->json_is(""=>[]);
