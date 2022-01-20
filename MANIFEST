@@ -76,6 +76,7 @@ scripts/sreview-inject
 scripts/sreview-inject-job
 scripts/sreview-keys
 scripts/sreview-notify
+scripts/sreview-notranscode
 scripts/sreview-previews
 scripts/sreview-skip
 scripts/sreview-titles
