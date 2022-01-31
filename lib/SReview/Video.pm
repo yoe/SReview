@@ -300,7 +300,11 @@ sub _probe_videobitrate {
 	if($self->has_reference) {
 		return $self->reference->video_bitrate;
 	}
-	return $self->_get_videodata->{bit_rate};
+	my $bitrate = $self->_get_videodata->{bit_rate};
+	if(!($bitrate =~ /k/)) {
+		return $bitrate / 1000;
+	}
+	return $bitrate;
 }
 
 =head2 video_minrate
