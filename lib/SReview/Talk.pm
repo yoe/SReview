@@ -396,6 +396,9 @@ sub _load_relative_name {
 	my $self = shift;
 	my $n = $self->nonce;
 	my $serial = $self->has_correction("serial") ? ${$self->corrections}{serial} : 0;
+	if($self->state eq "broken" && $serial > 0) {
+		$serial -= 1;
+	}
 	return join('/', substr($n, 0, 1), substr($n, 1, 2), substr($n, 3), $serial);
 }
 
