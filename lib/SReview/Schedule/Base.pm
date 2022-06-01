@@ -163,6 +163,7 @@ sub _load_endtime {
 	$start->set_time_zone('UTC');
 	my $end = $self->starttime + $self->length;
 	$start->set_time_zone($tz);
+	$end->set_time_zone($tz);
 	return $end;
 }
 
