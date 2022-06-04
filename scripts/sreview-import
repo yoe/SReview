@@ -82,9 +82,9 @@ my $add_track = $dbh->prepare("INSERT INTO tracks(name, email, upstreamid) VALUE
 my $update_track = $dbh->prepare("UPDATE track SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?) RETURNING id");
 my $set_flags = $dbh->prepare("UPDATE talks SET flags = COALESCE(flags::jsonb || ?::jsonb, ?::jsonb) WHERE id = ?");
-my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ?");
+my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ? AND event = ?");
 my $update_speaker = $dbh->prepare("UPDATE speaker SET name = ?, email = ? WHERE upstreamid = ?");
-my $add_speaker = $dbh->prepare("INSERT INTO speakers(email, name, upstreamid) VALUES(?, ?, ?) RETURNING id");
+my $add_speaker = $dbh->prepare("INSERT INTO speakers(email, name, upstreamid, event) VALUES(?, ?, ?, ?) RETURNING id");
 my $clear_speakers = $dbh->prepare("DELETE FROM speakers_talks WHERE talk = ?");
 my $link_speaker = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES (?, ?) ON CONFLICT ON CONSTRAINT speakers_talks_pkey DO NOTHING");
 my $ignore_talk = $dbh->prepare("UPDATE talks SET state='ignored' WHERE id = ? AND state <= 'waiting_for_files'");
@@ -173,11 +173,11 @@ foreach my $event(@{$parser->events}) {
 		}
 		$clear_speakers->execute($talkid) or die $!;
 		foreach my $speaker(@{$talk->speakers}) {
-			$search_speaker->execute($speaker->upstreamid) or die $!;
+			$search_speaker->execute($speaker->upstreamid, $eventid) or die $!;
 			if($search_speaker->rows > 1) {
 				warn "Multiple speakers with upstream ID \"" . $speaker->upstreamid . "\", proceeding with first found one.\n";
 			} elsif($search_speaker->rows == 0) {
-				$add_speaker->execute($speaker->email, $speaker->name, $speaker->upstreamid) or die $!;
+				$add_speaker->execute($speaker->email, $speaker->name, $speaker->upstreamid, $eventid) or die $!;
 				$row = $add_speaker->fetchrow_arrayref;
 			} else {
 				$row = $search_speaker->fetchrow_arrayref;

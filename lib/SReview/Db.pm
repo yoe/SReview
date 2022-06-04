@@ -1273,6 +1273,10 @@ ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstat
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
 ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 27 up
+ALTER TABLE speakers ADD event INTEGER REFERENCES events(id);
+-- 27 down
+ALTER TABLE speakers DROP event;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
