@@ -150,12 +150,12 @@ foreach my $event(@{$parser->events}) {
 		}
 		my $talkid;
 		if(exists($known_talks{$talk->upstreamid})) {
-			$update_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $talk->subtitle, $track, $known_talks{$talk->upstreamid}) or die $!;
+			$update_talk->execute($room, $talk->slug, DateTime::Format::Pg->format_timestamptz($talk->starttime), DateTime::Format::Pg->format_timestamptz($talk->endtime), $talk->title, $talk->subtitle, $track, $known_talks{$talk->upstreamid}) or die $!;
 			$talkid = $known_talks{$talk->upstreamid};
 			$unignore_talk->execute($known_talks{$talk->upstreamid});
 			delete $known_talks{$talk->upstreamid};
 		} else {
-			$add_talk->execute($room, $talk->slug, $talk->starttime->datetime(' '), $talk->endtime->datetime(' '), $talk->title, $eventid, $talk->upstreamid, $talk->subtitle, $track, $talk->description) or die $!;
+			$add_talk->execute($room, $talk->slug, DateTime::Format::Pg->format_timestamptz($talk->starttime), DateTime::Format::Pg->format_timestamptz($talk->endtime), $talk->title, $eventid, $talk->upstreamid, $talk->subtitle, $track, $talk->description) or die $!;
 			$row = $add_talk->fetchrow_arrayref;
 			$talkid = $row->[0];
 		}
