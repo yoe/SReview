@@ -301,7 +301,7 @@ sub _probe_videobitrate {
 		return $self->reference->video_bitrate;
 	}
 	my $bitrate = $self->_get_videodata->{bit_rate};
-	if(!($bitrate =~ /k/)) {
+	if(defined($bitrate) && (!($bitrate =~ /k/))) {
 		return $bitrate / 1000;
 	}
 	return $bitrate;
