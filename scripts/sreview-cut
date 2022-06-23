@@ -305,9 +305,11 @@ if($corrections->{offset_audio} != 0) {
 	reload();
 }
 
-SReview::Normalizer->new(input => $main, output => SReview::Video->new(url => "$tempdir/temp.mkv"))->run();
-move("$tempdir/temp.mkv", $main->url);
-reload();
+if(!$talk->get_flag("keep_audio")) {
+	SReview::Normalizer->new(input => $main, output => SReview::Video->new(url => "$tempdir/temp.mkv"))->run();
+	move("$tempdir/temp.mkv", $main->url);
+	reload();
+}
 
 my $postlen_db = 0;
 my $prelen_db = 0;
