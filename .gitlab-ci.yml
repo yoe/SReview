@@ -100,7 +100,7 @@ debian:unstable:
   - debian:testing
   services:
   - docker:dind
-  image: docker:stable
+  image: docker:latest
   tags:
   - docker
   before_script:
@@ -190,7 +190,7 @@ release:helm:
   when: manual
   services:
   - docker:dind
-  image: docker:stable
+  image: docker:latest
   tags:
   - docker
   script:
