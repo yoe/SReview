@@ -231,6 +231,28 @@ pages:
   needs:
   - debian:testing
 
+.dput: &dput
+  stage: release
+  image:
+  - debian:stable
+  allow_failure: true
+  before_script:
+  - apt-get update
+  - apt-get -y install dput-ng
+  - echo -e "[gitlab]\nmethod=https\nfqdn=https://gitlab-runner:$CI_JOB_TOKEN@$CI_SERVER_HOST\nincoming=/api/v4/projects/$CI_PROJECT_ID/packages/debian\n" > dput.cf
+  script:
+  - dput --config-dput.cf --unchecked --no-upload-log gitlab products/*.changes
+
+dput:testing:
+  <<: *dput
+  dependencies:
+  - debian:testing
+
+dput:unstable:
+  <<: *dput
+  dependencies:
+  - debian:unstable
+
 validate:package:
   image: debian:testing
   dependencies:
