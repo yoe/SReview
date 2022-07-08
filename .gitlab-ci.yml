@@ -233,8 +233,7 @@ pages:
 
 .dput: &dput
   stage: release
-  image:
-  - debian:stable
+  image: debian:stable
   allow_failure: true
   before_script:
   - apt-get update
