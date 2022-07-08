@@ -11,12 +11,12 @@ env:
 - name: SREVIEW_DBI_USER
   value: "postgres"
 - name: SREVIEW_DBI_HOST
-  value: {{ .Release.Name }}-postgresql-headless
+  value: {{ .Release.Name }}-postgresql
 - name: SREVIEW_DBI_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-postgresql
-      key: postgresql-password
+      key: postgres-password
 - name: SREVIEW_DBI_DBNAME
   value: "postgres"
 {{- else }}
@@ -31,12 +31,12 @@ env:
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-minio
-      key: accesskey
+      key: {{ .Values.minioAccount | default "root" }}User
 - name: SREVIEW_S3_DEFAULT_SECRETKEY
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-minio
-      key: secretkey
+      key: {{ .Values.minioAccount | default "root" }}Password
 - name: SREVIEW_S3_DEFAULT_HOST
   value: {{ .Release.Name }}-minio:9000
 - name: SREVIEW_S3_DEFAULT_SECURE
