@@ -240,7 +240,7 @@ pages:
   - apt-get -y install dput-ng
   - echo -e "[gitlab]\nmethod=https\nfqdn=https://gitlab-runner:$CI_JOB_TOKEN@$CI_SERVER_HOST\nincoming=/api/v4/projects/$CI_PROJECT_ID/packages/debian\n" > dput.cf
   script:
-  - dput --config-dput.cf --unchecked --no-upload-log gitlab products/*.changes
+  - dput --config=dput.cf --unchecked --no-upload-log gitlab products/*.changes
 
 dput:testing:
   <<: *dput
