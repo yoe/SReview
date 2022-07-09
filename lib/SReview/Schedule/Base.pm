@@ -298,6 +298,7 @@ package SReview::Schedule::Base;
 
 use Moose;
 use Mojo::UserAgent;
+use Mojo::URL;
 
 has 'url' => (
 	required => 1,
@@ -315,6 +316,14 @@ sub _load_raw {
 	my $self = shift;
 	my $ua = Mojo::UserAgent->new;
 	$ua->proxy->detect;
+	my $url = Mojo::URL->new($self->url);
+	if($url->scheme eq "file") {
+		local $/ = undef;
+		open my $f, "<", $url->host . $url->path;
+		my $rv = <$f>;
+		close $f;
+		return $rv;
+	}
 	my $res = $ua->get($self->url)->result;
 	die "Could not access " . $self->url . ": " . $res->code . " " . $res->message unless $res->is_success;
 	return $res->body;
