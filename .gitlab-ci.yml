@@ -168,7 +168,7 @@ helm:build:
   allow_failure: true
   before_script:
   - cd helm
-  - helm dependency update
+  - helm dependency update sreview
   - cd ..
   script:
   - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
