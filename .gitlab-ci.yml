@@ -164,7 +164,7 @@ helm:build:
   stage: build
   image:
     name: alpine/helm
-    entrypoint: ["/bin/sh"]
+    entrypoint: [""]
   allow_failure: true
   script:
   - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
