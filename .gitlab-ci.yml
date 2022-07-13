@@ -167,14 +167,14 @@ helm:build:
     entrypoint: [""]
   allow_failure: true
   before_script:
-  - pushd helm
+  - cd helm
   - helm dependency update
-  - popd
+  - cd ..
   script:
   - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
-  - pushd helm
+  - cd helm
   - helm package sreview
-  - popd
+  - cd ..
   - mkdir -p products/helm
   - mv helm/sreview-$VERSION.tar.gz products/helm
   - echo $VERSION > products/helm/version.txt
