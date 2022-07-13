@@ -176,7 +176,7 @@ helm:build:
   - helm package sreview
   - cd ..
   - mkdir -p products/helm
-  - mv helm/sreview-$VERSION.tar.gz products/helm
+  - mv helm/sreview-$VERSION.*gz products/helm
   - echo $VERSION > products/helm/version.txt
   artifacts:
     paths:
