@@ -29,7 +29,7 @@ secret:
 use_internal_pg: true
 # if you want to use an object store outside of Kubernetes (highly
 # recommended), set the following to false and make
-# sreview.secret.s3_access_config point to your external object store. If you
+# secret.s3_access_config point to your external object store. If you
 # want to run a minio on your Kubernetes cluster, keep it at true;
 # secret.s3_access_config will be ignored.
 use_internal_minio: true
