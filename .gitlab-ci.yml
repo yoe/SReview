@@ -166,10 +166,15 @@ helm:build:
     name: alpine/helm
     entrypoint: [""]
   allow_failure: true
+  before_script:
+  - pushd helm
+  - helm dependency update
+  - popd
   script:
   - VERSION=$(grep ^version helm/sreview/Chart.yaml|cut -d ' ' -f 2)
-  - cd helm
+  - pushd helm
   - helm package sreview
+  - popd
   - mkdir -p products/helm
   - mv helm/sreview-$VERSION.tar.gz products/helm
   - echo $VERSION > products/helm/version.txt
