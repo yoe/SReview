@@ -176,7 +176,7 @@ helm:build:
   - helm package sreview
   - cd ..
   - mkdir -p products/helm
-  - mv helm/sreview-$VERSION.*gz products/helm
+  - mv helm/sreview-$VERSION.tgz products/helm
   - echo $VERSION > products/helm/version.txt
   artifacts:
     paths:
@@ -193,7 +193,7 @@ release:helm:
    - apt-get -y install curl
    script:
    - VERSION=$(cat products/helm/version.txt)
-   - curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@products/helm/sreview-$VERSION.tar.gz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/dev/charts"
+   - curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@products/helm/sreview-$VERSION.tgz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/dev/charts"
 
 .drelease: &drelease
   stage: release
