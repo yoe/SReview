@@ -9,7 +9,7 @@ Build-Depends: debhelper-compat (= 13), ffmpeg, dh-exec, dh-apache2, libmojo-pg-
 
 Package: sreview-master
 Architecture: all
-Depends: sreview-common, libdatetime-format-pg-perl, ${perl:Depends}, ${misc:Depends}
+Depends: sreview-common, ${perl:Depends}, ${misc:Depends}
 Recommends: postgresql, postgresql-contrib, sreview-detect, rsync
 Description: SReview components for master host
  SReview is a video review and transcoding system. It allows users to
@@ -23,7 +23,7 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: sreview-common, libjs-bootstrap, libjs-vue, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl, libdatetime-format-pg-perl
+Depends: sreview-common, libjs-bootstrap, libjs-vue, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl
 Recommends: httpd
 Description: SReview webinterface
  SReview is a video review and transcoding system. It allows users to
@@ -48,7 +48,7 @@ Description: SReview encoder code
 
 Package: sreview-common
 Architecture: all
-Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl, inkscape
+Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl, inkscape, libdatetime-format-pg-perl
 Suggests: libwww-curl-perl
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
