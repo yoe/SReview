@@ -102,7 +102,7 @@ sub setup {
 	# Values for detection script
 	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');
 	$config->define('parse_re', 'A regular expression to parse a filename into year, month, day, hour, minute, second, room, and stream', '.*\/(?<room>[^\/]+)(?<stream>(-[^\/-]+)?)\/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\/(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})');
-	$config->define('file_timezone', 'The timezone that dates and times as parsed from filenames by parse_re are expected to be in. Can be one of "local", to use the timezone that the system was defined for, or an explicit timezone in the Olsen database format', 'local');
+	$config->define('file_timezone', 'The timezone that dates and times as parsed from filenames by parse_re are expected to be in. Can be any valid value for the "name" parameter to the DateTime::TimeZone constructor.', 'local');
 	$config->define('url_re', 'If set, used with parse_re in an s///g command to produce an input URL', undef);
 
 	# Values for dispatch script
