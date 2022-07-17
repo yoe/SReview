@@ -82,6 +82,7 @@ use Net::Domain qw(hostname);
 use Getopt::Long;
 use Pod::Usage;
 use DateTime;
+use DateTime::TimeZone;
 use DateTime::Format::Pg;
 
 my $finished_for_today = 0;
@@ -109,7 +110,7 @@ print "searching collection at " . $collection->baseurl . ", accessing for files
 
 my $host = hostname();
 
-my $tz = DateTime::Timezone->new(name => $config->get('file_timezone'));
+my $tz = DateTime::TimeZone->new(name => $config->get('file_timezone'));
 
 foreach my $file(@{$collection->children}) {
 	next if ($file->is_collection);
@@ -119,14 +120,16 @@ foreach my $file(@{$collection->children}) {
 	print " ...passes regex" if $verbose;
 
 	my $room = $+{room};
-	delete($+{room});
 	next unless defined($room);
 
 	my $stream = $+{stream};
-	delete($+{stream});
 	$stream = '' unless defined $stream;
 
-	my $start = DateTime->new(%+, time_zone => $tz);
+	my %parsed = ( %+ );
+	delete $parsed{room};
+	delete $parsed{stream};
+
+	my $start = DateTime->new(%parsed, time_zone => $tz);
 	$exists->execute($file->url);
 	my $row = $exists->fetchrow_hashref;
 	if($exists->rows == 0) {
