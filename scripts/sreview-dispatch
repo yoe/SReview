@@ -183,8 +183,13 @@ stderr and a file for stdout for each script run.
 			my $is_published = 1;
 			my $headers = $config->get('published_headers');
 			foreach my $header(keys %{$headers}) {
+				my $vals = $headers->{$header};
+				if(ref $vals ne "ARRAY") {
+					$vals = [ $vals ];
+				}
 				if($header eq '_code') {
-					if($res->code ne $headers->{_code}) {
+					my @found = grep { $res->code eq $_ } @$vals;
+					if(scalar(@found) == 0) {
 						$is_published = 0;
 						last;
 					}
@@ -194,7 +199,8 @@ stderr and a file for stdout for each script run.
 					if($@) {
 						die $!
 					}
-					if($headers->{$header} ne $val) {
+					my @found = grep { $val eq $_ } @$vals;
+					if(scalar(@found) == 0) {
 						$is_published = 0;
 						last;
 					}
@@ -202,7 +208,7 @@ stderr and a file for stdout for each script run.
 			}
 			if(($is_published && $row->{state} eq 'publishing') || (!$is_published && $row->{state} eq 'removing')) {
 				$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($row->{id});
-                        }
+			}
 		}
 	}
 	print "finished, waiting 10 seconds...\n";
