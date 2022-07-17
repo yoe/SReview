@@ -1,3 +1,5 @@
+usr/bin/sreview-config
+usr/bin/sreview-user
 usr/share/man/man1/sreview-config*
 usr/share/man/man1/sreview-user*
 usr/share/man/man3/SReview*
@@ -7,8 +9,8 @@ usr/share/man/man3/SReview::Video*
 usr/share/perl5/SReview.pm
 usr/share/perl5/SReview/AvSync.pm
 usr/share/perl5/SReview/CodecMap.pm
-usr/share/perl5/SReview/Config/
 usr/share/perl5/SReview/Config.pm
+usr/share/perl5/SReview/Config/
 usr/share/perl5/SReview/Db.pm
 usr/share/perl5/SReview/Files/
 usr/share/perl5/SReview/Map.pm
@@ -18,8 +20,6 @@ usr/share/perl5/SReview/Talk.pm
 usr/share/perl5/SReview/Talk/State.pm
 usr/share/perl5/SReview/Template.pm
 usr/share/perl5/SReview/Template/
-usr/share/perl5/SReview/Video/
 usr/share/perl5/SReview/Video.pm
+usr/share/perl5/SReview/Video/
 usr/share/perl5/SReview/Videopipe.pm
-usr/bin/sreview-config
-usr/bin/sreview-user

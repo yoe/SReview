@@ -5,12 +5,29 @@ Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: https://salsa.debian.org/wouter/sreview
 Vcs-Git: https://salsa.debian.org/wouter/sreview
-Build-Depends: debhelper-compat (= 13), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libextutils-depends-perl, libdatetime-format-pg-perl, libyaml-libyaml-perl, libclass-type-enum-perl, libtest-deep-perl, libtext-format-perl
+Build-Depends: debhelper-compat (= 13),
+               dh-apache2,
+               dh-exec,
+               ffmpeg,
+               libclass-type-enum-perl,
+               libdatetime-format-pg-perl,
+               libdatetime-perl,
+               libextutils-depends-perl,
+               libmojo-pg-perl,
+               libmoose-perl,
+               libtest-deep-perl,
+               libtext-format-perl,
+               libyaml-libyaml-perl,
 
 Package: sreview-master
 Architecture: all
-Depends: sreview-common, ${perl:Depends}, ${misc:Depends}
-Recommends: postgresql, postgresql-contrib, sreview-detect, rsync
+Depends: sreview-common,
+         ${misc:Depends},
+         ${perl:Depends},
+Recommends: postgresql,
+            postgresql-contrib,
+            rsync,
+            sreview-detect,
 Description: SReview components for master host
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -23,8 +40,13 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: sreview-common, libjs-bootstrap, libjs-vue, pwgen, ${misc:Depends}, libmojolicious-plugin-openapi-perl
-Recommends: httpd
+Depends: libjs-bootstrap,
+         libjs-vue,
+         libmojolicious-plugin-openapi-perl,
+         pwgen,
+         sreview-common,
+         ${misc:Depends},
+Recommends: httpd,
 Description: SReview webinterface
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -35,8 +57,12 @@ Description: SReview webinterface
 
 Package: sreview-encoder
 Architecture: all
-Depends: sreview-common, ${misc:Depends}, ${perl:Depends}, libemail-simple-perl, libemail-sender-perl
-Recommends: gridengine-exec
+Depends: libemail-sender-perl,
+         libemail-simple-perl,
+         sreview-common,
+         ${misc:Depends},
+         ${perl:Depends},
+Recommends: gridengine-exec,
 Description: SReview encoder code
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -48,8 +74,20 @@ Description: SReview encoder code
 
 Package: sreview-common
 Architecture: all
-Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl, inkscape, libdatetime-format-pg-perl, libtext-format-perl
-Suggests: libwww-curl-perl
+Depends: ffmpeg,
+         inkscape,
+         libclass-type-enum-perl,
+         libdatetime-format-iso8601-perl,
+         libdatetime-format-pg-perl,
+         libdatetime-perl,
+         libmojo-pg-perl,
+         libmojolicious-perl,
+         libmoose-perl,
+         libnet-amazon-s3-perl,
+         libtext-format-perl,
+         pwgen,
+         ${misc:Depends},
+Suggests: libwww-curl-perl,
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
@@ -60,7 +98,12 @@ Description: SReview -- common code
 
 Package: sreview-detect
 Architecture: all
-Depends: sreview-common, ${misc:Depends}, libjson-perl, libxml-simpleobject-perl, libical-parser-perl, libdatetime-format-pg-perl
+Depends: libdatetime-format-pg-perl,
+         libical-parser-perl,
+         libjson-perl,
+         libxml-simpleobject-perl,
+         sreview-common,
+         ${misc:Depends},
 Description: SReview input detection script
  SReview is a video review and transcoding system. It allows users to
  review videos, and will then (after the review has finished) transcode
