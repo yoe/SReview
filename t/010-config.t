@@ -28,16 +28,29 @@ ok(length($val) == 0, 'loading an existing config file succeeds and prints no wa
 
 $config->define('test', 'testingk', 1);
 my $rv = $config->dump();
-my @expect = ("# testingk", "#\$test = 1;", "# Do not remove this, perl needs it", "1;");
-my $ok = 1;
-foreach my $line(split /\n/, $rv) {
-	next unless length($line);
-	my $expline = shift @expect;
-	if($expline ne $line) {
-		$ok = 0;
-	}
-}
-ok($ok, "Config dump output is as expected");
+my $expect = '# SReview configuration file
+# ==========================
+# This configuration file contains all the configuration options known to
+# SReview. To change any configuration setting, you may either modify this
+# configuration file, or you can run \'sreview-config --set=key=value -a
+# update\'. The latter method will rewrite the whole configuration file,
+# removing any custom comments. It is therefore recommended that you use
+# one or the other, but not both. However, it will also write the default
+# values for all known configuration items to this config file (in a
+# commented-out fashion).
+# 
+# Every configuration option is preceded by a comment explaining what it
+# does, and the legal values it can accept.
+
+# test
+# ----
+# testingk
+#$test = 1;
+
+# Do not remove this, perl needs it
+1;
+';
+ok($expect eq $rv, "Config dump output is as expected");
 ok($config->describe('test') eq 'testingk', "Description of configuration value is as expected");
 my ($f, $filename) = tempfile('configtest-XXXXXXXX', UNLINK => 1);
 print $f '{';
