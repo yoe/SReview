@@ -81,6 +81,8 @@ use SReview::Files::Factory;
 use Net::Domain qw(hostname);
 use Getopt::Long;
 use Pod::Usage;
+use DateTime;
+use DateTime::Format::Pg;
 
 my $finished_for_today = 0;
 my $verbose = 0;
@@ -89,7 +91,7 @@ my $help = 0;
 
 GetOptions('verbose' => \$verbose, "day-finished" => \$finished_for_today, "help" => \$help);
 
-pod2usage(-exitval => 0, -verbose => 2) if $help;
+pod2usage(-exitval => 0) if $help;
 
 my $config = SReview::Config::Common::setup;
 
@@ -107,6 +109,7 @@ print "searching collection at " . $collection->baseurl . ", accessing for files
 
 my $host = hostname();
 
+my $tz = DateTime::Timezone->new(name => $config->get('file_timezone'));
 
 foreach my $file(@{$collection->children}) {
 	next if ($file->is_collection);
@@ -114,12 +117,16 @@ foreach my $file(@{$collection->children}) {
 	my $parse_re = $config->get('parse_re');
 	next unless $file->url =~ /$parse_re/;
 	print " ...passes regex" if $verbose;
+
 	my $room = $+{room};
-	my $start_hour = $+{hour} . ":" . $+{minute} . ":" . $+{second};
-	my $start_day = $+{year} . "-" . $+{month} . "-" . $+{day};
-	my $stream = $+{stream};
-	$stream = '' unless defined $stream;
+	delete($+{room});
 	next unless defined($room);
+
+	my $stream = $+{stream};
+	delete($+{stream});
+	$stream = '' unless defined $stream;
+
+	my $start = DateTime->new(%+, time_zone => $tz);
 	$exists->execute($file->url);
 	my $row = $exists->fetchrow_hashref;
 	if($exists->rows == 0) {
@@ -127,7 +134,8 @@ foreach my $file(@{$collection->children}) {
 		my $video = SReview::Video->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
-		$add->execute($file->url, $room, $room, "$start_day $start_hour", "$start_day $start_hour", $length, $stream, $file->mtime->epoch);
+		$start = DateTime::Format::Pg->format_datetime($start);
+		$add->execute($file->url, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
 		print "... stored" if $verbose;
 	} else {
 		print " ... is known" if $verbose;
