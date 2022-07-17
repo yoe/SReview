@@ -26,6 +26,7 @@ lib/SReview/Schedule/Multi.pm
 lib/SReview/Schedule/Penta.pm
 lib/SReview/Schedule/Wafer.pm
 lib/SReview/Schedule/WithShadow.pm
+lib/SReview/Schedule/Yaml.pm
 lib/SReview/Talk.pm
 lib/SReview/Talk/State.pm
 lib/SReview/Template.pm
@@ -101,10 +102,12 @@ t/095-files.t
 t/100-mojo.t
 t/110-api.t
 t/120-types.t
+t/130-schedule.t
 t/test.cf
 t/testvids/bbb.mp4
 t/testvids/just-title.svg
 t/testvids/README.md
+t/testvids/schedule.yaml
 web/public/credits.js
 web/public/mangler.js
 web/public/overview.js
