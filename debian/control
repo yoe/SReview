@@ -5,7 +5,7 @@ Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: https://salsa.debian.org/wouter/sreview
 Vcs-Git: https://salsa.debian.org/wouter/sreview
-Build-Depends: debhelper-compat (= 13), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libextutils-depends-perl, libdatetime-format-pg-perl, libyaml-libyaml-perl, libclass-type-enum-perl, libtest-deep-perl
+Build-Depends: debhelper-compat (= 13), ffmpeg, dh-exec, dh-apache2, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libextutils-depends-perl, libdatetime-format-pg-perl, libyaml-libyaml-perl, libclass-type-enum-perl, libtest-deep-perl, libtext-format-perl
 
 Package: sreview-master
 Architecture: all
@@ -48,7 +48,7 @@ Description: SReview encoder code
 
 Package: sreview-common
 Architecture: all
-Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl, inkscape, libdatetime-format-pg-perl
+Depends: libmojolicious-perl, libmojo-pg-perl, libmoose-perl, libdatetime-perl, libdatetime-format-iso8601-perl, libnet-amazon-s3-perl, ffmpeg, ${misc:Depends}, pwgen, libclass-type-enum-perl, inkscape, libdatetime-format-pg-perl, libtext-format-perl
 Suggests: libwww-curl-perl
 Description: SReview -- common code
  SReview is a video review and transcoding system. It allows users to
