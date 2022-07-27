@@ -1,4 +1,6 @@
 ---
+variables:
+  SCAN_KUBERNETES_MANIFESTS: "true"
 include:
   template: Security/SAST.gitlab-ci.yml
 stages:
@@ -29,7 +31,6 @@ stages:
     SREVIEWTEST_BUCKET: 'test'
     SREVIEW_COMMAND_TUNE: '{"bs1770gain":"0.5","inkscape":"0.9"}'
     JUNIT_OUTPUT_FILE: junit_output.xml 
-    SCAN_KUBERNETES_MANIFESTS: "true"
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
