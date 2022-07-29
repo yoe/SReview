@@ -49,7 +49,7 @@ stages:
       junit: junit_output.xml
   tags:
   - docker
-  coverage: '/^Total.* (\\d+.\\d+)$/'
+  coverage: '/^Total.* (\d+.\d+)$/'
 
 perl:latest:
   <<: *build
