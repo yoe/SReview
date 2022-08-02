@@ -25,6 +25,7 @@ my $legend = [
 	{ name => "transcoding", expl => 'High-quality transcodes running' },
 	{ name => "uploading", expl => 'Uploading results' },
 	{ name => "publishing", expl => 'Waiting for upload to appear in download area' },
+	{ name => "notify_final", expl => 'Sending out notifications for final review' },
 	{ name => "finalreview", expl => 'Ready for final review, waiting for reviewer' },
 	{ name => "announcing", expl => 'Announcing completion of publication' },
 	{ name => "done", expl => 'Videos published, all done' },
