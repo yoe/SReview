@@ -88,7 +88,7 @@ paths:
         action: get_legend
       summary: get legend
       operationId: get_legend
-      response:
+      responses:
         200:
           description: OK
           content:
