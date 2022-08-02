@@ -146,6 +146,13 @@ SKIP: {
 	$t->get_ok("$b/event/1/talk/test/preroll")->status_is(200)->content_type_is("image/png");
 	$t->get_ok("$b/event/1/talk/test/postroll")->status_is(200)->content_type_is("image/png");
 	$t->get_ok("$b/event/1/talk/test/sorry")->status_is(200)->content_type_is("image/png");
+
+	my $json = $t->get_ok("$b/config/legend")->status_is(200)->tx->res->json;
+	foreach my $value(@{SReview::Talk::State->values}) {
+		my $val_json = shift @$json;
+		ok($value eq $val_json->{name}, "$value exists in module and legend at the same location");
+	}
+	ok(scalar(@$json) == 0, "no missing values in api");
 }
 
 if(!(exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}))) {
