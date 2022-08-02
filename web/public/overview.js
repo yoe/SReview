@@ -6,12 +6,17 @@ var vm = new Vue({
     events: [],
     event: undefined,
     last_event: undefined,
+    expls: []
   },
   methods: {
     reloadEvent: function() {
       fetch("/api/v1/event/" + vm.event + "/overview")
       .then(response => response.json())
       .then((data) => {vm.rows = data; vm.last_event = vm.event})
+      .catch(error => console.error(error));
+      fetch("/api/v1/config/legend/")
+      .then(response => response.json())
+      .then((data) => {vm.expls = data})
       .catch(error => console.error(error));
     }
   },

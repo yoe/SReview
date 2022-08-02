@@ -27,5 +27,18 @@
       <td>{{row.progress}}</td>
     </tr>
   </table>
+  <div v-if="expls">
+    <h2>Legend</h2>
+    <table class='table table-hover'>
+      <tr>
+        <th>State</th>
+        <th>Meaning</th>
+      </tr>
+      <tr v-for="row in expls">
+        <td>{{ row.name }}</td>
+        <td>{{ row.expl }}</td>
+      </tr>
+    </table>
+  </div>
 </div>
 <script src="/overview.js"></script>

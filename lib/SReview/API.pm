@@ -79,6 +79,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigData'
+  /config/legend:
+    get:
+      tags:
+      - system
+      x-mojo-to:
+        controller: config
+        action: get_legend
+      summary: get legend
+      operationId: get_legend
+      response:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    expl:
+                      type: string
   /collection/list:
     get:
       tags:
