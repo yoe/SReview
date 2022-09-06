@@ -270,7 +270,7 @@ paths:
       tags:
       - rawfile
       summary: Update a raw file's metadata
-      description: "Update a raw file's metadata in the database. The difference between this operation and the `update_raw_file` one is that the former only adds the given metadata to the database, whereas this one will create a new `SReview::Video` object for the file's name, and compute the `endtime` property based on the `starttime` one and the file's length. This requires that the file be accessible from the server."
+      description: "Update a raw file's metadata in the database. The difference between this operation and the `update_raw_file` one is that the former only adds the given metadata to the database, whereas this one will create a new `Media::Convert::Asset` object for the file's name, and compute the `endtime` property based on the `starttime` one and the file's length. This requires that the file be accessible from the server."
       operationId: update_raw_file_server
       parameters:
       - name: collectionName

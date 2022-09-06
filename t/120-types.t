@@ -38,6 +38,8 @@ SKIP: {
 		ok($value eq shift @values_mod, "$value exists in db and module at same location");
 		ok($value eq shift @values_api, "$value exists in db and API at same location");
 	}
+	ok(scalar(@values_mod) == 0, "no spurious values in module");
+	ok(scalar(@values_api) == 0, "no spurious values in api");
 }
 
 done_testing;

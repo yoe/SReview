@@ -20,7 +20,7 @@ use Test::More tests => 34;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
-use SReview::Video;
+use Media::Convert::Asset;
 use SReview::Web;
 
 my $cfgname = path()->to_abs->child('config.pm');
@@ -53,7 +53,7 @@ SKIP: {
 	  ->json_is("/end_iso" => $talk->corrected_times->{end_iso})
 	  ->json_is("/start_iso" => $talk->corrected_times->{start_iso});
 
-	my $video = SReview::Video->new(url => $talk->outname . ".mkv");
+	my $video = Media::Convert::Asset->new(url => $talk->outname . ".mkv");
 
 	$talk->set_state("preview");
 	$talk = SReview::Talk->new(talkid => 1);

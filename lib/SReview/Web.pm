@@ -9,8 +9,8 @@ use SReview;
 use SReview::Config;
 use SReview::Config::Common;
 use SReview::Db;
-use SReview::Video;
-use SReview::Video::ProfileFactory;
+use Media::Convert::Asset;
+use Media::Convert::Asset::ProfileFactory;
 use SReview::API;
 
 sub startup {
@@ -244,11 +244,11 @@ sub startup {
 			return;
 		}
 		$row = $st->fetchrow_hashref;
-		my $vid = SReview::Video->new(url => $row->{filename});
+		my $vid = Media::Convert::Asset->new(url => $row->{filename});
 		foreach my $format(@{$config->get("output_profiles")}) {
 			my $nf;
 			$self->log->debug("profile $format");
-			my $prof = SReview::Video::ProfileFactory->create($format, $vid);
+			my $prof = Media::Convert::Asset::ProfileFactory->create($format, $vid, $self->srconfig->get('extra_profiles'));
 			if(!$have_default) {
 				$nf = "default";
 				$have_default = 1;

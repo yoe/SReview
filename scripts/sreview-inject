@@ -5,12 +5,12 @@ use warnings;
 
 use File::Basename;
 use File::Temp qw/tempdir/;
+use Media::Convert::Asset;
+use Media::Convert::Asset::ProfileFactory;
+use Media::Convert::Normalizer;
+use Media::Convert::Pipe;
 use SReview::Talk;
 use SReview::Config::Common;
-use SReview::Normalizer;
-use SReview::Video;
-use SReview::Video::ProfileFactory;
-use SReview::Videopipe;
 use SReview::Files::Factory;
 use Getopt::Long;
 use Pod::Usage;
@@ -48,7 +48,7 @@ if(defined($talknonce)) {
 }
 $talk->set_state("injecting", "running");
 $talk = SReview::Talk->new(talkid => $talkid);
-my $input = SReview::Video->new(url => $inputfile);
+my $input = Media::Convert::Asset->new(url => $inputfile);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . "/main.mkv");
 
@@ -90,16 +90,16 @@ if(defined($checks)) {
 
 if(!$do_transcode) {
 	print("Skip check successful; not transcoding, just copying data around.\n");
-	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename), vcopy => 1, acopy => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$input], output => Media::Convert::Asset->new(url => $outputfile->filename), vcopy => 1, acopy => 1)->run();
 } else {
 	if($audionormal) {
 		my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
-		my $normalized = SReview::Video->new(url => join("/", $dirname, basename($inputfile)));
-		SReview::Normalizer->new(input => $input, output => $normalized)->run();
+		my $normalized = Media::Convert::Asset->new(url => join("/", $dirname, basename($inputfile)));
+		Media::Convert::Normalizer->new(input => $input, output => $normalized)->run();
 		$input = $normalized;
 	}
-	my $profile = SReview::Video::ProfileFactory->create($config->get("input_profile"), $input);
-	SReview::Videopipe->new(inputs => [$input], output => SReview::Video->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
+	my $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get('extra_profiles'));
+	Media::Convert::Pipe->new(inputs => [$input], output => Media::Convert::Asset->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
 }
 $outputfile->store_file;
 $talk->set_flag('is_injected' => true);

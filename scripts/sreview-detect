@@ -75,7 +75,7 @@ use warnings;
 
 use DBI;
 use SReview::Config::Common;
-use SReview::Video;
+use Media::Convert::Asset;
 use SReview::Files::Factory;
 
 use Net::Domain qw(hostname);
@@ -134,7 +134,7 @@ foreach my $file(@{$collection->children}) {
 	my $row = $exists->fetchrow_hashref;
 	if($exists->rows == 0) {
 		print " ...is new" if $verbose;
-		my $video = SReview::Video->new(url => $file->filename);
+		my $video = Media::Convert::Asset->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
 		$start = DateTime::Format::Pg->format_datetime($start);
@@ -144,7 +144,7 @@ foreach my $file(@{$collection->children}) {
 		print " ... is known" if $verbose;
 		next unless ($row->{mtime} != $file->mtime->epoch);
 		print " ... but has changed" if $verbose;
-		my $video = SReview::Video->new(url => $file->filename);
+		my $video = Media::Convert::Asset->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
 		$update->execute("$length", $file->mtime->epoch, $file->url);

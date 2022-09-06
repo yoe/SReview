@@ -1,5 +1,6 @@
 package SReview::Web::Controller::Inject;
 
+use Media::Convert::Asset;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Collection 'c';
 use File::Basename "dirname";
@@ -7,7 +8,6 @@ use File::Basename "dirname";
 use SReview::Access "admin_for";
 use SReview::Files::Factory;
 use SReview::Talk;
-use SReview::Video;
 
 sub view {
 	my $c = shift;
@@ -102,7 +102,7 @@ sub update {
 			$st->execute($file->url, $talk->roomid, $talk->corrected_times->{start});
 			$upload->move_to($file->filename);
 			$c->app->log->debug("checking video asset " . $upload->filename);
-			my $input = SReview::Video->new(url => $file->filename);
+			my $input = Media::Convert::Asset->new(url => $file->filename);
 			my $checks = $c->srconfig->get("inject_fatal_checks");
 			foreach my $prop(keys %$checks) {
 				my $attr = $input->meta->find_attribute_by_name($prop);

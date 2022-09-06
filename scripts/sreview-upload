@@ -6,7 +6,7 @@ use warnings;
 use DBI;
 use Mojo::Template;
 use SReview::Config::Common;
-use SReview::Video::ProfileFactory;
+use Media::Convert::Asset::ProfileFactory;
 use SReview::Files::Factory;
 use SReview::Talk;
 
@@ -49,7 +49,7 @@ my $raw_file = $dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_f
 $raw_file->execute($config->get("event"));
 $raw_file = $raw_file->fetchrow_hashref();
 my $r_file = SReview::Files::Factory->create("input", $config->get('inputglob'))->get_file(fullname => $raw_file->{filename});
-$raw_file = SReview::Video->new(url => $r_file->filename);
+$raw_file = Media::Convert::Asset->new(url => $r_file->filename);
 my $talk_st = $dbh->prepare("SELECT event, event_output, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, name AS title, subtitle, slug FROM talk_list WHERE id = ?");
 $talk_st->execute($talkid);
 my $talkdata = $talk_st->fetchrow_hashref;
@@ -93,7 +93,7 @@ if($configprefix eq "upload" && ($config->get('cleanup') eq "all" || $config->ge
 }
 
 foreach my $profile(@{$config->get('output_profiles')}) {
-	my $basename = join('.', $talkdata->{slug}, SReview::Video::ProfileFactory->create($profile, $raw_file)->exten());
+	my $basename = join('.', $talkdata->{slug}, Media::Convert::Asset::ProfileFactory->create($profile, $raw_file)->exten(), $config->get('extra_profiles'));
 	my $file = $output_coll->get_file(relname => join('/', $reldir, $basename));
 	run_command($file->valid_path_filename, $file->relname);
 	if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'output') {

@@ -98,11 +98,11 @@ sub talksByState {
 		return;
 	}
 	$row = $st->fetchrow_hashref;
-	my $vid = SReview::Video->new(url => $row->{filename});
+	my $vid = Media::Convert::Asset->new(url => $row->{filename});
 	foreach my $format(@{$c->srconfig->get("output_profiles")}) {
 		my $nf;
 		$c->app->log->debug("profile $format");
-		my $prof = SReview::Video::rofileFactory->create($format, $vid);
+		my $prof = Media::Convert::Asset::ProfileFactory->create($format, $vid, $c->srconfig->get('extra_profiles'));
 		if(!$have_default) {
 			$nf = 'default';
 			$have_default = 1;

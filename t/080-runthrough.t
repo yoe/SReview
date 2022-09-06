@@ -10,7 +10,7 @@ use Cwd 'abs_path';
 $ENV{SREVIEW_WDIR} = abs_path('.');
 
 use DBI;
-use SReview::Video;
+use Media::Convert::Asset;
 use SReview::Config::Common;
 use File::Path qw/make_path remove_tree/;
 use_ok("SReview::Files::Factory");
@@ -76,14 +76,14 @@ SKIP: {
 
 	$row = $st->fetchrow_hashref();
 
-	my $input = SReview::Video->new(url => abs_path("t/testvids/bbb.mp4"));
+	my $input = Media::Convert::Asset->new(url => abs_path("t/testvids/bbb.mp4"));
 	# perform cut with default normalizer
 	run("perl", "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
 
 	my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
 	my $file = $coll->get_file(relname => "$relname/0/main.mkv");
-	my $check = SReview::Video->new(url => $file->filename);
+	my $check = Media::Convert::Asset->new(url => $file->filename);
 	my $length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
@@ -97,7 +97,7 @@ SKIP: {
 
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
 	$file = $coll->get_file(relname => "$relname/0/main.mkv");
-	$check = SReview::Video->new(url => $file->filename);
+	$check = Media::Convert::Asset->new(url => $file->filename);
 	$length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
@@ -106,12 +106,12 @@ SKIP: {
 	run("perl", "-I", $INC[0], "$scriptpath/sreview-previews", $row->{talkid});
 
 	$file = $coll->get_file(relname => "$relname/0/main.mp4");
-	$check = SReview::Video->new(url => $file->filename);
+	$check = Media::Convert::Asset->new(url => $file->filename);
 	ok(($length * 0.9 < $check->duration) && ($length * 1.1 > $check->duration), "The preview video is of approximately the right length");
 
 	# perform transcode
 	run("perl", "-I", $INC[0], "$scriptpath/sreview-transcode", $row->{talkid});
-	my $final = SReview::Video->new(url => abs_path("t/outputdir/Test event/room1/2017-11-10/test-talk.webm"));
+	my $final = Media::Convert::Asset->new(url => abs_path("t/outputdir/Test event/room1/2017-11-10/test-talk.webm"));
 	ok($final->video_codec eq "vp9", "The transcoded video has the right codec");
 	ok($final->audio_codec eq "opus", "The transcoded audio has the right codec");
 

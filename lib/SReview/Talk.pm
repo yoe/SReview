@@ -1,13 +1,14 @@
 package SReview::Talk;
 
 use Moose;
+
+use Media::Convert::Asset;
+use Media::Convert::Asset::ProfileFactory;
 use Mojo::Pg;
 use Mojo::Template;
 use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
-use SReview::Video;
-use SReview::Video::ProfileFactory;
 use DateTime::Format::Pg;
 
 my $config = SReview::Config::Common::setup;
@@ -749,13 +750,13 @@ sub _load_output_urls {
 	my $form = $config->get("output_video_url_format");
 	my $rv = [];
 	if(defined($form)) {
-		my $vid = SReview::Video->new(url => "");
+		my $vid = Media::Convert::Asset->new(url => "");
 		foreach my $prof(@{$config->get("output_profiles")}) {
 			my $item = {prof => $prof};
 			if($prof eq "copy") {
 				$prof = $config->get("input_profile");
 			}
-			my $exten = SReview::Video::ProfileFactory->create($prof, $vid)->exten;
+			my $exten = Media::Convert::Asset::ProfileFactory->create($prof, $vid, $config->get('extra_profiles'))->exten;
 			my $url = $mt->vars(1)->render($form, {
 				talk => $self,
 				year => $self->_get_pathinfo->{raw}{year},
