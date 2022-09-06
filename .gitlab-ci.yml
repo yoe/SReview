@@ -61,7 +61,7 @@ test:committed:
   stage: test
   image: perl:latest
   before_script:
-  - apt-get update; apt-get -y --no-install-recommends install git
+  - apt-get update; apt-get -y --no-install-recommends install git ffmpeg
   - cpanm ExtUtils::Depends
   - cpanm --notest --installdeps .
   - perl Makefile.PL
