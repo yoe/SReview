@@ -48,7 +48,6 @@ WriteMakefile(
 		'scripts/sreview-dispatch',
 		'scripts/sreview-skip',
 		'scripts/sreview-user',
-		'scripts/sreview-encode',
 		'scripts/sreview-notify',
 		'scripts/sreview-upload',
 		'scripts/sreview-transcode',
