@@ -225,7 +225,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
 		$output->duration($row->{raw_length_corrected});
 	}
-	Media::Convert::Pipe;->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
 	push @$segments, Media::Convert::Asset->new(url => $output->url);
 }
 
@@ -248,14 +248,14 @@ my @videos;
 
 if(defined($pre)) {
 	$pre_new = Media::Convert::Asset->new(url => "$tempdir/pre.mkv");
-	Media::Convert::Pipe;->new(inputs => [$pre], output => $pre_new, map => [Media::Convert::Map->new(input => $pre, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$pre], output => $pre_new, map => [Media::Convert::Map->new(input => $pre, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $pre_new;
 }
-Media::Convert::Pipe;->new(inputs => [$main], output => $main_new, map => [Media::Convert::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+Media::Convert::Pipe->new(inputs => [$main], output => $main_new, map => [Media::Convert::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 push @videos, $main;
 if(defined($post)) {
 	$post_new = Media::Convert::Asset->new(url => "$tempdir/post.mkv");
-	Media::Convert::Pipe;->new(inputs => [$post], output => $post_new, map => [Media::Convert::Map->new(input => $post, type => "allcopy")], vcopy => 1, acopy => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$post], output => $post_new, map => [Media::Convert::Map->new(input => $post, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $post_new;
 }
 
@@ -287,11 +287,11 @@ my @choices = ($primary_audio, $backup_audio, $both_audio);
 foreach my $stream(0, 1, 2) {
 	my $sample_wav_file = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.wav");
 	my $sample_wav = Media::Convert::Asset->new(url => $sample_wav_file->filename, fragment_start => $samplestart, duration => $samplelen);
-	Media::Convert::Pipe;->new(inputs => [$main], output => $sample_wav, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$stream])], acopy => 0, vskip => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$main], output => $sample_wav, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$stream])], acopy => 0, vskip => 1)->run();
 	$sample_wav_file->store_file;
 	foreach my $codec(qw/mp3 ogg/) {
 		my $tmp = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.$codec");
-		Media::Convert::Pipe;->new(inputs => [$sample_wav], output => Media::Convert::Asset->new(url => $tmp->filename), acopy => 0, vskip => 1)->run();
+		Media::Convert::Pipe->new(inputs => [$sample_wav], output => Media::Convert::Asset->new(url => $tmp->filename), acopy => 0, vskip => 1)->run();
 		$tmp->store_file;
 	}
 }
@@ -306,7 +306,7 @@ if($corrections->{offset_audio} != 0) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
-	Media::Convert::Normalizer;->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
+	Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
 	move("$tempdir/temp.mkv", $main->url);
 	reload();
 }
