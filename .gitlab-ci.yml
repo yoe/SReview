@@ -34,7 +34,7 @@ stages:
   image: $CI_JOB_NAME
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain
-  - cpanm ExtUtils::Depends Devel::Cover TAP::Harness::JUnit
+  - cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit
   - cpanm --notest --installdeps .
   - perl Makefile.PL
   - perl .ci/setup-minio.pl
