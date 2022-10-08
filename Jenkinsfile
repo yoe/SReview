@@ -1,7 +1,7 @@
 pipeline {
-	agent {
-		kubernetes {
-			yaml '''
+        agent {
+                kubernetes {
+                        yaml '''
                         apiVersion: v1
                         kind: Pod
                         metadata:
@@ -40,27 +40,27 @@ pipeline {
                               value: '{"bs1770gain":"0.5","inkscape":"0.9"}'
                             - name: JUNIT_OUTPUT_FILE
                               value: "junit_output.xml"
-			'''
-		}
-	}
-	stages {
-		stage('Install deps') {
-			steps {
-				sh "apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain"
-				sh "cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit"
-				sh "cpanm --notest --installdeps ."
-				sh "perl .ci/setup-minio.pl"
-			}
-		}
-		stage('Build') {
-			steps {
-				sh "perl Makefile.PL"
-				sh "cover -delete"
-				withEnv(["HARNESS_PERL_SWITCHES=-MDevel::Cover"]) {
-					sh "prove -v -l --harness TAP::Harness::JUnit"
-				}
-				sh "cover"
-			}
-		}
-	}
+                        '''
+                }
+        }
+        stages {
+                stage('Install deps') {
+                        steps {
+                                sh "apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain"
+                                sh "cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit"
+                                sh "cpanm --notest --installdeps ."
+                                sh "perl .ci/setup-minio.pl"
+                        }
+                }
+                stage('Build') {
+                        steps {
+                                sh "perl Makefile.PL"
+                                sh "cover -delete"
+                                withEnv(["HARNESS_PERL_SWITCHES=-MDevel::Cover"]) {
+                                        sh "prove -v -l --harness TAP::Harness::JUnit"
+                                }
+                                sh "cover"
+                        }
+                }
+        }
 }
