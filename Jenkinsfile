@@ -21,7 +21,7 @@ pipeline {
                               value: "trust"
                           - name: minio
                             image: minio/minio:latest
-                            command:
+                            args:
                             - server
                             - /data
                             tty: true
