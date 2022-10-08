@@ -45,18 +45,22 @@ pipeline {
 	}
 	stages {
 		stage('Install deps') {
-			sh "apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain"
-			sh "cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit"
-			sh "cpanm --notest --installdeps ."
-			sh "perl .ci/setup-minio.pl"
+			steps {
+				sh "apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain"
+				sh "cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit"
+				sh "cpanm --notest --installdeps ."
+				sh "perl .ci/setup-minio.pl"
+			}
 		}
 		stage('Build') {
-			sh "perl Makefile.PL"
-			sh "cover -delete"
-			withEnv(["HARNESS_PERL_SWITCHES=-MDevel::Cover"]) {
-				sh "prove -v -l --harness TAP::Harness::JUnit"
+			steps {
+				sh "perl Makefile.PL"
+				sh "cover -delete"
+				withEnv(["HARNESS_PERL_SWITCHES=-MDevel::Cover"]) {
+					sh "prove -v -l --harness TAP::Harness::JUnit"
+				}
+				sh "cover"
 			}
-			sh "cover"
 		}
 	}
 }
