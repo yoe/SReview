@@ -17,7 +17,7 @@ pipeline {
                               value: "sreview"
                             - name: POSTGRES_PASSWORD
                               value: ""
-                            - name: POSTGRES_AUTH_METHOD
+                            - name: POSTGRES_HOST_AUTH_METHOD
                               value: "trust"
                           - name: minio
                             image: minio/minio:latest
