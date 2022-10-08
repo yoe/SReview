@@ -24,6 +24,7 @@ pipeline {
                             command:
                             - server
                             - /data
+                            tty: true
                           - name: perl
                             image: perl:latest
                             command:
