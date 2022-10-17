@@ -1277,6 +1277,11 @@ ALTER TYPE talkstate_new RENAME TO talkstate;
 ALTER TABLE speakers ADD event INTEGER REFERENCES events(id);
 -- 27 down
 ALTER TABLE speakers DROP event;
+-- 28 up
+ALTER TABLE raw_files ADD collection_name VARCHAR;
+-- 28 down
+DELETE FROM raw_files WHERE collection_name IS NOT NULL;
+ALTER TABLE raw_files DROP collection_name;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS

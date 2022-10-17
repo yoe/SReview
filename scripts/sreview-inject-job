@@ -26,7 +26,7 @@ my $db = DBI->connect($config->get("dbistring"), '', '') or die "Cannot connect 
 my $st = $db->prepare("SELECT filename FROM raw_files WHERE room = ? AND stream = ? AND filename LIKE ?");
 $st->execute($talk->roomid, $talk->active_stream, '%' . dirname($talk->relative_name) . '%');
 my $row = $st->fetchrow_arrayref;
-my $inputfile = $input->get_file(fullname => $row->[0]);
+my $inputfile = $input->get_file(relname => $row->[0]);
 my @command = ("sreview-inject", "-t", $talkid, "-i", $inputfile->filename);
 if(!$talk->get_flag("keep_audio")) {
 	push @command, "-a";
