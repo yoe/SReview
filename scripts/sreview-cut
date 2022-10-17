@@ -216,7 +216,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 		$segments = \@segments_main;
 		$mainlen += $row->{raw_length_corrected};
 	}
-	my $input_file = $input_coll->get_file(fullname => $row->{raw_filename});
+	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
 	my $input = Media::Convert::Asset->new(url => $input_file->filename);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv");
 	if($row->{fragment_start} ne '0') {
