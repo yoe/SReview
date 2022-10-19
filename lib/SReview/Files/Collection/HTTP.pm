@@ -33,9 +33,12 @@ sub _get_file {
 		my $res = $ua->get($self->url)->result;
 		if($res->is_success) {
 			$res->save_to($file);
+			return $file;
 		} else {
 			croak "could not download file:" . $res->message;
 		}
+	} else {
+		croak "Can't create files with the HTTP access method";
 	}
 }
 
