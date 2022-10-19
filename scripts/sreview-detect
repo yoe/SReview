@@ -140,7 +140,7 @@ foreach my $file(@{$collection->children}) {
 		my $length = $video->duration;
 		next unless defined($length);
 		$start = DateTime::Format::Pg->format_datetime($start);
-		$add->execute($file->url, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
+		$add->execute($file->relname, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
 		print "... stored" if $verbose;
 	} else {
 		print " ... is known" if $verbose;
@@ -149,7 +149,7 @@ foreach my $file(@{$collection->children}) {
 		my $video = Media::Convert::Asset->new(url => $file->filename);
 		my $length = $video->duration;
 		next unless defined($length);
-		$update->execute("$length", $file->mtime->epoch, $file->url);
+		$update->execute("$length", $file->mtime->epoch, $file->relname);
 		print " ... length stored" if $verbose
 	}
 }
