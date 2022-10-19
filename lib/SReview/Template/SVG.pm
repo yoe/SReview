@@ -134,7 +134,8 @@ sub process_template($$$$) {
 	print $fh $template_engine->string($content);
 	close $fh;
 	my $inkscape_options = "-o $output";
-	if($config->get("command_tune")->{inkscape} eq "0.9") {
+	$command_tune = $config->get('command_tune');
+	if(exists($command_tune->{inkscape}) && $command_tune->{inkscape} eq "0.9") {
 		$inkscape_options = "--export-png=$output";
 	}
 	system("inkscape $inkscape_options $outputsvg");
