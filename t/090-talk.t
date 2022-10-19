@@ -7,7 +7,6 @@ use Test::More tests => 11;
 use Test::Deep;
 use SReview::Config::Common;
 use Data::Dumper;
-use Cwd;
 
 my $config = SReview::Config::Common::setup;
 
@@ -33,9 +32,9 @@ SKIP: {
 
 	cmp_deeply($talk->corrections, { offset_start => num(0), length_adj => num(0), offset_audio => num(0), audio_channel => num(0)}, 'Corrections are set correctly');
 	cmp_deeply($talk->video_fragments, [
-		{ talkid => num(-1), rawid => num(1), raw_filename => cwd() . '/t/inputdir/room1/2017-11-10/17:00:00.mp4', fragment_start => num(0), raw_length => num(20, .025), raw_length_corrected => num(0) },
-		{ talkid => num(1), rawid => num(1), raw_filename => cwd() . '/t/inputdir/room1/2017-11-10/17:00:00.mp4', fragment_start => num(0), raw_length => num(20, .025), raw_length_corrected => num(10) },
-		{ talkid => num(-2), rawid => num(1), raw_filename => cwd() . '/t/inputdir/room1/2017-11-10/17:00:00.mp4', fragment_start => num(10), raw_length => num(20, .025), raw_length_corrected => num(10, .025) }],
+		{ talkid => num(-1), rawid => num(1), raw_filename => 'room1/2017-11-10/17:00:00.mp4', fragment_start => num(0), raw_length => num(20, .025), raw_length_corrected => num(0) },
+		{ talkid => num(1), rawid => num(1), raw_filename => 'room1/2017-11-10/17:00:00.mp4', fragment_start => num(0), raw_length => num(20, .025), raw_length_corrected => num(10) },
+		{ talkid => num(-2), rawid => num(1), raw_filename => 'room1/2017-11-10/17:00:00.mp4', fragment_start => num(10), raw_length => num(20, .025), raw_length_corrected => num(10, .025) }],
 	'Video fragments are found correctly');
 
 	$talk->add_correction(offset_start => 2);
