@@ -100,13 +100,13 @@ my $collection = SReview::Files::Factory->create("input", $config->get("inputglo
 
 my $dbh = DBI->connect($config->get('dbistring'), '', '') or die "Cannot connect to database!";
 
-$dbh->prepare("UPDATE raw_files SET filename = substring(filename FROM ?), collection_name = \"input\" WHERE filename LIKE ? AND collection_name IS NULL")->execute(length($collection->baseurl), $collection->baseurl . "%") or die $!;
+$dbh->prepare("UPDATE raw_files SET filename = substring(filename FROM ?), collection_name = 'input' WHERE filename LIKE ? AND collection_name IS NULL")->execute(length($collection->baseurl), $collection->baseurl . "%") or die $!;
 
 $dbh->begin_work;
 
-my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ? AND collection_name = \"input\"");
-my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream, mtime) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, \"input\")");
-my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval, mtime = ? WHERE filename = ? AND collection_name = \"input\"");
+my $exists = $dbh->prepare("SELECT mtime FROM raw_files WHERE filename = ? AND collection_name = 'input'");
+my $add = $dbh->prepare("INSERT INTO raw_files(filename, room, starttime, endtime, stream, mtime, collection_name) VALUES (?, (SELECT id FROM rooms WHERE altname = ? OR name = ?), ?::timestamptz, ?::timestamptz + ?::interval, ?, ?, 'input')");
+my $update = $dbh->prepare("UPDATE raw_files SET endtime = starttime + ?::interval, mtime = ? WHERE filename = ? AND collection_name = 'input'");
 
 print "searching collection at " . $collection->baseurl . ", accessing for files using " . $collection->fileclass . "\n" if $verbose;
 
