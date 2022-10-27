@@ -1,7 +1,6 @@
 usr/bin/sreview-autoreview
 usr/bin/sreview-copy
 usr/bin/sreview-cut
-usr/bin/sreview-encode
 usr/bin/sreview-inject*
 usr/bin/sreview-notify
 usr/bin/sreview-notranscode
