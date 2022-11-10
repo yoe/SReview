@@ -1132,8 +1132,8 @@ CREATE TYPE talkstate_new AS ENUM (
     'uploading',
     'publishing',
     'announcing',
-    'done'
-    'broken'
+    'done',
+    'broken',
     'needs_work',
     'lost',
     'ignored'
