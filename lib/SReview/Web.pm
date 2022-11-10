@@ -261,7 +261,7 @@ sub startup {
 			if(!defined($hash->{bitrate})) {
 				$hash->{bitrate} = "";
 			}
-			if($hash->bitrate =~ /\d+/) {
+			if($hash->{bitrate} =~ /\d+/) {
 				$hash->{bitrate} = $hash->{bitrate} . "k";
 			}
 			$conference->{video_formats}{$nf} = $hash;
