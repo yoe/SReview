@@ -12,6 +12,7 @@ use SReview::Db;
 use Media::Convert::Asset;
 use Media::Convert::Asset::ProfileFactory;
 use SReview::API;
+use SReview::Files::Factory;
 
 sub startup {
 	my $self = shift;
@@ -236,7 +237,7 @@ sub startup {
 		$conference->{title} = $config->get("event");
 		my $row = $st->fetchrow_hashref();
 		$conference->{date} = [ $row->{min}, $row->{max} ];
-		$conference->{video_formats} = [];
+		$conference->{video_formats} = {};
 		$st = $c->dbh->prepare("SELECT filename FROM raw_files JOIN talks ON raw_files.room = talks.room WHERE talks.event = ? LIMIT 1");
 		$st->execute($c->eventid);
 		if($st->rows < 1) {
@@ -244,7 +245,8 @@ sub startup {
 			return;
 		}
 		$row = $st->fetchrow_hashref;
-		my $vid = Media::Convert::Asset->new(url => $row->{filename});
+		my $collection = SReview::Files::Factory->create(input => $config->get("inputglob"), $config);
+		my $vid = Media::Convert::Asset->new(url => $collection->get_file(relname => $row->{filename})->filename);
 		foreach my $format(@{$config->get("output_profiles")}) {
 			my $nf;
 			$self->log->debug("profile $format");
@@ -255,11 +257,11 @@ sub startup {
 			} else {
 				$nf = $format;
 			}
-			push @{$conference->{video_formats}}, { $nf => { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate } };
+			$conference->{video_formats}{$nf} = { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate };
 			$formats{$nf} = $prof;
 		}
 		$json{conference} = $conference;
-		$st = $c->dbh->prepare("SELECT title, subtitle, speakerlist(talks.id), description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, rooms.outputname AS room_output, upstreamid, events.name AS event, slug FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
+		$st = $c->dbh->prepare("SELECT talks.id AS talkid, title, subtitle, description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, rooms.outputname AS room_output, upstreamid, events.name AS event, slug FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
 		$st->execute($c->eventid);
 		if($st->rows < 1) {
 			$c->render(json => {});
@@ -271,7 +273,7 @@ sub startup {
 			my $video = {};
 			my $subtitle = defined($row->{subtitle}) ? " " . $row->{subtitle} : "";
 			$video->{title} = $row->{title} . $subtitle;
-			$video->{speakers} = [ $row->{speakerlist} ];
+			$video->{speakers} = SReview::Talk->new(talkid => $row->{talkid})->speakerlist;
 			$video->{description} = $row->{description};
 			$video->{start} = $row->{starttime};
 			$video->{end} = $row->{endtime};

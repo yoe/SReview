@@ -654,7 +654,7 @@ has 'speakerlist' => (
 sub _load_speakerlist {
 	my $self = shift;
 
-	my $query = $pg->db->dbh->prepare("SELECT speakers.name FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ?");
+	my $query = $pg->db->dbh->prepare("SELECT speakers.name FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ? ORDER BY speakers.name");
 
 	$query->execute($self->talkid);
 
@@ -921,9 +921,10 @@ sub set_state {
 	my $progress = shift;
 
 	$progress = 'waiting' unless defined($progress);
+	my $dbh = $pg->db->dbh;
 
-        my $st = $pg->db->dbh->prepare("UPDATE talks SET state=?, progress=? WHERE id=?");
-        $st->execute($newstate, $progress, $self->talkid);
+        my $st = $dbh->prepare("UPDATE talks SET state=?, progress=? WHERE id=?") or die $dbh->errstr;
+        $st->execute($newstate, $progress, $self->talkid) or die $dbh->errstr;
 }
 
 =head2 state_done
