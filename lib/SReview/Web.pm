@@ -257,7 +257,14 @@ sub startup {
 			} else {
 				$nf = $format;
 			}
-			$conference->{video_formats}{$nf} = { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate };
+			my $hash = { vcodec => $prof->video_codec, acodec => $prof->audio_codec, resolution => $prof->video_size, bitrate => $prof->video_bitrate };
+			if(!defined($hash->{bitrate})) {
+				$hash->{bitrate} = "";
+			}
+			if($hash->bitrate =~ /\d+/) {
+				$hash->{bitrate} = $hash->{bitrate} . "k";
+			}
+			$conference->{video_formats}{$nf} = $hash;
 			$formats{$nf} = $prof;
 		}
 		$json{conference} = $conference;
