@@ -97,6 +97,7 @@ t/050-probe.t
 t/060-profiles.t
 t/070-reporting.t
 t/080-runthrough.t
+t/085-schedule-export.t
 t/090-talk.t
 t/095-files.t
 t/100-mojo.t
