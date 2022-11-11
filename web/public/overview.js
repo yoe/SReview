@@ -1,13 +1,23 @@
+"use strict";
+
+const unique_filter = function(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
 const load_event = function() {
   fetch("/api/v1/event/" + vm.event + "/overview")
   .then(response => response.json())
-  .then((data) => {vm.talks = data})
+  .then(function (data) {
+    vm.talks = data;
+    vm.days = data.map(event => event.starttime.split(" ")[0])
+      .filter(unique_filter);
+  })
   .catch(error => console.error(error));
 };
 
 const search_text = function(search_terms, talk) {
   const needle = search_terms.toLowerCase();
-  for (field of ['name', 'speakers']) {
+  for (const field of ['name', 'speakers']) {
     const value = talk[field];
     if (needle === undefined) {
       continue;
@@ -24,18 +34,65 @@ const filter_talks = function() {
     if (vm.search && ! search_text(vm.search, talk)) {
       return false;
     }
+    if (! vm.selected_dates.includes(talk.starttime.split(" ")[0])) {
+      return false;
+    }
     return true;
   });
 }
+
+var filter_component = Vue.component('navbar-filter', {
+  template: '#navbar-filter-template',
+  props: [
+    'name',
+    'options',
+  ],
+  data: () => {
+    return {
+      id: 'no-id-yet',
+      checkboxes: [],
+    };
+  },
+  watch: {
+    checkboxes: {
+      handler: function(val) {
+        const selected = val.filter(option => option.checked)
+          .map(option => option.name);
+        this.$emit('update:selected', selected);
+      },
+      deep: true,
+    },
+    options: function(val) {
+      this.checkboxes = val.map((option, index) => ({
+        id: this.id + '-' + index,
+        checked: true,
+        name: option,
+      }));
+    },
+  },
+  methods: {
+    select_all: function() {
+      this.checkboxes.map(option => option.checked = true);
+    },
+    clear_all: function() {
+      this.checkboxes.map(option => option.checked = false);
+    },
+  },
+  mounted: function() {
+    this.id = 'navbar-filter-' + this._uid;
+  },
+});
 
 var vm = new Vue({
   el: '#overview',
   data: {
     title: "",
-    search: "",
     talks: [],  // unfiltered
+    search: "",
+    selected_dates: [],
     rows: [],   // filtered
     events: [],
+    days: [],
     event: undefined,
     expls: []
   },
@@ -48,6 +105,7 @@ var vm = new Vue({
     event: load_event,
     search: filter_talks,
     talks: filter_talks,
+    selected_dates: filter_talks,
   },
   created: function() {
     fetch("/api/v1/config")
