@@ -97,10 +97,13 @@ foreach my $event(@{$parser->events}) {
 	my $st = $dbh->prepare("SELECT id FROM events WHERE name = ?");
 	$st->execute($event->name) or die $!;
 	if($st->rows > 1) {
-		warn "Multiple events with name \"" . $event->name . "\", proceeding with first found one.\n";
+		warn "Multiple events with name \"" . $event->name . "\", proceeding with first found one, and ignoring timezone differences.\n";
 	} elsif($st->rows == 0) {
-		$st = $dbh->prepare("INSERT INTO events(name) VALUES(?) RETURNING id");
-		$st->execute($event->name) or die $!;
+		$st = $dbh->prepare("INSERT INTO events(name, timezone) VALUES(?, ?) RETURNING id");
+		$st->execute($event->name, $event->timezone->name) or die $!;
+	} else {
+		$st = $dbh->prepare("UPDATE events SET timezone = ? WHERE name = ?");
+		$st->execute($event->timezone->name, $event->name) or die $!;
 	}
 	my $row = $st->fetchrow_arrayref;
 	my $eventid = $row->[0];
