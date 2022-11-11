@@ -13,6 +13,8 @@ const load_event = function() {
       .filter(unique_filter);
     vm.rooms = data.map(event => event.room)
       .filter(unique_filter);
+    vm.states = data.map(event => event.state)
+      .filter(unique_filter);
   })
   .catch(error => console.error(error));
 };
@@ -40,6 +42,9 @@ const filter_talks = function() {
       return false;
     }
     if (! vm.selected_rooms.includes(talk.room)) {
+      return false;
+    }
+    if (! vm.selected_states.includes(talk.state)) {
       return false;
     }
     return true;
@@ -96,10 +101,12 @@ var vm = new Vue({
     search: "",
     selected_dates: [],
     selected_rooms: [],
+    selected_states: [],
     rows: [],   // filtered
     events: [],
     days: [],
     rooms: [],
+    states: [],
     event: undefined,
     expls: []
   },
@@ -114,6 +121,7 @@ var vm = new Vue({
     talks: filter_talks,
     selected_dates: filter_talks,
     selected_rooms: filter_talks,
+    selected_states: filter_talks,
   },
   created: function() {
     fetch("/api/v1/config")
