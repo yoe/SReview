@@ -13,6 +13,8 @@ const load_event = function() {
       .filter(unique_filter);
     vm.rooms = data.map(event => event.room)
       .filter(unique_filter);
+    vm.tracks = data.map(event => event.track)
+      .filter(unique_filter);
     vm.states = data.map(event => event.state)
       .filter(unique_filter);
     vm.progresses = data.map(event => event.progress)
@@ -46,6 +48,9 @@ const filter_talks = function() {
     if (! vm.selected_rooms.includes(talk.room)) {
       return false;
     }
+    if (vm.tracks && ! vm.selected_tracks.includes(talk.track)) {
+      return false;
+    }
     if (! vm.selected_states.includes(talk.state)) {
       return false;
     }
@@ -72,7 +77,7 @@ var filter_component = Vue.component('navbar-filter', {
     checkboxes: {
       handler: function(val) {
         const selected = val.filter(option => option.checked)
-          .map(option => option.name);
+          .map(option => option.value);
         this.$emit('update:selected', selected);
       },
       deep: true,
@@ -81,7 +86,8 @@ var filter_component = Vue.component('navbar-filter', {
       this.checkboxes = val.map((option, index) => ({
         id: this.id + '-' + index,
         checked: true,
-        name: option,
+        value: option,
+        name: option || 'None',
       }));
     },
   },
@@ -106,12 +112,14 @@ var vm = new Vue({
     search: "",
     selected_dates: [],
     selected_rooms: [],
+    selected_tracks: [],
     selected_states: [],
     selected_progresses: [],
     rows: [],   // filtered
     events: [],
     days: [],
     rooms: [],
+    tracks: [],
     states: [],
     progresses: [],
     event: undefined,
@@ -128,6 +136,7 @@ var vm = new Vue({
     talks: filter_talks,
     selected_dates: filter_talks,
     selected_rooms: filter_talks,
+    selected_tracks: filter_talks,
     selected_states: filter_talks,
     selected_progresses: filter_talks,
   },

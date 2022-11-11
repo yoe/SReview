@@ -19,6 +19,9 @@
     <navbar-filter name="Room" v-bind:options="rooms"
                    v-on:update:selected="selected_rooms = $event">
     </navbar-filter>
+    <navbar-filter name="Track" v-bind:options="tracks"
+                   v-on:update:selected="selected_tracks = $event" v-if="tracks">
+    </navbar-filter>
     <navbar-filter name="State" v-bind:options="states"
                    v-on:update:selected="selected_states = $event">
     </navbar-filter>
