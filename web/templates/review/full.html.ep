@@ -1,17 +1,17 @@
 % if (my $cmessage = flash 'completion_message') {
-<div class="alert alert-success alert-dismissable fade in">
+<div class="alert alert-success alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <%= $cmessage =%>
 </div>
 % }
 % if (my $emessage = flash 'error_message') {
-<div class="alert alert-warning alert-dismissable fade in">
+<div class="alert alert-warning alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <%= $emessage =%>
 </div>
 % }
 % if ( $adminspecial ) {
-<div class="alert alert-warning alert-dismissable fade in">
+<div class="alert alert-warning alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <p><strong>Note</strong>: this talk is currently in the state <strong><%= $talk->state %></strong>, <em>not</em> in one of the preview or broken states. You can only see this review page because you are admin!</p>
   <p>Please <strong>use caution</strong> when making changes.</p>
@@ -123,9 +123,10 @@
                 <div id="msg_start_late" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="start_time_late">Set new start time</button>
                 <div class="alert alert-warning alert_with_control">
-                  <div class="checkbox">
-                    <label>
-                      <input id="start-missing" type="checkbox"> The start of the talk is not in this video
+                  <div class="form-check">
+                    <input id="start-missing" type="checkbox" class="form-check-input">
+                    <label class="form-check-label" for="start-missing">
+                      The start of the talk is not in this video
                     </label>
                   </div>
                 </div>
@@ -161,9 +162,10 @@
                 <div id="msg_end_early" class="changemsg alert alert-success" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="end_time_early">Set new end time</button>
                 <div class="alert alert-warning alert_with_control">
-                  <div class="checkbox">
-                    <label>
-                      <input id="end-missing" type="checkbox">The end of the talk is not in this video
+                  <div class="form-check">
+                    <input id="end-missing" type="checkbox" class="form-check-input">
+                    <label for="end-missing" class="form-check-label">
+                      The end of the talk is not in this video
                     </label>
                   </div>
                 </div>
@@ -283,7 +285,9 @@
                   <div class="form-group">
                     <div class="input-group">
                       <input type="text" name="av_seconds" class="form-control seconds" placeholder="0.00">
-                      <div class="input-group-addon">seconds</div>
+                      <div class="input-group-append">
+                        <div class="input-group-text">seconds</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -295,10 +299,12 @@
             <div class="row">
               <div class="col-sm-6">
                 <p>Please explain the issue in the comments element, below.</p>
-		<label>
-		  <input type="checkbox" name="broken" value="yes" <%= $talk->state eq "broken" ?  "checked" : "" %> ></input>
-		  An administrator should look at this talk.
-		</label>
+                  <div class="form-check">
+                    <input type="checkbox" id="broken" value="yes" <%= $talk->state eq "broken" ?  "checked" : "" %> class="form-check-input"></input>
+                    <label class="form-check-label" for="broken">
+                      An administrator should look at this talk.
+                    </label>
+                  </div>
 		<p><strong>Note:</strong> if you select the 
 		  option above, the video will be <strong>marked as
 		  broken</strong>, and will <em>not</em> be released
@@ -317,7 +323,7 @@
 	        <p>Please enter your comments about this talk below.</p>
                 <textarea class="form-control" id="comment_text" name="comment_text" rows="5"></textarea>
 	        <p>Previous comments:</p>
-	        <pre>
+	        <pre class="border border-secondary rounded bg-light p-2 mb-2">
 <%= $talk->comment %>
 	        </pre>
 	      </div>

@@ -10,10 +10,11 @@
     % }
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap4/css/bootstrap.min.css">
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
     <script src="/jquery/jquery.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/popper.js/umd/popper.min.js"></script>
+    <script src="/bootstrap4/js/bootstrap.min.js"></script>
     % if (my $sheets = stash 'stylesheets') {
     %   foreach my $stylesheet(@$sheets) {
     %= stylesheet $stylesheet
