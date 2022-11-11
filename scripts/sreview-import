@@ -137,17 +137,19 @@ foreach my $event(@{$parser->events}) {
 			$room = $row->[0];
 			$roomid{$talk->room->name} = $room;
 		}
-		my $track;
-		if(exists($trackid{$talk->track->upstreamid})) {
-			$track = $trackid{$talk->track->upstreamid};
-			if(defined($talk->track->email)) {
-				$update_track->execute($talk->track->name, $talk->track->email, $talk->track->upstreamid);
+		my $track = $talk->track;
+		if(defined($track)) {
+			if(exists($trackid{$talk->track->upstreamid})) {
+				$track = $trackid{$talk->track->upstreamid};
+				if(defined($talk->track->email)) {
+					$update_track->execute($talk->track->name, $talk->track->email, $talk->track->upstreamid);
+				}
+			} else {
+				$add_track->execute($talk->track->name, $talk->track->email, $talk->track->upstreamid) or die $!;
+				$row = $add_track->fetchrow_arrayref;
+				$track = $row->[0];
+				$trackid{$talk->track->upstreamid} = $track;
 			}
-		} else {
-			$add_track->execute($talk->track->name, $talk->track->email, $talk->track->upstreamid) or die $!;
-			$row = $add_track->fetchrow_arrayref;
-			$track = $row->[0];
-			$trackid{$talk->track->upstreamid} = $track;
 		}
 		my $talkid;
 		if(exists($known_talks{$talk->upstreamid})) {
@@ -161,7 +163,7 @@ foreach my $event(@{$parser->events}) {
 			$talkid = $row->[0];
 		}
 		if(defined($talk->flags)) {
-			my $flags = $talk->flags;
+			my $flags = { %{$talk->flags} };
 			foreach my $flag(keys %$flags) {
 				if($flags->{$flag}) {
 					$flags->{$flag} = $JSON::true;

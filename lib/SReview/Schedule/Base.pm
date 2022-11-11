@@ -252,7 +252,7 @@ has 'speakers' => (
 );
 
 sub _load_speakers {
-	return undef;
+	return [];
 }
 
 has 'filtered' => (

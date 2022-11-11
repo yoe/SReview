@@ -2,6 +2,8 @@ package SReview::Schedule::Yaml::Room;
 
 use Moose;
 
+extends "SReview::Schedule::Base::Room";
+
 has 'schedref' => (
 	is => 'ro',
 	isa => 'HashRef',
@@ -35,7 +37,7 @@ extends 'SReview::Schedule::Base::Track';
 
 has 'schedref' => (
 	is => 'ro',
-	isa => 'Hashref',
+	isa => 'HashRef',
 	required => 1,
 );
 
@@ -109,13 +111,13 @@ sub _load_slug {
 
 sub _load_starttime {
 	my $self = shift;
-	return $self->date_parser->parse_datetime($self->schedref->{start})
+	return $self->date_parser->parse_datetime($self->schedref->{starttime})
 }
 
 sub _load_endtime {
 	my $self = shift;
-	if(exists $self->schedref->{end}) {
-		return $self->date_parser->parse_datetime($self->schedref->{end});
+	if(exists $self->schedref->{endtime}) {
+		return $self->date_parser->parse_datetime($self->schedref->{endtime});
 	} else {
 		return $self->SUPER::_load_endtime;
 	}
@@ -124,7 +126,7 @@ sub _load_endtime {
 sub _load_length {
 	my $self = shift;
 	if(exists $self->schedref->{length_minutes}) {
-		return DateTime::Duration->new(minutes => $self->schedref->{length});
+		return DateTime::Duration->new(minutes => $self->schedref->{length_minutes});
 	} else {
 		return $self->SUPER::_load_length;
 	}
@@ -132,6 +134,15 @@ sub _load_length {
 
 sub _load_title {
 	return shift->schedref->{title};
+}
+
+sub _load_subtitle {
+	my $self = shift;
+	if(exists $self->schedref->{subtitle}) {
+		return $self->schedref->{subtitle};
+	} else {
+		return $self->SUPER::_load_subtitle;
+	}
 }
 
 sub _load_upstreamid {
