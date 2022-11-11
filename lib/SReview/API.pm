@@ -1819,6 +1819,7 @@ components:
           format: int64
         name:
           type: string
+          nullable: true
         email:
           type: string
           format: email
@@ -1896,6 +1897,8 @@ components:
           $ref: '#/components/schemas/Talk/properties/state'
         progress:
           $ref: '#/components/schemas/Talk/properties/progress'
+        track:
+          $ref: '#/components/schemas/Track/properties/name'
     TalkCorrections:
       type: object
       properties:
