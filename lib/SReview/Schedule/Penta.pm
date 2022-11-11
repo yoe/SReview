@@ -183,14 +183,32 @@ has 'talktype' => (
 	builder => '_load_talktype',
 );
 
+sub _load_talktype {
+	return 'SReview::Schedule::Penta::Talk';
+}
+
+has 'eventtype' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_eventtype',
+);
+
+sub _load_eventtype {
+	return 'SReview::Schedule::Penta::Event';
+}
+
 sub _load_events {
 	my $self = shift;
 	my $xml = XML::SimpleObject->new(XML => $self->_get_raw);
-	return [SReview::Schedule::Penta::Event->new(schedref => $xml->child('schedule'), talktype => $self->talktype)];
-}
-
-sub _load_talktype {
-	return 'SReview::Schedule::Penta::Talk';
+	my %args = (
+		schedref => $xml->child('schedule'),
+		talktype => $self->talktype,
+	);
+	if($self->has_timezone) {
+		$args{timezone} = $self->timezone;
+	}
+	return [$self->eventtype->new(%args)];
 }
 
 1;

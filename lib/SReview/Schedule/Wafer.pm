@@ -32,6 +32,22 @@ sub _load_starttime {
 
 no Moose;
 
+package SReview::Schedule::Wafer::Event;
+
+use Moose;
+use DateTime::TimeZone;
+
+extends 'SReview::Schedule::Penta::Event';
+
+sub _load_timezone {
+	my $self = shift;
+	my $timezone = DateTime::TimeZone->new(name => $self->schedref->child('time_zone_name'));
+	return DateTime::TimeZone->new(name => $timezone->value) if defined($timezone);
+	return $self->SUPER::_load_timezone;
+}
+
+no Moose;
+
 package SReview::Schedule::Wafer;
 
 use Moose;
@@ -71,6 +87,10 @@ L<SReview::Schedule::Multi>, L<SReview::Schedule::Penta>
 
 sub _load_talktype {
 	return 'SReview::Schedule::Wafer::Talk';
+}
+
+sub _load_eventtype {
+	return 'SReview::Schedule::Wafer::Event';
 }
 
 no Moose;

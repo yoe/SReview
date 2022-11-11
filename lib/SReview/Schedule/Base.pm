@@ -271,6 +271,7 @@ no Moose;
 package SReview::Schedule::Base::Event;
 
 use Moose;
+use DateTime::TimeZone;
 
 has 'talks' => (
 	is => 'ro',
@@ -294,6 +295,17 @@ sub _load_name {
 	return "";
 }
 
+has 'timezone' => (
+	is => 'ro',
+	isa => 'DateTime::TimeZone',
+	lazy => 1,
+	builder => '_load_timezone',
+);
+
+sub _load_timezone {
+	return DateTime::TimeZone->new(name => 'local');
+}
+
 package SReview::Schedule::Base;
 
 use Moose;
@@ -303,6 +315,12 @@ use Mojo::URL;
 has 'url' => (
 	required => 1,
 	is => 'ro',
+);
+
+has 'timezone' => (
+	is => 'ro',
+	isa => 'Maybe[Str]',
+	predicate => 'has_timezone',
 );
 
 has '_raw' => (

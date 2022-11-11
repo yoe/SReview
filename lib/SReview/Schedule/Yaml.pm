@@ -81,6 +81,12 @@ has 'time_format' => (
 	default => '%F %R',
 );
 
+has 'timezone' => (
+	isa => 'DateTime::TimeZone',
+	is => 'ro',
+	default => sub { DateTime::TimeZone->new(name =>'UTC') },
+);
+
 has 'date_parser' => (
 	is => 'ro',
 	isa => 'DateTime::Format::Strptime',
@@ -90,7 +96,7 @@ has 'date_parser' => (
 
 sub _build_datetime {
 	my $self = shift;
-	return DateTime::Format::Strptime->new(pattern => $self->time_format);
+	return DateTime::Format::Strptime->new(pattern => $self->time_format, time_zone => $self->timezone);
 }
 
 sub _load_room {
@@ -215,10 +221,21 @@ sub _load_name {
 
 sub _load_talks {
 	my $rv = [];
-	foreach my $talk(@{shift->schedref->{talks}}) {
-		push @$rv, SReview::Schedule::Yaml::Talk->new(schedref => $talk);
+	my $self = shift;
+	my $tz = $self->schedref->{timezone};
+	foreach my $talk(@{$self->schedref->{talks}}) {
+		push @$rv, SReview::Schedule::Yaml::Talk->new(schedref => $talk, timezone => $self->timezone);
 	}
 	return $rv;
+}
+
+sub _load_timezone {
+	my $self = shift;
+	if(exists($self->schedref->{timezone})) {
+		return DateTime::TimeZone->new(name => $self->schedref->{timezone});
+	} else {
+		return $self->SUPER::_load_timezone;
+	}
 }
 
 no Moose;
@@ -234,7 +251,13 @@ extends 'SReview::Schedule::Base';
 sub _load_events {
 	my $self = shift;
 	my $yaml = Load($self->_get_raw);
-	return [SReview::Schedule::Yaml::Event->new(schedref => $yaml)];
+	my %args = (
+		schedref => $yaml,
+	);
+	if($self->has_timezone) {
+		$args{timezone} = $self->timezone;
+	}
+	return [SReview::Schedule::Yaml::Event->new(%args)];
 }
 
 no Moose;
