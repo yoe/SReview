@@ -11,6 +11,8 @@ const load_event = function() {
     vm.talks = data;
     vm.days = data.map(event => event.starttime.split(" ")[0])
       .filter(unique_filter);
+    vm.rooms = data.map(event => event.room)
+      .filter(unique_filter);
   })
   .catch(error => console.error(error));
 };
@@ -35,6 +37,9 @@ const filter_talks = function() {
       return false;
     }
     if (! vm.selected_dates.includes(talk.starttime.split(" ")[0])) {
+      return false;
+    }
+    if (! vm.selected_rooms.includes(talk.room)) {
       return false;
     }
     return true;
@@ -90,9 +95,11 @@ var vm = new Vue({
     talks: [],  // unfiltered
     search: "",
     selected_dates: [],
+    selected_rooms: [],
     rows: [],   // filtered
     events: [],
     days: [],
+    rooms: [],
     event: undefined,
     expls: []
   },
@@ -106,6 +113,7 @@ var vm = new Vue({
     search: filter_talks,
     talks: filter_talks,
     selected_dates: filter_talks,
+    selected_rooms: filter_talks,
   },
   created: function() {
     fetch("/api/v1/config")

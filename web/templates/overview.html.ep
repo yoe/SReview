@@ -16,6 +16,9 @@
     <navbar-filter name="Date" v-bind:options="days"
                    v-on:update:selected="selected_dates = $event">
     </navbar-filter>
+    <navbar-filter name="Room" v-bind:options="rooms"
+                   v-on:update:selected="selected_rooms = $event">
+    </navbar-filter>
   </nav>
   <table class='table table-hover'>
     <tr>
