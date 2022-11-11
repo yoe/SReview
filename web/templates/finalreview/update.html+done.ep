@@ -6,7 +6,7 @@
       <div class="col-sm-12">
         <div class="jumbotron">
           <h2 class="text-success">
-            <span class="glyphicon glyphicon-thumbs-up"></span>
+            <i class="fa fa-thumbs-up"></i>
             Thank you for sending your review
           </h2>
           <p>You have told us the video looks good, so we'll mark it as complete.</p>

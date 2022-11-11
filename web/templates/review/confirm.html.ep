@@ -1,17 +1,17 @@
 % if (my $cmessage = flash 'completion_message') {
-<div class="alert alert-success alert-dismissable fade in">
+<div class="alert alert-success alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <%= $cmessage =%>
 </div>
 % }
 % if (my $emessage = flash 'error_message') {
-<div class="alert alert-warning alert-dismissable fade in">
+<div class="alert alert-warning alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <%= $emessage =%>
 </div>
 % }
 % if ( $adminspecial ) {
-<div class="alert alert-warning alert-dismissable fade in">
+<div class="alert alert-warning alert-dismissable fade show">
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <p><strong>Note</strong>: this talk is currently in the state <strong><%= $talk->state %></strong>, <em>not</em> in one of the preview or broken states. You can only see this review page because you are admin!</p>
   <p>Please <strong>use caution</strong> when making changes.</p>

@@ -1,13 +1,13 @@
 %layout 'default';
 %title "SReview: $title";
 % if (my $cmsg = flash 'completion_message') {
-<div class='alert alert-success alert-dismisable fade in'>
+<div class='alert alert-success alert-dismisable fade show'>
   <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
   <%= $cmsg =%>
 </div>
 % }
 % if (my $emsg = flash 'error_message') {
-<div class='alert alert-success alert-dismissable fade in'>
+<div class='alert alert-success alert-dismissable fade show'>
   <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
   <%= $emsg =%>
 </div>

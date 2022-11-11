@@ -10,9 +10,10 @@
     % }
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap4/css/bootstrap.min.css">
     <script src="/jquery/jquery.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/popper.js/umd/popper.min.js"></script>
+    <script src="/bootstrap4/js/bootstrap.min.js"></script>
     % if (my $extra = stash 'scripts_extra') {
     %    foreach my $script(@$extra) {
     <script src='<%== $script %>'></script>

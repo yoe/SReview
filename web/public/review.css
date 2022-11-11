@@ -4,7 +4,7 @@ body {
 
 .eventname {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 
 img {
@@ -14,25 +14,25 @@ img {
 }
 
 .container {
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 }
 
 h1 > small {
   display: block;
-  margin-bottom:10px;
+  margin-bottom:0.625rem;
 }
 
 #main_video, #video_starts_too_late, #av_delay, #talk_info, .help-text, #video_ends_too_early, #instructions, #video_state_information {
-  margin-top: 20px;
+  margin-top: 1.25rem;
 }
 
 #talk_info .dl-horizontal {
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem;
 }
 
 .dl-horizontal dt {
   width: auto;
-  padding-right: 5px;
+  padding-right: 0.3125rem;
 }
 
 .dl-horizontal dd {
@@ -40,12 +40,12 @@ h1 > small {
 }
 
 #video_starts_too_early, #video_ends_too_late {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .btn-block + .alert {
-  margin-top: 15px;
+  margin-top: 0.9375rem;
 }
 
 .hidden {
@@ -53,47 +53,50 @@ h1 > small {
 }
 
 .alert_with_control {
-  padding:5px 15px;
+  padding:0.3125rem 0.9375rem;
 }
 
 #video_state_information .alert + .alert-info {
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .audio_player {
   width: 90%;
-  padding: 10px 0 20px 0;
+  padding: 0.625rem 0 1.25rem 0;
 }
 
 .jumbotron {
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: 1.875rem;
+  padding-bottom: 1.875rem;
 }
 
 .jumbotron h2 {
-  font-size: 35px;
-  margin-bottom: 40px;
+  font-size: 2.1875rem;
+  margin-bottom: 2.5rem;
+}
+
+.jumbotron p {
+  font-size: 1.3125rem;
 }
 
 .jumbotron ul {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 .jumbotron ul > li {
-  font-size: 21px;
-  font-weight: 200;
+  font-size: 1.3125rem;
 }
 
 .restore_original .btn {
-  margin-top: 20px;
+  margin-top: 1.25rem;
 }
 
 .restore_original, .error_div, .video_has_problems, .other_brokennes, .info_row {
-  margin-top: 20px;
+  margin-top: 1.25rem;
 }
 
 .video_has_problems legend {
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 
 #av_delay .form-inline {
@@ -101,18 +104,18 @@ h1 > small {
 }
 
 #main_action {
-  margin: 30px 0;
+  margin: 1.875rem 0;
 }
 
 #no_audio h5 {
-  margin-top: 15px;
+  margin-top: 0.9375rem;
 }
 
-.glyphicon-question-sign {
+.fa-question-circle {
   color: #999999;
-  margin-left: 3px;
+  margin-left: 0.1875rem;
 }
 
-a .glyphicon-question-sign:hover {
+a .fa-question-circle:hover {
   color: #000000;
 }
