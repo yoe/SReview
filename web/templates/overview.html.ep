@@ -7,6 +7,12 @@
     </select>
     <button class="btn btn-light" v-on:click="reloadEvent"><i class="fa fa-regular fa-rotate-right"></i></button>
   </p>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <form class="form-inline my-2 my-lg-0">
+      <input v-model="search" type="text" class="form-control"
+             placeholder="Find talks and speakers" id="find_talks_speakers">
+    </form>
+  </nav>
   <table class='table table-hover'>
     <tr>
       <th>Talk</th>
