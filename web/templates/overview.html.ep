@@ -22,6 +22,9 @@
     <navbar-filter name="State" v-bind:options="states"
                    v-on:update:selected="selected_states = $event">
     </navbar-filter>
+    <navbar-filter name="Progress" v-bind:options="progresses"
+                   v-on:update:selected="selected_progresses = $event">
+    </navbar-filter>
   </nav>
   <table class='table table-hover'>
     <tr>
