@@ -5,7 +5,9 @@
     <select v-model="event">
       <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
     </select>
-    <button class="btn btn-light" v-on:click="reloadEvent"><i class="fa fa-regular fa-rotate-right"></i></button>
+    <button class="btn btn-light" v-on:click="reloadEvent">
+      <i class="fa fa-regular fa-rotate-right"></i>
+    </button>
   </p>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <form class="form-inline my-2 my-lg-0">
