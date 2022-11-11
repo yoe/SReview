@@ -17,22 +17,12 @@ Vue.component("talk-preview", {
   },
 })
 
-function updated(app) {
-  if(app.event !== app.last_event) {
-    fetch("/api/v1/event/" + app.event + "/overview")
-    .then(response => response.json())
-    .then((data) => {
-      app.rows = [];
-      for(row of data) {
-	if(row.state !== "ignored") {
-	  app.rows.push(row);
-	}
-      }
-      app.last_event = app.event
-    })
-    .catch(error => console.error(error));
-  }
-}
+const load_event = function() {
+  fetch("/api/v1/event/" + app.event + "/overview")
+  .then(response => response.json())
+  .then((data) => {app.rows = data.filter((row) => row.state !== "ignored")})
+  .catch(error => console.error(error));
+};
 
 var app = new Vue({
   el: '#preview',
@@ -41,27 +31,21 @@ var app = new Vue({
     rows: [],
     events: [],
     event: undefined,
-    last_event: undefined,
   },
   methods: {
-    reloadEvent: function() {
-      fetch("/api/v1/event/" + this.event + "/overview")
-      .then(response => response.json())
-      .then((data) => {this.rows = data; this.last_event = this.event})
-      .catch(error => console.error(error));
-    }
+    reloadEvent: load_event,
+  },
+  watch: {
+    event: load_event,
   },
   created: function() {
     fetch("/api/v1/config")
     .then(response => response.json())
-    .then(data => {this.event = data.event; updated(this);})
+    .then(data => {this.event = data.event})
     .catch(error => console.error(error));
     fetch("/api/v1/event/list")
     .then(response => response.json())
     .then(data => {this.events = data})
     .catch(error => console.error(error));
   },
-  updated: function() {
-    updated(this);
-  }
 });

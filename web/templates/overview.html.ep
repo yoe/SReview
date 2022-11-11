@@ -5,8 +5,32 @@
     <select v-model="event">
       <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
     </select>
-    <button class="btn btn-light" v-on:click="reloadEvent"><i class="fa fa-regular fa-rotate-right"></i></button>
+    <button class="btn btn-light" v-on:click="reloadEvent">
+      <i class="fa fa-regular fa-rotate-right"></i>
+    </button>
   </p>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <form class="form-inline my-2 my-lg-0">
+      <input v-model="search" type="text" class="form-control"
+             placeholder="Find talks and speakers" id="find_talks_speakers">
+    </form>
+    <span class="navbar-text ml-sm-3">Filter by:</span>
+    <navbar-filter name="Date" v-bind:options="days"
+                   v-on:update:selected="selected_dates = $event">
+    </navbar-filter>
+    <navbar-filter name="Room" v-bind:options="rooms"
+                   v-on:update:selected="selected_rooms = $event">
+    </navbar-filter>
+    <navbar-filter name="Track" v-bind:options="tracks"
+                   v-on:update:selected="selected_tracks = $event" v-if="tracks">
+    </navbar-filter>
+    <navbar-filter name="State" v-bind:options="states"
+                   v-on:update:selected="selected_states = $event">
+    </navbar-filter>
+    <navbar-filter name="Progress" v-bind:options="progresses"
+                   v-on:update:selected="selected_progresses = $event">
+    </navbar-filter>
+  </nav>
   <table class='table table-hover'>
     <tr>
       <th>Talk</th>
@@ -41,4 +65,32 @@
     </table>
   </div>
 </div>
+<script type="text/html" id="navbar-filter-template">
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <div class="nav-link dropdown-toggle" v-bind:id="id" role="button"
+           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+           v-bind:class="active ? 'text-success' : ''">
+        {{ name }}
+      </div>
+      <div class="dropdown-menu" v-bind:aria-labelledby="id">
+        <form class="px-4 py-3">
+          <div>Select {{ name }}:</div>
+          <div class="form-check" v-for="checkbox in checkboxes">
+            <input type="checkbox" class="form-check-input"
+                   v-bind:id="checkbox.id" v-model:value="checkbox.checked">
+            <label class="form-check-label" v-bind:for="checkbox.id">
+              {{ checkbox.name }}
+            </label>
+          </div>
+          <div class="dropdown-divider" role="separator"></div>
+          <button class="btn btn-secondary"
+                  v-on:click.prevent="select_all">Select All</button>
+          <button class="btn btn-secondary"
+                  v-on:click.prevent="clear_all">Clear All</button>
+        </form>
+      </div>
+    </li>
+  </ul>
+</script>
 <script src="/overview.js"></script>
