@@ -20,14 +20,7 @@ Vue.component("talk-preview", {
 const load_event = function() {
   fetch("/api/v1/event/" + app.event + "/overview")
   .then(response => response.json())
-  .then((data) => {
-    app.rows = [];
-    for(row of data) {
-      if(row.state !== "ignored") {
-        app.rows.push(row);
-      }
-    }
-  })
+  .then((data) => {app.rows = data.filter((row) => row.state !== "ignored")})
   .catch(error => console.error(error));
 };
 
