@@ -67,7 +67,8 @@
   <ul class="navbar-nav">
     <li class="nav-item dropdown">
       <div class="nav-link dropdown-toggle" v-bind:id="id" role="button"
-           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+           v-bind:class="active ? 'text-success' : ''">
         {{ name }}
       </div>
       <div class="dropdown-menu" v-bind:aria-labelledby="id">

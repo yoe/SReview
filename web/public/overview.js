@@ -71,6 +71,7 @@ var filter_component = Vue.component('navbar-filter', {
     return {
       id: 'no-id-yet',
       checkboxes: [],
+      active: false,
     };
   },
   watch: {
@@ -79,6 +80,7 @@ var filter_component = Vue.component('navbar-filter', {
         const selected = val.filter(option => option.checked)
           .map(option => option.value);
         this.$emit('update:selected', selected);
+        this.active = val.filter(option => !option.checked).length !== 0;
       },
       deep: true,
     },
