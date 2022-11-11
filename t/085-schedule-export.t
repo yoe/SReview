@@ -5,6 +5,8 @@ use v5.28;
 use Test::More;
 use Test::Mojo;
 use Data::Dumper;
+use DateTime::Format::Strptime;
+use DateTime::Format::Pg;
 use Mojo::File qw/path/;
 use Cwd qw/abs_path/;
 use File::Path qw/make_path remove_tree/;
@@ -48,7 +50,11 @@ SKIP: {
 	$talk->set_state('done');
 	my $t = Test::Mojo->new($script);
 	my $tx = $t->get_ok("/released")->status_is(200);
-	print Dumper($tx->tx->res->json);
+	my $parser = DateTime::Format::Strptime->new(pattern => "%F %T");
+	my $start = $parser->parse_datetime('2017-11-10 17:00:00');
+	$start->set_time_zone("local");
+	my $end = $parser->parse_datetime('2017-11-10 17:00:10');
+	$end->set_time_zone("local");
 	$tx->json_is({
 		conference => {
 			title => 'Test event',
@@ -73,8 +79,8 @@ SKIP: {
 				'Speaker 3',
 			],
 			eventid => '1',
-			start => '2017-11-10 17:00:00+02',
-			end => '2017-11-10 17:00:10+02',
+			start => substr(DateTime::Format::Pg->format_timestamptz($start), 0, -2),
+			end => substr(DateTime::Format::Pg->format_timestamptz($end), 0, -2),
 		}]
 	});
 }
