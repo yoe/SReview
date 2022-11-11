@@ -10,7 +10,6 @@ usr/bin/sreview-titles
 usr/bin/sreview-transcode
 usr/bin/sreview-upload
 usr/share/man/man1/sreview-cut*
-usr/share/man/man1/sreview-encode*
 usr/share/man/man1/sreview-notranscode*
 usr/share/man/man1/sreview-previews*
 usr/share/man/man1/sreview-skip*
