@@ -61,11 +61,19 @@ SKIP: {
 	my $dbh = DBI->connect($config->get('dbistring'));
 	$dbh->prepare("INSERT INTO rooms(id, name, altname) VALUES (1, 'room1', 'Room1')")->execute() or die $!;
 	$dbh->prepare("INSERT INTO events(id, name) VALUES(1, 'Test event')")->execute() or die $!;
-	my $st = $dbh->prepare("INSERT INTO talks(id, room, slug, starttime, endtime, title, event, upstreamid) VALUES(1, 1, 'test-talk', '2017-11-10 17:00:00', '2017-11-10 17:00:10', 'Test talk', 1, '1') RETURNING nonce") or die $!;
+	my $st = $dbh->prepare("INSERT INTO talks(id, room, slug, starttime, endtime, title, description, event, upstreamid) VALUES(1, 1, 'test-talk', '2017-11-10 17:00:00', '2017-11-10 17:00:10', 'Test talk', 'Test talk description', 1, '1') RETURNING nonce") or die $!;
 	$st->execute();
 	my $row = $st->fetchrow_arrayref;
 	my $nonce = $row->[0];
 	my $relname = join("/", substr($nonce, 0, 1), substr($nonce, 1, 2), substr($nonce, 3));
+	$st = $dbh->prepare("INSERT INTO speakers(name) VALUES(?)");
+	$st->execute('Speaker 1');
+	$st->execute('Speaker 3');
+	$st->execute('Speaker 2');
+	$st = $dbh->prepare('INSERT INTO speakers_talks(speaker, talk) VALUES(?, 1)');
+	$st->execute(1);
+	$st->execute(2);
+	$st->execute(3);
 
 	# Detect input files
 	run("perl", "-I", $INC[0], "$scriptpath/sreview-detect");

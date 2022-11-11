@@ -58,7 +58,7 @@ SKIP: {
 					resolution => "854x480",
 					vcodec => "vp9",
 					acodec => "opus",
-					bitrate => 750,
+					bitrate => "750k",
 				}
 			}
 		},
