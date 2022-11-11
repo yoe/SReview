@@ -5,7 +5,7 @@
     <select v-model="event">
       <option v-for="e in events" v-bind:value="e.id">{{e.name}}</option>
     </select>
-    <button v-on:click="reloadEvent"><span class="glyphicon glyphicon-refresh"></button>
+    <button v-on:click="reloadEvent"><i class="fa fa-regular fa-rotate-right"></i></button>
   </p>
   <span v-if="rows.length > 0">
     <span v-if="rows[0].nonce">

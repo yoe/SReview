@@ -192,7 +192,7 @@
                 <input type="radio" name="audio_channel" id="audio_channel" value="0" <% if($talk->corrections->{audio_channel} == 0) { %>checked<% } %>>
                 Audio channel 0
                 <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 0" data-content="This channel is what the mixer recorded.">
-                  <span class="glyphicon glyphicon-question-sign"></span>
+                  <i class="fa fa-question-circle"></i>
                 </a>
                 <audio controls="1" class="audio_player">
                   <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/audio0.ogg" type="audio/ogg">
@@ -206,7 +206,7 @@
                 <input type="radio" name="audio_channel" id="audio_channel" value="1" <% if($talk->corrections->{audio_channel} == 1) { %>checked<% } %>>
                 Audio channel 1
                 <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 1" data-content="This channel is what the camera recorded.">
-                  <span class="glyphicon glyphicon-question-sign"></span>
+                  <i class="fa fa-question-circle"></i>
                 </a>
                 <audio controls="1" class="audio_player">
                   <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/audio1.ogg" type="audio/ogg">
@@ -220,7 +220,7 @@
                 <input type="radio" name="audio_channel" id="audio_channel" value="2" <% if ($talk->corrections->{audio_channel} == 2) { %>checked<% } %>>
                 Audio channel 2
                 <a tabindex="0" data-toggle="popover" data-trigger="hover" title="Audio channel 2" data-content="This channel mixes channel 0 (from the mixer) and channel 1 (from the camera).">
-                  <span class="glyphicon glyphicon-question-sign"></span>
+                  <i class="fa fa-question-circle"></i>
                 </a>
                 <audio controls="1" class="audio_player">
                   <source src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/audio2.ogg" type="audio/ogg">

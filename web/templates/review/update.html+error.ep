@@ -6,7 +6,7 @@
       <div class="col-sm-12">
         <div class="jumbotron">
           <h2 class="text-danger">
-            <span class="glyphicon glyphicon-ban-circle"></span>
+            <i class="fa fa-ban"></i>
             There was an error processing your request
           </h2>
           <p>The following error occurred while trying to process your request:</p>

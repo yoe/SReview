@@ -108,11 +108,11 @@ h1 > small {
   margin-top: 15px;
 }
 
-.glyphicon-question-sign {
+.fa-question-circle {
   color: #999999;
   margin-left: 3px;
 }
 
-a .glyphicon-question-sign:hover {
+a .fa-question-circle:hover {
   color: #000000;
 }

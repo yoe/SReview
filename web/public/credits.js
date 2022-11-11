@@ -2,7 +2,7 @@ Vue.component("talk-preview", {
   template: `
     <div class="col-md-4 text-center">
       <img class="img-responsive" v-bind:src="'/api/v1/nonce/' + talk.nonce + '/' + which + '?force=' + force">
-      <button class="btn btn-primary" v-on:click="setForce"><span class="glyphicon glyphicon-refresh"></span></button>
+      <button class="btn btn-primary" v-on:click="setForce"><i class="fa fa-regular fa-rotate-right"></i></button>
     </div>`,
   props: ["talk", "which"],
   methods: {
