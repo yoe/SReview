@@ -5,6 +5,7 @@ use Mojo::Collection 'c';
 use Mojo::JSON qw(encode_json);
 use Mojo::Pg;
 use Mojo::URL;
+use Crypt::PRNG qw/random_string/;
 use SReview;
 use SReview::Config;
 use SReview::Config::Common;
@@ -211,6 +212,9 @@ sub startup {
 		if($c->session->{volunteer}) {
 			return $c->redirect_to('/volunteer/list');
 		} else {
+			my $apikey = random_string();
+			$c->cookie(sreview_api_key => $apikey);
+			$c->session->{apikey} = $apikey;
 			return $c->redirect_to('/admin');
 		}
 	});
