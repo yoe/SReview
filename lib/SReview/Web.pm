@@ -383,6 +383,9 @@ sub startup {
 		my $c = shift;
 		delete $c->session->{id};
 		delete $c->session->{room};
+		# Note, doesn't seem to work in chromium:
+		# https://bugs.chromium.org/p/chromium/issues/detail?id=696204
+		$c->cookie(sreview_api_key => '', {expires => 0});
 		$c->redirect_to('/');
 	});
 
