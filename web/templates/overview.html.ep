@@ -36,6 +36,7 @@
       <th>Talk</th>
       <th>Speakers</th>
       <th>Room</th>
+      <th>Date</th>
       <th>Start time</th>
       <th>End time</th>
       <th>State</th>
@@ -45,8 +46,9 @@
       <td v-if="row.reviewurl"><a v-bind:href="row.reviewurl">{{row.name}}</a></td><td v-if="!(row.reviewurl)">{{row.name}}</td>
       <td>{{row.speakers}}</td>
       <td>{{row.room}}</td>
-      <td>{{new Date(row.starttime).toLocaleString()}}</td>
-      <td>{{new Date(row.endtime).toLocaleString()}}</td>
+      <td>{{row.starttime.split(" ")[0]}}</td>
+      <td>{{row.starttime.split(" ")[1]}}</td>
+      <td>{{row.endtime.split(" ")[1]}}</td>
       <td>{{row.state}}</td>
       <td>{{row.progress}}</td>
     </tr>
