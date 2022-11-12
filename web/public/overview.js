@@ -127,6 +127,7 @@ var filter_component = Vue.component('navbar-filter', {
 var vm = new Vue({
   el: '#overview',
   data: {
+    admin_key: undefined,
     title: "",
     talks: [],  // unfiltered
     search: "",
@@ -161,6 +162,11 @@ var vm = new Vue({
     selected_progresses: filter_talks,
   },
   created: function() {
+    const admin_cookie = document.cookie.split(';')
+      .find(cookie => cookie.trim().startsWith('sreview_api_key='));
+    if (admin_cookie) {
+      this.admin_key = admin_cookie.split('=')[1].trim();
+    }
     fetch("/api/v1/config")
     .then(response => response.json())
     .then(data => {this.event = data.event})
