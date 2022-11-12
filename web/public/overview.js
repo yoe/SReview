@@ -136,7 +136,7 @@ var vm = new Vue({
     states: [],
     progresses: [],
     event: undefined,
-    expls: []
+    state_descriptions: {},
   },
   methods: {
     reloadEvent: function() {
@@ -164,7 +164,12 @@ var vm = new Vue({
     .catch(error => console.error(error));
     fetch("/api/v1/config/legend/")
     .then(response => response.json())
-    .then((data) => {vm.expls = data})
+    .then((data) => {
+      vm.state_descriptions = data.reduce((obj, expl) => {
+        obj[expl.name] = expl.expl;
+        return obj;
+      }, {});
+    })
     .catch(error => console.error(error));
   }
 })
