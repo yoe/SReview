@@ -43,7 +43,7 @@
       <th>Progress</th>
     </tr>
     <tr v-for="row in rows">
-      <td v-if="row.reviewurl"><a v-bind:href="row.reviewurl">{{row.name}}</a></td><td v-if="!(row.reviewurl)">{{row.name}}</td>
+      <td><a v-bind:href="row.reviewurl">{{row.name}}</a></td>
       <td>{{row.speakers}}</td>
       <td>{{row.room}}</td>
       <td>{{row.dates}}</td>
