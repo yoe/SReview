@@ -46,9 +46,9 @@
       <td v-if="row.reviewurl"><a v-bind:href="row.reviewurl">{{row.name}}</a></td><td v-if="!(row.reviewurl)">{{row.name}}</td>
       <td>{{row.speakers}}</td>
       <td>{{row.room}}</td>
-      <td>{{row.starttime.split(" ")[0]}}</td>
-      <td>{{row.starttime.split(" ")[1]}}</td>
-      <td>{{row.endtime.split(" ")[1]}}</td>
+      <td>{{row.dates}}</td>
+      <td>{{row.starttime_time}}</td>
+      <td>{{row.endtime_time}}</td>
       <td>{{row.state}}</td>
       <td>{{row.progress}}</td>
     </tr>

@@ -8,8 +8,19 @@ const load_event = function() {
   fetch("/api/v1/event/" + vm.event + "/overview")
   .then(response => response.json())
   .then(function (data) {
-    vm.talks = data;
-    vm.days = data.map(event => event.starttime.split(" ")[0])
+    vm.talks = data.map(event => {
+      event.starttime_date = event.starttime.split(" ")[0];
+      event.starttime_time = event.starttime.split(" ")[1];
+      event.endtime_date = event.endtime.split(" ")[0];
+      event.endtime_time = event.endtime.split(" ")[1];
+      if (event.starttime_date == event.endtime_date) {
+        event.dates = event.starttime_date;
+      } else {
+        event.dates = event.starttime_date + '-' + event.starttime_date;
+      }
+      return event;
+    });
+    vm.days = data.map(event => event.starttime_date)
       .filter(unique_filter);
     vm.rooms = data.map(event => event.room)
       .filter(unique_filter);
@@ -42,7 +53,7 @@ const filter_talks = function() {
     if (vm.search && ! search_text(vm.search, talk)) {
       return false;
     }
-    if (! vm.selected_dates.includes(talk.starttime.split(" ")[0])) {
+    if (! vm.selected_dates.includes(talk.starttime_date)) {
       return false;
     }
     if (! vm.selected_rooms.includes(talk.room)) {
