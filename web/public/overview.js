@@ -21,15 +21,20 @@ const load_event = function() {
       return event;
     });
     vm.days = data.map(event => event.starttime_date)
-      .filter(unique_filter);
+      .filter(unique_filter)
+      .sort();
     vm.rooms = data.map(event => event.room)
-      .filter(unique_filter);
+      .filter(unique_filter)
+      .sort();
     vm.tracks = data.map(event => event.track)
-      .filter(unique_filter);
+      .filter(unique_filter)
+      .sort();
     vm.states = data.map(event => event.state)
-      .filter(unique_filter);
+      .filter(unique_filter)
+      .sort();
     vm.progresses = data.map(event => event.progress)
-      .filter(unique_filter);
+      .filter(unique_filter)
+      .sort();
   })
   .catch(error => console.error(error));
 };
