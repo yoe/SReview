@@ -2,7 +2,7 @@ package SReview::Web::Controller::Talk;
 
 use Mojo::Base 'Mojolicious::Controller';
 use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
-use Mojo::Util;
+use Mojo::Util 'slugify';
 use Mojo::JSON qw/encode_json decode_json/;
 use DateTime::Format::Pg;
 
@@ -62,6 +62,9 @@ sub add {
 
 	my $talk = $c->req->json;
 	$talk->{event} = $event->[0];
+	if(!exists($talk->{slug})) {
+		$talk->{slug} = slugify($talk->{title});
+	}
 
 	return add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'), \&fixup);
 }
