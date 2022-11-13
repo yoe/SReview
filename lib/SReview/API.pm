@@ -1474,6 +1474,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Track'
+      security:
+      - api_key: []
       x-mojo-to:
         controller: track
         action: list
@@ -1526,6 +1528,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Track'
+      security:
+      - api_key: []
       x-mojo-to:
         controller: track
         action: getById
