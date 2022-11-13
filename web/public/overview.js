@@ -4,6 +4,26 @@ const unique_filter = function(value, index, self) {
   return self.indexOf(value) === index;
 }
 
+const validate_timestamp = function(string) {
+  if (! string) {
+    return false;
+  }
+  if (string.length < 16) {
+    return false;
+  }
+  const obj = new Date(string);
+  if (obj.toString() == 'Invalid Date') {
+    return false;
+  }
+  if (obj.getTime() == 0) {
+    return false;
+  }
+  return true;
+}
+
+// Replaced when we know the API key
+var auth_fetch = fetch;
+
 const load_event = function() {
   fetch("/api/v1/event/" + vm.event + "/overview")
   .then(response => response.json())
@@ -77,7 +97,7 @@ const filter_talks = function() {
   });
 }
 
-var filter_component = Vue.component('navbar-filter', {
+const filter_component = Vue.component('navbar-filter', {
   template: '#navbar-filter-template',
   props: [
     'name',
@@ -124,9 +144,202 @@ var filter_component = Vue.component('navbar-filter', {
   },
 });
 
-var vm = new Vue({
+const blank_talk_edit_modal_data = () => ({
+  active_stream: null,
+  apologynote: null,
+  description: null,
+  endtime: null,
+  flags: {},
+  id: null,
+  perc: null,
+  postlen: null,
+  prelen: null,
+  progress: 'waiting',
+  reviewer: null,
+  room: null,
+  slug: null,
+  speakers: [],
+  speaker_search: '',
+  speaker_search_results: [],
+  starttime: null,
+  state: 'waiting_for_files',
+  subtitle: null,
+  title: null,
+  track: null,
+  upstreamid: null,
+  valid_starttime: null,
+  valid_endtime: null,
+  valid: false,
+});
+
+const validate_edit_talk = function() {
+  this.valid = this.title && this.valid_starttime && this.valid_endtime
+               && this.room;
+  console.log(this.valid);
+}
+
+const talk_edit_modal_component = Vue.component('talk-edit-modal', {
+  template: '#talk-edit-modal-template',
+  props: [
+    'event',
+    'nonce',
+    'new_talk',
+  ],
+  data: () => {
+    return Object.assign({
+      tracks: [],
+      rooms: [],
+      states: [],
+      progresses: [],
+    }, blank_talk_edit_modal_data());
+  },
+  watch: {
+    id: function(val) {
+      if (val == null) {
+        return;
+      }
+      auth_fetch("/api/v1/event/" + vm.event + "/talk/" + val + "/speakers")
+      .then(response => response.json())
+      .then(data => {this.speakers = data})
+      .catch(error => console.error(error));
+    },
+    nonce: function(val) {
+      Object.assign(this, blank_talk_edit_modal_data());
+      if (val === undefined) {
+        return this.update_visibility();
+      }
+      fetch("/api/v1/nonce/" + val + "/talk")
+      .then(response => response.json())
+      .then(data => {
+        data.track = data.track ? data.track : '';
+        Object.assign(this, data);
+        this.update_visibility();
+      })
+      .catch(error => console.error(error));
+    },
+    new_talk: function(val) {
+      Object.assign(this, blank_talk_edit_modal_data());
+      this.update_visibility();
+    },
+    speaker_search: function(val) {
+      if (!val || val.length < 3) {
+        this.speaker_search_results = [];
+        return;
+      }
+      auth_fetch("/api/v1/speaker/search/" + encodeURIComponent(val))
+      .then(response => response.json())
+      .then(data => data.filter(speaker => speaker.event == vm.event))
+      .then(data => this.speaker_search_results = data)
+      .catch(error => console.error(error));
+    },
+    starttime: function(val) {
+      this.valid_starttime = validate_timestamp(val);
+    },
+    endtime: function(val) {
+      this.valid_endtime = validate_timestamp(val);
+    },
+    room: validate_edit_talk,
+    title: validate_edit_talk,
+    valid_starttime: validate_edit_talk,
+    valid_endtime: validate_edit_talk,
+  },
+  methods: {
+    dismiss_modal: function() {
+      this.$emit('dismissed');
+    },
+    add_speaker: function(speaker) {
+      this.speakers.push(speaker);
+    },
+    remove_speaker: function(speaker_id) {
+      this.speakers = this.speakers.filter(speaker => speaker.id != speaker_id);
+    },
+    save: function() {
+      this.starttime = new Date(this.starttime).toISOString();
+      this.endtime = new Date(this.endtime).toISOString();
+      const body = [
+        'title', 'subtitle', 'description', 'starttime', 'endtime', 'track',
+        'room', 'state', 'progress'
+      ].reduce((obj, attr) => {
+          obj[attr] = this[attr];
+          return obj;
+      }, {});
+      if (body.track === '') {
+        body.track = null;
+      }
+      const url = "/api/v1/event/" + vm.event + "/talk"
+            + (this.new_talk ? "" : "/" + this.id);
+      const method = this.new_talk ? "POST" : "PATCH";
+      auth_fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.errors) {
+          console.log(data.errors.map(error => error.message));
+          return;
+        }
+        auth_fetch(
+          "/api/v1/event/" + vm.event + "/talk/" + data.id + "/speakers", {
+          method: "PUT",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.speakers.map(speaker => speaker.id)),
+        })
+        .then(response => response.json())
+        .then(this.$emit('saved'))
+        .catch(error => console.log(error));
+      })
+      .catch(error => console.log(error));
+    },
+    update_visibility: function() {
+      const visible = !!(this.nonce || this.new_talk);
+      if (visible != this.visible) {
+        const modal = $('.modal');
+        if (visible) {
+          modal.show();
+          $('.modal .modal-body').scrollTop(0);
+        } else {
+          modal.hide();
+        }
+      }
+      this.visible = visible;
+    },
+  },
+  mounted: function() {
+    this.progresses = [
+      'waiting',
+      'scheduled',
+      'running',
+      'done',
+      'failed',
+    ];
+
+    auth_fetch("/api/v1/track/list")
+    .then(response => response.json())
+    .then(data => {this.tracks = data})
+    .catch(error => console.error(error));
+
+    fetch("/api/v1/room/list")
+    .then(response => response.json())
+    .then(data => {this.rooms = data})
+    .catch(error => console.error(error));
+
+    fetch("/api/v1/config/legend")
+    .then(response => response.json())
+    .then(data => {this.states = data.map(expl => expl.name)})
+    .catch(error => console.error(error));
+  },
+});
+
+const vm = new Vue({
   el: '#overview',
   data: {
+    admin_key: undefined,
     title: "",
     talks: [],  // unfiltered
     search: "",
@@ -144,11 +357,21 @@ var vm = new Vue({
     progresses: [],
     event: undefined,
     state_descriptions: {},
+    edit_talk_modal_nonce: undefined,
+    new_talk_modal: false,
   },
   methods: {
     reloadEvent: function() {
       load_event(this.event);
-    }
+    },
+    dismiss_talk_edit_modal: function() {
+      this.edit_talk_modal_nonce = undefined;
+      this.new_talk_modal = false;
+    },
+    talk_edit_complete: function() {
+      this.reloadEvent();
+      this.dismiss_talk_edit_modal();
+    },
   },
   watch: {
     event: load_event,
@@ -161,6 +384,22 @@ var vm = new Vue({
     selected_progresses: filter_talks,
   },
   created: function() {
+    const admin_cookie = document.cookie.split(';')
+      .find(cookie => cookie.trim().startsWith('sreview_api_key='));
+    if (admin_cookie) {
+      const admin_key = admin_cookie.split('=')[1].trim();
+      this.admin_key = admin_key;
+      auth_fetch = function(resource, options) {
+        if (options === undefined) {
+          options = {};
+        }
+        if (options.headers === undefined) {
+          options.headers = {};
+        }
+        options.headers['X-SReview-Key'] = admin_key;
+        return fetch(resource, options);
+      }
+    }
     fetch("/api/v1/config")
     .then(response => response.json())
     .then(data => {this.event = data.event})
@@ -179,4 +418,4 @@ var vm = new Vue({
     })
     .catch(error => console.error(error));
   }
-})
+});
