@@ -10,6 +10,7 @@ Build-Depends: debhelper-compat (= 13),
                dh-exec,
                ffmpeg,
                libclass-type-enum-perl,
+               libcryptx-perl,
                libdatetime-format-pg-perl,
                libdatetime-perl,
                libextutils-depends-perl,
@@ -41,7 +42,8 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: libjs-bootstrap4,
+Depends: libcryptx-perl,
+         libjs-bootstrap4,
          libjs-vue,
          libmojolicious-plugin-openapi-perl,
          pwgen,
