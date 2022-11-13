@@ -65,12 +65,14 @@
       <div class="dropdown-menu" v-bind:aria-labelledby="id">
         <form class="px-4 py-3">
           <div>Select {{ name }}:</div>
-          <div class="form-check" v-for="checkbox in checkboxes">
-            <input type="checkbox" class="form-check-input"
-                   v-bind:id="checkbox.id" v-model:value="checkbox.checked">
-            <label class="form-check-label" v-bind:for="checkbox.id">
-              {{ checkbox.name }}
-            </label>
+          <div style="max-height: 15em; overflow-y: auto">
+            <div class="form-check" v-for="checkbox in checkboxes">
+              <input type="checkbox" class="form-check-input"
+                     v-bind:id="checkbox.id" v-model:value="checkbox.checked">
+              <label class="form-check-label" v-bind:for="checkbox.id">
+                {{ checkbox.name }}
+              </label>
+            </div>
           </div>
           <div class="dropdown-divider" role="separator"></div>
           <button class="btn btn-secondary"
