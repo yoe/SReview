@@ -1,4 +1,4 @@
-%layout "default", scripts_extra => [ "/vue/vue.min.js" ];
+%layout "default", scripts_extra => [ "/vue/vue.min.js" ], fluid => 1;
 <div id="overview">
   <h1>Video status overview</h1>
   <p v-if="events.length > 0">Event:
