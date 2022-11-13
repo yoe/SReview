@@ -42,7 +42,8 @@ Description: SReview components for master host
 
 Package: sreview-web
 Architecture: all
-Depends: libcryptx-perl,
+Depends: fonts-font-awesome,
+         libcryptx-perl,
          libjs-bootstrap4,
          libjs-vue,
          libmojolicious-plugin-openapi-perl,
