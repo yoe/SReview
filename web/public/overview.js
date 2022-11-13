@@ -82,7 +82,8 @@ var filter_component = Vue.component('navbar-filter', {
     return {
       id: 'no-id-yet',
       checkboxes: [],
-      active: false,
+      selected_all: true,
+      selected_none: false,
     };
   },
   watch: {
@@ -91,7 +92,8 @@ var filter_component = Vue.component('navbar-filter', {
         const selected = val.filter(option => option.checked)
           .map(option => option.value);
         this.$emit('update:selected', selected);
-        this.active = val.filter(option => !option.checked).length !== 0;
+        this.selected_all = val.filter(option => !option.checked).length === 0;
+        this.selected_none = val.filter(option => option.checked).length === 0;
       },
       deep: true,
     },
@@ -108,7 +110,7 @@ var filter_component = Vue.component('navbar-filter', {
     select_all: function() {
       this.checkboxes.map(option => option.checked = true);
     },
-    clear_all: function() {
+    select_none: function() {
       this.checkboxes.map(option => option.checked = false);
     },
   },
