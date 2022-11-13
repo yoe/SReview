@@ -1864,8 +1864,10 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         upstreamid:
           type: string
+          nullable: true
     User:
       type: object
       properties:
