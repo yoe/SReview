@@ -55,7 +55,7 @@ sub add {
 	my $talk = $c->req->json;
 	$talk->{event} = $event->[0];
 
-	return add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
+	return format_talks(add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties')));
 }
 
 sub update {
@@ -80,7 +80,7 @@ sub update {
 		$talk->{flags} = encode_json($talk->{flags});
 	}
 
-	return update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'));
+	return format_talks(update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties')));
 }
 
 sub delete {
