@@ -1665,6 +1665,43 @@ paths:
       x-mojo-to:
         controller: user
         action: list
+  /user/login:
+    post:
+      tags:
+      - user
+      summary: Log in
+      operationId: user_login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogonRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogonResponse'
+        403:
+          description: Invalid username or password
+          content:
+            text/plain: {}
+      x-mojo-to:
+        controller: user
+        action: login
+  /user/logout:
+    post:
+      tags:
+      - user
+      summary: Log out
+      operationId: user_logout
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema: {}
 components:
   schemas:
     ConfigData:
@@ -2012,6 +2049,19 @@ components:
                 type: object
                 additionalProperties:
                   type: string
+    LogonRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    LogonResponse:
+      type: object
+      properties:
+        apiKey:
+          type: string
   securitySchemes:
     api_key:
       type: apiKey

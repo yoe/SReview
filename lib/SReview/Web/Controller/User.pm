@@ -52,4 +52,52 @@ sub list {
 	$c->render(openapi => db_query($c->dbh, "SELECT users.* FROM users"));
 }
 
+sub login {
+        my $c = shift->openapi->valid_input or return;
+
+        my $email = $c->param('email');
+        my $pass = $c->param('pass');
+
+        my $st = $c->dbh->prepare("SELECT id, isadmin, isvolunteer, name, room FROM users WHERE email=? AND password=crypt(?, password)");
+        my $rv;
+        if(!($rv = $st->execute($email, $pass))) {
+                $c->res->code(403);
+                return $c->render(openapi => { errors => [ { message => $st->errstr } ] });
+        }
+        if($rv == 0) {
+                $c->res->code(403);
+                return $c->render(openapi => { errors => [ { message => $st->errstr } ] });
+        }
+        if($st->rows < 1) {
+                $c->res->code(403);
+                return $c->render(openapi => { errors => [ { message => "unknown user or password" } ] });
+        }
+        my $row = $st->fetchrow_arrayref;
+        $c->session->{id} = $row->[0];
+        $c->session->{email} = $email;
+        $c->session->{admin} = $row->[1];
+        $c->session->{volunteer} = $row->[2];
+        $c->session->{name} = $row->[3];
+        $c->session->{room} = $row->[4];
+
+        my $json = {};
+
+        if(!$c->session->{volunteer}) {
+                my $apikey = random_string();
+                $json->{apiKey} = $apikey;
+                $c->session->{apikey} = $apikey;
+        }
+        return $c->render(openapi => $json);
+}
+
+sub logout {
+        my $c = shift->openapi->valid_input or return;
+
+        foreach my $field ("id", "email", "admin", "volunteer", "name", "room", "apikey") {
+                delete $c->session->{$field};
+        }
+
+        return $c->render(openapi => "");
+}
+
 1;
