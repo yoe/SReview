@@ -10,9 +10,9 @@ const load_event = function() {
   .then(function (data) {
     vm.talks = data.map(event => {
       event.starttime_date = event.starttime.split(" ")[0];
-      event.starttime_time = event.starttime.split(" ")[1];
+      event.starttime_time = event.starttime.split(" ")[1].substring(0, 5);
       event.endtime_date = event.endtime.split(" ")[0];
-      event.endtime_time = event.endtime.split(" ")[1];
+      event.endtime_time = event.endtime.split(" ")[1].substring(0, 5);
       if (event.starttime_date == event.endtime_date) {
         event.dates = event.starttime_date;
       } else {
