@@ -63,7 +63,7 @@ sub startup {
 			}
 			$media .= ";";
 		}
-		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; $media");
+		$c->res->headers->content_security_policy("default-src 'none'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'; $media");
 	});
 
 	$self->helper(dbh => sub {
