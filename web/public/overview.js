@@ -8,8 +8,19 @@ const load_event = function() {
   fetch("/api/v1/event/" + vm.event + "/overview")
   .then(response => response.json())
   .then(function (data) {
-    vm.talks = data;
-    vm.days = data.map(event => event.starttime.split(" ")[0])
+    vm.talks = data.map(event => {
+      event.starttime_date = event.starttime.split(" ")[0];
+      event.starttime_time = event.starttime.split(" ")[1].substring(0, 5);
+      event.endtime_date = event.endtime.split(" ")[0];
+      event.endtime_time = event.endtime.split(" ")[1].substring(0, 5);
+      if (event.starttime_date == event.endtime_date) {
+        event.dates = event.starttime_date;
+      } else {
+        event.dates = event.starttime_date + '-' + event.starttime_date;
+      }
+      return event;
+    });
+    vm.days = data.map(event => event.starttime_date)
       .filter(unique_filter);
     vm.rooms = data.map(event => event.room)
       .filter(unique_filter);
@@ -42,7 +53,7 @@ const filter_talks = function() {
     if (vm.search && ! search_text(vm.search, talk)) {
       return false;
     }
-    if (! vm.selected_dates.includes(talk.starttime.split(" ")[0])) {
+    if (! vm.selected_dates.includes(talk.starttime_date)) {
       return false;
     }
     if (! vm.selected_rooms.includes(talk.room)) {
@@ -71,7 +82,8 @@ var filter_component = Vue.component('navbar-filter', {
     return {
       id: 'no-id-yet',
       checkboxes: [],
-      active: false,
+      selected_all: true,
+      selected_none: false,
     };
   },
   watch: {
@@ -80,7 +92,8 @@ var filter_component = Vue.component('navbar-filter', {
         const selected = val.filter(option => option.checked)
           .map(option => option.value);
         this.$emit('update:selected', selected);
-        this.active = val.filter(option => !option.checked).length !== 0;
+        this.selected_all = val.filter(option => !option.checked).length === 0;
+        this.selected_none = val.filter(option => option.checked).length === 0;
       },
       deep: true,
     },
@@ -97,7 +110,7 @@ var filter_component = Vue.component('navbar-filter', {
     select_all: function() {
       this.checkboxes.map(option => option.checked = true);
     },
-    clear_all: function() {
+    select_none: function() {
       this.checkboxes.map(option => option.checked = false);
     },
   },
@@ -125,7 +138,7 @@ var vm = new Vue({
     states: [],
     progresses: [],
     event: undefined,
-    expls: []
+    state_descriptions: {},
   },
   methods: {
     reloadEvent: function() {
@@ -153,7 +166,12 @@ var vm = new Vue({
     .catch(error => console.error(error));
     fetch("/api/v1/config/legend/")
     .then(response => response.json())
-    .then((data) => {vm.expls = data})
+    .then((data) => {
+      vm.state_descriptions = data.reduce((obj, expl) => {
+        obj[expl.name] = expl.expl;
+        return obj;
+      }, {});
+    })
     .catch(error => console.error(error));
   }
 })
