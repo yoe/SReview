@@ -58,7 +58,7 @@ sub delete_with_query {
 }
 
 sub update_with_json {
-	my ($c, $json, $tablename, $fields) = @_;
+	my ($c, $json, $tablename, $fields, $fixup) = @_;
 
 	my @args;
 
@@ -117,12 +117,15 @@ sub update_with_json {
                         $c->app->log->debug("after: " . $result->{$field});
 		}
 	}
+	if(defined($fixup)) {
+		&$fixup($res->[0]);
+	}
 
 	$c->render(openapi => $res->[0]);
 }
 
 sub add_with_json {
-	my ($c, $json, $tablename, $fields) = @_;
+	my ($c, $json, $tablename, $fields, $fixup) = @_;
 
 	my @args;
 	my @inserts;
@@ -170,6 +173,9 @@ sub add_with_json {
 			$result->{$field} = DateTime::Format::Pg->parse_datetime($result->{$field})->iso8601() or die;
                         $c->app->log->debug("after: " . $result->{$field});
 		}
+	}
+	if(defined($fixup)) {
+		&$fixup($res->[0]);
 	}
 
 	$c->render(openapi => $res->[0]);

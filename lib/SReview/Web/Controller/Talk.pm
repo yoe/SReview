@@ -20,6 +20,14 @@ sub format_talks {
 	return $talks;
 }
 
+sub fixup {
+	my $talk = shift;
+	if($talk->{flags}) {
+		$talk->{flags} = decode_json($talk->{flags});
+	}
+	return $talk;
+}
+
 sub listByEvent {
 	my $c = shift->openapi->valid_input or return;
 
@@ -55,7 +63,7 @@ sub add {
 	my $talk = $c->req->json;
 	$talk->{event} = $event->[0];
 
-	return format_talks(add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties')));
+	return add_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'), \&fixup);
 }
 
 sub update {
@@ -80,7 +88,7 @@ sub update {
 		$talk->{flags} = encode_json($talk->{flags});
 	}
 
-	return format_talks(update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties')));
+	return update_with_json($c, $talk, "talks", $c->openapi->spec('/components/schemas/Talk/properties'), \&fixup);
 }
 
 sub delete {
