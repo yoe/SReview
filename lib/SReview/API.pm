@@ -1823,6 +1823,7 @@ components:
           description: stream of this talk that is currently active
         upstreamid:
           type: string
+          nullable: true
         flags:
           type: object
           description: JSON object of flags on this talk, if any
