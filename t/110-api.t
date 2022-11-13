@@ -113,6 +113,10 @@ SKIP: {
 	$t->get_ok("$b/nonce/$nonce/data")->status_is(200)->json_like("/start" => qr/^2020-05-30 10:30:00\+[0-9][0-9]/)->json_is("/start_iso" => "2020-05-30T10:30:00Z")->json_like("/end" => qr/^2020-05-30 10:35:00\+[0-9][0-9]/)->json_is("/end_iso" => "2020-05-30T10:35:00Z");
 
 	# Tracks
+	$do_auth = 0;
+	$t->get_ok("$b/track/list")->status_is(401);
+	$t->post_ok("$b/track" => json => { name => "test track" })->status_is(401);
+	$do_auth = 1;
 	$t->get_ok("$b/track/list")->status_is(200)->json_is([]);
 	$t->post_ok("$b/track" => json => {name =>"test track", email => 'example@example.com', upstreamid => 'example'})->status_is(200)->json_is("/name" => "test track")->json_is("/email" => 'example@example.com')->json_is("/upstreamid" => 'example');
 	$t->get_ok("$b/track/list")->status_is(200)->json_is('/0/upstreamid' => 'example');
