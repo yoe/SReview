@@ -231,12 +231,7 @@ sub getByNonce {
 		$c->render(text => "not found");
 		return;
 	}
-	foreach my $r(@$talk) {
-		$r->{starttime} = DateTime::Format::Pg->parse_datetime($r->{starttime})->iso8601();
-		$r->{endtime} = DateTime::Format::Pg->parse_datetime($r->{endtime})->iso8601();
-	}
-
-	$c->render(openapi => $talk->[0]);
+	$c->render(openapi => format_talks($talk)->[0]);
 }
 
 sub getCorrections {
