@@ -318,10 +318,12 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
       'failed',
     ];
 
-    auth_fetch("/api/v1/track/list")
-    .then(response => response.json())
-    .then(data => {this.tracks = data})
-    .catch(error => console.error(error));
+    if (auth_fetch != fetch) {
+      auth_fetch("/api/v1/track/list")
+      .then(response => response.json())
+      .then(data => {this.tracks = data})
+      .catch(error => console.error(error));
+    };
 
     fetch("/api/v1/room/list")
     .then(response => response.json())
