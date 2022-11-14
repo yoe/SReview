@@ -398,7 +398,16 @@ const vm = new Vue({
           options.headers = {};
         }
         options.headers['X-SReview-Key'] = admin_key;
-        return fetch(resource, options);
+        return fetch(resource, options)
+        .then(response => {
+          if(response.status == 401) {
+            vm.admin_key = null;
+            auth_fetch = fetch;
+            document.cookie = 'sreview_api_key=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            throw Error("Not Authenticated");
+          }
+          return response;
+        });
       }
     }
     fetch("/api/v1/config")
