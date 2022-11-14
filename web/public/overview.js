@@ -278,7 +278,7 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
       .then(response => response.json())
       .then(data => {
         if (data.errors) {
-          console.log(data.errors.map(error => error.message));
+          console.error(data.errors.map(error => error.message));
           return;
         }
         auth_fetch(
@@ -291,9 +291,9 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
         })
         .then(response => response.json())
         .then(this.$emit('saved'))
-        .catch(error => console.log(error));
+        .catch(error => console.error(error));
       })
-      .catch(error => console.log(error));
+      .catch(error => console.error(error));
     },
     update_visibility: function() {
       const visible = !!(this.nonce || this.new_talk);
