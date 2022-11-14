@@ -175,7 +175,6 @@ const blank_talk_edit_modal_data = () => ({
 const validate_edit_talk = function() {
   this.valid = this.title && this.valid_starttime && this.valid_endtime
                && this.room;
-  console.log(this.valid);
 }
 
 const talk_edit_modal_component = Vue.component('talk-edit-modal', {
