@@ -63,7 +63,7 @@ sub overview {
 		return $c->render(openapi => {errors => [{message => "not found"}]}, status => 404);
 	}
 
-	if($c->srconfig->get("anonreviews")) {
+	if($c->srconfig->get("anonreviews") || ($c->session->{admin} > 0)) {
 		$query = "SELECT CASE WHEN state IN ('preview', 'broken') THEN '/r/' || nonce WHEN state='finalreview' THEN '/f/' || nonce ELSE null END AS reviewurl, nonce, name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress, track FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
 	} else {
 		$query = "SELECT name, speakers, room, starttime::timestamp, endtime::timestamp, state, progress, track FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, starttime";
