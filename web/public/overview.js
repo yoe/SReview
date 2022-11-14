@@ -175,7 +175,6 @@ const blank_talk_edit_modal_data = () => ({
 const validate_edit_talk = function() {
   this.valid = this.title && this.valid_starttime && this.valid_endtime
                && this.room;
-  console.log(this.valid);
 }
 
 const talk_edit_modal_component = Vue.component('talk-edit-modal', {
@@ -279,7 +278,7 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
       .then(response => response.json())
       .then(data => {
         if (data.errors) {
-          console.log(data.errors.map(error => error.message));
+          console.error(data.errors.map(error => error.message));
           return;
         }
         auth_fetch(
@@ -292,9 +291,9 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
         })
         .then(response => response.json())
         .then(this.$emit('saved'))
-        .catch(error => console.log(error));
+        .catch(error => console.error(error));
       })
-      .catch(error => console.log(error));
+      .catch(error => console.error(error));
     },
     update_visibility: function() {
       const visible = !!(this.nonce || this.new_talk);
@@ -319,10 +318,12 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
       'failed',
     ];
 
-    auth_fetch("/api/v1/track/list")
-    .then(response => response.json())
-    .then(data => {this.tracks = data})
-    .catch(error => console.error(error));
+    if (auth_fetch != fetch) {
+      auth_fetch("/api/v1/track/list")
+      .then(response => response.json())
+      .then(data => {this.tracks = data})
+      .catch(error => console.error(error));
+    };
 
     fetch("/api/v1/room/list")
     .then(response => response.json())
@@ -397,7 +398,16 @@ const vm = new Vue({
           options.headers = {};
         }
         options.headers['X-SReview-Key'] = admin_key;
-        return fetch(resource, options);
+        return fetch(resource, options)
+        .then(response => {
+          if(response.status == 401) {
+            vm.admin_key = null;
+            auth_fetch = fetch;
+            document.cookie = 'sreview_api_key=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            throw Error("Not Authenticated");
+          }
+          return response;
+        });
       }
     }
     fetch("/api/v1/config")
