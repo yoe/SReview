@@ -1,5 +1,5 @@
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ .Release.Name }}-detect
@@ -24,7 +24,7 @@ spec:
             command: ["/usr/bin/sreview-detect"]
             {{- include "sreview.envvals" . | indent 12 }}
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ .Release.Name }}-import
