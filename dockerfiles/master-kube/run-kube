@@ -3,8 +3,9 @@
 use strict;
 use warnings;
 
-use SReview::Talk;
 use SReview::Config::Common;
+use SReview::Talk;
+use SReview::Template;
 use YAML::XS;
 use JSON;
 use DateTime;
@@ -21,6 +22,7 @@ my %task_configs = (
         cut => [ "workdir", "pubdir", "audio_multiplex_mode", "accessmethods", "s3_access_config","inputglob",],
         transcode => [ "pubdir", "outputdir", "output_subdirs", "workdir", "preroll_template", "postroll_template", "postroll", "apology_template", "input_profile", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
         notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
+        notify_final => [ "notify_final_email_template", "notify_final_email_subject", "notify_final_commands", "notify_final_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
         upload => [ "upload_actions", "event", "pubdir", "inputglob", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
         "inject-job" => [ "input_profile", "pubdir", "inputglob", "s3_access_config", "accessmethods" ],
@@ -44,55 +46,40 @@ if(exists($ENV{SREVIEW_ENCODER_IMAGE})) {
 	$image = $ENV{SREVIEW_ENCODER_IMAGE};
 }
 
-my $yamldata = {
-        apiVersion => "batch/v1",
-        kind => "Job",
-        metadata => {name => "$task-$jobsuffix"},
-        spec => {
-		template => {
-			metadata => {
-				name => "$task-$jobsuffix",
-			},
-			spec => {
-				restartPolicy => "OnFailure",
-				containers => [ {
-					name => "encoder",
-					image => $image,
-					imagePullPolicy => "Always",
-					command => ["sreview-$task"],
-					args => [ $talk->talkid ],
-					env => [ {
-						name => "SREVIEW_DBISTRING",
-						valueFrom => {
-							secretKeyRef => {
-								name => $ENV{SREVIEWSECRET_NAME},
-								key => "SREVIEW_DBISTRING",
-							},
-						}
-					} ],
-				} ],
-			},
-		},
-        },
+my $vars = {
+	task => $task,
+	image => $image,
+	jobsuffix => $jobsuffix,
+	command => "sreview-$task",
+	args => [ $talk->talkid ],
+	env => [],
+	secretname => $ENV{SREVIEWSECRET_NAME},
 };
 
-if($task eq "announce") {
-        $yamldata->{spec}{template}{spec}{containers}[0]{command}[0] = "sreview-notify";
-        push @{$yamldata->{spec}{template}{spec}{containers}[0]{args}}, "announce";
+if($task eq "announce" || $task eq "notify_final") {
+	$vars->{command} = "sreview-notify";
+	push @{$vars->{args}}, $task;
 }
 
 foreach my $cfg (@{$task_configs{$task}}) {
 	next if $config->is_default($cfg);
 	my $val = $json->encode($config->get($cfg));
-        push @{$yamldata->{spec}{template}{spec}{containers}[0]{env}}, {name => "SREVIEW_" . uc($cfg), value => $val};
+	push @{$vars->{env}}, {name => "SREVIEW_" . uc($cfg), value => $val};
 }
 
-if(exists($ENV{DO_DEBUG})) {
-	unshift(@{$yamldata->{spec}{template}{spec}{containers}[0]{args}}, ("-d:Trace", "/usr/bin/" . @{$yamldata->{spec}{template}{spec}{containers}[0]{command}}));
-	$yamldata->{spec}{template}{spec}{containers}[0]{command} = [ "perl" ];
+my $template = SReview::Template->new(talk => $talk, vars => $vars);
+my $data;
+
+{
+	local $/ = undef;
+	open my $input, "<:encoding(UTF-8)", "/opt/sreview/template.ep";
+	$data = <$input>;
+	close $input;
 }
 
-print "About to create this job:\n";
+my $yamldata = Load($template->string($data));
+
+print "About to create this kubernetes object:\n";
 print Dump($yamldata) . "\n";
 open my $kubectl, "|-", "kubectl", "apply", "-f", "-";
 print $kubectl Dump($yamldata) . "\n";
