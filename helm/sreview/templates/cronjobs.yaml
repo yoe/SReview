@@ -1,3 +1,4 @@
+{{- if not .Values.no_detect_on_cluster }}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -23,6 +24,7 @@ spec:
             imagePullPolicy: {{ .Values.pullPolicy | default "IfNotPresent" }}
             command: ["/usr/bin/sreview-detect"]
             {{- include "sreview.envvals" . | indent 12 }}
+{{- end }}
 ---
 apiVersion: batch/v1
 kind: CronJob
