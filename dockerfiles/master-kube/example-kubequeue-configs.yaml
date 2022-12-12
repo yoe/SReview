@@ -101,7 +101,7 @@ spec:
 apiVersion: kubequeue.grep.be/v1
 kind: JobDef
 metadata:
-  name: sreview-notify_final
+  name: sreview-notify-final
 spec:
   queueName: sreview-queue
   jobTemplate:
