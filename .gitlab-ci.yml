@@ -214,9 +214,10 @@ release:helm:
   - docker
   script:
   - docker pull $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:git-$CI_COMMIT_SHORT_SHA
-  - docker tag $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:git-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$CI_COMMIT_REF_SLUG
+  - if [ $CI_COMMIT_REF_SLUG eq "main" ]; then TARGET=latest; else TARGET=$CI_COMMIT_REF_SLUG; fi
+  - docker tag $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:git-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$TARGET
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - docker push $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:latest
+  - docker push $CI_REGISTRY_IMAGE/${CI_JOB_NAME#*:}:$TARGET
 
 release:encoder:
   <<: *drelease
