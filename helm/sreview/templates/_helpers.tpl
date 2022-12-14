@@ -1,3 +1,10 @@
+{{- define "sreview.render_template" }}
+  {{- if typeIs "string" .value }}
+    {{- tpl .value .context }}
+  {{- else }}
+    {{- tpl (.value | toYaml) .context }}
+  {{- end }}
+{{- end }}
 {{- define "sreview.envvals" }}
 envFrom:
 - configMapRef:
@@ -58,4 +65,12 @@ env:
     secretKeyRef:
       name: {{ .Release.Name }}-secret
       key: SREVIEW_API_KEY
+{{- with .Values.extraEnv }}
+{{  include "sreview.render_template" (dict "value" . "context" $) }}
+{{- end }}
+{{- with .Values.secret }}
+{{- with .extraEnv }}
+{{  include "sreview.render_template" (dict "value" . "context" $) }}
+{{- end }}
+{{- end }}
 {{- end }}
