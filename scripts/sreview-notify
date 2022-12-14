@@ -5,6 +5,9 @@ use warnings;
 
 use DBI;
 use Mojo::Template;
+use Mojo::URL;
+use Mojo::UserAgent;
+use File::Temp qw/tempfile/;
 use SReview::Config::Common;
 use SReview::Talk;
 use Email::Simple;
@@ -65,6 +68,14 @@ sub notify_email() {
 	
 	my $file = $config->get("${configprefix}_email_template");
 	$file = $config->get("email_template") unless defined($file);
+	my $url = Mojo::URL->new($file);
+	my $template;
+	if(defined($url->scheme)) {
+		my $res = Mojo::UserAgent->new->get($url)->result;
+		die "could not download $url" unless $res->is_success;
+		(undef, $file) = tempfile();
+		$res->save_to($file);
+	}
 	my $body = $mt->render_file($file, {title => $title, url => $url, overview => $overview, talk => $talk});
 	my $subject = $config->get("${configprefix}_email_subject");
 	$subject = $config->get("email_subject") unless defined($subject);
