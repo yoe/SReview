@@ -1,4 +1,4 @@
-%layout "default", scripts_extra => [ "/vue/vue.min.js" ], fluid => 1;
+%layout "default", scripts_extra => [ "/vue/vue.js" ], fluid => 1;
 <div id="overview">
   <div class="float-right dropdown" v-if="admin_key">
     <button type="button" class="btn btn-danger dropdown-toggle"
