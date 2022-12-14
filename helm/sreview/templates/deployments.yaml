@@ -18,6 +18,11 @@ spec:
         image: '{{ .Values.containerRoot | default "registry.salsa.debian.org/debconf-video-team/sreview" }}/web:{{ .Values.containerLabel | default "latest" }}'
         imagePullPolicy: {{ .Values.pullPolicy | default "IfNotPresent" }}
         {{- include "sreview.envvals" . | indent 8 }}
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
         livenessProbe:
           httpGet:
             path: /
