@@ -24,7 +24,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-previews
           restartPolicy: OnFailure
@@ -47,7 +47,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-cut
           restartPolicy: OnFailure
@@ -70,7 +70,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-transcode
           restartPolicy: OnFailure
@@ -93,7 +93,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-notify
           restartPolicy: OnFailure
@@ -116,7 +116,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-notify
           restartPolicy: OnFailure
@@ -139,7 +139,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-notify
           restartPolicy: OnFailure
@@ -162,7 +162,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-upload
           restartPolicy: OnFailure
@@ -185,7 +185,7 @@ spec:
         spec:
           containers:
           - name: worker
-            image:
+            image: registry.salsa.debian.org/debconf-video-team/sreview/detect:main
           command:
           - sreview-inject-job
           restartPolicy: OnFailure
