@@ -24,3 +24,10 @@ stringData:
   SREVIEW_API_KEY: '"{{ .Values.secret.apikey }}"'
 {{ end }}
   SREVIEW_S3_ACCESS_CONFIG: '{{ .Values.secret.s3_access_config | default "{{ .Values.minio.accessKey }}" }}'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-run-kube-config
+data:
+  template.ep: {{ .Values.run_kube_template | quote }}

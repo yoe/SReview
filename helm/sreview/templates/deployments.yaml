@@ -48,3 +48,11 @@ spec:
         image: '{{ .Values.containerRoot | default "registry.salsa.debian.org/debconf-video-team/sreview" }}/master-kube:{{ .Values.containerLabel | default "latest" }}'
         imagePullPolicy: {{ .Values.pullPolicy | default "IfNotPresent" }}
         {{- include "sreview.envvals" . | indent 8 }}
+        volumeMounts:
+        - name: rkconfig
+          readOnly: true
+          mountPath: /opt/sreview
+      volumes:
+      - name: rkconfig
+        configMap:
+          name: {{ .Release.Name }}-run-kube-config
