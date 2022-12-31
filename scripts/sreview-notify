@@ -121,6 +121,7 @@ sub notify_command() {
 			chomp($rendered);
 			push @run, $rendered;
 		}
+		say "Running '" . join("', '", @run) . "'";
 		system(@run);
 	}
 }
@@ -141,10 +142,13 @@ if($configprefix eq 'notify_final') {
 }
 $overview = join('/', ($urlbase, "overview"));
 
+say "Performing " . scalar(@$actions) . " actions for notification:";
 foreach my $action(@$actions) {
 	if($action eq "email") {
+		say "sending email";
 		notify_email();
 	} elsif($action eq "command") {
+		say "running command";
 		notify_command();
 	} else {
 		die "Unknown notification action $action!";
