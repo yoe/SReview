@@ -187,11 +187,14 @@ helm:build:
   only:
     changes:
     - helm/**/*
+    - .gitlab-ci.yml
 
 release:helm:
    stage: release
    image: debian:stable
    allow_failure: true
+   needs:
+   - helm:build
    dependencies:
    - helm:build
    before_script:
@@ -203,6 +206,7 @@ release:helm:
    only:
      changes:
      - helm/**/*
+     - .gitlab-ci.yml
 
 .drelease: &drelease
   stage: release
