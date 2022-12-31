@@ -32,6 +32,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-master
+  annotations:
+    checksum/configmaps: {{ include (print .Template.BasePath "/configmaps.yaml") . | sha256sum }}
 spec:
   replicas: 1
   selector:
