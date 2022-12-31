@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 
+use v5.28;
 use strict;
 use warnings;
 
@@ -23,6 +24,8 @@ die "need talk ID!" unless defined($talkid);
 
 my $configprefix = shift;
 $configprefix = 'notify' unless defined($configprefix);
+
+say "Sending out notification for talk with ID $talkid";
 
 $dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid);
 
@@ -102,6 +105,7 @@ sub notify_email() {
 			References => join(',', @references),
 			"Message-ID" => "sreview-$nonce-$refid-$action",
 		], body => $body);
+	say "Sending out " . $email->as_string;
 	sendmail($email);
 }
 
