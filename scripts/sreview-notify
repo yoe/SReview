@@ -155,4 +155,6 @@ foreach my $action(@$actions) {
 	}
 }
 
-$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid);
+$dbh->prepare("UPDATE talks SET progress='done' WHERE id = ?")->execute($talkid) or die $!;
+
+say "finished";
