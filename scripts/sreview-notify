@@ -71,11 +71,11 @@ sub notify_email() {
 	
 	my $file = $config->get("${configprefix}_email_template");
 	$file = $config->get("email_template") unless defined($file);
-	my $url = Mojo::URL->new($file);
+	my $template_url = Mojo::URL->new($file);
 	my $template;
-	if(defined($url->scheme)) {
-		my $res = Mojo::UserAgent->new->get($url)->result;
-		die "could not download $url" unless $res->is_success;
+	if(defined($template_url->scheme)) {
+		my $res = Mojo::UserAgent->new->get($template_url)->result;
+		die "could not download $template_url" unless $res->is_success;
 		(undef, $file) = tempfile();
 		$res->save_to($file);
 	}
