@@ -215,7 +215,7 @@ sub startup {
 			my $apikey = random_string();
 			$c->cookie(sreview_api_key => $apikey);
 			$c->session->{apikey} = $apikey;
-			return $c->redirect_to('/admin');
+			return $c->redirect_to('/overview');
 		}
 	});
 
