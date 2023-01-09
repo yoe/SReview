@@ -321,6 +321,17 @@ sub is_default {
 	return (exists($SReview::Config::_private::{$item})) ? 0 : 1;
 }
 
+=head2 $config->keys
+
+Returns a list (unsorted) of all the known configuration names.
+
+=cut
+
+sub keys {
+	my $self = shift;
+	return keys %{$self->{defs}};
+}
+
 =head1 BUGS
 
 It is currently not possible to load more than one configuration file in

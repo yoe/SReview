@@ -17,17 +17,6 @@ my $json = JSON->new->allow_nonref;
 
 my $config = SReview::Config::Common::setup;
 
-my %task_configs = (
-        previews => [ "pubdir", "accessmethods", "s3_access_config",],
-        cut => [ "workdir", "pubdir", "audio_multiplex_mode", "accessmethods", "s3_access_config","inputglob",],
-        transcode => [ "pubdir", "outputdir", "output_subdirs", "workdir", "preroll_template", "postroll_template", "postroll", "apology_template", "input_profile", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
-        notify => [ "notify_email_template", "notify_email_subject", "notify_commands", "notify_actions", "email_template", "email_subject", "email_from", "urlbase", ],
-        notify_final => [ "notify_final_email_template", "notify_final_email_subject", "notify_final_commands", "notify_final_actions", "email_template", "email_subject", "email_from", "urlbase", ],
-        announce => [ "announce_email_template", "announce_email_subject", "announce_commands", "announce_actions", "email_template", "email_subject", "email_from", "urlbase", ],
-        upload => [ "upload_actions", "event", "pubdir", "inputglob", "outputdir", "output_subdirs", "cleanup", "output_profiles", "extra_profiles", "accessmethods", "s3_access_config", ],
-        "inject-job" => [ "input_profile", "pubdir", "inputglob", "s3_access_config", "accessmethods" ],
-);
-
 my $talk = SReview::Talk->new(talkid => $id);
 my $now = DateTime->now;
 my $start = DateTime->new(
@@ -61,7 +50,7 @@ if($task eq "announce" || $task eq "notify_final") {
 	push @{$vars->{args}}, $task;
 }
 
-foreach my $cfg (@{$task_configs{$task}}) {
+foreach my $cfg ($config->keys) {
 	next if $config->is_default($cfg);
 	my $val = $json->encode($config->get($cfg));
 	push @{$vars->{env}}, {name => "SREVIEW_" . uc($cfg), value => $val};
