@@ -83,7 +83,7 @@ test:committed:
   after_script:
   - mkdir products
   - dcmd mv ../*ges products/
-  - echo "GIT_DESCRIBE=$(git describe)" > dot.env
+  - echo "GIT_DESCRIBE=$(git describe --match=v*.*.[0-9])" > dot.env
   artifacts:
     paths:
     - products
