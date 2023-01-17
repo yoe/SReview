@@ -99,8 +99,8 @@ sub update {
 			$c->app->log->debug("Opened collection for $collname");
 			my $file = $coll->add_file(relname => join("/", "injected", $fn));
 			$c->dbh->prepare("DELETE FROM raw_files WHERE filename LIKE ? AND stream = 'injected' AND room = ?")->execute($coll->url . "/injected/" . $relname . ".%", $talk->roomid);
-			my $st = $c->dbh->prepare("INSERT INTO raw_files(filename, room, starttime, stream) VALUES(?,?,?,'injected') ON CONFLICT DO NOTHING");
-			$st->execute($file->url, $talk->roomid, $talk->corrected_times->{start});
+			my $st = $c->dbh->prepare("INSERT INTO raw_files(filename, room, starttime, stream, collection_name) VALUES(?,?,?,'injected', ?) ON CONFLICT DO NOTHING");
+			$st->execute($file->relname, $talk->roomid, $talk->corrected_times->{start}, $collname);
 			my $target = $file->filename;
 			$c->app->log->debug("Copying file to $target");
 			$upload->move_to($target);
