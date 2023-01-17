@@ -135,14 +135,16 @@ sub _probe_children {
 	my $return = [];
 	my $baseurl;
 
-	foreach my $key(@{$self->s3object->list_all->{keys}}) {
-		push @$return, SReview::Files::Access::S3->new(
-			s3object => $self->s3object,
-			baseurl => $self->baseurl,
-			mtime => DateTime::Format::ISO8601->parse_datetime($key->{last_modified}),
-			relname => $key->{key},
-		);
-	}
+	eval {
+		foreach my $key(@{$self->s3object->list_all->{keys}}) {
+			push @$return, SReview::Files::Access::S3->new(
+				s3object => $self->s3object,
+				baseurl => $self->baseurl,
+				mtime => DateTime::Format::ISO8601->parse_datetime($key->{last_modified}),
+				relname => $key->{key},
+			);
+		}
+	};
 	return $return;
 }
 
