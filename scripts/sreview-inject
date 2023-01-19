@@ -96,7 +96,7 @@ if(!$do_transcode) {
 		my $dirname = tempdir("injectXXXXXX", DIR => $config->get("workdir"), CLEANUP => 1);
 		my $normalized = Media::Convert::Asset->new(url => join("/", $dirname, basename($inputfile)));
 		Media::Convert::Normalizer->new(input => $input, output => $normalized)->run();
-		$input = $normalized;
+		$input = Media::Convert::Asset->new(url => $normalized->url);
 	}
 	my $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get('extra_profiles'));
 	Media::Convert::Pipe->new(inputs => [$input], output => Media::Convert::Asset->new(url => $outputfile->filename, reference => $profile), vcopy => 0, acopy => 0)->run();
