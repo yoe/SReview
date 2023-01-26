@@ -22,14 +22,13 @@ sub _probe_children {
 	my $res = $ua->get($baseurl)->result;
 	if($res->is_success) {
 		foreach my $obj(@{$res->json}) {
-			my $child;
-			my $mtime = $parser->parse_datetime($obj->{mtime});
 			if($obj->{type} eq "directory") {
-				$child = SReview::Files::Collection::HTTP::nginx::JSON->new(baseurl => join("/", $self->baseurl, $obj->{name}), mtime => $mtime);
+				foreach my $child(@{SReview::Files::Collection::HTTP::nginx::JSON->new(baseurl => join("/", $self->baseurl, $obj->{name}))->children}) {
+					push @$return, SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => join('/', $obj->{name}, $child->{relname}), mtime => $child->mtime);
+				}
 			} else {
-				$child = SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => $obj->{name}, mtime => $mtime);
+				push @$return, SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => $obj->{name}, mtime => $parser->parse_datetime($obj->{mtime}));
 			}
-			push @$return, $child;
 		}
 	}
 
