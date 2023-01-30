@@ -60,6 +60,17 @@ has 'talkid' => (
         },
 );
 
+has 'upstreamid' => (
+	is => 'ro',
+	isa => 'Str',
+	builder => '_probe_upstreamid',
+	lazy => 1,
+);
+
+sub _probe_upstreamid {
+	return shift->_get_pathinfo->{raw}{upstreamid}
+}
+
 =head2 pathinfo
 
 Helper property to look up information from the database. Should not be
@@ -79,7 +90,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.nonce, talks.apologynote, talks.upstreamid FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
