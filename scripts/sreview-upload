@@ -94,7 +94,7 @@ if($configprefix eq "upload" && ($config->get('cleanup') eq "all" || $config->ge
 }
 
 foreach my $profile(@{$config->get('output_profiles')}) {
-	my $basename = join('.', $talkdata->{slug}, Media::Convert::Asset::ProfileFactory->create($profile, $raw_file)->exten(), $config->get('extra_profiles'));
+	my $basename = join('.', $talkdata->{slug}, Media::Convert::Asset::ProfileFactory->create($profile, $raw_file, $config->get('extra_profiles'))->exten());
 	my $file = $output_coll->get_file(relname => join('/', $reldir, $basename));
 	run_command($file->valid_path_filename, $file->relname, $file->basepath);
 	if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'output') {
