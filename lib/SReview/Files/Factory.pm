@@ -54,6 +54,13 @@ has 'baseurl' => (
 	required => 1,
 );
 
+has 'basepath' => (
+	isa => 'Str',
+	is => 'ro',
+	lazy => 1,
+	builder => '_probe_basepath',
+);
+
 has 'create' => (
 	is => 'rw',
 	traits => ['Bool'],
@@ -81,6 +88,10 @@ sub _probe_url {
 	my $self = shift;
 
 	return join('/', $self->baseurl, $self->relname);
+}
+
+sub _probe_basepath {
+	return shift->baseurl;
 }
 
 sub DESTROY {

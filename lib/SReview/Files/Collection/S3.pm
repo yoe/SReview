@@ -52,6 +52,10 @@ sub _probe_mtime {
 	return DateTime::Format::ISO8601->parse_datetime($meta->{last_modified});
 }
 
+sub _probe_basepath {
+	return shift->workdir;
+}
+
 sub store_file {
 	my $self = shift;
 	return if(!$self->has_download);

@@ -42,6 +42,10 @@ sub _get_file {
 	}
 }
 
+sub _probe_basepath {
+	return shift->workdir;
+}
+
 package SReview::Files::Collection::HTTP;
 
 use Moose;

@@ -26,14 +26,15 @@ $dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid
 my $mt = Mojo::Template->new;
 $mt->vars(1);
 
-sub run_command($$) {
+sub run_command($$$) {
 	my $file = shift;
 	my $relative = shift;
+	my $base = shift;
 
 	foreach my $command(@{$config->get("${configprefix}_actions")}) {
 		my @run;
 		foreach my $component(@$command) {
-			my $rendered = $mt->render($component, {file => $file, relative_file => $relative });
+			my $rendered = $mt->render($component, {file => $file, relative_file => $relative, base => $base });
 			chomp($rendered);
 			push @run, $rendered;
 		}
@@ -95,7 +96,7 @@ if($configprefix eq "upload" && ($config->get('cleanup') eq "all" || $config->ge
 foreach my $profile(@{$config->get('output_profiles')}) {
 	my $basename = join('.', $talkdata->{slug}, Media::Convert::Asset::ProfileFactory->create($profile, $raw_file)->exten(), $config->get('extra_profiles'));
 	my $file = $output_coll->get_file(relname => join('/', $reldir, $basename));
-	run_command($file->valid_path_filename, $file->relname);
+	run_command($file->valid_path_filename, $file->relname, $file->basepath);
 	if($config->get('cleanup') eq "all" || $config->get('cleanup') eq 'output') {
 		push @files, (
 			$file,
