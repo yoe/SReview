@@ -132,7 +132,7 @@ foreach my $file(@{$collection->children}) {
 	delete $parsed{stream};
 
 	my $start = DateTime->new(%parsed, time_zone => $tz);
-	$exists->execute($file->url);
+	$exists->execute($file->relname);
 	my $row = $exists->fetchrow_hashref;
 	if($exists->rows == 0) {
 		print " ...is new" if $verbose;
