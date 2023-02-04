@@ -210,7 +210,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="track-field">Room</label>
+              <label for="room-field">Room</label>
               <select class="form-control" id="room-field"
                       v-model="room"
                       v-bind:class="room ? '' : 'is-invalid'">
@@ -220,7 +220,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="track-field">State</label>
+              <label for="state-field">State</label>
               <select class="form-control" id="state-field"
                       v-model="state">
                 <option v-for="s in states">
@@ -229,7 +229,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="track-field">Progress</label>
+              <label for="progress-field">Progress</label>
               <select class="form-control" id="progress-field"
                       v-model="progress">
                 <option v-for="p in progresses">
