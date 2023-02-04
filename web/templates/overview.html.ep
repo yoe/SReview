@@ -237,6 +237,11 @@
                 </option>
               </select>
             </div>
+            <div class="form-group">
+              <label for="stream-field">Active stream</label>
+              <input class="form-control" id="stream-field"
+                    v-model="active_stream">
+            </div>
           </form>
         </div>
         <div class="modal-footer">
