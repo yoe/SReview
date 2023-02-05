@@ -299,7 +299,7 @@ foreach my $stream(0, 1, 2) {
 if($corrections->{offset_audio} != 0) {
 	for my $vid(@videos) {
 		my $tmp = Media::Convert::Asset->new(url => "$tempdir/temp.mkv");
-		Media::Convert::AvSync->new(input => $vid, output => $tmp, value => $corrections->{offset_audio})->run();
+		Media::Convert::AvSync->new(input => $vid, output => $tmp, audio_delay => $corrections->{offset_audio})->run();
 		move($tmp->url, $vid->url);
 	}
 	reload();
