@@ -306,9 +306,17 @@ if($corrections->{offset_audio} != 0) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
-	Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
-	move("$tempdir/temp.mkv", $main->url);
-	reload();
+	eval {
+		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
+	};
+	if($@) {
+		return;
+	}
+	my @stat = stat("$tempdir/temp.mkv");
+	if($stat[7] != 0) {
+		move("$tempdir/temp.mkv", $main->url);
+		reload();
+	}
 }
 
 my $postlen_db = 0;
