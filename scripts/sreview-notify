@@ -105,7 +105,7 @@ sub notify_email() {
 		->header("Message-ID" => "sreview-$nonce-$refid-$action")
 		->text_body($body);
 	say "Sending out " . $email->as_string;
-	sendmail($email);
+	sendmail($email->as_string);
 }
 
 sub notify_command() {
