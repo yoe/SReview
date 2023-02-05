@@ -11,7 +11,7 @@ use Mojo::UserAgent;
 use File::Temp qw/tempfile/;
 use SReview::Config::Common;
 use SReview::Talk;
-use Email::Simple;
+use Email::Stuffer;
 use Email::Sender::Simple qw/sendmail/;
 
 my $config = SReview::Config::Common::setup;
@@ -97,14 +97,13 @@ sub notify_email() {
 		push @references, "sreview-$nonce-$refid-ntf";
 	}
 	$refid = $talk->corrections->{serial};
-	my $email = Email::Simple->create(header => [
-			From => $config->get('email_from'),
-			To => join(',', @to_recips),
-			Subject => $mt->render($subject, {title => $title}),
-			Cc => join(',', @cc_recips),
-			References => join(',', @references),
-			"Message-ID" => "sreview-$nonce-$refid-$action",
-		], body => $body);
+	my $email = Email::Stuffer->from($config->get('email_from'))
+		->to(join(',', @to_recips))
+		->subject($mt->render($subject, {title => $title}))
+		->cc(join(',', @cc_recips))
+		->header(References => join(',', @references))
+		->header("Message-ID" => "sreview-$nonce-$refid-$action")
+		->text_body($body);
 	say "Sending out " . $email->as_string;
 	sendmail($email);
 }
