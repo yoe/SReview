@@ -303,7 +303,7 @@ sub delete_files {
 			push @to_delete, shift @ownfiles;
 		} elsif($names[0] eq substr($ownfiles[0]->url, 0, length($names[0]))) {
 			push @to_delete, shift @ownfiles;
-			if((!scalar(@ownfiles)) || $names[0] lt $ownfiles[0]->url) {
+			if((!scalar(@ownfiles)) || $names[0] ne substr($ownfiles[0]->url, 0, length($names[0]))) {
 				shift @names;
 			}
 		} elsif ($names[0] gt $ownfiles[0]->url) {
