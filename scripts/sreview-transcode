@@ -207,6 +207,18 @@ credits). Either this option or C<postroll_template> is required.
 my $postroll;
 my $postroll_file;
 
+my $steps_finished = 0;
+my $total_steps = 2 + scalar(@{$config->get('output_profiles')});
+
+my $update_perc = $dbh->prepare("UPDATE talks SET perc = ? WHERE id = ?");
+
+sub progress {
+	my $perc = shift;
+	print "step " . $steps_finished + 1 ": $perc\%\r";
+	$perc = int((($steps_finished + ($perc / 100)) / $total_steps) * 100);
+	$update_perc->execute($talkid, $perc);
+}
+
 if(defined($config->get('postroll_template'))) {
 	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "/post.png");
 	process_template($config->get('postroll_template'), $postroll_file->filename, $talk, $config);
@@ -246,19 +258,23 @@ if(defined($config->get("input_profile"))) {
 my $sorry;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "/sorry.png");
+	$total_steps++;
 
 	die unless defined($config->get('apology_template'));
 	process_template($config->get('apology_template'), $apology_file->filename, $talk, $config);
 	$apology_file->store_file;
 	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, duration => 5);
-	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology_file->filename)], output => $sorry)->run();
+	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology_file->filename)], output => $sorry, progress => \&progress)->run();
+	$steps_finished++;
 }
 
 # concatenate preroll, main video, postroll
 my $pre = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, duration => 5);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $preroll_file->filename)], output => $pre, vcopy => 0, acopy => 0)->run();
+Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $preroll_file->filename)], output => $pre, vcopy => 0, acopy => 0, progress => \&progress)->run();
+$steps_finished++;
 my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, duration => 5);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
+Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0, progress => \&progress)->run();
+$steps_finished++;
 my $inputs = [ $pre ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
@@ -285,7 +301,8 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 			$output->add_metadata($field, $drow->{$field});
 		}
 	}
-	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
+	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1, progress => \&progress)->run();
+	$steps_finished++;
 	# XXX: this should really be done by Media::Convert::Asset::Concat, not by us
 	unlink($input->url);
 	$output_file->store_file;
