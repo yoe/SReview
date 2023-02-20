@@ -49,7 +49,11 @@ sub view {
 
 	$c->stash(talk => $talk);
 	$c->stash(stylesheets => ['/review.css']);
-	$c->render(template => "review/" . $c->srconfig->get("review_template"), variant => $variant);
+	my $template = $c->srconfig->get("review_template");
+	if(!defined($template)) {
+		$template = ($talk->get_flag("is_injected") ? "confirm" : "full");
+	}
+	$c->render(template => "review/$template", variant => $variant);
 }
 
 sub update {

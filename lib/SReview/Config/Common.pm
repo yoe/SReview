@@ -79,7 +79,7 @@ sub setup {
 
 	$config->define("adminuser", 'email address for the initial admin user created. Note: if this user is removed and this configuration value continues to exist, then the user will be recreated upon the next database initialization (which might be rather quick).', undef);
 	$config->define('adminpw', 'password for the admin user. See under "adminuser" for details.', undef);
-	$config->define('review_template', 'The template name to be used for the review page. Can be one of "full" (full editing capabilities) or "confirm" (confirmation only)', 'full');
+	$config->define('review_template', 'The template name to be used for the review page. Can be one of "full" (full editing capabilities) or "confirm" (confirmation only). Defaults to "full", unless the talk was injected, in which case it defaults to "confirm".', undef);
 	$config->define('inject_fatal_checks', 'Checks to be run on an uploaded video. When a check fails, the upload is rejected. Same syntax as for inject_transcode_skip_checks.', {});
 
 	# Values for encoder scripts
