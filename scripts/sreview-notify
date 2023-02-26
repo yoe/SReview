@@ -12,6 +12,7 @@ use File::Temp qw/tempfile/;
 use SReview::Config::Common;
 use SReview::Talk;
 use Email::Stuffer;
+use Email::Address;
 use Email::Sender::Simple qw/sendmail/;
 
 my $config = SReview::Config::Common::setup;
@@ -93,8 +94,10 @@ sub notify_email() {
 		$refid--;
 		$action = 'fnt';
 	}
+	my @addrs = Email::Address->parse($config->get('email_from'));
+	my $host = $addrs[0]->host;
 	for (; $refid >= 0; $refid--) {
-		push @references, "sreview-$nonce-$refid-ntf";
+		push @references, "<sreview-$nonce-$refid-ntf\@$host>";
 	}
 	$refid = $talk->corrections->{serial};
 	my $email = Email::Stuffer->from($config->get('email_from'))
@@ -102,7 +105,7 @@ sub notify_email() {
 		->subject($mt->render($subject, {title => $title}))
 		->cc(join(',', @cc_recips))
 		->header(References => join(',', @references))
-		->header("Message-ID" => "sreview-$nonce-$refid-$action")
+		->header("Message-ID" => "<sreview-$nonce-$refid-$action\@$host>")
 		->text_body($body);
 	say "Sending out " . $email->as_string;
 	sendmail($email->as_string);
