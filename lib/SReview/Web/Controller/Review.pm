@@ -161,6 +161,7 @@ sub update {
                 $talk->add_correction("offset_audio", "-" . $c->param("av_seconds"));
                 $corrections->{audio_offset} = "-" . $c->param("av_seconds");
         }
+        $c->app->log->debug($c->param("broken"));
         if(defined($c->param("broken")) && $c->param("broken") eq "yes") {
                 $talk->set_state("broken");
                 $c->stash(other_msg => $c->param("comment_text"));
