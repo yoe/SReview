@@ -306,6 +306,10 @@ if($corrections->{offset_audio} != 0) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
+	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv");
+	Media::Convert::Pipe->new(inputs => [$main], output => $tmp, map => [Media::Convert::Map->new(input => $main, type => "stream", choice => "video"), Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$corrections->{audio_channel}])], acopy => 1, vcopy => 1)->run();
+	move($tmp->url, $main->url);
+	reload();
 	eval {
 		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
 	};
