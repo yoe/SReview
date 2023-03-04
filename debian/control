@@ -61,7 +61,8 @@ Description: SReview webinterface
 
 Package: sreview-encoder
 Architecture: all
-Depends: libemail-sender-perl,
+Depends: libemail-address-perl,
+         libemail-sender-perl,
          libemail-stuffer-perl,
          sreview-common,
          ${misc:Depends},
