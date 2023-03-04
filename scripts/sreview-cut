@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use v5.28;
+
 use strict;
 use warnings;
 
@@ -306,20 +308,23 @@ if($corrections->{offset_audio} != 0) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
-	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv");
-	Media::Convert::Pipe->new(inputs => [$main], output => $tmp, map => [Media::Convert::Map->new(input => $main, type => "stream", choice => "video"), Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$corrections->{audio_channel}])], acopy => 1, vcopy => 1)->run();
-	move($tmp->url, $main->url);
+	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv", audio_codec => $main->audio_codec);
+	Media::Convert::Pipe->new(inputs => [$main], output => $tmp, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$corrections->{audio_channel}])], acopy => 0, vskip => 1)->run();
+	my $tmp2 = Media::Convert::Asset->new(url => "$tempdir/merged.mkv");
+	Media::Convert::Pipe->new(inputs => [$tmp, $main], output => $tmp2, map => [Media::Convert::Map->new(input => $main, type => "stream", choice => "video"), Media::Convert::Map->new(input => $tmp, type => "stream", choice => "audio")])->run();
+	move($tmp2->url, $main->url);
 	reload();
 	eval {
 		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
 	};
 	if($@) {
-		return;
-	}
-	my @stat = stat("$tempdir/temp.mkv");
-	if($stat[7] != 0) {
-		move("$tempdir/temp.mkv", $main->url);
-		reload();
+		say "normalization failed, skipping...";
+	} else {
+		my @stat = stat("$tempdir/temp.mkv");
+		if($stat[7] != 0) {
+			move("$tempdir/temp.mkv", $main->url);
+			reload();
+		}
 	}
 }
 
