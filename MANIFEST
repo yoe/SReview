@@ -29,6 +29,7 @@ lib/SReview/Schedule/Wafer.pm
 lib/SReview/Schedule/WithShadow.pm
 lib/SReview/Schedule/Yaml.pm
 lib/SReview/Talk.pm
+lib/SReview/Talk/Progress.pm
 lib/SReview/Talk/State.pm
 lib/SReview/Template.pm
 lib/SReview/Template/SVG.pm
