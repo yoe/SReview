@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 34;
+use Test::More tests => 40;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -37,6 +37,8 @@ SKIP: {
 		chdir($script->dirname);
 	}
 	my $t = Test::Mojo->new($script);
+
+	$t->post_ok("/r/1234567890abcdefghij/update" => form => { foo => "bar" })->status_is(404);
 
 	my $talk = SReview::Talk->new(talkid => 1);
 
@@ -89,6 +91,8 @@ SKIP: {
 	ok($talk->corrections->{offset_audio} == 1, "audio delay A/V sync value is set correctly");
 	ok($talk->corrections->{serial} == $formdata->{serial} + 1, "updates affect serial");
 
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(409);
+
 	$formdata->{av_sync} = "av_not_ok_video";
 	$formdata->{serial} = $talk->corrections->{serial};
 
@@ -100,6 +104,8 @@ SKIP: {
 	ok($talk->corrections->{offset_audio} == 0, "video delay A/V sync value is set correctly");
 
 	$talk->set_state("finalreview");
+
+	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(403);
 
 	$formdata = {
 		video_state => "ok",
