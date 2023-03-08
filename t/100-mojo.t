@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 40;
+use Test::More tests => 47;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -26,7 +26,7 @@ use SReview::Web;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 40) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
+	skip("Need a database to play with", 47) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
@@ -59,6 +59,12 @@ SKIP: {
 
 	$talk->set_state("preview");
 	$talk = SReview::Talk->new(talkid => 1);
+
+	$talk->corrections;
+	$talk->set_correction(serial => -1);
+	$talk->done_correcting;
+
+	$t->post_ok("$talkurl/update" => form => { serial => 0, video_state => "ok" })->status_is(400);
 
 	my $formdata = {
 		start_time => "start_time_ok",
@@ -95,6 +101,7 @@ SKIP: {
 
 	$formdata->{av_sync} = "av_not_ok_video";
 	$formdata->{serial} = $talk->corrections->{serial};
+	$formdata->{comment_text} = "Thanks!";
 
 	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
 
@@ -102,6 +109,18 @@ SKIP: {
 
 	$talk = SReview::Talk->new(talkid => 1);
 	ok($talk->corrections->{offset_audio} == 0, "video delay A/V sync value is set correctly");
+	like($talk->comment, qr/Thanks!/, "Comments are accepted");
+
+	$t->post_ok("$talkurl/update" => form => {serial => $talk->corrections->{serial}, complete_reset => 1})->status_is(200);
+
+	$talk = SReview::Talk->new(talkid => 1);
+	my $corrs = $talk->corrections;
+	foreach my $corr(keys %$corrs) {
+		if($corrs->{$corr} == 0) {
+			delete $corrs->{$corr};
+		}
+	}
+	is_deeply($talk->corrections, {serial => $talk->corrections->{serial}}, "a complete reset only leaves the correction serial");
 
 	$talk->set_state("finalreview");
 
@@ -116,7 +135,8 @@ SKIP: {
 
 	$t->post_ok("$talkurl/update" => form => $formdata)->status_is(200);
 	$talk = SReview::Talk->new(talkid => 1);
-	ok($talk->state eq 'finalreview', 'confirmation in final review is handled correctly');
+	ok($talk->state eq 'finalreview', 'confirmation in final review is handled correctly - state');
+	ok($talk->progress eq 'done', 'confirmation in final review is handled correctly - progress');
 
 	chdir("..");
 	unlink("web/t");
