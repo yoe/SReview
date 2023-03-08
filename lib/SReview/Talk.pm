@@ -9,6 +9,7 @@ use Mojo::Template;
 use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
+use SReview::Talk::Progress;
 use DateTime::Format::Pg;
 
 my $config = SReview::Config::Common::setup;
