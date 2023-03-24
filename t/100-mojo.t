@@ -122,9 +122,9 @@ SKIP: {
 	}
 	is_deeply($talk->corrections, {serial => $talk->corrections->{serial}}, "a complete reset only leaves the correction serial");
 
+	$talk->set_state("preview");
 	$t->post_ok("$talkurl/update" => form => {serial => $talk->corrections->{serial}, "video_state" => "ok"})->status_is(200);
 
-	$talk->set_state("preview");
 	$talk = SReview::Talk->new(talkid => 1);
 
 	$t->post_ok("$talkurl/update" => form => {serial => $talk->corrections->{serial}})->status_is(400);
