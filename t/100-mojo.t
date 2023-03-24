@@ -16,7 +16,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 49;
+use Test::More tests => 51;
 use Test::Mojo;
 use Mojo::File qw/path/;
 use SReview::Talk;
@@ -26,7 +26,7 @@ use SReview::Web;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 49) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
+	skip("Need a database to play with", 51) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
@@ -122,9 +122,12 @@ SKIP: {
 	}
 	is_deeply($talk->corrections, {serial => $talk->corrections->{serial}}, "a complete reset only leaves the correction serial");
 
-	$talk->set_state("preview");
-
 	$t->post_ok("$talkurl/update" => form => {serial => $talk->corrections->{serial}, "video_state" => "ok"})->status_is(200);
+
+	$talk->set_state("preview");
+	$talk = SReview::Talk->new(talkid => 1);
+
+	$t->post_ok("$talkurl/update" => form => {serial => $talk->corrections->{serial}})->status_is(400);
 
 	$talk->set_state("finalreview");
 

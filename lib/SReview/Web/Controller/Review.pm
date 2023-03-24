@@ -101,6 +101,7 @@ sub update {
         }
 	if(!defined($c->param("video_state"))) {
 		$c->stash(error => 'Invalid submission data; missing parameter <t>video_state</t>.');
+		$c->res->code(400);
 		$c->render(variant => "error");
 		return;
 	}
@@ -120,6 +121,7 @@ sub update {
         my $corrections = {};
 	if(!defined($c->param("audio_channel"))) {
 		$c->stash(error => 'Invalid submission data; missing parameter <t>audio_channel</t>.');
+		$c->res->code(400);
 		$c->render(variant => 'error');
 		return;
 	}
