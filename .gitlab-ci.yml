@@ -16,7 +16,7 @@ stages:
 .build: &build
   stage: test
   services:
-  - postgres:9.6
+  - postgres:11
   - name: minio/minio:latest
     command:
     - server
