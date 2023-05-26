@@ -81,7 +81,7 @@ test:committed:
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
   - DIST=${CI_JOB_NAME#*:}
   - VERSION=$(git describe --match=v*.*.[0-9]|sed -e 's/^v//g')
-  - DEBEMAIL="gitlab-runner auto build <nowhere@nowhere>" dch --distribution $DIST -v $VERSION-$DIST-0 --no-auto-nmu "gitlab automatic snapshot build for $DIST of $VERSION-0"
+  - DEBEMAIL="gitlab-runner auto build <nowhere@nowhere>" dch --distribution $DIST -v $VERSION~$DIST-0 --no-auto-nmu "gitlab automatic snapshot build for $DIST of $VERSION-0"
   script:
   - dpkg-buildpackage -us -uc -i -I.git
   after_script:
