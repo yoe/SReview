@@ -13,7 +13,7 @@ sub init {
 		security => {
 			api_key => sub {
 				my ($c, $definition, $scopes, $cb) = @_;
-				if(exists($c->session->{apikey})) {
+				if(exists($c->session->{apikey}) && defined($c->req->headers->header("X-SReview-Key"))) {
 					return $c->$cb('API key invalid') unless $c->session->{apikey} eq $c->req->headers->header("X-SReview-Key");
 					return $c->$cb();
 				}
