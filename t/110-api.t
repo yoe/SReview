@@ -15,6 +15,7 @@ $config->set(secret => "foo",
 	     pubdir => abs_path('t/pubdir'),
 	     preroll_template => abs_path('t/testvids/just-title.svg'),
 	     postroll_template => abs_path('t/testvids/just-title.svg'),
+	     adminpw => "adminpw", adminuser => 'admin@example.com',
 	     apology_template => abs_path('t/testvids/just-title.svg'));
 
 if(exists($ENV{SREVIEWTEST_DB})) {
@@ -49,9 +50,13 @@ SKIP: {
 	$config->set(api_key => "foobarbaz");
 	$t = Test::Mojo->new($script);
 
+	my $admin_key = undef;
+
 	$t->ua->on(start => sub {
 		my ($ua, $tx) = @_;
-		if($do_auth) {
+		if(defined($admin_key)) {
+			$tx->req->headers->add("X-SReview-Key" => $admin_key);
+		} elsif($do_auth) {
 			$tx->req->headers->add("X-SReview-Key" => "foobarbaz");
 		}
 	});
@@ -68,10 +73,18 @@ SKIP: {
 	$t->get_ok("$b/event/list")->status_is(200)->json_is('/0/name' => 'Test event')->json_is('/0/inputdir' => undef);
 	$t->get_ok("$b/event/1")->status_is(200)->json_is('/name' => 'Test event');
 	$t->patch_ok("$b/event/1" => json => {inputdir => "foo"})->status_is(401);
-	$do_auth = 1;
+	# admin key
+	$t->post_ok("/login_post" => form => { email => 'admin@example.com', pass => "adminpw"})->status_is(302)->header_is(Location => "/overview");
+	foreach my $cookie(@{$t->tx->res->cookies}) {
+		next unless ($cookie->name eq 'sreview_api_key');
+		$admin_key = $cookie->value;
+		last;
+	}
+	ok(defined($admin_key), "we have an admin key");
 	$t->patch_ok("$b/event/1" => json => {inputdir => "foo"})->status_is(200)->json_is('/inputdir' => 'foo')->json_is('/name' => 'Test event');
 	$t->post_ok("$b/event" => json => {name => 'bad event'})->status_is(200)->json_is('/id' => 2);
-	$do_auth = 0;
+	$admin_key = undef;
+	$t->reset_session;
 	$t->delete_ok("$b/event/2")->status_is(401);
 	$t->get_ok("$b/event/2")->status_is(200)->json_is('/id' => 2)->json_is('/name' => 'bad event');
 	$do_auth = 1;
