@@ -26,7 +26,8 @@ use File::Path qw/make_path/;
 use File::Temp qw/tempdir/;
 use SReview::Config::Common;
 use SReview::Talk;
-use SReview::Template::SVG qw/process_template/;
+use SReview::Template::SVG;
+use SReview::Template::Synfig;
 use Media::Convert::Asset;
 use Media::Convert::Asset::PNGGen;
 use Media::Convert::Asset::Concat;
@@ -35,6 +36,22 @@ use Media::Convert::Pipe;
 use SReview::Files::Factory;
 use Mojo::Util qw/xml_escape/;
 use Mojo::UserAgent;
+
+sub process_template {
+	my $template = shift;
+	my $output = shift;
+	my $talk = shift;
+	my $config = shift;
+
+	my $format = $config->get("template_format");
+
+	if($config->get("template_format") eq "svg") {
+		return SReview::Template::SVG::process_template($template, $output, $talk, $config);
+	} elsif($config->get("template_format") eq "synfig") {
+		return SReview::Template::Synfig::process_template($template, $output, $talk, $config);
+	};
+	die "Could not transform templates: template_format config value set to invalid value $format";
+}
 
 =head1 NAME
 
@@ -183,7 +200,7 @@ my $tmpdir = tempdir( "transXXXXXX", DIR => $config->get('workdir'), CLEANUP => 
 
 =item preroll_template
 
-The name of an SVG template to be used for the preroll (i.e., opening
+The name of an SVG or Synfig template to be used for the preroll (i.e., opening
 credits). Required.
 
 =cut
@@ -194,13 +211,22 @@ $preroll_file->store_file;
 
 =item postroll_template
 
-The name of an SVG template to be used for the postroll (i.e., closing
-credits). Either this option or C<postroll> is required.
+The name of an SVG or Synfig template to be used for the postroll (i.e.,
+closing credits). Either this option or C<postroll> is required.
 
 =item postroll
 
 The name of a PNG file to be used for the postroll (i.e., closing
 credits). Either this option or C<postroll_template> is required.
+
+=item template_format
+
+Whether the preroll, postroll, and apology templates are in SVG or
+Synfig format. Currently, either all templates are SVG, or all templates
+are synfig; the two cannot be combined.
+
+Valid values are "svg" (for SVG) or "synfig" (for synfig). Defaults to
+"svg".
 
 =cut
 
