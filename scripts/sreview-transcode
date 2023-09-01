@@ -47,13 +47,15 @@ sub process_template {
 
 	if($config->get("template_format") eq "svg") {
 		SReview::Template::SVG::process_template($template, $output, $talk, $config);
-		return $output, [duration => 5];
+		return $output, [], [duration => 5];
 	} elsif($config->get("template_format") eq "synfig") {
 		SReview::Template::Synfig::process_template($template, $output, $talk, $config);
 		my @output = split/\./, $output;
 		my $ext = pop @output;
 		push @output, "%04d", $ext;
-		return join(".", @output), [loop => 0];
+		$output = join(".", @output);
+		my $dur = Media::Convert::Asset::PNGGen->new(url => $output);
+		return $output, [loop => 0], [duration => undef, duration_frames => $dur->duration_frames];
 	};
 	die "Could not transform templates: template_format config value set to invalid value $format";
 }
@@ -210,9 +212,10 @@ credits). Required.
 
 =cut
 
-my $preroll = "$tmpdir/pre.png";
-my $preopts;
-($preroll, $preopts) = process_template($config->get('preroll_template'), $preroll, $talk, $config);
+my $preroll = "$tmpdir/pre/pre.png";
+mkdir "$tmpdir/pre";
+my ($preopts_in, $preopts_out);
+($preroll, $preopts_in, $preopts_out) = process_template($config->get('preroll_template'), $preroll, $talk, $config);
 
 =item postroll_template
 
@@ -235,15 +238,16 @@ Valid values are "svg" (for SVG) or "synfig" (for synfig). Defaults to
 
 =cut
 
-my $postroll;
-my $postopts;
+my ($postopts_in, $postopts_out, $postroll);
 
 if(defined($config->get('postroll_template'))) {
-	($postroll, $postopts) = process_template($config->get("postroll_template"), "$tmpdir/postroll.png", $talk, $config);
+	mkdir "$tmpdir/post";
+	($postroll, $postopts_in, $postopts_out) = process_template($config->get("postroll_template"), "$tmpdir/post/postroll.png", $talk, $config);
 } elsif(defined($config->get('postroll'))) {
 	print "using postroll from config\n";
 	$postroll = $config->get('postroll');
-	$postopts = [duration => 5];
+	$postopts_in = [];
+	$postopts_out = [duration => 5];
 } else {
 	die "need postroll or postroll template!";
 }
@@ -272,23 +276,24 @@ if(defined($config->get("input_profile"))) {
 	$png_profile = $main_input;
 }
 
-my $sorry;
-my $sorryopts;
+my ($sorry, $sorryopts_in, $sorryopts_out);
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
-	my $apology = "$tmpdir/sorry.png");
+	my $apology = "$tmpdir/sorry/sorry.png";
+	mkdir "$tmpdir/sorry";
 
 	die unless defined($config->get('apology_template'));
-	($apology, $sorryopts) = process_template($config->get('apology_template'), $apology, $talk, $config);
-	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, @$sorryopts);
-	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology)], output => $sorry)->run();
+	($apology, $sorryopts_in, $sorryopts_out) = process_template($config->get('apology_template'), $apology, $talk, $config);
+	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, @$sorryopts_out);
+	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology, @$sorryopts_in)], output => $sorry)->run();
 }
 
 # concatenate preroll, main video, postroll
-my $pre = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, @$preopts);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
-my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, @$postopts);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
-my $inputs = [ $pre ];
+my $pre_in = Media::Convert::Asset::PNGGen->new(url => $preroll, @$preopts_in);
+my $pre_out = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, @$preopts_out);
+Media::Convert::Pipe->new(inputs => [$pre_in], output => $pre_out, vcopy => 0, acopy => 0)->run();
+my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, @$postopts_out);
+Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, @$postopts_in)], output => $post, vcopy => 0, acopy => 0)->run();
+my $inputs = [ $pre_out ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
 }
