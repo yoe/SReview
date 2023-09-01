@@ -46,9 +46,14 @@ sub process_template {
 	my $format = $config->get("template_format");
 
 	if($config->get("template_format") eq "svg") {
-		return SReview::Template::SVG::process_template($template, $output, $talk, $config);
+		SReview::Template::SVG::process_template($template, $output, $talk, $config);
+		return $output, [duration => 5];
 	} elsif($config->get("template_format") eq "synfig") {
-		return SReview::Template::Synfig::process_template($template, $output, $talk, $config);
+		SReview::Template::Synfig::process_template($template, $output, $talk, $config);
+		my @output = split/\./, $output;
+		my $ext = pop @output;
+		push @output, "%04d", $ext;
+		return join(".", @output), [loop => 0];
 	};
 	die "Could not transform templates: template_format config value set to invalid value $format";
 }
@@ -205,9 +210,9 @@ credits). Required.
 
 =cut
 
-my $preroll_file = $input_coll->add_file(relname => $talk->relative_name . "/pre.png");
-process_template($config->get('preroll_template'), $preroll_file->filename, $talk, $config);
-$preroll_file->store_file;
+my $preroll = "$tmpdir/pre.png";
+my $preopts;
+($preroll, $preopts) = process_template($config->get('preroll_template'), $preroll, $talk, $config);
 
 =item postroll_template
 
@@ -231,16 +236,14 @@ Valid values are "svg" (for SVG) or "synfig" (for synfig). Defaults to
 =cut
 
 my $postroll;
-my $postroll_file;
+my $postopts;
 
 if(defined($config->get('postroll_template'))) {
-	$postroll_file = $input_coll->add_file(relname => $talk->relative_name . "/post.png");
-	process_template($config->get('postroll_template'), $postroll_file->filename, $talk, $config);
-	$postroll_file->store_file;
-	$postroll = $postroll_file->filename;
+	($postroll, $postopts) = process_template($config->get("postroll_template"), "$tmpdir/postroll.png", $talk, $config);
 } elsif(defined($config->get('postroll'))) {
 	print "using postroll from config\n";
 	$postroll = $config->get('postroll');
+	$postopts = [duration => 5];
 } else {
 	die "need postroll or postroll template!";
 }
@@ -270,20 +273,20 @@ if(defined($config->get("input_profile"))) {
 }
 
 my $sorry;
+my $sorryopts;
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
-	my $apology_file = $input_coll->add_file(relname => $talk->relative_name . "/sorry.png");
+	my $apology = "$tmpdir/sorry.png");
 
 	die unless defined($config->get('apology_template'));
-	process_template($config->get('apology_template'), $apology_file->filename, $talk, $config);
-	$apology_file->store_file;
-	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, duration => 5);
-	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology_file->filename)], output => $sorry)->run();
+	($apology, $sorryopts) = process_template($config->get('apology_template'), $apology, $talk, $config);
+	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, @$sorryopts);
+	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology)], output => $sorry)->run();
 }
 
 # concatenate preroll, main video, postroll
-my $pre = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, duration => 5);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $preroll_file->filename)], output => $pre, vcopy => 0, acopy => 0)->run();
-my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, duration => 5);
+my $pre = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, @$preopts);
+Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $preroll)], output => $pre, vcopy => 0, acopy => 0)->run();
+my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, @$postopts);
 Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, duration => 5)], output => $post, vcopy => 0, acopy => 0)->run();
 my $inputs = [ $pre ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
