@@ -1,3 +1,12 @@
+sreview (0.9.2-1) unstable; urgency=medium
+
+  * The "DebConf is coming" release
+    - Add support for animated credits using synfig
+    - Support for the JSON interface of nginx
+    - Various bug fixes
+
+ -- Wouter Verhelst <wouter@debian.org>  Sat, 02 Sep 2023 10:31:24 +0200
+
 sreview (0.9.0-1) unstable; urgency=medium
 
   * The "FOSDEM is coming" release.
