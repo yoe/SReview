@@ -236,11 +236,11 @@ my $main = undef;
 my $post = undef;
 
 if(scalar(@segments_pre)>0) {
-	$pre = Media::Convert::Asset::Concat->new(url => "$tempdir/pre.txt", components => \@segments_pre);
+	$pre = Media::Convert::Asset::Concat->new(url => "$tempdir/pre.txt", components => \@segments_pre, input_params => {fflags => "+nofillin"});
 }
-$main = Media::Convert::Asset::Concat->new(url => "$tempdir/main.txt", components => \@segments_main);
+$main = Media::Convert::Asset::Concat->new(url => "$tempdir/main.txt", components => \@segments_main, input_params => {fflags => "+nofillin"});
 if(scalar(@segments_post)>0) {
-	$post = Media::Convert::Asset::Concat->new(url => "$tempdir/post.txt", components => \@segments_post);
+	$post = Media::Convert::Asset::Concat->new(url => "$tempdir/post.txt", components => \@segments_post, input_params => {fflags => "+nofillin"});
 }
 
 my $pre_new = undef;
