@@ -75,7 +75,7 @@ sub convert($) {
 	}
 	if ($vc eq "h264" && $ac eq "aac") {
 		my $output_file = $collection->add_file(relname => $relname . ".mp4");
-		my $output = Media::Convert::Asset->new(url => $output_file->filename, extra_params => { movflags => "faststart"});
+		my $output = Media::Convert::Asset->new(url => $output_file->filename);
 		Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
 		$output_file->store_file;
 		return;
