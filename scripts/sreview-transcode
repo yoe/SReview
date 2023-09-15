@@ -133,7 +133,7 @@ my $talk = SReview::Talk->new(talkid => $talkid);
 
 my $slug = $talk->slug;
 
-my $data = $dbh->prepare("SELECT eventid, event, event_output, room, room_output, starttime::date AS date, to_char(starttime, 'yyyy') AS year, speakers, name AS title, subtitle, apologynote FROM talk_list WHERE id = ?");
+my $data = $dbh->prepare("SELECT eventid, event, event_output, room, room_output, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, speakers, name AS title, subtitle, description, apologynote FROM talk_list WHERE id = ?");
 $data->execute($talkid);
 my $drow = $data->fetchrow_hashref();
 
@@ -308,16 +308,72 @@ Defaults to C<webm>.
 
 =back
 
+=item embedded metadata
+
+The video files get metadata set based on the track data in the
+database.  A useful set of metadata tags can be found in
+http://wiki.webmproject.org/webm-metadata/global-metadata,
+https://www.matroska.org/technical/tagging.html and
+/usr/share/doc/libimage-exiftool-perl/html/TagNames/Matroska.html.
+
+The following metadata values are set using the %sql2ffmpeg_map
+settings:
+
+matruska/webm			ffmpeg		debconf
+-------------------------------------------------------
+				title		title
+				event		event
+				speakers	speakers
+				track		track
+				date		starttime
+recording_location		-		room
+synopsis			-		description
+subtitle			-		subtitle
+
+The following values are per 2023-09-14 not available in the data set.
+
+matruska/webm			ffmpeg		debconf
+-------------------------------------------------------
+subject				-		track?
+content_type			-		type?
+copyright			-		?
+license				-		?
+url				-		eventurl (to event page)
+
+=back
+
 =cut
+
+my $license = $config->get("video_license");
 
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = Media::Convert::Asset::ProfileFactory->create($profile_str, $input, $config->get('extra_profiles'));
 	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
 	my $output = Media::Convert::Asset->new( url => $output_file->filename, reference => $profile);
-	foreach my $field("title", "event", "speakers", "track", "date") {
+
+	my %sql2ffmpeg_map = (
+	    'title'=> 'title',
+	    'event'=> 'event',
+	    'speakers' => 'speakers',
+	    'track' => 'track',
+	    'starttime' => 'date',
+	    'room'=> 'recording_location',
+	    'description'=> 'synopsis',
+	    'subtitle'=> 'subtitle',
+	    #''=> 'subject',
+	    #''=> 'content_type',
+	    #''=> 'copyright',
+	    );
+	foreach my $field (keys %sql2ffmpeg_map) {
 		if(defined($drow->{$field}) && length($drow->{$field}) > 0) {
-			$output->add_metadata($field, $drow->{$field});
+			$output->add_metadata($sql2ffmpeg_map{$field}, $drow->{$field});
 		}
+	}
+	if(defined($license)) {
+	    $output->add_metadata("license", $license);
+	}
+	if(defined($talk->eventurl)) {
+		$output->add_metadata("url", $talk->eventurl);
 	}
 	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
 	# XXX: this should really be done by Media::Convert::Asset::Concat, not by us
