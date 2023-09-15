@@ -344,6 +344,8 @@ url				-		eventurl (to event page)
 
 =cut
 
+my $license = $config->get("video_license");
+
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = Media::Convert::Asset::ProfileFactory->create($profile_str, $input, $config->get('extra_profiles'));
 	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
@@ -366,6 +368,9 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 		if(defined($drow->{$field}) && length($drow->{$field}) > 0) {
 			$output->add_metadata($sql2ffmpeg_map{$field}, $drow->{$field});
 		}
+	}
+	if(defined($license)) {
+	    $output->add_metadata("license", $license);
 	}
 	if(defined($talk->eventurl)) {
 		$output->add_metadata("url", $talk->eventurl);

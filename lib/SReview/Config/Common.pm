@@ -158,6 +158,9 @@ sub setup {
 	$config->define('inject_transcode_skip_checks', "Minimums and maximums, or exact values, of video assets that cause sreview-inject to skip the transcode if they match the video asset", {});
 	$config->define('inject_collection', "The collection into which uploads are stored. One of: input, pub, or any of the keys of the 'extra_collections' hash", "input");
 
+	# for sreview-transcode
+	$config->define("video_license", "the license of the output videos. If defined, will be set as a \"license\" tag on the media container, provided the container supports that.", undef);
+
 	# for tuning command stuff
 	$config->define('command_tune', 'Some commands change incompatibly from one version to the next. This option exists to deal with such incompatibilities', {});
 
