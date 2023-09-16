@@ -22,8 +22,10 @@ sub _load_speakers {
 }
 
 sub _load_filtered {
-	return 0 if defined(shift->xml_helper('type'));
-	return 1;
+	my $rec = shift->schedref->child("recording");
+	return 0 unless defined($rec);
+	return 1 if $rec->child("optout")->value eq "true";
+	return 0;
 }
 
 sub _load_starttime {
