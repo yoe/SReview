@@ -84,6 +84,8 @@ C<sreview-cut> considers the following configuration values:
 
 my $config = SReview::Config::Common::setup;
 
+$ENV{TMPDIR} = $config->get("workdir");
+
 =item workdir
 
 The location where any temporary files are stored. Defaults to C</tmp>,
