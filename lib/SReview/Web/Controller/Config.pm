@@ -23,6 +23,7 @@ my $legend = [
 	{ name => "notification", expl => 'Sending out notifications' },
 	{ name => "preview", expl => 'Talk ready for review, waiting for reviewer' },
 	{ name => "transcoding", expl => 'High-quality transcodes running' },
+	{ name => "fixuping", expl => 'Fixups running' },
 	{ name => "uploading", expl => 'Uploading results' },
 	{ name => "publishing", expl => 'Waiting for upload to appear in download area' },
 	{ name => "notify_final", expl => 'Sending out notifications for final review' },
@@ -36,6 +37,7 @@ my $legend = [
 	{ name => "needs_work", expl => 'Fixable problems exist, manual intervention required' },
 	{ name => "lost", expl => 'Nonfixable problems exist, talk lost' },
 	{ name => "ignored", expl => 'Talk disappeared from the schedule' },
+	{ name => "uninteresting", expl => 'Talk marked as not relevant' },
 ];
 
 sub get_legend {

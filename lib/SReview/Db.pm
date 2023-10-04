@@ -1287,6 +1287,62 @@ ALTER TABLE talks ALTER upstreamid DROP NOT NULL;
 -- 29 down
 UPDATE talks SET upstreamid=slug WHERE upstreamid IS NULL;
 ALTER TABLE talks ALTER upstreamid SET NOT NULL;
+-- 30 up
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'fixuping',
+    'uploading',
+    'publishing',
+    'notify_final',
+    'finalreview',
+    'announcing',
+    'done',
+    'injecting',
+    'remove',
+    'removing',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored',
+    'uninteresting'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 30 down
+CREATE TYPE talkstate_new AS ENUM (
+    'waiting_for_files',
+    'cutting',
+    'generating_previews',
+    'notification',
+    'preview',
+    'transcoding',
+    'uploading',
+    'publishing',
+    'notify_final',
+    'finalreview',
+    'announcing',
+    'done',
+    'injecting',
+    'remove',
+    'removing',
+    'broken',
+    'needs_work',
+    'lost',
+    'ignored'
+);
+ALTER TABLE talks ALTER state DROP DEFAULT;
+ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstate_new;
+ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
+DROP TYPE talkstate;
+ALTER TYPE talkstate_new RENAME TO talkstate;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS

@@ -7,6 +7,7 @@ use Class::Type::Enum values => [qw(
 	notification
 	preview
 	transcoding
+	fixuping
 	uploading
 	publishing
 	notify_final
@@ -20,6 +21,7 @@ use Class::Type::Enum values => [qw(
 	needs_work
 	lost
 	ignored
+	uninteresting
 )];
 
 

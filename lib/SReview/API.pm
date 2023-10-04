@@ -1761,6 +1761,7 @@ components:
           - notification
           - preview
           - transcoding
+          - fixuping
           - uploading
           - publishing
           - notify_final
@@ -1774,6 +1775,7 @@ components:
           - needs_work
           - lost
           - ignored
+          - uninteresting
         progress:
           type: string
           default: waiting
