@@ -77,7 +77,8 @@ test:committed:
   stage: build
   image: $CI_JOB_NAME
   before_script:
-  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential
+  - apt-get update; apt-get -y --no-install-recommends install devscripts equivs git build-essential cpanminus
+  - if [ ! -z "$CPAN_DEPENDS" ]; then cpanm $CPAN_DEPENDS; fi
   - mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
   - DIST=${CI_JOB_NAME#*:}
   - VERSION=$(git describe --match=v*.*.[0-9]|sed -e 's/^v//g')
@@ -96,12 +97,11 @@ test:committed:
   tags:
   - docker
 
-#debian:stable:
-#  <<: *deb
+debian:stable:
+  <<: *deb
 debian:testing:
   <<: *deb
   allow_failure: true
-
 debian:unstable:
   <<: *deb
   allow_failure: true
@@ -109,7 +109,7 @@ debian:unstable:
 .docker: &docker
   stage: docker
   dependencies:
-  - debian:testing
+  - debian:stable
   services:
   - docker:dind
   image: docker:latest
@@ -133,38 +133,38 @@ docker:common:
   <<: *docker
   stage: docker-pre
   needs:
-  - debian:testing
+  - debian:stable
 
 docker:encoder:
   <<: *docker
   needs:
-  - debian:testing
+  - debian:stable
   - docker:common
 
 docker:detect:
   <<: *docker
   needs:
-  - debian:testing
+  - debian:stable
   - docker:common
 
 docker:master-kube:
   <<: *docker
   stage: docker-post
   needs:
-  - debian:testing
+  - debian:stable
   - docker:master
   - docker:common
 
 docker:master:
   <<: *docker
   needs:
-  - debian:testing
+  - debian:stable
   - docker:common
 
 docker:web:
   <<: *docker
   needs:
-  - debian:testing
+  - debian:stable
   - docker:common
 
 helm:build:
@@ -245,7 +245,7 @@ release:detect:
 pages:
   stage: release
   dependencies:
-  - debian:testing
+  - debian:stable
   script:
   - mkdir public
   - apt-get update; apt-get -y --no-install-recommends install devscripts
@@ -257,7 +257,7 @@ pages:
   only:
   - main
   needs:
-  - debian:testing
+  - debian:stable
 
 .dput: &dput
   stage: release
@@ -270,6 +270,11 @@ pages:
   script:
   - dput --config=dput.cf --unchecked --no-upload-log gitlab products/*.changes
 
+dput:stable:
+  <<: *dput
+  dependencies:
+  - debian:stable
+
 dput:testing:
   <<: *dput
   dependencies:
@@ -281,11 +286,11 @@ dput:unstable:
   - debian:unstable
 
 validate:package:
-  image: debian:testing
+  image: debian:stable
   dependencies:
-  - debian:testing
+  - debian:stable
   needs:
-  - debian:testing
+  - debian:stable
   stage: autopkgtest
   services:
   - postgres:latest
