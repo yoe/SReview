@@ -1,3 +1,10 @@
+sreview (0.9.3-1) unstable; urgency=medium
+
+  * New upstream release, with changes implemented at DebConf23.
+  * Add missing build-dep for libfile-which-perl; Closes: #1052919.
+
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 03 Nov 2023 09:40:12 +0200
+
 sreview (0.9.2-1) unstable; urgency=medium
 
   * The "DebConf is coming" release
