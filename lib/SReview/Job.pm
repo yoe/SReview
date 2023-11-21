@@ -44,7 +44,7 @@ sub add_job {
 	push @{$self->{jobs}}, shift;
 };
 
-sub DESTROY {
+sub DEMOLISH {
 	my $self = shift;
 	my $progress = $dbh->prepare('UPDATE talks SET perc = (?/?)*100 WHERE id = ?');
 	my $total = scalar(@{$self->{jobs}});
