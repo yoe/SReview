@@ -320,7 +320,14 @@ has 'event_output' => (
 );
 
 sub _load_event_output {
-	return shift->_get_pathinfo->{raw}{event_output};
+	my $self = shift;
+
+	my $rv = $self->_get_pathinfo->{raw}{event_output};
+	if(!defined($rv) || length($rv) == 0) {
+		$rv = $self->_get_pathinfo->{raw}{event};
+		$rv =~ s/[^a-zA-Z0-9]/-/g;
+	}
+	return $rv;
 }
 
 =head2 progress
