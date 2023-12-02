@@ -182,6 +182,7 @@ stderr and a file for stdout for each script run.
 			my $res = $ua->head($url)->result;
 			my $is_published = 1;
 			my $headers = $config->get('published_headers');
+			HEADER:
 			foreach my $header(keys %{$headers}) {
 				my $vals = $headers->{$header};
 				if(ref $vals ne "ARRAY") {
@@ -197,12 +198,13 @@ stderr and a file for stdout for each script run.
 					my $val;
 					eval "\$val = \$res->$header;";
 					if($@) {
-						die $!
+						warn $@;
+						next HEADER;
 					}
 					my @found = grep { $val eq $_ } @$vals;
 					if(scalar(@found) == 0) {
 						$is_published = 0;
-						last;
+						last HEADER;
 					}
 				}
 			}
