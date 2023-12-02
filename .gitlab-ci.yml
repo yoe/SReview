@@ -99,12 +99,12 @@ test:committed:
 
 debian:stable:
   <<: *deb
+  allow_failure: true
 debian:testing:
   <<: *deb
   allow_failure: true
 debian:unstable:
   <<: *deb
-  allow_failure: true
 
 .docker: &docker
   stage: docker
