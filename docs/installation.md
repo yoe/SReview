@@ -24,9 +24,22 @@ conference. That is, you expect to have no more than a handful of talks.
   create an administrator user in the SReview database.
 * Browse to the SReview webinterface (either on http://localhost:8080/,
   or on the apache-redirected standard web port).
-* Add your schedule to the SReview database. Currently, no generic code
-  exists [yet](https://github.com/yoe/sreview/issues/53) to do that.
-  Patches welcome! ;-)
+* Set the `schedule_format` configuration option to one of the supported
+  formats (they're all under `lib/SReview/Schedule`; as of this writing,
+  parsers exist for pentabarf XML (`penta`), the wafer variant of
+  pentabarf XML (`wafer`), a YAML-based format (`yaml`), and the ICS
+  format (`ics`) that has however not seen a lot of testing.
+  Additionally, a `multi` parser exists that allows you to create shadow
+  copies of each found talk (useful if you want to perform multiple
+  unrelated actions for each talk, e.g., have an injected prerecording
+  system as well as a transcode of the output after the fact) and a
+  `filtered` parser which stacks with another one and which can be used
+  to ignore certain talks based on properties of those talks.
+* Set the `schedule_options` configuration option so that the relevant
+  options of the parser are set. Most parsers just expect a `url`
+  parameter with the URL of the schedule file.
+* Make sure to run `sreview-import` to import the schedule. This should
+  run from cron once every half hour, normally.
 * Decide whether you want notifications:
     - If you set the `anonreviews` configuration option to a nonzero
       value, then the `/overview` URL in the webinterface will have
