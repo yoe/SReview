@@ -25,7 +25,7 @@ conference. That is, you expect to have no more than a handful of talks.
 * Browse to the SReview webinterface (either on http://localhost:8080/,
   or on the apache-redirected standard web port).
 * Set the `schedule_format` configuration option to one of the supported
-  formats (they're all under `lib/SReview/Schedule`; as of this writing,
+  formats. They're all under `lib/SReview/Schedule`; as of this writing,
   parsers exist for pentabarf XML (`penta`), the wafer variant of
   pentabarf XML (`wafer`), a YAML-based format (`yaml`), and the ICS
   format (`ics`) that has however not seen a lot of testing.
