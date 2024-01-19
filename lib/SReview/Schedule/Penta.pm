@@ -19,6 +19,12 @@ has 'day' => (
 	required => 1,
 );
 
+has 'speaker_type' => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+);
+
 sub _load_slug {
 	return shift->schedref->child('slug')->value();
 }
@@ -67,22 +73,30 @@ sub _load_subtitle {
 }
 
 sub _load_track {
-	my $track = shift->xml_helper('track');
-	return SReview::Schedule::Base::Track->new(name => $track) if defined($track);
+	my $self = shift;
+	my $track = $self->xml_helper('track');
+	return $self->track_type->new(name => $track) if defined($track);
 	return undef;
 }
 
 sub _load_description {
-	return shift->xml_helper('description');
+	my $self = shift;
+
+	if(defined(my $desc = $self->xml_helper('description'))) {
+		return $desc;
+	}
+	return $self->xml_helper('abstract');
 }
 
 sub _load_speakers {
 	my $self = shift;
 	my $rv = [];
 
+	my $speaker_type = $self->speaker_type;
+
 	foreach my $person($self->schedref->child('persons')->children('person')) {
 		next if $person eq '';
-		push @$rv, SReview::Schedule::Base::Speaker->new(name => $person->value(), upstreamid => $person->attribute('id'));
+		push @$rv, "$speaker_type"->new(name => $person->value(), upstreamid => $person->attribute('id'));
 	}
 	return $rv;
 }
@@ -102,12 +116,6 @@ has 'schedref' => (
 	required => 1,
 );
 
-has 'talktype' => (
-	is => 'ro',
-	isa => 'Str',
-	default => 'SReview::Schedule::Penta::Talk',
-);
-
 sub _load_name {
 	return shift->schedref->child('conference')->child('title')->value();
 }
@@ -116,7 +124,8 @@ sub _load_talks {
 	my $self = shift;
 	my $rv = [];
 	my %rooms;
-	my $talktype = $self->talktype;
+	my $talktype = $self->talk_type;
+	my $roomtype = $self->room_type;
 	return $rv unless(grep(/^day$/, $self->schedref->children_names));
 	foreach my $day($self->schedref->children('day')) {
 		my $dt = DateTime::Format::ISO8601->parse_datetime($day->attribute('date'));
@@ -124,11 +133,11 @@ sub _load_talks {
 		foreach my $room($day->children('room')) {
 			my $roomname = $room->attribute('name');
 			if(!exists($rooms{$roomname})) {
-				$rooms{$roomname} = SReview::Schedule::Base::Room->new(name => $roomname);
+				$rooms{$roomname} = "$roomtype"->new(name => $roomname);
 			}
 			next unless (grep(/^event$/, $room->children_names) == 1);
 			foreach my $talk($room->children('event')) {
-				push @$rv, "$talktype"->new(room => $rooms{$roomname}, schedref => $talk, day => $dt);
+				push @$rv, "$talktype"->new(room => $rooms{$roomname}, schedref => $talk, day => $dt, speaker_type => $self->speaker_type);
 			}
 		}
 	}
@@ -176,26 +185,16 @@ use SReview::Schedule::Base;
 
 extends 'SReview::Schedule::Base';
 
-has 'talktype' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_talktype',
-);
-
-sub _load_talktype {
+sub _load_talk_type {
 	return 'SReview::Schedule::Penta::Talk';
 }
 
-has 'eventtype' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_eventtype',
-);
-
-sub _load_eventtype {
+sub _load_event_type {
 	return 'SReview::Schedule::Penta::Event';
+}
+
+sub _load_speaker_type {
+	return 'SReview::Schedule::Base::Speaker';
 }
 
 sub _load_events {
@@ -203,12 +202,15 @@ sub _load_events {
 	my $xml = XML::SimpleObject->new(XML => $self->_get_raw);
 	my %args = (
 		schedref => $xml->child('schedule'),
-		talktype => $self->talktype,
+		talk_type => $self->talk_type,
+		speaker_type => $self->speaker_type,
+		room_type => $self->room_type,
+		track_type => $self->track_type,
 	);
 	if($self->has_timezone) {
 		$args{timezone} = $self->timezone;
 	}
-	return [$self->eventtype->new(%args)];
+	return [$self->event_type->new(%args)];
 }
 
 1;

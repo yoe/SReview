@@ -33,7 +33,7 @@ has 'room_name' => (
 );
 
 sub _load_room {
-	return SReview::Schedule::Base::Room->new(name => shift->room_name);
+	return $self->room_type->new(name => shift->room_name);
 }
 
 has 'track_name' => (
@@ -43,7 +43,7 @@ has 'track_name' => (
 );
 
 sub _load_track {
-	return SReview::Schedule::Ics::Track->new(name => shift->track_name);
+	return $self->track_type->new(name => shift->track_name);
 }
 
 has 'speaker_name' => (
@@ -55,7 +55,7 @@ has 'speaker_name' => (
 sub _load_speakers {
 	my $self = shift;
 	if($self->have_speaker_name) {
-		return [SReview::Schedule::Ics::Speaker->new(name => $self->speaker_name)];
+		return [$self->speaker_type->new(name => $self->speaker_name)];
 	}
 	return undef;
 }
@@ -113,7 +113,7 @@ sub _load_talks {
 		foreach my $month(values %$year) {
 			foreach my $day(values %$month) {
 				foreach my $talk(values %$day) {
-					my $talk_obj = SReview::Schedule::Ics::Talk->new(schedref => $talk, %$talk_opts);
+					my $talk_obj = $self->talk_type->new(schedref => $talk, %$talk_opts);
 					if($self->have_regex) {
 						my $summary = $talk->{SUMMARY};
 						next unless $summary =~ $self->summary_regex;
@@ -153,6 +153,22 @@ has "event_opts" => (
 	isa => 'HashRef[Any]',
 	default => sub { {} },
 );
+
+sub _load_talk_type {
+	return "SReview::Schedule::Ics::Talk";
+}
+
+sub _load_speaker_type {
+	return "SReview::Schedule::Ics::Speaker";
+}
+
+sub _load_track_type {
+	return "SReview::Schedule::Ics::Track";
+}
+
+sub _load_event_type {
+	return "SReview::Schedule::Ics::Event";
+}
 
 sub _load_events {
 	my $self = shift;

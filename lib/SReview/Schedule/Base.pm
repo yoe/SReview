@@ -123,7 +123,7 @@ has 'room' => (
 );
 
 sub _load_room {
-	return SReview::Schedule::Base::Room->new;
+	return shift->room_type->new;
 }
 
 has 'slug' => (
@@ -273,6 +273,30 @@ package SReview::Schedule::Base::Event;
 use Moose;
 use DateTime::TimeZone;
 
+has 'speaker_type' => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+);
+
+has 'room_type' => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+);
+
+has 'track_type' => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+);
+
+has 'talk_type' => (
+	is => 'ro',
+	isa => 'Str',
+	required => 1,
+);
+
 has 'talks' => (
 	is => 'ro',
 	lazy => 1,
@@ -345,6 +369,61 @@ sub _load_raw {
 	my $res = $ua->get($self->url)->result;
 	die "Could not access " . $self->url . ": " . $res->code . " " . $res->message unless $res->is_success;
 	return $res->body;
+}
+
+has 'speaker_type' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_speaker_type',
+);
+
+sub _load_speaker_type {
+	return 'SReview::Schedule::Base::Speaker';
+}
+
+has 'room_type' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_room_type',
+);
+
+sub _load_room_type {
+	return 'SReview::Schedule::Base::Room';
+}
+
+has 'track_type' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_track_type',
+);
+
+sub _load_track_type {
+	return 'SReview::Schedule::Base::Track';
+}
+
+has 'talk_type' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_talk_type',
+);
+
+sub _load_talk_type {
+	return 'SReview::Schedule::Base::Talk';
+}
+
+has 'event_type' => (
+	is => 'ro',
+	isa => 'Str',
+	lazy => 1,
+	builder => '_load_event_type',
+);
+
+sub _load_event_type {
+	return 'SReview::Schedule::Base::Event';
 }
 
 has 'events' => (

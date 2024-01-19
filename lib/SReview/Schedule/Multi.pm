@@ -63,8 +63,15 @@ sub _load_talks {
 	my $self = shift;
 	my $rv = [];
 	my $opts = $self->talk_opts;
+	my $talk_type = $self->talk_type;
 	foreach my $talk(@{$self->shadow->talks}) {
-		push @$rv, SReview::Schedule::Multi::ShadowTalk->new(shadow => $talk, prefix => $self->talk_prefix, suffix => $self->talk_suffix, %$opts);
+		push @$rv, $talk_type->new(shadow => $talk,
+					   prefix => $self->talk_prefix,
+					   suffix => $self->talk_suffix, 
+					   room_type => $self->room_type,
+					   speaker_type => $self->speaker_type,
+					   track_type => $self->track_type,
+					   %$opts);
 	}
 	return $rv;
 }
@@ -166,13 +173,22 @@ sub _load_events {
 	$opts->{url} = $self->url;
 	my $base_parser = "$rv_type"->new(%$opts);
 	my $rv = [];
+	my $event_type = $self->event_type;
 	foreach my $event(@{$base_parser->events}) {
 		push @$rv, $event;
 		foreach my $shadow(@{$self->shadows}) {
-			push @$rv, SReview::Schedule::Multi::ShadowEvent->new(shadow => $event, %$shadow);
+			push @$rv, $event_type->new(shadow => $event, %$shadow);
 		}
 	}
 	return $rv;
+}
+
+sub _load_talk_type {
+	return "SReview::Schedule::Multi::ShadowTalk";
+}
+
+sub _load_event_type {
+	return "SReview::Schedule::Multi::ShadowEvent";
 }
 
 1;

@@ -87,11 +87,11 @@ L<SReview::Schedule::Multi>, L<SReview::Schedule::Penta>
 
 =cut
 
-sub _load_talktype {
+sub _load_talk_type {
 	return 'SReview::Schedule::Wafer::Talk';
 }
 
-sub _load_eventtype {
+sub _load_event_type {
 	return 'SReview::Schedule::Wafer::Event';
 }
 

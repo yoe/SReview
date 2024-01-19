@@ -265,6 +265,17 @@ has 'event_type' => (
 	builder => '_load_event_type',
 );
 
+with "MooseX::Deprecated" => {
+	attributes => ["event_type"],
+};
+
+sub _load_eventtype {
+	if (my $typefactory = $self->can("_load_event_type")) {
+		return $self->$typefactory;
+	}
+	return $self->SUPER::_load_eventtype;
+}
+
 has 'event_opts' => (
 	is => 'ro',
 	isa => 'HashRef[Any]',
@@ -285,7 +296,7 @@ has 'base_options' => (
 
 sub _load_events {
 	my $self = shift;
-	my $event_type = $self->event_type;
+	my $event_type = $self->eventtype;
 	my $base_type = "SReview::Schedule::" . ucfirst($self->base_type);
 	eval "require $base_type" or die $!;
 	my $event_opts = $self->event_opts;
