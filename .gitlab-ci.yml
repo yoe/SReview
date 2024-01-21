@@ -99,7 +99,8 @@ test:committed:
 
 debian:stable:
   <<: *deb
-  allow_failure: true
+  variables:
+    CPAN_DEPENDS: "Media::Convert"
 debian:testing:
   <<: *deb
   allow_failure: true
