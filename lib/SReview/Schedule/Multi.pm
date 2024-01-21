@@ -63,14 +63,12 @@ sub _load_talks {
 	my $self = shift;
 	my $rv = [];
 	my $opts = $self->talk_opts;
-	my $talk_type = $self->talk_type;
+	my $talk_type = $self->root_object->talk_type;
 	foreach my $talk(@{$self->shadow->talks}) {
 		push @$rv, $talk_type->new(shadow => $talk,
 					   prefix => $self->talk_prefix,
 					   suffix => $self->talk_suffix, 
-					   room_type => $self->room_type,
-					   speaker_type => $self->speaker_type,
-					   track_type => $self->track_type,
+					   event_object => $self,
 					   %$opts);
 	}
 	return $rv;
@@ -177,7 +175,7 @@ sub _load_events {
 	foreach my $event(@{$base_parser->events}) {
 		push @$rv, $event;
 		foreach my $shadow(@{$self->shadows}) {
-			push @$rv, $event_type->new(shadow => $event, %$shadow);
+			push @$rv, $event_type->new(shadow => $event, %$shadow, root_object => $self);
 		}
 	}
 	return $rv;

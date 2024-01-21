@@ -90,13 +90,6 @@ has 'shadow' => (
 	required => 1,
 );
 
-has 'speaker_type' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_speaker_type',
-);
-
 sub _load_speaker_type {
 	return 'SReview::Schedule::WithShadow::ShadowedSpeaker';
 }
@@ -107,13 +100,6 @@ has 'speaker_opts' => (
 	default => sub { {} },
 );
 
-has 'track_type' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_track_type',
-);
-
 sub _load_track_type {
 	return 'SReview::Schedule::WithShadow::ShadowedTrack';
 }
@@ -122,13 +108,6 @@ has 'track_opts' => (
 	is => 'ro',
 	isa => 'HashRef[Any]',
 	default => sub { {} },
-);
-
-has 'room_type' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_room_type',
 );
 
 sub _load_room_type {
@@ -143,8 +122,8 @@ has 'room_opts' => (
 
 sub _load_room {
 	my $self = shift;
-	my $type = $self->room_type;
-	return $type->new(shadow => $self->shadow->room, %{$self->room_opts});
+	my $type = $self->event_object->root_object->room_type;
+	return $type->new(shadow => $self->shadow->room, %{$self->room_opts}, event_object => $self->event_object);
 }
 
 sub _load_slug {
@@ -177,8 +156,8 @@ sub _load_subtitle {
 
 sub _load_track {
 	my $self = shift;
-	my $type = $self->track_type;
-	return $type->new(shadow => $self->shadow->track, %{$self->track_opts});
+	my $type = $self->event_object->root_object->track_type;
+	return $type->new(shadow => $self->shadow->track, %{$self->track_opts}, talk_object => $self);
 }
 
 sub _load_description {
@@ -192,9 +171,9 @@ sub _load_flags {
 sub _load_speakers {
 	my $self = shift;
 	my $rv = [];
-	my $type = $self->speaker_type;
+	my $type = $self->event_object->root_object->speaker_type;
 	foreach my $speaker(@{$self->shadow->speakers}) {
-		push @$rv, "$type"->new(shadow => $speaker, %{$self->speaker_opts});
+		push @$rv, "$type"->new(shadow => $speaker, %{$self->speaker_opts}, speaker_object => $self);
 	}
 	return $rv;
 }
@@ -238,10 +217,10 @@ sub _load_talk_type {
 sub _load_talks {
 	my $self = shift;
 	my $rv = [];
-	my $type = $self->talk_type;
+	my $type = $self->root_object->talk_type;
 	my $opts = $self->talk_opts;
 	foreach my $talk(@{$self->shadow->talks}) {
-		push @$rv, $type->new(shadow => $talk, %$opts);
+		push @$rv, $type->new(shadow => $talk, %$opts, event_object => $self);
 	}
 	return $rv;
 }

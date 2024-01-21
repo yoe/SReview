@@ -102,9 +102,9 @@ sub _build_datetime {
 sub _load_room {
 	my $self = shift;
 	return $self->SUPER::_load_room unless exists($self->schedref->{room});
-	return $self->room_type->new(schedref => $self->schedref->{room}) if (ref $self->schedref->{room} eq "HASH");
+	return $self->event_object->root_object->room_type->new(schedref => $self->schedref->{room}, event_object => $self->event_object) if (ref $self->schedref->{room} eq "HASH");
 	# Not $self->room_type here, because we're falling back on the Base type
-	return SReview::Schedule::Base::Room->new(name => $self->schedref->{room});
+	return SReview::Schedule::Base::Room->new(name => $self->schedref->{room}, event_object => $self->event__object);
 }
 
 sub _load_slug {
@@ -164,7 +164,7 @@ sub _load_upstreamid {
 sub _load_track {
 	my $self = shift;
 	if(exists $self->schedref->{track}) {
-		return $self->track_type->new(schedref => $self->schedref->{track});
+		return $self->event_object->root_object->track_type->new(schedref => $self->schedref->{track}, talk_object => $self);
 	} else {
 		return $self->SUPER::_load_track;
 	}
@@ -194,10 +194,10 @@ sub _load_speakers {
 	my $rv = [];
 	foreach my $speaker(@{$self->schedref->{speakers}}) {
 		if(ref $speaker eq 'HASH') {
-			push @$rv, $self->speaker_type->new(%$speaker);
+			push @$rv, $self->event_object->root_object->speaker_type->new(%$speaker, talk_object => $self);
 		} else {
 			# Fall back on base implemetentation
-			push @$rv, SReview::Schedule::Base::Speaker->new(name => $speaker);
+			push @$rv, SReview::Schedule::Base::Speaker->new(name => $speaker, talk_object => $self);
 		}
 	}
 	return $rv;
@@ -226,11 +226,9 @@ sub _load_talks {
 	my $self = shift;
 	my $tz = $self->schedref->{timezone};
 	foreach my $talk(@{$self->schedref->{talks}}) {
-		push @$rv, $self->talk_type->new(schedref => $talk,
+		push @$rv, $self->root_object->talk_type->new(schedref => $talk,
 						 timezone => $self->timezone,
-						 room_type => $self->room_type,
-						 track_type => $self->track_type,
-						 speaker_type => $self->speaker_type,
+						 event_object => $self,
 					 );
 	}
 	return $rv;
@@ -260,10 +258,7 @@ sub _load_events {
 	my $yaml = Load($self->_get_raw);
 	my %args = (
 		schedref => $yaml,
-		talk_type => $self->talk_type,
-		track_type => $self->track_type,
-		room_type => $self->room_type,
-		speaker_type => $self->speaker_type,
+		root_object => $self,
 	);
 	if($self->has_timezone) {
 		$args{timezone} = $self->timezone;

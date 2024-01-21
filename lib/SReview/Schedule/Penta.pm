@@ -19,12 +19,6 @@ has 'day' => (
 	required => 1,
 );
 
-has 'speaker_type' => (
-	is => 'ro',
-	isa => 'Str',
-	required => 1,
-);
-
 sub _load_slug {
 	return shift->schedref->child('slug')->value();
 }
@@ -75,7 +69,7 @@ sub _load_subtitle {
 sub _load_track {
 	my $self = shift;
 	my $track = $self->xml_helper('track');
-	return $self->track_type->new(name => $track) if defined($track);
+	return $self->event_object->root_object->track_type->new(name => $track, talk_object => $self) if defined($track);
 	return undef;
 }
 
@@ -92,11 +86,11 @@ sub _load_speakers {
 	my $self = shift;
 	my $rv = [];
 
-	my $speaker_type = $self->speaker_type;
+	my $speaker_type = $self->event_object->root_object->speaker_type;
 
 	foreach my $person($self->schedref->child('persons')->children('person')) {
 		next if $person eq '';
-		push @$rv, "$speaker_type"->new(name => $person->value(), upstreamid => $person->attribute('id'));
+		push @$rv, "$speaker_type"->new(name => $person->value(), upstreamid => $person->attribute('id'), talk_object => $self);
 	}
 	return $rv;
 }
@@ -124,8 +118,8 @@ sub _load_talks {
 	my $self = shift;
 	my $rv = [];
 	my %rooms;
-	my $talktype = $self->talk_type;
-	my $roomtype = $self->room_type;
+	my $talktype = $self->root_object->talk_type;
+	my $roomtype = $self->root_object->room_type;
 	return $rv unless(grep(/^day$/, $self->schedref->children_names));
 	foreach my $day($self->schedref->children('day')) {
 		my $dt = DateTime::Format::ISO8601->parse_datetime($day->attribute('date'));
@@ -133,11 +127,11 @@ sub _load_talks {
 		foreach my $room($day->children('room')) {
 			my $roomname = $room->attribute('name');
 			if(!exists($rooms{$roomname})) {
-				$rooms{$roomname} = "$roomtype"->new(name => $roomname);
+				$rooms{$roomname} = "$roomtype"->new(name => $roomname, event_object => $self);
 			}
 			next unless (grep(/^event$/, $room->children_names) == 1);
 			foreach my $talk($room->children('event')) {
-				push @$rv, "$talktype"->new(room => $rooms{$roomname}, schedref => $talk, day => $dt, speaker_type => $self->speaker_type);
+				push @$rv, "$talktype"->new(room => $rooms{$roomname}, schedref => $talk, day => $dt, event_object => $self);
 			}
 		}
 	}
@@ -202,10 +196,7 @@ sub _load_events {
 	my $xml = XML::SimpleObject->new(XML => $self->_get_raw);
 	my %args = (
 		schedref => $xml->child('schedule'),
-		talk_type => $self->talk_type,
-		speaker_type => $self->speaker_type,
-		room_type => $self->room_type,
-		track_type => $self->track_type,
+		root_object => $self,
 	);
 	if($self->has_timezone) {
 		$args{timezone} = $self->timezone;
