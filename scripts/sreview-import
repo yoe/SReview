@@ -84,7 +84,7 @@ my $update_track = $dbh->prepare("UPDATE tracks SET name = ?, email = ? WHERE up
 my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?) RETURNING id");
 my $set_flags = $dbh->prepare("UPDATE talks SET flags = COALESCE(flags::jsonb || ?::jsonb, ?::jsonb) WHERE id = ?");
 my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ? AND event = ?");
-my $update_speaker = $dbh->prepare("UPDATE speaker SET name = ?, email = ? WHERE upstreamid = ?");
+my $update_speaker = $dbh->prepare("UPDATE speakers SET name = ?, email = ? WHERE upstreamid = ?");
 my $add_speaker = $dbh->prepare("INSERT INTO speakers(email, name, upstreamid, event) VALUES(?, ?, ?, ?) RETURNING id");
 my $clear_speakers = $dbh->prepare("DELETE FROM speakers_talks WHERE talk = ?");
 my $link_speaker = $dbh->prepare("INSERT INTO speakers_talks(speaker, talk) VALUES (?, ?) ON CONFLICT ON CONSTRAINT speakers_talks_pkey DO NOTHING");
