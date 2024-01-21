@@ -94,7 +94,7 @@ sub _probe_basepath {
 	return shift->baseurl;
 }
 
-sub DESTROY {
+sub DEMOLISH {
 	my $self = shift;
 	if($self->create) {
 		if(!$self->is_stored) {

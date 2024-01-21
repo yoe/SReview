@@ -46,9 +46,8 @@ sub _probe_basepath {
 	return shift->workdir;
 }
 
-sub DESTROY {
+sub DEMOLISH {
 	my $self = shift;
-	$self->SUPER::DESTROY();
 	if($self->has_download) {
 		unlink($self->filename);
 	}

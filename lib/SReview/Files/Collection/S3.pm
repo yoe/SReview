@@ -79,9 +79,8 @@ sub valid_path_filename {
 	return $path;
 }
 
-sub DESTROY {
+sub DEMOLISH {
 	my $self = shift;
-	$self->SUPER::DESTROY();
 	if($self->has_download) {
 		unlink($self->filename);
 	}
