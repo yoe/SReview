@@ -145,7 +145,7 @@ sub startup {
 					$eventid = $row->{id};
 				}
 			} else {
-				my $st = $self->dbh->prepare("SELECT max(id) FROM events");
+				my $st = $self->dbh->prepare("SELECT max(id) AS id FROM events");
 				$st->execute() or die "Could not query for events";
 				my $row = $st->fetchrow_hashref("NAME_lc");
 				$eventid = $row->{id};
