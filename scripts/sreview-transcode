@@ -346,6 +346,8 @@ url				-		eventurl (to event page)
 
 my $license = $config->get("video_license");
 
+my $multi_profiles = $config->get("video_multi_profiles");
+
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = Media::Convert::Asset::ProfileFactory->create($profile_str, $input, $config->get('extra_profiles'));
 	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
@@ -375,7 +377,8 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	if(defined($talk->eventurl)) {
 		$output->add_metadata("url", $talk->eventurl);
 	}
-	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => 1)->run();
+	my $multipass = exists($multi_profiles->{$profile_str}) ? $multi_profiles->{$profile_str} : 1;
+	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => $multipass)->run();
 	# XXX: this should really be done by Media::Convert::Asset::Concat, not by us
 	unlink($input->url);
 	$output_file->store_file;
