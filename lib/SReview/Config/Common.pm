@@ -99,7 +99,7 @@ sub setup {
 	$config->define('normalizer', 'The implementation used to normalize audio. Can be one of: ffmpeg, bs1770gain, or none to disable normalization altogether.', 'ffmpeg');
 	$config->define('web_pid_file', 'The PID file for the webinterface, when running under hypnotoad.','/var/run/sreview/sreview-web.pid');
 	$config->define('autoreview_detect', 'The script to run when using sreview-autoreview', undef);
-	$config->define('video_multi_profiles', 'A hash table of profiles that benefit from multi-pass encoding. AV1 does not support that at the time of writing, and multi-pass is useless for a copy profile. Most other situations do benefit.', {"av1":0,"copy":0});
+	$config->define('video_multi_profiles', 'A hash table of profiles that benefit from multi-pass encoding. AV1 does not support that at the time of writing, and multi-pass is useless for a copy profile. Most other situations do benefit.', {"av1" => 0,"copy" => 0});
 
 	# Values for detection script
 	$config->define('inputglob', 'A filename pattern (glob) that tells SReview where to find new files', '/srv/sreview/incoming/*/*/*');
