@@ -23,7 +23,7 @@ sreview-detect - detect new files for SReview
 
 =head1 SYNOPSIS
 
-sreview-detect [--verbose] [--day-finish] [--help]
+sreview-detect [--verbose] [--day-finish] [--help] [--process-max=N]
 
 =head1 DESCRIPTION
 
@@ -68,6 +68,11 @@ least I<some> content was found. This will correctly ignore talks that
 are scheduled for the next day, but will allow talks for which some
 content was found to move to the cutting state.
 
+=head2 --process-max=I<N>
+
+Set the maximum number of files that will be processed in a single run;
+0 means no limit. Defaults to 0.
+
 =cut
 
 use strict;
@@ -89,8 +94,9 @@ my $finished_for_today = 0;
 my $verbose = 0;
 $verbose = 1 if exists($ENV{KUBERNETES_PORT});
 my $help = 0;
+my $max_process = 0;
 
-GetOptions('verbose' => \$verbose, "day-finished" => \$finished_for_today, "help" => \$help);
+GetOptions('verbose' => \$verbose, "day-finished" => \$finished_for_today, "help" => \$help, "process-max=i" => \$max_process);
 
 pod2usage(-exitval => 0) if $help;
 
@@ -113,6 +119,7 @@ print "searching collection at " . $collection->baseurl . ", accessing for files
 my $host = hostname();
 
 my $tz = DateTime::TimeZone->new(name => $config->get('file_timezone'));
+my $total = 0;
 
 foreach my $file(@{$collection->children}) {
 	next if ($file->is_collection);
@@ -154,6 +161,8 @@ foreach my $file(@{$collection->children}) {
 		$file = undef;
 		print " ... length stored" if $verbose
 	}
+	$total++;
+	last if $max_process > 0 && $total >= $max_process;
 }
 
 print "\ndone\n" if $verbose;
