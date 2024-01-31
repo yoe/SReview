@@ -141,6 +141,7 @@ foreach my $file(@{$collection->children}) {
 		next unless defined($length);
 		$start = DateTime::Format::Pg->format_datetime($start);
 		$add->execute($file->relname, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
+		$file = undef;
 		print "... stored" if $verbose;
 	} else {
 		print " ... is known" if $verbose;
@@ -150,6 +151,7 @@ foreach my $file(@{$collection->children}) {
 		my $length = $video->duration;
 		next unless defined($length);
 		$update->execute("$length", $file->mtime->epoch, $file->relname);
+		$file = undef;
 		print " ... length stored" if $verbose
 	}
 }
