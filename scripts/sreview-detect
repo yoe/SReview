@@ -90,6 +90,8 @@ use DateTime;
 use DateTime::TimeZone;
 use DateTime::Format::Pg;
 
+$| = 1; # autoflush stdout
+
 my $finished_for_today = 0;
 my $verbose = 0;
 $verbose = 1 if exists($ENV{KUBERNETES_PORT});
