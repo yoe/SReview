@@ -288,7 +288,7 @@ if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
 }
 
 # concatenate preroll, main video, postroll
-my $pre_in = Media::Convert::Asset::PNGGen->new(url => $preroll, @$preopts_in);
+my $pre_in = Media::Convert::Asset::PNGGen->new(url => $preroll, reference => $png_profile, @$preopts_in);
 my $pre_out = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, @$preopts_out);
 Media::Convert::Pipe->new(inputs => [$pre_in], output => $pre_out, vcopy => 0, acopy => 0)->run();
 my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, @$postopts_out);
