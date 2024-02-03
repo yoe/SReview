@@ -283,7 +283,7 @@ sub reload {
 
 reload();
 
-my $samplestart = ($mainlen - $prelen) / 2 + $prelen - 30;
+my $samplestart = ($main->duration / 2) - 30;
 my $samplelen = 60;
 $samplestart = ($samplestart > 0) ? $samplestart : 0;
 $samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
