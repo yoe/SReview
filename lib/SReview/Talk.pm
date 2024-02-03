@@ -761,6 +761,7 @@ sub _load_eventurl {
 			event => $self->eventname,
 			event_output => $self->event_output,
 			talk => $self,
+			room_output => $self->_get_pathinfo->{raw}{room_output},
 			year => $self->_get_pathinfo->{raw}{year}});
 		chomp $rv;
 		return $rv;
