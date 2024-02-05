@@ -2063,3 +2063,30 @@ CREATE VIEW talk_list AS
      LEFT JOIN talks ON rooms.id = talks.room
      LEFT JOIN events ON talks.event = events.id
      LEFT JOIN tracks ON talks.track = tracks.id;
+-- 9 down
+DROP VIEW mailers;
+CREATE VIEW mailers AS
+ SELECT speakers.email,
+    talks.nonce,
+    talks.title
+   FROM speakers_talks
+     JOIN speakers ON speakers_talks.speaker = speakers.id
+     JOIN talks ON speakers_talks.talk = talks.id
+  WHERE speakers.email IS NOT NULL;
+-- 9 up
+DROP VIEW mailers;
+CREATE VIEW mailers AS
+ SELECT speakers.email,
+    talks.nonce,
+    talks.title
+   FROM speakers_talks
+     JOIN speakers ON speakers_talks.speaker = speakers.id
+     JOIN talks ON speakers_talks.talk = talks.id
+  WHERE speakers.email IS NOT NULL
+ UNION
+ SELECT tracks.email,
+    talks.nonce,
+    talks.title
+   FROM talks
+     JOIN tracks ON talks.track = tracks.id
+  WHERE tracks.email IS NOT NULL;
