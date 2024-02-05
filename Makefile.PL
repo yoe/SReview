@@ -50,6 +50,7 @@ WriteMakefile(
 		'scripts/sreview-skip',
 		'scripts/sreview-user',
 		'scripts/sreview-notify',
+		'scripts/sreview-reply',
 		'scripts/sreview-upload',
 		'scripts/sreview-transcode',
 		'scripts/sreview-notranscode',

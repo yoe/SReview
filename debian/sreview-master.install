@@ -1,4 +1,5 @@
 #!/usr/bin/dh-exec
 usr/bin/sreview-dispatch
+usr/bin/sreview-reply
 usr/share/man/man1/sreview-dispatch*
 debian/sreview-master.dbc => usr/share/dbconfig-common/scripts/sreview-master/install/pgsql
