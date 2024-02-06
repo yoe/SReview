@@ -104,7 +104,7 @@ sub notify_email() {
 		->to(join(',', @to_recips))
 		->subject($mt->render($subject, {title => $title}))
 		->cc(join(',', @cc_recips))
-		->header(References => join(',', @references))
+		->header(References => join(', ', @references))
 		->header("Message-ID" => "<sreview-$nonce-$refid-$action\@$host>")
 		->text_body($body);
 	say "Sending out " . $email->as_string;
