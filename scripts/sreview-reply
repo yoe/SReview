@@ -28,6 +28,7 @@ $comment->execute($nonce) or die "Cannot fetch comments!";
 
 my $formatter = Text::Format->new(firstIndent => 0);
 open my $start, ">", "/tmp/reply-$nonce" or die "Cannot open reply file!";
+print $start "# $nonce\n#\n";
 my $instructions = $formatter->paragraphs("Please reply to this email with your comments. Any use of a '#' character introduces a comment; comments will be removed before sending. If you wish to abort, make sure the word 'ABORT' appears in the (not-commented part of the) reply.\n\nAny (not-commented) lines that appear after the '#----' line will be entered as a comment in the database");
 $instructions .= "\n";
 $instructions =~ s/^/# /gm;
