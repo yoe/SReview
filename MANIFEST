@@ -82,6 +82,7 @@ scripts/sreview-keys
 scripts/sreview-notify
 scripts/sreview-notranscode
 scripts/sreview-previews
+scripts/sreview-reply
 scripts/sreview-skip
 scripts/sreview-titles
 scripts/sreview-transcode

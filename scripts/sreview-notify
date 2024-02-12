@@ -101,9 +101,9 @@ sub notify_email() {
 	}
 	$refid = $talk->corrections->{serial};
 	my $email = Email::Stuffer->from($config->get('email_from'))
-		->to(join(",\n  ", @to_recips))
+		->to(@to_recips)
 		->subject($mt->render($subject, {title => $title}))
-		->cc(join(",\n  ", @cc_recips))
+		->cc(@cc_recips)
 		->header(References => join(",\n  ", @references))
 		->header("Message-ID" => "<sreview-$nonce-$refid-$action\@$host>")
 		->text_body($body);
