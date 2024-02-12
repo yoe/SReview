@@ -331,7 +331,7 @@
 	  </fieldset>
           <input type="hidden" name="start_time_corrval" id="start_time_corrval"></input>
           <input type="hidden" name="end_time_corrval" id="end_time_corrval"></input>
-          <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} + 0 =%>"></input>
+          <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} // 0 =%>"></input>
           <input type="hidden" name="complete_reset" id="complete_reset"></input>
           <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
         </form>
