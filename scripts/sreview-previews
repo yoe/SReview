@@ -66,19 +66,21 @@ sub convert($) {
 	my $vc = $input->video_codec;
 	my $ac = $input->audio_codec;
 
-	if (($vc eq "vp8" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "opus")) {
-		my $output_file = $collection->add_file(relname => $relname . ".webm");
-		my $output = Media::Convert::Asset->new(url => $output_file->filename);
-		Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
-		$output_file->store_file;
-		return;
-	}
-	if ($vc eq "h264" && $ac eq "aac") {
-		my $output_file = $collection->add_file(relname => $relname . ".mp4");
-		my $output = Media::Convert::Asset->new(url => $output_file->filename);
-		Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
-		$output_file->store_file;
-		return;
+	if (!$config->get("force_preview_transcode")) {
+		if (($vc eq "vp8" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "vorbis") || ($vc eq "vp9" && $ac eq "opus")) {
+			my $output_file = $collection->add_file(relname => $relname . ".webm");
+			my $output = Media::Convert::Asset->new(url => $output_file->filename);
+			Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+			$output_file->store_file;
+			return;
+		}
+		if ($vc eq "h264" && $ac eq "aac") {
+			my $output_file = $collection->add_file(relname => $relname . ".mp4");
+			my $output = Media::Convert::Asset->new(url => $output_file->filename);
+			Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 1, acopy => 1)->run();
+			$output_file->store_file;
+			return;
+		}
 	}
 	my $profile = Media::Convert::Asset::ProfileFactory->create('vp8_lq', $input, $config->get('extra_profiles'));
 	my $output_file = $collection->add_file(relname => $relname . ".webm");

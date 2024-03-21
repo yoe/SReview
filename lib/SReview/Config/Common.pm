@@ -82,6 +82,8 @@ sub setup {
 	$config->define('review_template', 'The template name to be used for the review page. Can be one of "full" (full editing capabilities) or "confirm" (confirmation only). Defaults to "full", unless the talk was injected, in which case it defaults to "confirm".', undef);
 	$config->define('inject_fatal_checks', 'Checks to be run on an uploaded video. When a check fails, the upload is rejected. Same syntax as for inject_transcode_skip_checks.', {});
 
+	$config->define('force_preview_transcode', 'If set to nonzero, forces sreview-previews to transcode the video, even if the input video file is HTML video compatible. Use this if the input video format uses a very large bitrate.', 0);
+
 	# Values for encoder scripts
 	$config->define('pubdir', 'The directory on the file system where files served by the webinterface should be stored', '/srv/sreview/web/public');
 	$config->define('workdir', 'A directory where encoder jobs can create a subdirectory for temporary files', '/tmp');
