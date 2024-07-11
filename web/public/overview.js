@@ -36,7 +36,7 @@ const load_event = function() {
       if (event.starttime_date == event.endtime_date) {
         event.dates = event.starttime_date;
       } else {
-        event.dates = event.starttime_date + '-' + event.starttime_date;
+        event.dates = event.starttime_date + '-' + event.endtime_date;
       }
       return event;
     });
