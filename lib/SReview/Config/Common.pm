@@ -68,6 +68,7 @@ sub setup {
 	$config->define('s3_access_config', 'Configuration for accessing S3-compatible buckets. Any option that can be passed to the "new" method of the Net::Amazon::S3 Perl module can be passed to any of the child hashes of the toplevel hash. Uses the same toplevel keys as the "$accessmethods" configuration item, but falls back to "default"', {default => {}});
 	$config->define_computed('s3_access_config', \&compute_accessconfig);
 	$config->define('api_key', 'The API key, to allow access to the API', undef);
+        $config->define('canonical_duration', 'The canonical duration to set for Media::Convert::Asset', undef);
 
 	# Values for sreview-web
 	$config->define('event', 'The event to handle by this instance of SReview.');

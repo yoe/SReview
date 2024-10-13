@@ -84,6 +84,12 @@ C<sreview-cut> considers the following configuration values:
 
 my $config = SReview::Config::Common::setup;
 
+my %duration_args;
+
+if(defined($config->get('canonical_duration'))) {
+        $duration_args{canonical_duration} = $config->get('canonical_duration');
+}
+
 $ENV{TMPDIR} = $config->get("workdir");
 
 =item workdir
@@ -221,8 +227,8 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 		$mainlen += $row->{raw_length_corrected};
 	}
 	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
-	my $input = Media::Convert::Asset->new(url => $input_file->filename);
-	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv");
+	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
+	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);
 	if($row->{fragment_start} ne '0') {
 		$output->fragment_start($row->{fragment_start});
 	}
@@ -230,7 +236,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 		$output->duration($row->{raw_length_corrected});
 	}
 	Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
-	push @$segments, Media::Convert::Asset->new(url => $output->url);
+	push @$segments, Media::Convert::Asset->new(url => $output->url, %duration_args);
 }
 
 my $pre = undef;
@@ -246,19 +252,20 @@ if(scalar(@segments_post)>0) {
 }
 
 my $pre_new = undef;
-my $main_new = Media::Convert::Asset->new(url => "$tempdir/main.mkv");
+if(defined
+my $main_new = Media::Convert::Asset->new(url => "$tempdir/main.mkv", %duration_args);
 my $post_new = undef;
 my @videos;
 
 if(defined($pre)) {
-	$pre_new = Media::Convert::Asset->new(url => "$tempdir/pre.mkv");
+	$pre_new = Media::Convert::Asset->new(url => "$tempdir/pre.mkv", %duration_args);
 	Media::Convert::Pipe->new(inputs => [$pre], output => $pre_new, map => [Media::Convert::Map->new(input => $pre, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $pre_new;
 }
 Media::Convert::Pipe->new(inputs => [$main], output => $main_new, map => [Media::Convert::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 push @videos, $main;
 if(defined($post)) {
-	$post_new = Media::Convert::Asset->new(url => "$tempdir/post.mkv");
+	$post_new = Media::Convert::Asset->new(url => "$tempdir/post.mkv", %duration_args);
 	Media::Convert::Pipe->new(inputs => [$post], output => $post_new, map => [Media::Convert::Map->new(input => $post, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $post_new;
 }
@@ -270,13 +277,13 @@ $main = $main_new;
 sub reload {
 	@videos = ();
 	if(defined($pre)) {
-		$pre = Media::Convert::Asset->new(url => $pre->url);
+		$pre = Media::Convert::Asset->new(url => $pre->url, %duration_args);
 		push @videos, $pre;
 	}
-	$main = Media::Convert::Asset->new(url => $main->url);
+	$main = Media::Convert::Asset->new(url => $main->url, %duration_args);
 	push @videos, $main;
 	if(defined($post)) {
-		$post = Media::Convert::Asset->new(url => $post->url);
+		$post = Media::Convert::Asset->new(url => $post->url, %duration_args);
 		push @videos, $post;
 	}
 }
@@ -290,19 +297,19 @@ $samplelen = ($samplelen > $mainlen) ? $mainlen : $samplelen;
 my @choices = ($primary_audio, $backup_audio, $both_audio);
 foreach my $stream(0, 1, 2) {
 	my $sample_wav_file = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.wav");
-	my $sample_wav = Media::Convert::Asset->new(url => $sample_wav_file->filename, fragment_start => $samplestart, duration => $samplelen);
+	my $sample_wav = Media::Convert::Asset->new(url => $sample_wav_file->filename, fragment_start => $samplestart, duration => $samplelen, %duration_args);
 	Media::Convert::Pipe->new(inputs => [$main], output => $sample_wav, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$stream])], acopy => 0, vskip => 1)->run();
 	$sample_wav_file->store_file;
 	foreach my $codec(qw/mp3 ogg/) {
 		my $tmp = $output_coll->add_file(relname => $talk->relative_name . "/audio$stream.$codec");
-		Media::Convert::Pipe->new(inputs => [$sample_wav], output => Media::Convert::Asset->new(url => $tmp->filename), acopy => 0, vskip => 1)->run();
+		Media::Convert::Pipe->new(inputs => [$sample_wav], output => Media::Convert::Asset->new(url => $tmp->filename, %duration_args), acopy => 0, vskip => 1)->run();
 		$tmp->store_file;
 	}
 }
 
 if($corrections->{offset_audio} != 0) {
 	for my $vid(@videos) {
-		my $tmp = Media::Convert::Asset->new(url => "$tempdir/temp.mkv");
+		my $tmp = Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args);
 		Media::Convert::AvSync->new(input => $vid, output => $tmp, audio_delay => $corrections->{offset_audio})->run();
 		move($tmp->url, $vid->url);
 	}
@@ -310,14 +317,14 @@ if($corrections->{offset_audio} != 0) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
-	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv", audio_codec => $main->audio_codec);
+	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv", audio_codec => $main->audio_codec, %duration_args);
 	Media::Convert::Pipe->new(inputs => [$main], output => $tmp, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$corrections->{audio_channel}])], acopy => 0, vskip => 1)->run();
-	my $tmp2 = Media::Convert::Asset->new(url => "$tempdir/merged.mkv");
+	my $tmp2 = Media::Convert::Asset->new(url => "$tempdir/merged.mkv", %duration_args);
 	Media::Convert::Pipe->new(inputs => [$tmp, $main], output => $tmp2, map => [Media::Convert::Map->new(input => $main, type => "stream", choice => "video"), Media::Convert::Map->new(input => $tmp, type => "stream", choice => "audio")])->run();
 	move($tmp2->url, $main->url);
 	reload();
 	eval {
-		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv"))->run();
+		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args))->run();
 	};
 	if($@) {
 		say "normalization failed, skipping...";
