@@ -252,7 +252,6 @@ if(scalar(@segments_post)>0) {
 }
 
 my $pre_new = undef;
-if(defined
 my $main_new = Media::Convert::Asset->new(url => "$tempdir/main.mkv", %duration_args);
 my $post_new = undef;
 my @videos;
