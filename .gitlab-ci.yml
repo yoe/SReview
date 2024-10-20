@@ -109,7 +109,7 @@ debian:unstable:
 .docker: &docker
   stage: docker
   dependencies:
-  - debian:stable
+  - debian:stable-backports
   services:
   - docker:dind
   image: docker:latest
@@ -133,38 +133,38 @@ docker:common:
   <<: *docker
   stage: docker-pre
   needs:
-  - debian:stable
+  - debian:stable-backports
 
 docker:encoder:
   <<: *docker
   needs:
-  - debian:stable
+  - debian:stable-backports
   - docker:common
 
 docker:detect:
   <<: *docker
   needs:
-  - debian:stable
+  - debian:stable-backports
   - docker:common
 
 docker:master-kube:
   <<: *docker
   stage: docker-post
   needs:
-  - debian:stable
+  - debian:stable-backports
   - docker:master
   - docker:common
 
 docker:master:
   <<: *docker
   needs:
-  - debian:stable
+  - debian:stable-backports
   - docker:common
 
 docker:web:
   <<: *docker
   needs:
-  - debian:stable
+  - debian:stable-backports
   - docker:common
 
 helm:build:
@@ -245,7 +245,7 @@ release:detect:
 pages:
   stage: release
   dependencies:
-  - debian:stable
+  - debian:stable-backports
   script:
   - mkdir public
   - apt-get update; apt-get -y --no-install-recommends install devscripts
@@ -257,7 +257,7 @@ pages:
   only:
   - main
   needs:
-  - debian:stable
+  - debian:stable-backports
 
 .dput: &dput
   stage: release
@@ -273,7 +273,7 @@ pages:
 dput:stable:
   <<: *dput
   dependencies:
-  - debian:stable
+  - debian:stable-backports
 
 dput:testing:
   <<: *dput
@@ -288,9 +288,9 @@ dput:unstable:
 validate:package:
   image: debian:stable
   dependencies:
-  - debian:stable
+  - debian:stable-backports
   needs:
-  - debian:stable
+  - debian:stable-backports
   stage: autopkgtest
   services:
   - postgres:latest
