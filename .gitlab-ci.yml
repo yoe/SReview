@@ -98,11 +98,8 @@ test:committed:
   tags:
   - docker
 
-debian:stable:
+debian:stable-backports:
   <<: *deb
-  variables:
-    CPAN_DEPENDS: "Media::Convert"
-    DEB_DEPENDS: "ffmpeg libmoose-perl libjson-maybexs-perl libmoosex-singleton-perl libsemver-perl"
 debian:testing:
   <<: *deb
   allow_failure: true
