@@ -1,22 +1,33 @@
 package SReview::Web::Controller::Talk;
 
+use strict;
+use warnings;
+
+use feature "signatures";
+no warnings "experimental::signatures";
+
 use Mojo::Base 'Mojolicious::Controller';
-use SReview::API::Helpers qw/db_query update_with_json add_with_json/;
+use SReview::API::Helpers qw/db_query update_with_json add_with_json is_authed/;
 use Mojo::Util 'slugify';
 use Mojo::JSON qw/encode_json decode_json/;
 use DateTime::Format::Pg;
 
 use SReview::Talk;
 
-sub format_talks {
-	my $talks = shift;
+sub format_talks($c, $talks) {
 	foreach my $talk(@$talks) {
 		$talk->{starttime} = DateTime::Format::Pg->parse_datetime($talk->{starttime})->iso8601();
 		$talk->{endtime} = DateTime::Format::Pg->parse_datetime($talk->{endtime})->iso8601();
 		if($talk->{flags}) {
 			$talk->{flags} = decode_json($talk->{flags});
 		}
+                if(!is_authed($c)) {
+                        delete($talk->{nonce});
+                        delete($talk->{reviewer});
+                        delete($talk->{comments});
+                }
 	}
+	
 	return $talks;
 }
 
@@ -41,7 +52,7 @@ sub listByEvent {
 	}
 
 	my $res = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ?", $eventId);
-	$res = format_talks($res);
+	$res = format_talks($c, $res);
 
 	$c->render(openapi => $res);
 }
@@ -215,7 +226,7 @@ sub getById {
 		return;
 	}
 
-	$c->render(openapi => format_talks($talk)->[0]);
+	$c->render(openapi => format_talks($c, $talk)->[0]);
 }
 
 sub getByNonce {
@@ -229,7 +240,7 @@ sub getByNonce {
                 $c->render(openapi => { errors => [ { message => "not found" } ] }, status => 404);
 		return;
 	}
-	$c->render(openapi => format_talks($talk)->[0]);
+	$c->render(openapi => format_talks($c, $talk)->[0]);
 }
 
 sub getCorrections {
