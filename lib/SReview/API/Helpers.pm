@@ -3,9 +3,12 @@ package SReview::API::Helpers;
 use strict;
 use warnings;
 
+use feature "signatures";
+no warnings "experimental::signatures";
+
 use Exporter 'import';
 our @EXPORT = qw/db_query update_with_json add_with_json delete_with_query/;
-our @EXPORT_OK = qw/db_query_log/;
+our @EXPORT_OK = qw/db_query_log is_authed/;
 
 use SReview::Config::Common;
 use Mojo::JSON qw/decode_json encode_json/;
@@ -179,4 +182,8 @@ sub add_with_json {
 	}
 
 	$c->render(openapi => $res->[0]);
+}
+
+sub is_authed($c) {
+	return defined($c->req->headers->header("X-SReview-Key"));
 }
