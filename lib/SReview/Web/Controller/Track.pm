@@ -36,8 +36,7 @@ sub getById {
         my $track = db_query($c->dbh, "SELECT tracks.* FROM tracks WHERE id = ?", $trackId);
 
         if(scalar(@$track) < 1) {
-                $c->res->code(404);
-                $c->render(text => "not found");
+                $c->render(openapi => { errors => [ { message => "not found" } ]}, status => 404);
                 return;
         }
 

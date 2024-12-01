@@ -12,8 +12,7 @@ sub listByTalk {
         my $talk = db_query($c->dbh, "SELECT id FROM talks WHERE event = ? AND id = ?", $eventId, $talkId);
 
         if(scalar(@$talk) < 1) {
-                $c->res->code(404);
-                $c->render(text => 'not found');
+                $c->render(openapi => { errors => [ { message => 'not found' } ] }, status => 404);
                 return;
         }
 
@@ -36,8 +35,7 @@ sub getByUpstream {
 	my $speaker = db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE upstreamid = ?", $c->param("upstreamId"));
 
 	if(scalar(@$speaker) < 1) {
-		$c->res->code(404);
-		$c->render(text => "not found");
+                $c->render(openapi => { errors => [ { message => 'not found' } ] }, status => 404);
 		return;
 	}
 
@@ -73,8 +71,7 @@ sub getById {
         my $speaker = db_query($c->dbh, "SELECT speakers.* FROM speakers WHERE id = ?", $speakerId);
 
         if(scalar(@$speaker) < 1) {
-                $c->res->code(404);
-                $c->render(text => "not found");
+                $c->render(openapi => { errors => [ { message => 'not found' } ] }, status => 404);
                 return;
         }
         

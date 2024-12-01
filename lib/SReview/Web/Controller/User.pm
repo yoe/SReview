@@ -30,8 +30,7 @@ sub getById {
 	my $user = db_query($c->dbh, "SELECT users.* FROM users WHERE id = ?", $userId);
 
 	if(scalar(@$user) < 1) {
-		$c->res->code(404);
-		$c->render(text => "not found");
+                $c->render(openapi => { errors => [ { message => "not found" } ]}, status => 404);
 		return;
 	}
 
@@ -61,16 +60,13 @@ sub login {
         my $st = $c->dbh->prepare("SELECT id, isadmin, isvolunteer, name, room FROM users WHERE email=? AND password=crypt(?, password)");
         my $rv;
         if(!($rv = $st->execute($email, $pass))) {
-                $c->res->code(403);
-                return $c->render(openapi => { errors => [ { message => $st->errstr } ] });
+                return $c->render(openapi => { errors => [ { message => "unknown user or password" } ] }, status => 403);
         }
         if($rv == 0) {
-                $c->res->code(403);
-                return $c->render(openapi => { errors => [ { message => $st->errstr } ] });
+                return $c->render(openapi => { errors => [ { message => "unknown user or password" } ] }, status => 403);
         }
         if($st->rows < 1) {
-                $c->res->code(403);
-                return $c->render(openapi => { errors => [ { message => "unknown user or password" } ] });
+                return $c->render(openapi => { errors => [ { message => "unknown user or password" } ] }, status => 403);
         }
         my $row = $st->fetchrow_arrayref;
         $c->session->{id} = $row->[0];

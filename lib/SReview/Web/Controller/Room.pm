@@ -30,8 +30,7 @@ sub getById {
         my $room = db_query($c->dbh, "SELECT rooms.* FROM rooms WHERE id = ?", $roomId);
 
         if(scalar(@$room) < 1) {
-                $c->res->code(404);
-                $c->render(text => "not found");
+                $c->render(openapi => { errors => [ { message => "not found" } ]}, status => 404);
                 return;
         }
 
