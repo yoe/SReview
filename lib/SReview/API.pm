@@ -452,12 +452,12 @@ paths:
       x-mojo-to:
         controller: event
         action: overview
-  /event/{eventId}/bystate/{state}:
+  /event/{eventId}/talk/bystate/{state}:
     get:
       tags:
       - event
       summary: Return JSON data for talks in this event that are in the given state
-      operationId: event_released
+      operationId: event_videodata
       parameters:
       - name: eventId
         in: path
@@ -477,11 +477,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleasedData'
-      security:
-      - api_key: []
+                type: array
+                items:
+                  $ref: '#/components/schemas/Talk'
       x-mojo-to:
-        controller: event
+        controller: talk
         action: talksByState
   /event/{eventId}/speaker/byupstream/{upstreamId}:
     get:
@@ -1998,69 +1998,6 @@ components:
         mtime:
           type: string
           format: date-time
-    ReleasedData:
-      type: object
-      properties:
-        conference:
-          type: object
-          properties:
-            date:
-              type: array
-              items:
-                type: string
-                format: date
-            title:
-              type: string
-            video_formats:
-              type: object
-              additionalProperties:
-                type: object
-                properties:
-                  acodec:
-                    type: string
-                  bitrate:
-                    type: string
-                  resolution:
-                    type: string
-                  vcodec:
-                    type: string
-                  container:
-                    type: string
-            video_base:
-              type: string
-            schedule:
-              type: string
-        videos:
-          type: array
-          items:
-            type: object
-            properties:
-              description:
-                type: string
-              details_url:
-                type: string
-              start:
-                type: string
-                format: date-time
-              end:
-                type: string
-                format: date-time
-              eventid:
-                type: string
-              room:
-                type: string
-              speakers:
-                type: array
-                items:
-                  type: string
-              title:
-                type: string
-              video:
-                type: string
-              alt_formats:
-                type: object
-                additionalProperties:
-                  type: string
     LogonRequest:
       type: object
       properties:

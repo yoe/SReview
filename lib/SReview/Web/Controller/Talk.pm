@@ -57,6 +57,25 @@ sub listByEvent {
 	$c->render(openapi => $res);
 }
 
+sub talksByState {
+        my $c = shift->openapi->valid_input or return;
+
+	my $eventId = $c->param("eventId");
+	my $state = $c->param("state");
+
+	my $event = db_query($c->dbh, "SELECT id FROM events WHERE id = ?", $eventId);
+
+	if(scalar(@$event) < 1) {
+                $c->render(openapi => { errors => [ { message => 'not found' } ] }, status => 404);
+		return;
+	}
+
+	my $res = db_query($c->dbh, "SELECT talks.* FROM talks WHERE event = ? AND state = ?", $eventId, $state);
+	$res = format_talks($c, $res);
+
+	$c->render(openapi => $res);
+}
+
 sub add {
 	my $c = shift->openapi->valid_input or return;
 
