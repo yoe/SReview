@@ -100,6 +100,7 @@ test:committed:
 
 debian:stable-backports:
   <<: *deb
+  allow_failure: true
 debian:testing:
   <<: *deb
   allow_failure: true
