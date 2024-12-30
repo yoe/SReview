@@ -140,6 +140,23 @@ To run SReview from git without installing, do the following:
         cd web
         SREVIEW_WDIR=$(pwd)/.. ./sreview-web daemon
 
+Alternatively, you can use docker-compose:
+
+- `docker compose up`
+
+To edit the config file, either edit the line with `sreview-config` in `dockerfiles/web/local.Dockerfile`, or to edit from the host:
+
+- Copy the config file from the container
+`docker compose cp web:/etc/sreview/config.pm container-config.pm`
+
+- Add a volume to the docker-compose file:
+
+        services:
+          web:
+            volumes:
+              - ./container-config.pm:/etc/sreview/config.pm
+
+
 # Further reading
 
 See the [documentation](docs/)
