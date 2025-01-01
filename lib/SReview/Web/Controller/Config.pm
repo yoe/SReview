@@ -29,6 +29,8 @@ my $legend = [
 	{ name => "notify_final", expl => 'Sending out notifications for final review' },
 	{ name => "finalreview", expl => 'Ready for final review, waiting for reviewer' },
 	{ name => "announcing", expl => 'Announcing completion of publication' },
+	{ name => "transcribing", expl => 'Transcription running' },
+	{ name => "syncing", expl => 'Syncing Uploads' },
 	{ name => "done", expl => 'Videos published, all done' },
 	{ name => "injecting", expl => 'Injecting manually-edited video' },
 	{ name => "remove", expl => 'Final review found problems, talk being removed' },

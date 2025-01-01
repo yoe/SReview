@@ -1767,6 +1767,8 @@ components:
           - notify_final
           - finalreview
           - announcing
+          - transcribing
+          - syncing
           - done
           - injecting
           - remove

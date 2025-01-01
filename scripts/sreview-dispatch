@@ -158,6 +158,10 @@ same database if wanted.
 		if(exists(${$state_actions}{$row->{state}})) {
 			print "Starting job for event " . $row->{title} . " in state " . $row->{state} . "...\n";
 			$start->execute($row->{id});
+			if($config->get('query_limit') >= 1) {
+				# if running without an external scheduler, release the lock so the child process can proceed
+				$dbh->commit;
+			}
 			my $statetrans = ${$state_actions}{$row->{state}};
 
 =item script_output

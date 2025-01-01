@@ -119,6 +119,7 @@ sub setup {
 		notification => 'sreview-skip <%== $talkid %>',
 		announcing => 'sreview-skip <%== $talkid %>',
 		injecting => 'sreview-inject -t <%== $talkid %>',
+		transcribing => 'sreview-transcribe <%== $talkid %>',
 	});
 	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 1);
 	$config->define('published_headers', 'The HTTP headers that indicate that the video is available now. Use _code for the HTTP status code.', undef);
@@ -171,6 +172,9 @@ sub setup {
 	# for final review
 	$config->define('finalhosts', 'A list of hosts that may host videos for final review, to be added to Content-Security-Policy "media-src" directive.', undef);
 	$config->define('output_video_url_format', 'A Mojo::Template that will produce the URLs for the produced videos. Can use the $talk variable for the SReview::Talk, and the $exten variable for the extension of the current video profile');
+
+	# for transcription
+	$config->define('transcribe_command', 'A Mojo::Template for the command to transcribe a video.', undef);
 
 	return $config;
 }
