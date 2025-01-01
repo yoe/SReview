@@ -1,6 +1,7 @@
 Source: sreview
 Section: video
 Priority: optional
+Rules-Requires-Root: no
 Standards-Version: 4.1.1
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Vcs-Browser: https://salsa.debian.org/wouter/sreview
