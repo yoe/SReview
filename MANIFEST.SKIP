@@ -10,3 +10,4 @@ javascript-test/.*
 MANIFEST.bak
 Makefile$
 SReview-[\d.]+
+docker-compose.yml
