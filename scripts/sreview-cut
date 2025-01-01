@@ -12,6 +12,7 @@ use File::Temp qw/tempdir/;
 use Media::Convert::Asset;
 use Media::Convert::Asset::Concat;
 use Media::Convert::AvSync;
+use Media::Convert::KeyframeFinder;
 use Media::Convert::Map;
 use Media::Convert::Normalizer;;
 use Media::Convert::Pipe;;
@@ -228,9 +229,27 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 	}
 	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
 	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
+        my $kfs = Media::Convert::KeyframeFinder->new(asset => $input);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);
 	if($row->{fragment_start} ne '0') {
-		$output->fragment_start($row->{fragment_start});
+                my $prev_kf = 0;
+                my $cur_kf = 0;
+                KF:
+                foreach my $kf(sort @{$kfs->keyframes}) {
+                        $cur_kf = $kf;
+                        last KF if($kf >= $row->{fragment_start});
+                        $prev_kf = $kf;
+                }
+                if($prev_kf != $row->{fragment_start}) {
+                        my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args);
+                        $temp->fragment_start($prev_kf);
+                        $temp->duration($cur_kf - $prev_kf);
+                        $temp->force_key_frames($row->{fragment_start} - $prev_kf);
+                        Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $temp, vcopy => 0, acopy => 1)->run();
+                        push @$segments, Media::Convert::Asset->new(url => $temp->url, %duration_args);
+                } else {
+		        $output->fragment_start($row->{fragment_start});
+                }
 	}
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
 		$output->duration($row->{raw_length_corrected});
