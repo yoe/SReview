@@ -197,6 +197,13 @@ has 'fileclass' => (
 	required => 1,
 );
 
+has 'collection_name' => (
+        isa => 'Str',
+        is => 'ro',
+        default => '(unknown)',
+        lazy => 1,
+);
+
 sub _probe_baseurl {
 	my $self = shift;
 	
@@ -309,12 +316,12 @@ sub delete_files {
 		} elsif ($names[0] gt $ownfiles[0]->url) {
 			shift @ownfiles;
 		} else {
-			carp "${names[0]} is not a member of this collection, ignored";
+			carp "ignoring request to delete file or directory ${names[0]} from collection " . $self->collection_name . ", as it does not exist";
 			shift @names;
 		}
 	};
 	if(scalar(@names)) {
-		carp "${names[0]} is not a member of this collection, ignored";
+                carp "ignoring request to delete file or directory ${names[0]} from collection " . $self->collection_name . ", as it does not exist";
 	}
 	foreach my $file(@to_delete) {
 		$file->delete;
@@ -403,9 +410,9 @@ sub create {
 		die "$@: $!";
 	}
 	if($target eq "input") {
-		return "SReview::Files::Collection::$method"->new(globpattern => $relname);
+		return "SReview::Files::Collection::$method"->new(globpattern => $relname, collection_name => $target);
 	} else {
-		return "SReview::Files::Collection::$method"->new(baseurl => $relname);
+		return "SReview::Files::Collection::$method"->new(baseurl => $relname, collection_name => $target);
 	}
 }
 
