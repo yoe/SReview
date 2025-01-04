@@ -283,7 +283,7 @@ dput:unstable:
   dependencies:
   - debian:unstable
 
-validate:package:
+validate:package: &validate
   image: debian:stable
   dependencies:
   - debian:stable-backports
@@ -314,6 +314,14 @@ validate:package:
   - apt-get -y install autopkgtest
   script:
   - autopkgtest products/*ges -- null
+
+validate:unstable:
+  image: debian:unstable
+  dependencies:
+    - debian:unstable
+  needs:
+    - debian:unstable
+  <<: *validate
 
 #validate:web:
 #  allow_failure: true
