@@ -7,9 +7,7 @@ stages:
 - test
 - build
 - autopkgtest
-- docker-pre
 - docker
-- docker-post
 #- dockertest
 - release
 
@@ -133,7 +131,6 @@ debian:unstable:
 
 docker:common:
   <<: *docker
-  stage: docker-pre
   needs:
   - debian:stable-backports
 
@@ -151,7 +148,6 @@ docker:detect:
 
 docker:master-kube:
   <<: *docker
-  stage: docker-post
   needs:
   - debian:stable-backports
   - docker:master
