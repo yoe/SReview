@@ -99,6 +99,8 @@ test:committed:
   - docker
 
 debian:stable-backports:
+  variables:
+    DEB_DEPENDS: "-t stable-backports libmedia-convert-perl"
   <<: *deb
 debian:testing:
   <<: *deb
