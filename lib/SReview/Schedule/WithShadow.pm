@@ -244,11 +244,12 @@ has 'event_type' => (
 	builder => '_load_event_type',
 );
 
-with "MooseX::Deprecated" => {
-	attributes => ["event_type"],
-};
+#with "MooseX::Deprecated" => {
+#       attributes => ["event_type"],
+#};
 
 sub _load_eventtype {
+        my $self = shift;
 	if (my $typefactory = $self->can("_load_event_type")) {
 		return $self->$typefactory;
 	}
