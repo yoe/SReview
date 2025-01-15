@@ -10,6 +10,7 @@ lib/SReview/Config/Common.pm
 lib/SReview/Db.pm
 lib/SReview/Files/Collection/HTTP.pm
 lib/SReview/Files/Collection/HTTP/nginx/JSON.pm
+lib/SReview/Files/Collection/Net.pm
 lib/SReview/Files/Collection/S3.pm
 lib/SReview/Files/Collection/SFTP.pm
 lib/SReview/Files/Factory.pm
