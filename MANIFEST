@@ -11,6 +11,7 @@ lib/SReview/Db.pm
 lib/SReview/Files/Collection/HTTP.pm
 lib/SReview/Files/Collection/HTTP/nginx/JSON.pm
 lib/SReview/Files/Collection/S3.pm
+lib/SReview/Files/Collection/SFTP.pm
 lib/SReview/Files/Factory.pm
 lib/SReview/Job.pm
 lib/SReview/Map.pm
