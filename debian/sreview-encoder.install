@@ -8,6 +8,7 @@ usr/bin/sreview-previews
 usr/bin/sreview-skip
 usr/bin/sreview-titles
 usr/bin/sreview-transcode
+usr/bin/sreview-transcribe
 usr/bin/sreview-upload
 usr/share/man/man1/sreview-cut*
 usr/share/man/man1/sreview-notranscode*
