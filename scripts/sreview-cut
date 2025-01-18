@@ -242,7 +242,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                 }
                 if($prev_kf != $row->{fragment_start}) {
                         my $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get("extra_profiles"));
-                        my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args, profile => $profile);
+                        my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args, reference => $profile);
                         $temp->fragment_start($prev_kf);
                         $temp->duration($cur_kf - $prev_kf);
                         $temp->force_key_frames($row->{fragment_start} - $prev_kf);
