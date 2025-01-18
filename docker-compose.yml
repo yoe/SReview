@@ -9,6 +9,8 @@ services:
       - ./lib/:/usr/local/lib/site_perl/
       - ./scripts/:/usr/src/scripts/
       - ./dev-incoming/:/srv/sreview/incoming/
+      - ./dev-script-output/:/srv/sreview/script-output/
+      - ./dev-output/:/srv/sreview/output/
     ports:
       - 3000:3000
     depends_on:

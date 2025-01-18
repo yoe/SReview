@@ -64,7 +64,7 @@ This means that the start time and room name needs to be encoded in the
 file and/or path name.
 
 If the file already exists in the database, it will then instead update
-the length (and *only* the lenght), as specified in time rather than
+the length (and *only* the length), as specified in time rather than
 bytes, of the file in the database.
 
 An obvious optimization which has not yet been implemented is to not
