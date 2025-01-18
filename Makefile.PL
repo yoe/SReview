@@ -54,6 +54,7 @@ WriteMakefile(
 		'scripts/sreview-reply',
 		'scripts/sreview-upload',
 		'scripts/sreview-transcode',
+		'scripts/sreview-transcribe',
 		'scripts/sreview-notranscode',
 		'scripts/sreview-titles',
 		'scripts/sreview-previews',
