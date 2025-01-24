@@ -92,6 +92,7 @@ sub store_file {
                         substr($buf, 0, $rc) = '';
                 }
         }
+        return $self->SUPER::store_file;
 }
 
 sub delete {
