@@ -231,11 +231,12 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
         my $kfs = Media::Convert::KeyframeFinder->new(asset => $input);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);
-	if($row->{fragment_start} ne '0') {
+        my $target_length = $row->{raw_length_corrected};
+	if($row->{fragment_start} != 0) {
                 my $prev_kf = 0;
                 my $cur_kf = 0;
                 KF:
-                foreach my $kf(sort @{$kfs->keyframes}) {
+                foreach my $kf(sort {$a <=> $b} @{$kfs->keyframes}) {
                         $cur_kf = $kf;
                         last KF if($kf >= $row->{fragment_start});
                         $prev_kf = $kf;
@@ -264,14 +265,15 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                         my $recode_fragment = Media::Convert::Asset->new(url => $temp->url, %duration_args);
                         my $add_fragment = Media::Convert::Asset->new(url => "$tempdir/recoded_$target" . $row->{rawid} . ".mkv", %duration_args, fragment_start => $row->{fragment_start} - $prev_kf);
                         Media::Convert::Pipe->new(inputs => [$recode_fragment], "map" => [Media::Convert::Map->new(input => $recode_fragment, type => "allcopy")], output => $add_fragment, vcopy => 1, acopy => 1)->run();
-                        push @$segments, Media::Convert::Asset->new(url => $recode_fragment->url, %duration_args);
+                        push @$segments, Media::Convert::Asset->new(url => $add_fragment->url, %duration_args);
                         $output->fragment_start($cur_kf);
+                        $target_length -= $cur_kf - $target_length;
                 } else {
 		        $output->fragment_start($row->{fragment_start});
                 }
 	}
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
-		$output->duration($row->{raw_length_corrected});
+		$output->duration($target_length);
 	}
 	Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
 	push @$segments, Media::Convert::Asset->new(url => $output->url, %duration_args);
