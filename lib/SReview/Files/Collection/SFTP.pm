@@ -3,6 +3,7 @@ package SReview::Files::Access::SFTP;
 use Moose;
 use Carp;
 use Fcntl;
+use File::Basename;
 
 use SReview::Files::Collection::Net;
 
