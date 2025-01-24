@@ -195,6 +195,15 @@ sub has_file {
         return defined($self->sftpobject->stat($self->onhost_pathname));
 }
 
+sub _create {
+        my $self = shift;
+        my %options = @_;
+
+        $options{sftpobject} = $self->sftpobject;
+
+        return $self->SUPER::_create(%options);
+}
+
 no Moose;
 
 1;
