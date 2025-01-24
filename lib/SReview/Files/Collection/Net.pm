@@ -34,10 +34,6 @@ sub _probe_basepath {
         return shift->workdir;
 }
 
-sub store_file {
-        ...
-}
-
 sub delete {
         ...
 }
