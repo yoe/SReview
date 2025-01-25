@@ -6,6 +6,8 @@ use File::Path qw/make_path/;
 use File::Basename;
 use Carp;
 
+use SReview::Config::Common;
+
 extends 'SReview::Files::Access::Base';
 
 has '+filename' => (
@@ -19,7 +21,7 @@ has 'workdir' => (
 );
 
 sub _get_workdir {
-        return tempdir(CLEANUP => 1);
+        return tempdir(DIR => SReview::Config::Common::setup()->get("workdir"), CLEANUP => 1);
 }
 
 sub _get_file {
