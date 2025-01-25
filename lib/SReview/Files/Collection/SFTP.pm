@@ -55,7 +55,7 @@ sub _get_file {
                 my $source = $self->sftpobject->open($self->onhost_pathname, O_RDONLY);
                 while($size > 0) {
                         my $buf;
-                        my $read = $source->read($buf, 1024);
+                        my $read = $source->read($buf, 32*1024);
                         syswrite($fh, $buf, $read);
                         $size -= $read;
                 }
@@ -83,7 +83,7 @@ sub store_file {
         my $sf = $self->sftpobject->open($self->onhost_pathname, O_WRONLY | O_CREAT | O_TRUNC);
 
         my $buf;
-        while(sysread($fh, $buf, 1024)) {
+        while(sysread($fh, $buf, 32*1024)) {
                 while(length($buf)) {
                         my $rc = $sf->write($buf);
                         if(!defined($rc)) {
