@@ -256,7 +256,12 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                         #   end of the newly encoded video from that video.
                         # - Copy the rest of the video file from the next key
                         #   frame without re-encoding.
-                        my $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get("extra_profiles"));
+						my $profile;
+						if(defined($config->get("input_profile"))) {
+                                $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get("extra_profiles"));
+						} else {
+						        $profile = $input;
+						}
                         my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args, reference => $profile);
                         $temp->fragment_start($prev_kf);
                         $temp->duration($cur_kf - $prev_kf);
