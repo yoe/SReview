@@ -4,6 +4,7 @@ use Moose;
 use Carp;
 use Fcntl;
 use File::Basename;
+use File::Temp qw/tempfile/;
 
 use SReview::Files::Collection::Net;
 
