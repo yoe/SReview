@@ -198,8 +198,8 @@ sub _probe_children {
 }
 
 sub has_file {
-        my $self = shift;
-        return defined($self->sftpobject->stat($self->onhost_pathname));
+        my ($self, $target) = @_;
+        return defined($self->sftpobject->stat(join('/', $self->basepath, $target)));
 }
 
 sub _create {
