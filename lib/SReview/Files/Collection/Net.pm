@@ -34,6 +34,12 @@ sub _probe_basepath {
         return shift->workdir;
 }
 
+sub store_file {
+        my $self = shift;
+        $self->stored;
+        return 1;
+}
+
 sub delete {
         ...
 }
