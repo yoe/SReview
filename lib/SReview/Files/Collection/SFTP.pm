@@ -76,9 +76,13 @@ sub store_file {
         my $self = shift;
         return if(!$self->has_download);
 
+        # auto flush
+        local $| = 1;
+
         # Copy the file to the server. Algorithm taken straight from the
         # Net::SSH2::File documentation, so see there to understand what and
         # why.
+        say "uploading " . $self->filename . " to " . $self->onhost_pathname . " via sftp";
         open my $fh, "<", $self->filename;
         my $sf = $self->sftpobject->open($self->onhost_pathname, O_WRONLY | O_CREAT | O_TRUNC);
 
@@ -91,6 +95,7 @@ sub store_file {
                         }
                         substr($buf, 0, $rc) = '';
                 }
+                print ".";
         }
         return $self->SUPER::store_file;
 }
