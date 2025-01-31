@@ -4,7 +4,8 @@ use strict;
 use warnings;
 
 use DBI;
-use File::Basename qw/dirname/;
+use File::Basename qw/dirname basename/;
+use File::Copy;
 use Mojo::Template;
 
 use SReview::Files::Factory;
@@ -39,22 +40,22 @@ Run openai-whisper on the video file, outputting a .vtt (WebVTT) file.
 =cut
 
 my $config = SReview::Config::Common::setup;
-my $collection = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 
 my $transcribe_cmd_tpl = $config->get("transcribe_command");
 # example: '/venv/bin/whisper --language en --output_format vtt --model tiny --output_dir <%== $output_dir %> <%== $input_filename %>';
 
 die "no transcribe_command in config" unless $transcribe_cmd_tpl;
 
-sub run_transcribe($$) {
-    my $input_filename = shift;
-    my $output_dir = shift;
+sub run_transcribe {
+        my $input_filename = shift;
+        my $output_dir = shift;
+        
+        my $mt = Mojo::Template->new;
+        
+        my $transcribe_cmd = $mt->vars(1)->render($transcribe_cmd_tpl, {input_filename => $input_filename, output_dir => $output_dir});
 
-    my $mt = Mojo::Template->new;
-
-    my $transcribe_cmd = $mt->vars(1)->render($transcribe_cmd_tpl, {input_filename => $input_filename, output_dir => $output_dir});
-
-    system $transcribe_cmd
+        print "Running $transcribe_cmd\n";
+        system $transcribe_cmd;
 }
 
 =item dbistring
@@ -82,14 +83,22 @@ my $output_coll = SReview::Files::Factory->create("output", $config->get("output
 
 my @elems = ();
 foreach my $subdir(@{$config->get('output_subdirs')}) {
-    push @elems, $drow->{$subdir};
+        push @elems, $drow->{$subdir};
 }
 my $relprefix = join('/', @elems);
 
 my $input_file = $output_coll->get_file(relname => join('/', $relprefix, $slug . ".webm"));
-my $output_dir = dirname($input_file->filename);
+my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . '.vtt'));
 
-run_transcribe($input_file->filename, $output_dir);
+my $workdir = dirname($input_file->filename);
+my $expected_file = basename($input_file->filename, '.webm') . '.vtt';
+
+run_transcribe($input_file->filename, $workdir);
+
+my $vtt_file = "$workdir/$expected_file";
+if (-f $vtt_file) {
+        move($vtt_file, $output_file->filename);
+}
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='transcribing'")->execute($talkid);
 
