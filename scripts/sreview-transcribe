@@ -98,7 +98,11 @@ run_transcribe($input_file->filename, $workdir);
 my $vtt_file = "$workdir/$expected_file";
 if (-f $vtt_file) {
         move($vtt_file, $output_file->filename);
+} else {
+        die "could not find $vtt_file";
 }
+
+$output_file->store_file;
 
 $dbh->prepare("UPDATE talks SET progress='done' WHERE id=? AND state='transcribing'")->execute($talkid);
 
