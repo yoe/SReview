@@ -176,6 +176,7 @@ sub setup {
 
 	# for transcription
 	$config->define('transcribe_command', 'A Mojo::Template for the command to transcribe a video.', undef);
+        $config->define('transcribe_source_extension', 'The extension of the video to be used when running sreview-transcribe', 'webm');
 
 	return $config;
 }
