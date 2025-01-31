@@ -87,7 +87,7 @@ foreach my $subdir(@{$config->get('output_subdirs')}) {
 }
 my $relprefix = join('/', @elems);
 
-my $input_file = $output_coll->get_file(relname => join('/', $relprefix, $slug . "." . $config->get("transcribe_source_extension"));
+my $input_file = $output_coll->get_file(relname => join('/', $relprefix, $slug . "." . $config->get("transcribe_source_extension")));
 my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . '.vtt'));
 
 my $workdir = dirname($input_file->filename);
