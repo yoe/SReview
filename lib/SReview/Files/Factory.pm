@@ -197,6 +197,12 @@ has 'fileclass' => (
 	required => 1,
 );
 
+has 'download_verbose' => (
+        is => 'rw',
+        isa => 'Bool',
+        default => 0,
+);
+
 has 'collection_name' => (
         isa => 'Str',
         is => 'ro',

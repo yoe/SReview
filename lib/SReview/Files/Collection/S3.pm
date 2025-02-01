@@ -24,6 +24,9 @@ sub _get_file {
 	my $dir = $self->workdir;
 
 	if($self->has_data) {
+                if($self->download_verbose) {
+                        print "downloading " . $self->relname . " to " . $self->filename . "\n";
+                }
 		my ($fh, $file) = tempfile("s3-XXXXXX", dir => $dir, SUFFIX => ".$ext");
 		$self->s3object->get_key_filename($self->relname, "GET", $file);
 		return $file;
@@ -43,6 +46,10 @@ sub _probe_mtime {
 sub store_file {
 	my $self = shift;
 	return if(!$self->has_download);
+
+        if($self->download_verbose) {
+                print "uploading " . $self->filename . " to " . $self->onhost_pathname . " via s3\n";
+        }
 
 	$self->s3object->add_key_filename($self->relname, $self->filename, {}) or croak($self->s3object->errstr);
 

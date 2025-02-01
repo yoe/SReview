@@ -58,6 +58,9 @@ sub valid_path_filename {
 sub DEMOLISH {
         my $self = shift;
         if($self->has_download) {
+                if($self->download_verbose) {
+                        print "removing " . $self->filename . "\n";
+                }
                 unlink($self->filename);
         }
 }

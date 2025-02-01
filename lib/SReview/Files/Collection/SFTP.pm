@@ -51,6 +51,9 @@ sub _get_file {
         my $dir = $self->workdir;
 
         if($self->has_data) {
+                if($self->download_verbose) {
+                        print "downloading " . $self->relname . " to " . $self->filename . "\n";
+                }
                 my ($fh, $file) = tempfile("sftp-XXXXXX", dir => $dir, SUFFIX => ".$ext");
                 my $size = $self->sftpobject->stat($self->onhost_pathname)->{size};
                 my $source = $self->sftpobject->open($self->onhost_pathname, O_RDONLY);
@@ -83,7 +86,9 @@ sub store_file {
         # Copy the file to the server. Algorithm taken straight from the
         # Net::SSH2::File documentation, so see there to understand what and
         # why.
-        say "uploading " . $self->filename . " to " . $self->onhost_pathname . " via sftp";
+        if($self->download_verbose) {
+                print "uploading " . $self->filename . " to " . $self->onhost_pathname . " via sftp\n";
+        }
         open my $fh, "<", $self->filename;
         my $sf = $self->sftpobject->open($self->onhost_pathname, O_WRONLY | O_CREAT | O_TRUNC);
 

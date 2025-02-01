@@ -28,6 +28,9 @@ sub _get_file {
 	my $dir = $self->workdir;
 
 	if($self->has_data) {
+                if($self->download_verbose) {
+                        print "Downloading " . $self->url . "\n";
+                }
 		my ($fh, $file) = tempfile("http-XXXXXX", dir => $dir, SUFFIX => ".$ext");
 		my $ua = Mojo::UserAgent->new;
 		my $res = $ua->get($self->url)->result;
@@ -49,6 +52,9 @@ sub _probe_basepath {
 sub DEMOLISH {
 	my $self = shift;
 	if($self->has_download) {
+                if($self->download_verbose) {
+                        print "Deleting " . $self->filename . "\n";
+                }
 		unlink($self->filename);
 	}
 }
