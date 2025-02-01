@@ -93,7 +93,7 @@ sub store_file {
         my $dir = dirname($self->onhost_pathname);
         my @dirs;
         while(!$self->sftpobject->stat($dir)) {
-                push @dirs, $dir;
+                unshift @dirs, $dir;
                 $dir = dirname($dir);
         }
         foreach $dir(@dirs) {
