@@ -120,6 +120,7 @@ sub _probe_children {
 				baseurl => $self->baseurl,
 				mtime => DateTime::Format::ISO8601->parse_datetime($key->{last_modified}),
 				relname => $key->{key},
+                                download_verbose => $self->download_verbose
 			);
 		}
 	};

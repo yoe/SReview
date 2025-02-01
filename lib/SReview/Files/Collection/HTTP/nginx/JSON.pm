@@ -23,11 +23,11 @@ sub _probe_children {
 	if($res->is_success) {
 		foreach my $obj(@{$res->json}) {
 			if($obj->{type} eq "directory") {
-				foreach my $child(@{SReview::Files::Collection::HTTP::nginx::JSON->new(baseurl => join("/", $self->baseurl, $obj->{name}))->children}) {
+				foreach my $child(@{SReview::Files::Collection::HTTP::nginx::JSON->new(baseurl => join("/", $self->baseurl, $obj->{name}))->children}, download_verbose => $self->download_verbose) {
 					push @$return, SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => join('/', $obj->{name}, $child->{relname}), mtime => $child->mtime);
 				}
 			} else {
-				push @$return, SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => $obj->{name}, mtime => $parser->parse_datetime($obj->{mtime}));
+				push @$return, SReview::Files::Access::HTTP->new(baseurl => $self->baseurl, relname => $obj->{name}, mtime => $parser->parse_datetime($obj->{mtime}), download_verbose => $self->download_verbose);
 			}
 		}
 	}

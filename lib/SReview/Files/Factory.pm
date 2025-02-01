@@ -14,6 +14,12 @@ has 'url' => (
 	builder => '_probe_url',
 );
 
+has 'download_verbose' => (
+        is => 'rw',
+        isa => 'Bool',
+        default => 0,
+);
+
 no Moose;
 
 package SReview::Files::Access::Base;
@@ -197,12 +203,6 @@ has 'fileclass' => (
 	required => 1,
 );
 
-has 'download_verbose' => (
-        is => 'rw',
-        isa => 'Bool',
-        default => 0,
-);
-
 has 'collection_name' => (
         isa => 'Str',
         is => 'ro',
@@ -363,13 +363,13 @@ sub _probe_children {
 	foreach my $file(glob($self->globpattern)) {
 		my $child;
 		if(-d $file) {
-			$child = SReview::Files::Collection::direct->new(baseurl => join("/", $self->baseurl, basename($file)));
+			$child = SReview::Files::Collection::direct->new(baseurl => join("/", $self->baseurl, basename($file)), download_verbose => $self->download_verbos);
 		} else {
 			my $basename = substr($file, length($self->baseurl));
 			while(substr($basename, 0, 1) eq '/') {
 				$basename = substr($basename, 1);
 			}
-			$child = SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $basename);
+			$child = SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $basename, download_verbose => $self->download_verbose);
 		}
 		push @return, $child;
 	}

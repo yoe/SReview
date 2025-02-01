@@ -183,7 +183,7 @@ sub _probe_children {
                         next if($file->{name} eq '..');
                         if(S_ISDIR($file->{mode})) {
                                 eval {
-                                        push @$return, @{SReview::Files::Collection::SFTP->new(baseurl => $self->baseurl . "/" . $file->{name}, sftpobject => $self->sftpobject)->children};
+                                        push @$return, @{SReview::Files::Collection::SFTP->new(baseurl => $self->baseurl . "/" . $file->{name}, sftpobject => $self->sftpobject, download_verbose => $self->download_verbose)->children};
                                 };
                                 if($@) {
                                         if($@->isa("Moose::Exception::ValidationFailedForInlineTypeConstraint")) {
@@ -192,7 +192,7 @@ sub _probe_children {
                                         die $@;
                                 }
                         } else {
-                                push @$return, SReview::Files::Access::SFTP->new(baseurl => $self->baseurl, relname => $file->{name}, sftpobject => $self->sftpobject);
+                                push @$return, SReview::Files::Access::SFTP->new(baseurl => $self->baseurl, relname => $file->{name}, sftpobject => $self->sftpobject, download_verbose => $self->download_verbose);
                         }
                 }
         };
