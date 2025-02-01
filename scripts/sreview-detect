@@ -143,15 +143,17 @@ foreach my $file(@{$collection->children}) {
 	my $start = DateTime->new(%parsed, time_zone => $tz);
 	$exists->execute($file->relname);
 	my $row = $exists->fetchrow_hashref;
-        my %args = (url => $file->filename);
+        my %args;
         if(defined($config->get('canonical_duration'))) {
                 $args{canonical_duration} = $config->get('canonical_duration');
         }
-        my $video = Media::Convert::Asset->new(%args);
-        my $length = $video->duration;
-        next unless defined($length);
 	if($exists->rows == 0) {
 		print " ...is new" if $verbose;
+                # We do the below bit twice, since $file->filename triggers a
+                # download and we only want to do that if we need to.
+                my $video = Media::Convert::Asset->new(url => $file->filename, %args);
+                my $length = $video->duration;
+                next unless defined($length);
 		$start = DateTime::Format::Pg->format_datetime($start);
 		$add->execute($file->relname, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
 		$file = undef;
@@ -160,6 +162,8 @@ foreach my $file(@{$collection->children}) {
 		print " ... is known" if $verbose;
 		next unless ($row->{mtime} != $file->mtime->epoch);
 		print " ... but has changed" if $verbose;
+                my $video = Media::Convert::Asset->new(url => $file->filename, %args);
+                my $length = $video->duration;
 		next unless defined($length);
 		$update->execute("$length", $file->mtime->epoch, $file->relname);
 		$file = undef;
