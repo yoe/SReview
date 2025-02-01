@@ -363,7 +363,7 @@ sub _probe_children {
 	foreach my $file(glob($self->globpattern)) {
 		my $child;
 		if(-d $file) {
-			$child = SReview::Files::Collection::direct->new(baseurl => join("/", $self->baseurl, basename($file)), download_verbose => $self->download_verbos);
+			$child = SReview::Files::Collection::direct->new(baseurl => join("/", $self->baseurl, basename($file)), download_verbose => $self->download_verbose);
 		} else {
 			my $basename = substr($file, length($self->baseurl));
 			while(substr($basename, 0, 1) eq '/') {
