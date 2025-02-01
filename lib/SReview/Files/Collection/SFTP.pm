@@ -90,6 +90,15 @@ sub store_file {
                 print "uploading " . $self->filename . " to " . $self->onhost_pathname . " via sftp\n";
         }
         open my $fh, "<", $self->filename;
+        my $dir = dirname($self->onhost_pathname);
+        my @dirs;
+        while(!$self->sftpobject->stat($dir)) {
+                push @dirs, $dir;
+                $dir = dirname($dir);
+        }
+        foreach $dir(@dirs) {
+                $self->sftpobject->mkdir($dir);
+        }
         my $sf = $self->sftpobject->open($self->onhost_pathname, O_WRONLY | O_CREAT | O_TRUNC);
 
         my $buf;
