@@ -272,7 +272,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                         Media::Convert::Pipe->new(inputs => [$recode_fragment], "map" => [Media::Convert::Map->new(input => $recode_fragment, type => "allcopy")], output => $add_fragment, vcopy => 1, acopy => 1)->run();
                         push @$segments, Media::Convert::Asset->new(url => $add_fragment->url, %duration_args);
                         $output->fragment_start($cur_kf);
-                        $target_length -= $cur_kf - $target_length;
+                        $target_length -= $temp->duration;
                 } else {
 		        $output->fragment_start($row->{fragment_start});
                 }
