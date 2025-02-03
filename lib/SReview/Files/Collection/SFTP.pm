@@ -110,7 +110,9 @@ sub store_file {
                         }
                         substr($buf, 0, $rc) = '';
                 }
-                print ".";
+                if($self->download_verbose) {
+                        print ".";
+                }
         }
         return $self->SUPER::store_file;
 }
