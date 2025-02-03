@@ -60,7 +60,11 @@ sub _get_file {
                 while($size > 0) {
                         my $buf;
                         my $read = $source->read($buf, 32*1024);
-                        syswrite($fh, $buf, $read);
+                        if(defined($read)) {
+                                syswrite($fh, $buf, $read);
+                        } else {
+                                $self->sftpobject->die_with_error('read error');
+                        }
                         $size -= $read;
                 }
                 return $file;
