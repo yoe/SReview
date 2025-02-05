@@ -257,7 +257,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                                 # Cut point is less than one frame before the
                                 # next key frame. Move the cut point to the key
                                 # frame.
-                                $row->{fragment_start} = $cur_kf;
+                                $output->fragment_start($cur_kf);
                         } else {
                                 # The start point is reasonably far away from a
                                 # key frame. This means we need to create one,
