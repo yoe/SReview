@@ -232,6 +232,9 @@ foreach my $row(@{$talk->avs_video_fragments}) {
         my $kfs = Media::Convert::KeyframeFinder->new(asset => $input);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);
         my $target_length = $row->{raw_length_corrected};
+        my $rate = $profile->video_framerate;
+        my ($numerator, $denumerator) = split /\//, $rate;
+        my $frame_length = 1 / ($numerator / $denumerator);
 	if($row->{fragment_start} != 0) {
                 my $prev_kf = 0;
                 my $cur_kf = 0;
@@ -250,9 +253,6 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 			} else {
 			        $profile = $input;
 			}
-                        my $rate = $profile->video_framerate;
-                        my ($numerator, $denumerator) = split /\//, $rate;
-                        my $frame_length = 1 / ($numerator / $denumerator);
                         if (($cur_kf - $row->{fragment_start}) <= ($frame_length)) {
                                 # Cut point is less than one frame before the
                                 # next key frame. Move the cut point to the key
@@ -290,6 +290,9 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                 }
 	}
 	if($row->{raw_length} ne $row->{raw_length_corrected}) {
+                if($target_length < $frame_length) {
+                        next FRAGMENT;
+                }
 		$output->duration($target_length);
 	}
 	Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
