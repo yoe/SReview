@@ -218,7 +218,7 @@ say "-" x length($fragments_title);
 
 FRAGMENT:
 foreach my $row(@{$talk->avs_video_fragments}) {
-        say "Considering work on " . $row->{raw_filename};
+        say "Considering work on " . $row->{raw_filename} . "(" . $row->{rawid} . ")";
 	if($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0) {
                 say "skipping, file length less than half a second";
                 next FRAGMENT;
@@ -241,6 +241,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 		$segments = \@segments_main;
 		$mainlen += $row->{raw_length_corrected};
 	}
+        say "Targetting $target video";
 	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
 	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
         my $kfs = Media::Convert::KeyframeFinder->new(asset => $input);
@@ -275,7 +276,8 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                                 say "The desired cut point is less than one frame before the next key frame. Moving the cut point to the key frame.";
                                 $output->fragment_start($cur_kf);
                         } else {
-                                say "The desired cut point does not fall on or near a key frame. Creating a new key frame at the desired cut point.";
+                                say "The desired cut point does not fall near a key frame. Creating a new key frame at the desired cut point.";
+                                say "last: $prev_kf; cut point: " . $row->{fragment_start} . "; next: $cur_kf; frame length: $frame_length";
                                 # The start point is reasonably far away from a
                                 # key frame. This means we need to create one,
                                 # otherwise the video does not start correctly,
