@@ -47,7 +47,7 @@ if(defined($talknonce)) {
     $talk = SReview::Talk->by_slug($talkslug);
 }
 $talk->set_state("injecting", "running");
-$talk = SReview::Talk->new(talkid => $talkid);
+$talk = SReview::Talk->new(talkid => $talk->talkid);
 my $input = Media::Convert::Asset->new(url => $inputfile);
 my $output_coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 my $outputfile = $output_coll->add_file(relname => $talk->relative_name . "/main.mkv");
