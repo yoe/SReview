@@ -2,60 +2,77 @@ package SReview::Job;
 
 use SReview::Config;
 use Scalar::Util qw(weaken);
-use Carp;
+use Moose;
 
-my $singleton;
+has 'steps' => (
+        is => 'ro',
+        isa => 'ArrayRef[SReview::Job::Step]',
+        required => 1,
+        traits => ['Array'],
+        handles => {
+                stepcount => 'count',
+);
 
-sub new {
-	my $class = shift;
-	if(defined $singleton) {
-		croak "$class object created twice!";
-	}
-	my $self = {};
-	$self->{jobname} = shift;
-	$self->{talkid} = shift;
-	$self->{dbh} = shift;
-	die "Missing arguments!" unless defined($dbh);
-	$self->{jobs} = [];
-	$dbh->begin;
-	my $set = $dbh->prepare("UPDATE talks SET progress='running' WHERE id = ?");
-	$set->execute($talkid);
-	$dbh->commit;
-	bless $self, $class;
-	$singleton = $self;
-	weaken($singleton);
-	return $self;
-};
+has 'jobid' => (
+        is => 'ro',
+        isa => 'Str',
+        lazy => 1,
+        builder => '_load_jobid',
+);
 
-$SIG{'__DIE__'} = sub {
-	my $msg = shift;
-	my $ref = $singleton;
-	if(!defined($ref)) {
-		die $msg;
-	}
-	my $insert = $ref->{dbh}->prepare('INSERT INTO logs(talkid, job, message) VALUES(?, ?, ?)');
-	$ref->{dbh}->begin_work();
-	$insert->execute($ref->{jobname}, $ref->{talkid}, $msg);
-	$ref->{dbh}->commit();
-};
+has 'talk' => (
+        is => 'ro',
+        isa => 'SReview::Talk',
+        required => 1,
+);
 
-sub add_job {
-	my $self = shift;
-	push @{$self->{jobs}}, shift;
-};
+sub _load_jobid {
+        my $self = shift;
 
-sub DEMOLISH {
-	my $self = shift;
-	my $progress = $dbh->prepare('UPDATE talks SET perc = (?/?)*100 WHERE id = ?');
-	my $total = scalar(@{$self->{jobs}});
-	for(my $i=0; $i<$total; $i++) {
-		$dbh->begin;
-		$progress->execute($i, $total, $talkid);
-		my $job = ${$self->{jobs}[$i]};
-		print $job;
-		system($job);
-		$dbh->commit;
-	}
-};
+        return join('-', $$, $self->talk->talkid, $self->talk->state);
+}
+
+has 'db' => (
+        is => 'ro',
+        isa => 'DBI::db';
+        required => 1,
+);
+
+sub run {
+        my $self = shift;
+
+        my $db = $self->db;
+
+        my $joblog = $db->prepare("INSERT INTO joblog(talk, jobid) VALUES(?, ?, 0) RETURNING id");
+        $joblog->execute($self->talk->talkid, $self->jobid);
+
+        my $row = $joblog->fetchrow_arrayref;
+        my $joblog_id = $row->[0];
+        my $step_id;
+
+        my $step = $db->prepare("INSERT INTO joblog_step(joblogid, stepname) VALUES(?, ?) RETURNING id");
+        my $progress = $db->prepare("UPDATE joblog_step SET progress = ? WHERE id = ?");
+
+        my $talk_steps = $db->prepare("UPDATE talks SET perc=? WHERE id=?");
+
+        sub progress {
+                my $perc = shift;
+
+                $progress->execute($perc, $step_id);
+        }
+
+        my $done = 0;
+        foreach my $step (@{$self->steps}) {
+                eval {
+                        $step->run(\&progress);
+                };
+                if($@) {
+                        $db->prepare("UPDATE talks SET progress='failed' WHERE id = ?")->execute($self->talk->talkid);
+                        die "Step failed: $@";
+                }
+                $done++;
+                $talk_steps->execute($self->done / $self->stepcount, $self->talk->talkid);
+        }
+}
 
 1;
