@@ -327,6 +327,7 @@ my $pre = undef;
 my $main = undef;
 my $post = undef;
 
+say "Concatenating fragments...";
 if(scalar(@segments_pre)>0) {
 	$pre = Media::Convert::Asset::Concat->new(url => "$tempdir/pre.txt", components => \@segments_pre, input_params => {fflags => "+nofillin"});
 }
@@ -341,16 +342,16 @@ my $post_new = undef;
 my @videos;
 
 if(defined($pre)) {
-        say "Concatenating pre fragments";
+        say "Pre fragments";
 	$pre_new = Media::Convert::Asset->new(url => "$tempdir/pre.mkv", %duration_args);
 	Media::Convert::Pipe->new(inputs => [$pre], output => $pre_new, map => [Media::Convert::Map->new(input => $pre, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $pre_new;
 }
-say "Concatenating main fragments";
+say "Main fragments";
 Media::Convert::Pipe->new(inputs => [$main], output => $main_new, map => [Media::Convert::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 push @videos, $main;
 if(defined($post)) {
-        say "Concatenating post fragments";
+        say "Post fragments";
 	$post_new = Media::Convert::Asset->new(url => "$tempdir/post.mkv", %duration_args);
 	Media::Convert::Pipe->new(inputs => [$post], output => $post_new, map => [Media::Convert::Map->new(input => $post, type => "allcopy")], vcopy => 1, acopy => 1)->run();
 	push @videos, $post_new;
@@ -397,7 +398,7 @@ foreach my $stream(0, 1, 2) {
 }
 
 if(!$talk->get_flag("keep_audio")) {
-        say "Performing audio normalization";
+        say "Extracting chosen audio channel...";
 	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv", audio_codec => $main->audio_codec, %duration_args);
 	Media::Convert::Pipe->new(inputs => [$main], output => $tmp, map => [Media::Convert::Map->new(input => $main, type => $maptype, choice => $choices[$corrections->{audio_channel}])], acopy => 0, vskip => 1)->run();
 	my $tmp2 = Media::Convert::Asset->new(url => "$tempdir/merged.mkv", %duration_args);
@@ -405,6 +406,7 @@ if(!$talk->get_flag("keep_audio")) {
 	move($tmp2->url, $main->url);
 	reload();
 	eval {
+                say "Performing audio normalization";
 		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args))->run();
 	};
 	if($@) {
