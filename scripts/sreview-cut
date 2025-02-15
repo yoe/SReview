@@ -396,16 +396,6 @@ foreach my $stream(0, 1, 2) {
 	}
 }
 
-if($corrections->{offset_audio} != 0) {
-        say "Performing A/V sync correction";
-	for my $vid(@videos) {
-		my $tmp = Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args);
-		Media::Convert::AvSync->new(input => $vid, output => $tmp, audio_delay => $corrections->{offset_audio})->run();
-		move($tmp->url, $vid->url);
-	}
-	reload();
-}
-
 if(!$talk->get_flag("keep_audio")) {
         say "Performing audio normalization";
 	my $tmp = Media::Convert::Asset->new(url => "$tempdir/channel.mkv", audio_codec => $main->audio_codec, %duration_args);
@@ -426,6 +416,16 @@ if(!$talk->get_flag("keep_audio")) {
 			reload();
 		}
 	}
+}
+
+if($corrections->{offset_audio} != 0) {
+        say "Performing A/V sync correction";
+	for my $vid(@videos) {
+		my $tmp = Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args);
+		Media::Convert::AvSync->new(input => $vid, output => $tmp, audio_delay => $corrections->{offset_audio})->run();
+		move($tmp->url, $vid->url);
+	}
+	reload();
 }
 
 say "Done, updating database and uploading files if necessary";
