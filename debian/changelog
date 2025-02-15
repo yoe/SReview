@@ -1,5 +1,11 @@
-sreview (0.10.0-2) UNRELEASED; urgency=medium
+sreview (0.11.0-1) unstable; urgency=medium
 
+  * The "FOSDEM was a partial success" release.
+  * New upstream release, with various changes.
+    - sreview-cut now does more accurate cuts when a cut point is not on a key
+      frame
+    - Bugs found at FOSDEM are now also fixed (and there were too many of them
+      for comfort...).
   * Apply patch from Niels Thykier <niels@thykier.net> to support
     rootless builds. Closes: #1089440.
 
