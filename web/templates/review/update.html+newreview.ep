@@ -20,7 +20,7 @@
             <li>The end time should be corrected with an offset of <%= $corrections->{end} %> seconds</li>
           % }
           % if (exists($corrections->{audio_channel})) {
-            <li>The audio channel should be set to channel <%= $corrections->{audio_channel} %></li>
+            <li>The audio channel should be changed to channel <%= $corrections->{audio_channel} %></li>
           % }
           % if (exists($corrections->{audio_offset})) {
             <li>An A/V synchronisation value of <%= $corrections->{audio_offset} %> seconds should be applied</li>
