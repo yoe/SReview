@@ -5,7 +5,7 @@ use warnings;
 
 our $VERSION;
 
-$VERSION = "0.11.0";
+$VERSION = "0.11.1";
 
 =head1 NAME
 
