@@ -300,6 +300,7 @@ no Moose;
 package SReview::Schedule::Base::Event;
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime::TimeZone;
 
 has 'root_object' => (
@@ -331,10 +332,16 @@ sub _load_name {
 	return "";
 }
 
+class_type "DateTime::TimeZone";
+coerce "DateTime::TimeZone",
+        from "Str",
+        via  { DateTime::TimeZone->new(name => $_) };
+
 has 'timezone' => (
 	is => 'ro',
 	isa => 'DateTime::TimeZone',
 	lazy => 1,
+        coerce => 1,
 	builder => '_load_timezone',
 );
 
