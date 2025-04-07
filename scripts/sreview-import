@@ -211,5 +211,3 @@ foreach my $event(@{$parser->events}) {
 		$ignore_talk->execute($talkid);
 	}
 }
-
-$dbh->commit;
