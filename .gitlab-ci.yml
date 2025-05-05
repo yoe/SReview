@@ -10,6 +10,7 @@ stages:
 - docker
 #- dockertest
 - release
+- deploy
 
 .build: &build
   stage: test
@@ -324,6 +325,22 @@ validate:unstable:
   needs:
     - debian:unstable
   <<: *validate
+
+deploy:start:
+  rules:
+    - if: $DO_DEPLOY == "1"
+      when: on_success
+    - when: never
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: "./downloads"
+    KUBECONFIG: "./downloads/kubeconfig"
+  script:
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - helm upgrade --install --create-namespace -n sreview -f helm/testvals.yaml --set=label=git-$CI_COMMIT_SHORT_SHA sreview ./helm/sreview
+  environment:
+    name: dev
+    url: https://sreview.grep.be/
+    deployment_tier: development
 
 #validate:web:
 #  allow_failure: true
