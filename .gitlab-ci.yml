@@ -336,7 +336,7 @@ deploy:start:
     KUBECONFIG: "./downloads/kubeconfig"
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
-    - helm upgrade --install --create-namespace -n sreview -f helm/testvals.yaml --set=label=git-$CI_COMMIT_SHORT_SHA sreview ./helm/sreview
+    - helm upgrade --install --create-namespace -n sreview -f helm/grep.yaml --set=containerLabel=git-$CI_COMMIT_SHORT_SHA --set=containerRoot=$CI_REGISTRY_IMAGE sreview ./helm/sreview
   environment:
     name: dev
     url: https://sreview.grep.be/
