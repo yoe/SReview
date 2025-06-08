@@ -47,7 +47,7 @@ SKIP: {
 		@outputopts = ("--set", "pubdir=" . abs_path("t/pubdir"));
 	}
 	$ENV{SREVIEW_OUTPUT_PROFILES}='["webm","copy"]';
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEWTEST_DB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"), @outputopts, "--set", "event=Test event");
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-config", "--action", "update", "--set", "dbistring=dbi:Pg:dbname=" . $ENV{SREVIEWTEST_DB}, "--set", "inputglob=" . abs_path("t/inputdir") . "/*/*/*", "--set", "outputdir=" . abs_path('t/outputdir'), "--set", "preroll_template=" . abs_path("t/testvids/just-title.svg"), "--set", "postroll_template=" . abs_path("t/testvids/just-title.svg"), @outputopts, "--set", "event=Test event");
 	delete $ENV{SREVIEW_OUTPUT_PROFILES};
 
 	ok(-f 'config.pm', "running sreview-config with -a update creates a config.pm");
@@ -76,7 +76,7 @@ SKIP: {
 	$st->execute(3);
 
 	# Detect input files
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-detect");
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-detect");
 
 	$st = $dbh->prepare("SELECT * FROM raw_talks");
 	$st->execute();
@@ -101,7 +101,7 @@ SKIP: {
 
 	# perform cut with bs1770gain normalizer
 	$ENV{SREVIEW_NORMALIZER} = '"bs1770gain"';
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
 
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
 	$file = $coll->get_file(relname => "$relname/0/main.mkv");
@@ -111,19 +111,19 @@ SKIP: {
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
 	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
 
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-previews", $row->{talkid});
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-previews", $row->{talkid});
 
 	$file = $coll->get_file(relname => "$relname/0/main.mp4");
 	$check = Media::Convert::Asset->new(url => $file->filename);
 	ok(($length * 0.9 < $check->duration) && ($length * 1.1 > $check->duration), "The preview video is of approximately the right length");
 
 	# perform transcode
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-transcode", $row->{talkid});
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-transcode", $row->{talkid});
 	my $final = Media::Convert::Asset->new(url => abs_path("t/outputdir/Test event/room1/2017-11-10/test-talk.webm"));
 	ok($final->video_codec eq "vp9", "The transcoded video has the right codec");
 	ok($final->audio_codec eq "opus", "The transcoded audio has the right codec");
 
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-upload", $row->{talkid});
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-upload", $row->{talkid});
 }
 
 unlink("config.pm");
