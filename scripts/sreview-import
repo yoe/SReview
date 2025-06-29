@@ -112,7 +112,9 @@ foreach my $event(@{$parser->events}) {
 	my %roomid;
 	my %trackid;
 	$all_talks->execute($eventid) or die $!;
+        ALL_TALKS:
 	while($row = $all_talks->fetchrow_arrayref) {
+                next ALL_TALKS if(!defined($row->[0]) || !defined($row->[1]));
 		$known_talks{$row->[1]} = $row->[0];
 	}
 	$all_tracks->execute or die $!;
