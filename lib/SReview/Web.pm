@@ -272,7 +272,7 @@ sub startup {
 			$formats{$nf} = $prof;
 		}
 		$json{conference} = $conference;
-		$st = $c->dbh->prepare("SELECT talks.id AS talkid, title, subtitle, description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, rooms.outputname AS room_output, upstreamid, events.name AS event, slug FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
+		$st = $c->dbh->prepare("SELECT talks.id AS talkid, title, subtitle, description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name AS room, rooms.outputname AS room_output, upstreamid, events.name AS event, slug, events.outputdir AS event_output FROM talks JOIN rooms ON talks.room = rooms.id JOIN events ON talks.event = events.id WHERE state='done' AND event = ?");
 		$st->execute($c->eventid);
 		if($st->rows < 1) {
 			$c->render(json => {});
@@ -301,6 +301,7 @@ sub startup {
 					room => $row->{room},
 					date => $row->{date},
 					event => $row->{event},
+                                        event_output => $row->{event_output},
 					upstreamid => $row->{upstreamid},
 					year => $row->{year} });
 				chomp $video->{details_url};
