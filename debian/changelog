@@ -1,3 +1,10 @@
+sreview (0.11.1-1) unstable; urgency=medium
+
+  * New upstream release
+    - Reverts one last-minute patch that ended up not working correctly
+
+ -- Wouter Verhelst <wouter@debian.org>  Mon, 17 Feb 2025 10:46:13 +0200
+
 sreview (0.11.0-1) unstable; urgency=medium
 
   * The "FOSDEM was a partial success" release.
