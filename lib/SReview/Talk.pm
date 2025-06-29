@@ -96,7 +96,12 @@ sub _load_pathinfo {
 	my $row = $eventdata->fetchrow_hashref();
 
 	my @elements = ($config->get('outputdir'));
+        ELEMENT:
 	foreach my $element(@{$config->get('output_subdirs')}) {
+                if(!defined($row->{$element})) {
+                        say "E: Value for $element not defined in the database for talk with ID " . $self->talkid . "\nSkipping that element in the output directory";
+                        next ELEMENT;
+                }
 		push @elements, $row->{$element};
 	}
 	$pathinfo->{"finaldir"} = join('/', @elements);

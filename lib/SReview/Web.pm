@@ -291,7 +291,12 @@ sub startup {
 			$video->{room} = $row->{room};
 			$video->{eventid} = $row->{upstreamid};
 			my @outputdirs;
+                        SUBDIR:
 			foreach my $subdir(@{$config->get('output_subdirs')}) {
+                                if(!defined($row->{$subdir})) {
+                                        $c->log->info("missing subdir $subdir");
+                                        next SUBDIR;
+                                }
 				push @outputdirs, $row->{$subdir};
 			}
 			my $outputdir = join('/', @outputdirs);
