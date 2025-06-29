@@ -12,6 +12,8 @@ use SReview::Talk::State;
 use SReview::Talk::Progress;
 use DateTime::Format::Pg;
 
+use feature "say";
+
 my $config = SReview::Config::Common::setup;
 my $pg = Mojo::Pg->new->dsn($config->get('dbistring')) or die "Cannot connect to database!";
 
