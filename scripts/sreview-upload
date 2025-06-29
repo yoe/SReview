@@ -24,7 +24,11 @@ die "need talk ID!" unless defined($talkid);
 my $configprefix = shift;
 $configprefix = 'upload' unless defined($configprefix);
 
-$dbh->prepare("UPDATE talks SET progress='running' WHERE id=?")->execute($talkid);
+if($configprefix eq "upload") {
+        $dbh->prepare("UPDATE talks SET state='uploading', progress='running' WHERE id=?")->execute($talkid);
+} else {
+        $dbh->prepare("UPDATE talks SET state='remove', progress='running' WHERE id=?")->execute($talkid);
+}
 
 my $mt = Mojo::Template->new;
 $mt->vars(1);
