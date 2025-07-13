@@ -153,8 +153,9 @@ foreach my $file(@{$collection->children}) {
                 # We do the below bit twice, since $file->filename triggers a
                 # download and we only want to do that if we need to.
                 my $video = Media::Convert::Asset->new(url => $file->filename, %args);
+                my $length;
                 eval {
-                        my $length = $video->duration;
+                        $length = $video->duration;
                 };
                 if($@) {
                         print "... skipped, file can't be parsed" if $verbose;
