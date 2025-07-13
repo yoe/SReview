@@ -68,7 +68,7 @@ sub overview {
 		WHERE eventid = ?
 		AND state IS NOT NULL
 		ORDER BY
-			state < 'broken', -- put talks that are explicitly known as not being handled at the end
+			state > 'broken', -- put talks that are explicitly known as not being handled at the end
 			starttime > now(), -- put future talks at the end
 			not (state = 'waiting_for_files' and starttime < now() - interval '1 day'), -- show talks from more than a day ago without files at the top
 			state = 'waiting_for_files', -- put events without files at the end
