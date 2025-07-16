@@ -284,22 +284,36 @@ foreach my $row(@{$talk->avs_video_fragments}) {
                                 # and this confuses firefox (amongst others).
                                 #
                                 # Handle this using the following algorithm:
-                                # - First, extract the bit from th last key frame
+                                # - First, extract the bit from the last key frame
                                 #   before our start point to the next key frame after
                                 #   our start point, and re-encode it with a forced key
                                 #   frame at our start point.
-                                # - Next, extract the bit from our start point to the
-                                #   end of the newly encoded video from that video.
-                                # - Copy the rest of the video file from the next key
-                                #   frame without re-encoding.
                                 my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args, reference => $profile);
                                 $temp->fragment_start($prev_kf);
                                 $temp->duration($cur_kf - $prev_kf);
                                 $temp->force_key_frames($row->{fragment_start} - $prev_kf);
                                 Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $temp, vcopy => 0, acopy => 1)->run();
+
+                                # - Next, extract the bit from our newly
+                                #   created key frame to the end of the newly
+                                #   encoded video from that video.
+                                $kfs = Media::Convert::KeyframeFinder->new(asset => $temp);
+                                my $min_distance = $temp->duration;
+                                my $best_match = 0;
+                                foreach my $kf(sort {$a <=> $b} @{$kfs->keyframes}) {
+                                        my $distance = abs($row->{fragment_start} - $kf);
+                                        if($distance < $min_distance) {
+                                                $best_match = $kf;
+                                                $min_distance = $distance;
+                                        }
+                                }
                                 my $recode_fragment = Media::Convert::Asset->new(url => $temp->url, %duration_args);
-                                my $add_fragment = Media::Convert::Asset->new(url => "$tempdir/recoded_$target" . $row->{rawid} . ".mkv", %duration_args, fragment_start => $row->{fragment_start} - $prev_kf);
+                                my $add_fragment = Media::Convert::Asset->new(url => "$tempdir/recoded_$target" . $row->{rawid} . ".mkv", %duration_args, fragment_start => $best_match);
                                 Media::Convert::Pipe->new(inputs => [$recode_fragment], "map" => [Media::Convert::Map->new(input => $recode_fragment, type => "allcopy")], output => $add_fragment, vcopy => 1, acopy => 1)->run();
+
+                                # - Copy the rest of the video file from just
+                                #   before the next key frame without
+                                #   re-encoding.
                                 push @$segments, Media::Convert::Asset->new(url => $add_fragment->url, %duration_args);
                                 $output->fragment_start($cur_kf);
                                 $target_length -= $temp->duration;
