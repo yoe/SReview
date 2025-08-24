@@ -421,7 +421,7 @@ if(!$talk->get_flag("keep_audio")) {
 	reload();
 	eval {
                 say "Performing audio normalization";
-		Media::Convert::Normalizer->new(input => $main, output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args))->run();
+		Media::Convert::Normalizer->new(input => $main, impl => $config->get('normalizer'), output => Media::Convert::Asset->new(url => "$tempdir/temp.mkv", %duration_args))->run();
 	};
 	if($@) {
 		say "normalization failed, skipping...";
