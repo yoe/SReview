@@ -9,10 +9,10 @@ use DBI;
 use File::Basename;
 use File::Copy;
 use File::Temp qw/tempdir/;
+use Media::Convert::AccurateCut;
 use Media::Convert::Asset;
 use Media::Convert::Asset::Concat;
 use Media::Convert::AvSync;
-use Media::Convert::KeyframeFinder;
 use Media::Convert::Map;
 use Media::Convert::Normalizer;;
 use Media::Convert::Pipe;;
@@ -244,96 +244,47 @@ foreach my $row(@{$talk->avs_video_fragments}) {
         say "Targetting $target video";
 	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
 	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
-        my $kfs = Media::Convert::KeyframeFinder->new(asset => $input);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);
         my $target_length = $row->{raw_length_corrected};
-        my $frame_length = 0;
+	my $frame_length = $input->video_frame_length;
+	if($target_length < $frame_length) {
+		say "Skipping fragment, desired length is less than a single frame";
+		next FRAGMENT;
+	}
 	if($row->{fragment_start} != 0) {
-                say "The wanted fragment does not start at the beginning, considering what to do";
-                my $prev_kf = 0;
-                my $cur_kf = 0;
-                KF:
-                foreach my $kf(sort {$a <=> $b} @{$kfs->keyframes}) {
-                        $cur_kf = $kf;
-                        last KF if($kf >= $row->{fragment_start});
-                        $prev_kf = $kf;
-                }
-                if($prev_kf != $row->{fragment_start}) {
-                        say "The desired cut point is not on a key frame, deciding how to handle the situation";
-			my $profile;
-			if(defined($config->get("input_profile"))) {
-                                $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get("extra_profiles"));
-			} else {
-			        $profile = $input;
-			}
-                        my $rate = $profile->video_framerate;
-                        my ($numerator, $denumerator) = split /\//, $rate;
-                        $frame_length = 1 / ($numerator / $denumerator);
-                        if (($cur_kf - $row->{fragment_start}) <= ($frame_length)) {
-                                # Cut point is less than one frame before the
-                                # next key frame. Move the cut point to the key
-                                # frame.
-                                say "The desired cut point is less than one frame before the next key frame. Moving the cut point to the key frame.";
-                                $output->fragment_start($cur_kf);
-                        } else {
-                                say "The desired cut point does not fall near a key frame. Creating a new key frame at the desired cut point.";
-                                say "last: $prev_kf; cut point: " . $row->{fragment_start} . "; next: $cur_kf; frame length: $frame_length";
-                                # The start point is reasonably far away from a
-                                # key frame. This means we need to create one,
-                                # otherwise the video does not start correctly,
-                                # and this confuses firefox (amongst others).
-                                #
-                                # Handle this using the following algorithm:
-                                # - First, extract the bit from the last key frame
-                                #   before our start point to the next key frame after
-                                #   our start point, and re-encode it with a forced key
-                                #   frame at our start point.
-                                my $temp = Media::Convert::Asset->new(url => "$tempdir/kftemp" . $row->{rawid} . ".mkv", %duration_args, reference => $profile);
-                                $temp->fragment_start($prev_kf);
-                                $temp->duration($cur_kf - $prev_kf);
-                                $temp->force_key_frames($row->{fragment_start} - $prev_kf);
-                                Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $temp, vcopy => 0, acopy => 1)->run();
-
-                                # - Next, extract the bit from our newly
-                                #   created key frame to the end of the newly
-                                #   encoded video from that video.
-                                $kfs = Media::Convert::KeyframeFinder->new(asset => $temp);
-                                my $min_distance = $temp->duration;
-                                my $best_match = 0;
-                                foreach my $kf(sort {$a <=> $b} @{$kfs->keyframes}) {
-                                        my $distance = abs($row->{fragment_start} - $kf);
-                                        if($distance < $min_distance) {
-                                                $best_match = $kf;
-                                                $min_distance = $distance;
-                                        }
-                                }
-                                my $recode_fragment = Media::Convert::Asset->new(url => $temp->url, %duration_args);
-                                my $add_fragment = Media::Convert::Asset->new(url => "$tempdir/recoded_$target" . $row->{rawid} . ".mkv", %duration_args, fragment_start => $best_match);
-                                Media::Convert::Pipe->new(inputs => [$recode_fragment], "map" => [Media::Convert::Map->new(input => $recode_fragment, type => "allcopy")], output => $add_fragment, vcopy => 1, acopy => 1)->run();
-
-                                # - Copy the rest of the video file from just
-                                #   before the next key frame without
-                                #   re-encoding.
-                                push @$segments, Media::Convert::Asset->new(url => $add_fragment->url, %duration_args);
-                                $output->fragment_start($cur_kf);
-                                $target_length -= $temp->duration;
-                        }
-                } else {
-                        say "The desired cut point is on a key frame. Doing a dumb copy.";
-		        $output->fragment_start($row->{fragment_start});
-                }
+                say "The wanted fragment does not start at the beginning, cutting out the desird part";
+		my $profile;
+		if(defined($config->get("input_profile"))) {
+                        $profile = Media::Convert::Asset::ProfileFactory->create($config->get("input_profile"), $input, $config->get("extra_profiles"));
+		} else {
+		        $profile = $input;
+		}
+		my $wd = "$tempdir/cut_" . $row->{rawid};
+		mkdir $wd;
+		my $cut = Media::Convert::AccurateCut->new(
+			input => $input,
+			output => $output,
+			profile => $profile,
+			start => $row->{fragment_start},
+			duration => $row->{raw_length_corrected},
+			workdir => $wd,
+		);
+		$cut->run;
 	} else {
                 say "The wanted fragment starts at the beginning of the file. Doing a dumb copy.";
+		if($row->{raw_length} ne $target_length) {
+			say "The desired duration is $target_length";
+			$output->duration($target_length);
+		}
+		my $pipe = Media::Convert::Pipe->new(
+			inputs => [$input],
+			"map" => [Media::Convert::Map->new(input => $input, type => "allcopy")],
+			output => $output,
+			vcopy => 1,
+			acopy => 1
+		);
+		$pipe->run();
         }
-	if($row->{raw_length} ne $row->{raw_length_corrected}) {
-                say "The desired duration is $target_length";
-                if($target_length < $frame_length) {
-                        say "This is less than a frame, skipping this fragment.";
-                        next FRAGMENT;
-                }
-		$output->duration($target_length);
-	}
-	Media::Convert::Pipe->new(inputs => [$input], "map" => [Media::Convert::Map->new(input => $input, type => "allcopy")], output => $output, vcopy => 1, acopy => 1)->run();
 	push @$segments, Media::Convert::Asset->new(url => $output->url, %duration_args);
 }
 
