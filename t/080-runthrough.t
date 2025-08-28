@@ -86,7 +86,7 @@ SKIP: {
 
 	my $input = Media::Convert::Asset->new(url => abs_path("t/testvids/bbb.mp4"));
 	# perform cut with default normalizer
-	run("perl", "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
+	run($^X, "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
 
 	my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
