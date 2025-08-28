@@ -221,10 +221,6 @@ say "-" x length($fragments_title);
 FRAGMENT:
 foreach my $row(@{$talk->avs_video_fragments}) {
         say "Considering work on " . $row->{raw_filename} . "(" . $row->{rawid} . ")";
-	if($row->{raw_length_corrected} <= 0.5 && $row->{talkid} < 0) {
-                say "skipping, file length less than half a second";
-                next FRAGMENT;
-        }
 	my $start;
 	my $stop;
 	my $target;
