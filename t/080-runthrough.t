@@ -97,20 +97,23 @@ SKIP: {
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
 	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
 
-	$coll->delete_files(relnames => [$relname]);
+	# perform cut with bs1770gain normalizer, if available
+	SKIP: {
+		skip "bs1770gain tests disabled", 4 if exists($ENV{SREVIEWTEST_SKIP_BS1770GAIN});
 
-	# perform cut with bs1770gain normalizer
-	$ENV{SREVIEW_NORMALIZER} = '"bs1770gain"';
-	run($^X, "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
+		$coll->delete_files(relnames => [$relname]);
 
-	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
-	$file = $coll->get_file(relname => "$relname/0/main.mkv");
-	$check = Media::Convert::Asset->new(url => $file->filename);
-	$length = $check->duration;
-	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
-	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
-	ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
+		$ENV{SREVIEW_NORMALIZER} = '"bs1770gain"';
+		run($^X, "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
 
+		ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
+		$file = $coll->get_file(relname => "$relname/0/main.mkv");
+		$check = Media::Convert::Asset->new(url => $file->filename);
+		$length = $check->duration;
+		ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
+		ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
+		ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
+	}
 	run($^X, "-I", $INC[0], "$scriptpath/sreview-previews", $row->{talkid});
 
 	$file = $coll->get_file(relname => "$relname/0/main.mp4");
