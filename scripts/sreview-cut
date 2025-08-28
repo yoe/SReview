@@ -69,9 +69,11 @@ Move the talk to the next state.
 
 =back
 
-sreview-cut will B<never> re-encode the original video, and will
-re-encode the original audio of the main video at most once, after audio
-normalization if that was enabled in the configuration.
+sreview-cut will only re-encode those parts of the original video that
+B<have> to be re-encoded in order to make sure that the video that is
+finally produced starts with a key frame, and will re-encode the
+original audio of the main video at most once, after audio normalization
+if that was enabled in the configuration.
 
 Any re-transcodes should be performed by C<sreview-transcode> (for
 production) and/or C<sreview-previews> (for review previews)
