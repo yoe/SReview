@@ -273,6 +273,8 @@ sub dump {
 	$rv .= $formatter->paragraphs("This configuration file contains all the configuration options known to SReview. To change any configuration setting, you may either modify this configuration file, or you can run 'sreview-config --set=key=value -a update'. The latter method will rewrite the whole configuration file, removing any custom comments. It is therefore recommended that you use one or the other, but not both. However, it will also write the default values for all known configuration items to this config file (in a commented-out fashion).", "Every configuration option is preceded by a comment explaining what it does, and the legal values it can accept.");
 	$rv =~ s/^/# /gm;
 	$rv .= "\n";
+	$rv .= $formatter->paragraphs("# Allow utf-8 strings");
+	$rv .= "use utf8;\n\n";
 	$Data::Dumper::Indent = 1;
 	$Data::Dumper::Sortkeys = 1;
 
