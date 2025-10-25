@@ -49,6 +49,58 @@ if(exists($json->{done})) {
 	foreach my $key(keys %$json) {
 		$talk->add_correction($key => $json->{$key});
 	}
+        $talk->add_correction(serial => 1);
 	$talk->done_correcting;
 	$talk->set_state("cutting");
 }
+
+__END__
+
+=head1 NAME
+
+sreview-autoreview - SReview state script to automate review
+
+=head1 SYNOPSIS
+
+sreview-autoreview I<TALKID>
+
+=head1 DESCRIPTION
+
+This script should be used as a state script for cases where review can
+be automated. It should be called with a TALKID argument.
+
+It expects the configuration value C<autoreview_detect> to be set to the
+name of a script that will perform the actual review. This script will
+receive the TALKID and the filenames of the pre, main and post videos,
+in that order, on the command line. It should output a JSON object which
+can contain the following keys:
+
+=over
+
+=item done
+
+If this key exists in the JSON object, review will be assumed to have
+completed and the talk will be moved to the next state.
+
+=item broken
+
+If this key exists in the JSON object, the will be assumed to be a
+failure. The value of the C<broken> key will be used as the comment to
+be set in the database for future reference; after that, the talk will
+be moved to the "broken" state.
+
+=item audio_channel
+
+=item length_adj
+
+=item offset_audio
+
+=item offset_start
+
+=item offset_end
+
+If any of these keys exist in the JSON object, the value of that key
+(which I<must> be a numeric value) will be used as a correction value
+for the corresponding talk property. Once all these properties are
+processed, the talk's C<serial> property will be incremented and the
+talk will be moved back to the C<cutting> state.
