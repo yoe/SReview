@@ -42,6 +42,9 @@ my $expect = '# SReview configuration file
 # Every configuration option is preceded by a comment explaining what it
 # does, and the legal values it can accept.
 
+# Allow utf-8 strings
+use utf8;
+
 # test
 # ----
 # testingk
