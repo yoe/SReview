@@ -32,7 +32,12 @@ stages:
     JUNIT_OUTPUT_FILE: junit_output.xml 
   image: $CI_JOB_NAME
   before_script:
-  - if [ ! -z "$NEEDS_ARCHIVE" ]; then sed -i -e 's/deb.debian.org/archive.debian.org/g;/security.debian.org/d' /etc/apt/sources.list; fi
+  - |
+    if [ ! -z "$NEEDS_ARCHIVE" ]
+    then
+      sed -i -e 's/deb.debian.org/archive.debian.org/g;/security.debian.org/d' /etc/apt/sources.list
+      cat /etc/apt/sources.list
+    fi
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain libssh2-1-dev
   - cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit Devel::Cover::Report::Cobertura
   - cpanm --notest --installdeps .
@@ -60,7 +65,7 @@ perl:latest:
 
 perl:5.28:
   variables:
-    NEEDS_ARCHIVE: 1
+    NEEDS_ARCHIVE: "1"
   <<: *build
 
 test:committed:
