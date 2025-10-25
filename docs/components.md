@@ -23,10 +23,6 @@ To use SReview, the use of a DRM is therefore strongly recommended. For
 FOSDEM 2017 as well as DebConf17, gridengine was used, but strictly
 speaking it doesn't really matter which one you use.
 
-Future versions of SReview may require the use of a
-[DRMAA](http://www.drmaa.org)-compatible DRM, but currently that's not
-yet the case.
-
 It is recommended that the scheduler is configured so that short,
 high-priority, jobs can be scheduled as well as longer-running,
 low-priority jobs. When using gridengine, this can be done by creating
@@ -78,6 +74,13 @@ which all recordings are available.
 Future plans are for `sreview-detect` to be rewritten so it (optionally)
 uses the Linux `inotify` API to detect when file contents is modified.
 
+## Schedule import
+
+The `sreview-import` script is designed to be run from cron. It will
+import the schedule from the database. It is designed to be idempotent,
+but in order to do so, it needs a way to follow talks across name or URL
+changes. A unique identifier is recommended for this purpose.
+
 ## Per-state scripts
 
 There are a number of per-state scripts that are called (through the
@@ -93,7 +96,12 @@ This script simply sets the progress to "done". It should be used when a
 state is not useful for a particular instance of SReview.
 
 It does not assume anything about the particular state that the talk is
-in, and can therefore be used for pretty much any state.
+in, and can therefore be used for any state.
+
+### sreview-autoreview
+
+This script exists for cases where review can be automated. It is
+designed to be run in the `preview` state.
 
 ### sreview-cut
 
@@ -174,6 +182,23 @@ It is designed to be run in the `transcoding` state.
 Similar to the `sreview-cut` script, there are two older versions of the
 `sreview-transcode` script, too.
 
+### sreview-transcribe
+
+This script allows to use a speech-to-text engine to transcribe the
+output of the `sreview-transcode` script. It can be used to generate
+subtitle files, e.g.
+
+It is designed to be run in the `transcribing` state.
+
+### sreview-notranscode
+
+This script copies the output of the `sreview-cut` script, and moves it
+into an output container, without adding credits or transcoding
+anything.
+
+It can be used as an alternative for `sreview-transcode` for cases where
+SReview is used only for review, not transcoding.
+
 ### sreview-upload
 
 This script should take the output of the `sreview-transcode` script,
@@ -182,8 +207,3 @@ all intermediate files that were created by the `sreview-cut` and/or
 `sreview-transcode` scripts; if a change is required after a talk has
 already been published, then the talk needs to be put back through the
 `sreview-cut` script.
-
-Two versions exist here too, but they are very similar.
-
-The genericized version of this script is only able to run a few
-commands, but you can easily write your own version if needs be...
