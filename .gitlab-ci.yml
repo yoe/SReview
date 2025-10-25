@@ -12,7 +12,7 @@ stages:
 - release
 - deploy
 
-.build: &build
+.build:
   stage: test
   services:
   - postgres:11
@@ -61,12 +61,12 @@ stages:
   coverage: '/^Total.* (\d+.\d+)$/'
 
 perl:latest:
-  <<: *build
+  extends: .build
 
 perl:5.28:
   variables:
     NEEDS_ARCHIVE: "1"
-  <<: *build
+  extends: .build
 
 test:committed:
   stage: test
