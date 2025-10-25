@@ -6,6 +6,8 @@ use Carp;
 
 extends 'SReview::Files::Collection::Base';
 
+use SReview::Files::Access::direct;
+
 has '+fileclass' => (
 	default => 'SReview::Files::Access::direct',
 );
