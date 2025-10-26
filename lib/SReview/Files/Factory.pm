@@ -1,56 +1,3 @@
-package SReview::Files::Collection::direct;
-
-use Moose;
-use File::Basename;
-use Carp;
-
-extends 'SReview::Files::Collection::Base';
-
-use SReview::Files::Access::direct;
-
-has '+fileclass' => (
-	default => 'SReview::Files::Access::direct',
-);
-
-sub _probe_children {
-	my $self = shift;
-	my @return;
-
-	foreach my $file(glob($self->globpattern)) {
-		my $child;
-		if(-d $file) {
-			$child = SReview::Files::Collection::direct->new(baseurl => join("/", $self->baseurl, basename($file)), download_verbose => $self->download_verbose);
-		} else {
-			my $basename = substr($file, length($self->baseurl));
-			while(substr($basename, 0, 1) eq '/') {
-				$basename = substr($basename, 1);
-			}
-			$child = SReview::Files::Access::direct->new(baseurl => $self->baseurl, relname => $basename, download_verbose => $self->download_verbose);
-		}
-		push @return, $child;
-	}
-
-	return \@return;
-}
-
-sub has_file {
-	my ($self, $target) = @_;
-
-	if(-f join('/', $self->baseurl, $target)) {
-		return 1;
-	}
-	return 0;
-}
-
-sub delete {
-	my $self = shift;
-
-	$self->SUPER::delete;
-	rmdir($self->baseurl);
-}
-
-no Moose;
-
 package SReview::Files::Factory;
 
 use SReview::Config::Common;
@@ -107,4 +54,23 @@ through the filesystem) access to files. Alternative implementations
 exist for other access methods (through HTTP, S3, SSH, etc.) as separate
 modules.
 
+=head1 METHODS
 
+=head2 create
+
+Factory method to create an object for a specific collection.
+
+Takes two positional arguments: the first is the name of the collection; the
+second is the C<relname> of the collection.
+
+If the name is C<input>, the C<relname> argument is passed as the
+C<globpattern> property for the newly-created collection. In all other
+cases, the C<relname> is passed as the C<baseurl>.
+
+Returns a new L<SReview::Files::Collection::Base> object.
+
+=head1 AUTHOR
+
+Wouter Verhelst <w@uter.be>
+
+=cut
