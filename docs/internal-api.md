@@ -80,4 +80,7 @@ collection to another as a way to upload scripts from the
 used, with relevant values in the `accessmethods` and
 `extra_collections` configuration items.
 
-### SReview::Files::Factory
+### Creating objects
+
+Creating an object is done by way of the `SReview::Files::Factory::create`
+method. See the POD documentation for `SReview::Files::Factory` for details.
