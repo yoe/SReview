@@ -281,9 +281,50 @@ Helper method to determine if the file with the given L</relname>
 property exists in the collection.
 
 The default implementation is an inefficient search over the list of
-files returned by the L</children> property. Subclasses should implement
-a more efficient method of testing the file's existence.
+files returned by the L</children> property. Where possible, subclasses
+should implement a more efficient method of testing the file's
+existence.
 
 =head2 delete_files
 
 Helper method to delete multiple files in the collection.
+
+Can be called in one of two ways. 
+
+=over
+
+=item *
+
+Use the C<files> argument to pass an arrayref of absolute filenames:
+
+  $coll->delete_files(files => ["/foo/bar", "/foo/baz"]);
+
+=item *
+
+Use the C<relnames> argument to pass an arrayref of relative filenames:
+
+  $coll->delete_files(relanems => ["bar", "baz"]);
+
+=back
+
+Either way, the list of files to delete I<must> be within the
+collection; any files that are not a part of the collection will not be
+deleted.
+
+A file is deleted if it shares a prefix with one of the items in the
+list; e.g., if the absolute path of the collection is C</foo>, and the
+collection contained files "bar/test123", "baz", and "bazy", then in the
+above two examples all those files would be removed.
+
+If a prefix passed does not exist within the collection, a
+L<warning|Carp::carp> is printed but this will not be considered an
+error.
+
+=head2 delete
+
+Helper method to delete the collection.
+
+The default implementation only deletes all the files in the collection.
+Subclasses should implement deleting the collection itself (e.g., by
+deleting an S3 bucket, or deleting the directory in which the files of
+the collection are found).
