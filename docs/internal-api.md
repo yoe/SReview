@@ -84,3 +84,70 @@ used, with relevant values in the `accessmethods` and
 
 Creating an object is done by way of the `SReview::Files::Factory::create`
 method. See the POD documentation for `SReview::Files::Factory` for details.
+
+## Configuration API
+
+### Overview
+
+All SReview configuration is done through two dedicated modules,
+`SReview::Config` and `SReview::Config::Common`. The former provides the
+API, whereas the latter provides the specific configuration variables
+used by SReview.
+
+SReview supports setting configuration in the following ways:
+
+1. Via environment variables. When doing so, the name of the environment
+   variable should be the name of the configuration variable in upper
+   case, prefixed with `SREVIEW_`. For instance, the configuration item
+   `input_profile` can be set through the environment variable
+   `SREVIEW_INPUT_PROFILE`. Each environment variable must be encoded in
+   JSON; this includes strings, which means they need to have embedded
+   quotes.
+2. Via a configuration file, which is found using the following
+   algorithm:
+
+    1. If an environment variable `SREVIEW_WDIR` exists, look for a file
+       `config.pm` in the directory pointed to by that variable. If it
+       exists, use that.
+    2. If a file `config.pm` exists in the current working directory,
+       use that.
+    3. If a file `config.pm` exists in the directory `/etc/sreview`, use
+       that.
+
+If a value is set in an environment variable, it takes precedence over
+any value in the configuration file. If a value is not set in an
+environment variable, *and* no value exists in a configuration file, the
+built-in defaults, if any, will be used.
+
+If environment variables are set and a configuration file is found too,
+then both take effect. However, only one configuration file will be
+considered; you can't have multiple configuration files. That said, as
+the configuration file is a perl script, you *can* include a different
+configuration file using normal perl syntax.
+
+### Configuration tool
+
+A dedicated tool, `sreview-config`, exists to manage configuration
+items. It will parse the configuration in exactly the same way that the
+other tools do, and it will then allow you to do things with that parsed
+configuration.
+
+It can:
+
+1. Rewrite the configuration file with the default comments and all
+   configuration values that are set to non-default values explicitly
+   set;
+2. Dump the configuration file as it *would* be written by step 1. to
+   standard output (**note**: redirecting this output to a file that is
+   in the search path of the current configuration will result in
+   `sreview-config` finding an empty file, which means it will set
+   everything to defaults; do not do that);
+3. Extract the value of one specific configuration item to standard
+   output (in JSON format);
+4. Allow you to override one specific value on the command line before
+   doing any of the above. However, this option only works for string
+   options, and does not use the JSON encoding; it is therefore not
+   recommended. Instead, you should set environment variables to
+   override single options if you need to do this.
+
+For more details, see the L<sreview-config> manual page.
