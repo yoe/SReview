@@ -12,6 +12,7 @@ lib/SReview/Files/Access/Base.pm
 lib/SReview/Files/Access/direct.pm
 lib/SReview/Files/Base.pm
 lib/SReview/Files/Collection/Base.pm
+lib/SReview/Files/Collection/direct.pm
 lib/SReview/Files/Collection/HTTP.pm
 lib/SReview/Files/Collection/HTTP/nginx/JSON.pm
 lib/SReview/Files/Collection/Net.pm
