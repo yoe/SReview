@@ -257,7 +257,7 @@ const talk_edit_modal_component = Vue.component('talk-edit-modal', {
       this.endtime = new Date(this.endtime).toISOString();
       const body = [
         'title', 'subtitle', 'description', 'starttime', 'endtime', 'track',
-        'room', 'state', 'progress'
+        'room', 'state', 'progress', 'active_stream'
       ].reduce((obj, attr) => {
           obj[attr] = this[attr];
           return obj;
