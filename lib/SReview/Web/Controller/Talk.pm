@@ -11,13 +11,14 @@ use SReview::API::Helpers qw/db_query update_with_json add_with_json is_authed/;
 use Mojo::Util 'slugify';
 use Mojo::JSON qw/encode_json decode_json/;
 use DateTime::Format::Pg;
+use DateTime::Format::ISO8601;
 
 use SReview::Talk;
 
 sub format_talks($c, $talks) {
 	foreach my $talk(@$talks) {
-		$talk->{starttime} = DateTime::Format::Pg->parse_datetime($talk->{starttime})->iso8601();
-		$talk->{endtime} = DateTime::Format::Pg->parse_datetime($talk->{endtime})->iso8601();
+		$talk->{starttime} = DateTime::Format::ISO8601->format_datetime(DateTime::Format::Pg->parse_timestamptz($talk->{starttime}));
+		$talk->{endtime} = DateTime::Format::ISO8601->format_datetime(DateTime::Format::Pg->parse_timestamptz($talk->{endtime}));
 		if($talk->{flags}) {
 			$talk->{flags} = decode_json($talk->{flags});
 		}
