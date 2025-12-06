@@ -10,6 +10,10 @@ lib/SReview/Config/Common.pm
 lib/SReview/Db.pm
 lib/SReview/Files/Access/Base.pm
 lib/SReview/Files/Access/direct.pm
+lib/SReview/Files/Access/HTTP.pm
+lib/SReview/Files/Access/Net.pm
+lib/SReview/Files/Access/S3.pm
+lib/SReview/Files/Access/SFTP.pm
 lib/SReview/Files/Base.pm
 lib/SReview/Files/Collection/Base.pm
 lib/SReview/Files/Collection/direct.pm
