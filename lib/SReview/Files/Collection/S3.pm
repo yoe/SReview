@@ -4,6 +4,7 @@ use Moose;
 use Net::Amazon::S3;
 use DateTime::Format::ISO8601;
 use SReview::Config::Common;
+use SReview::Files::Access::S3;
 
 extends "SReview::Files::Collection::Net";
 

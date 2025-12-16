@@ -5,6 +5,7 @@ use Net::SSH2;
 use Mojo::URL;
 use Carp;
 use Fcntl ':mode';
+use SReview::Files::Access::SFTP;
 
 extends 'SReview::Files::Collection::Net';
 

@@ -2,6 +2,7 @@ package SReview::Files::Collection::HTTP;
 
 use Moose;
 use Carp;
+use SReview::Files::Access::HTTP;
 
 extends 'SReview::Files::Collection::Base';
 
