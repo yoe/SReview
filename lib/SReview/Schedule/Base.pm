@@ -1,354 +1,3 @@
-package SReview::Schedule::Base::Speaker;
-
-use Moose;
-
-has 'talk_object' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Talk',
-	weak_ref => 1,
-	required => 1,
-);
-
-has 'name' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_name',
-);
-
-has 'email' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_email',
-);
-
-sub _load_email {
-	return undef;
-}
-
-has 'upstreamid' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_upstreamid',
-);
-
-sub _load_upstreamid {
-	return undef;
-}
-
-no Moose;
-
-package SReview::Schedule::Base::Room;
-
-use Moose;
-
-has 'event_object' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Event',
-	weak_ref => 1,
-	required => 1,
-);
-
-has 'name' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_name',
-);
-
-sub _load_name {
-	return undef;
-}
-
-has 'altname' => (
-	is => 'rw',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_altname',
-);
-
-sub _load_altname {
-	return undef;
-}
-
-has 'outputname' => (
-	is => 'rw',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_outputname',
-);
-
-sub _load_outputname {
-	return undef;
-}
-
-package SReview::Schedule::Base::Track;
-
-use Moose;
-use Mojo::Util 'slugify';
-
-has 'talk_object' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Talk',
-	weak_ref => 1,
-	required => 1,
-);
-
-has 'name' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_name',
-);
-
-sub _load_name {
-	return undef;
-}
-
-has 'email' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_email',
-);
-
-sub _load_email {
-	return undef;
-}
-
-has 'upstreamid' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_upstreamid',
-);
-
-sub _load_upstreamid {
-	return slugify(shift->name);
-}
-
-package SReview::Schedule::Base::Talk;
-
-use Moose;
-use Mojo::Util 'slugify';
-use DateTime;
-use DateTime::Duration;
-
-has 'event_object' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Event',
-	weak_ref => 1,
-	required => 1,
-);
-
-has 'room' => (
-	is => 'ro',
-	isa => 'SReview::Schedule::Base::Room',
-	lazy => 1,
-	builder => '_load_room',
-);
-
-sub _load_room {
-	my $self = shift;
-	return $self->event_object->root_object->room_type->new(event_object => $self->event_object);
-}
-
-has 'slug' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_slug',
-);
-
-sub _load_slug {
-	my $self = shift;
-	return substr(slugify($self->title), 0, 40);
-}
-
-has 'starttime' => (
-	is => 'ro',
-	isa => 'DateTime',
-	lazy => 1,
-	builder => '_load_starttime',
-);
-
-sub _load_starttime {
-	return DateTime->now;
-}
-
-has 'endtime' => (
-	is => 'ro',
-	isa => 'DateTime',
-	lazy => 1,
-	builder => '_load_endtime',
-);
-
-sub _load_endtime {
-	my $self = shift;
-	my $start = $self->starttime;
-	my $tz = $start->time_zone;
-	$start->set_time_zone('UTC');
-	my $end = $self->starttime + $self->length;
-	$start->set_time_zone($tz);
-	$end->set_time_zone($tz);
-	return $end;
-}
-
-has 'length' => (
-	is => 'ro',
-	isa => 'DateTime::Duration',
-	lazy => 1,
-	builder => '_load_length',
-);
-
-sub _load_length {
-	return DateTime::Duration->new(hours => 1);
-}
-
-has 'title' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_title',
-);
-
-sub _load_title {
-	return "";
-}
-
-has 'upstreamid' => (
-	is => 'ro',
-	isa => 'Str',
-	lazy => 1,
-	builder => '_load_upstreamid',
-);
-
-sub _load_upstreamid {
-	return shift->slug;
-}
-
-has 'subtitle' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_subtitle',
-);
-
-sub _load_subtitle {
-	return undef;
-}
-
-has 'track' => (
-	is => 'ro',
-	isa => 'Maybe[SReview::Schedule::Base::Track]',
-	lazy => 1,
-	builder => '_load_track',
-);
-
-sub _load_track {
-	return undef;
-}
-
-has 'description' => (
-	is => 'ro',
-	isa => 'Maybe[Str]',
-	lazy => 1,
-	builder => '_load_description',
-);
-
-sub _load_description {
-	return undef;
-}
-
-has 'flags' => (
-	is => 'ro',
-	isa => 'Maybe[HashRef[Bool]]',
-	lazy => 1,
-	builder => '_load_flags',
-);
-
-sub _load_flags {
-	return undef;
-}
-
-has 'speakers' => (
-	is => 'ro',
-	isa => 'Maybe[ArrayRef[SReview::Schedule::Base::Speaker]]',
-	lazy => 1,
-	builder => '_load_speakers',
-);
-
-sub _load_speakers {
-	return [];
-}
-
-has 'filtered' => (
-	is => 'ro',
-	isa => 'Bool',
-	lazy => 1,
-	builder => '_load_filtered',
-);
-
-sub _load_filtered {
-	return 0;
-}
-
-no Moose;
-
-package SReview::Schedule::Base::Event;
-
-use Moose;
-use Moose::Util::TypeConstraints;
-use DateTime::TimeZone;
-
-has 'root_object' => (
-	isa => 'SReview::Schedule::Base',
-	is => 'ro',
-	weak_ref => 1,
-	required => 1,
-);
-
-has 'talks' => (
-	is => 'ro',
-	lazy => 1,
-	isa => 'ArrayRef[SReview::Schedule::Base::Talk]',
-	builder => '_load_talks',
-);
-
-sub _load_talks {
-	return [];
-}
-
-has 'name' => (
-	is => 'ro',
-	lazy => 1,
-	isa => 'Str',
-	builder => '_load_name',
-);
-
-sub _load_name {
-	return "";
-}
-
-class_type "DateTime::TimeZone";
-coerce "DateTime::TimeZone",
-        from "Str",
-        via  { DateTime::TimeZone->new(name => $_) };
-
-has 'timezone' => (
-	is => 'ro',
-	isa => 'DateTime::TimeZone',
-	lazy => 1,
-        coerce => 1,
-	builder => '_load_timezone',
-);
-
-sub _load_timezone {
-	return DateTime::TimeZone->new(name => 'local');
-}
-
 package SReview::Schedule::Base;
 
 use Moose;
@@ -458,3 +107,99 @@ sub _load_events {
 
 no Moose;
 1;
+
+__END__
+
+=head1 NAME
+
+SReview::Schedule::Base
+
+=head1 DESCRIPTION
+
+Base class for all schedule parsers.
+
+The C<SReview::Schedule> API is used by L<sreview-import> in order to parse
+schedules. L<sreview-import> will will load the desired schedule parsing
+class, and ask it for a list of events and talks within those events.
+
+SReview::Schedule is a pull-through API; that is, you get a toplevel
+class, which you can ask for a list of events. Each event must be a
+subclass of the C<SReview::Schedule::Base::Event>, which can be asked for
+a list of talks (as C<SReview::Schedule::Base::Talk> or subclasses of
+that). These can then in turn be asked for the room, the speakers, the
+start time, etc.
+
+All attributes of a schedule or a talk are implemented as lazy
+attributes; that is, they don't have a value until a request is made for
+their data. The method that implements fetching the data for a method
+should usually be defined the subclass, as a method called
+C<_load_>I<attribute>; e.g., to load the C<events> attribute in the
+C<SReview::Schedule::Base> class, the C<_load_events> method should be
+overridden in the subclass.
+
+Most attributes have a default implementation of the C<_load_*> method
+that returns C<undef> or an empty array, so if your schedule format does
+not implement fetching the requested data, you can leave out the
+relevant C<_load_*> method and everything will work just fine.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item url
+
+I<Required> at class construction time; the only attribute so required.
+The URL where the schedule can be found.
+
+=item timezone
+
+Not a lazy attribute by default (can be overridden by a subclass
+though). The timezone in which the event takes place. Can optionally be
+set at construction time.
+
+=item _raw
+
+Internal attribute. If read, transparently downloads (and caches), then
+returns, the raw schedule data from the given L</url>.
+
+=item speaker_type
+
+The class name of the subclass to be used when creating an object to
+hold a speaker. Default load implementation returns
+C<SReview::Schedule::Base::Speaker>, but can be overridden to anything.
+
+=item room_type
+
+The class name of the subclass to be used when creating an object to
+hold a room. Default load implementation returns
+C<SReview::Schedule::Base::Room>, but can be overridden to anything.
+
+=item track_type
+
+The class name of the subclass to be used when creating an object to
+hold a track. Default load implementation returns
+C<SReview::Schedule::Base::Track>, but can be overridden to anything.
+
+=item talk_type
+
+The class name of the subclass to be used when creating an object to
+hold a talk. Default load implementation returns
+C<SReview::Schedule::Base::Talk>, but can be overridden to anything.
+
+=item event_type
+
+The class name of the subclass to be used when creating an object to
+hold an event. Default load implementation returns
+C<SReview::Schedule::Base::Event>, but can be overridden to anything.
+
+=item events
+
+Must return the events found in the schedule. For the purpose of
+SReview, an "event" is a set of "talks" that should be grouped together.
+For instance, "FOSDEM 2025" is an event; the "FOSDEM 2025 opening talk"
+is a talk.
+
+Should return an array of C<SReview::Schedule::Base::Event> objects (or
+a subclass of them).
+
+=back
