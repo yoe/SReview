@@ -63,7 +63,7 @@ stages:
 perl:latest:
   extends: .build
 
-perl:5.28:
+perl:5.32:
   variables:
     NEEDS_ARCHIVE: "1"
   extends: .build
