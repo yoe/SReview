@@ -1,15 +1,19 @@
 package SReview::API;
 
 use SReview::Config::Common;
+use JSON::Validator::Schema::OpenAPIv3;
 
 sub init {
 	my $app = shift;
 
 	my $config = SReview::Config::Common::setup();
 
+        my $validator = JSON::Validator::Schema::OpenAPIv3->new(specification => "https://spec.openapis.org/oas/3.0/schema/2024-10-18");
+
 	$app->plugin("OpenAPI" => {
 		url => "data:///api.yml",
 		schema => "v3",
+                validator => $validator,
 		security => {
 			api_key => sub {
 				my ($c, $definition, $scopes, $cb) = @_;
