@@ -68,8 +68,11 @@ sub notify_email() {
 	if(scalar(@to_recips) == 0 && scalar(@cc_recips) == 0) {
 		print "no addressees, can't send email for talk with id $talkid";
 		return;
-	}
-	
+	} elsif(scalar(@to_recips) == 0 && scalar(@cc_recips) > 0) {
+                @to_recips = @cc_recips;
+                @cc_recips = ();
+        }
+
 	my $file = $config->get("${configprefix}_email_template");
 	$file = $config->get("email_template") unless defined($file);
 	my $template_url = Mojo::URL->new($file);
