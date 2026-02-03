@@ -27,7 +27,7 @@ $configprefix = 'upload' unless defined($configprefix);
 if($configprefix eq "upload") {
         $dbh->prepare("UPDATE talks SET state='uploading', progress='running' WHERE id=?")->execute($talkid);
 } elsif($configprefix eq "sync") {
-        $dbh->prepare("UPDATE talks SET state='syncing', progress='running' WHER id=?")->execute($talkid);
+        $dbh->prepare("UPDATE talks SET state='syncing', progress='running' WHERE id=?")->execute($talkid);
 } else {
         $dbh->prepare("UPDATE talks SET state='remove', progress='running' WHERE id=?")->execute($talkid);
 }
