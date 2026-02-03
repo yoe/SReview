@@ -104,7 +104,7 @@ before the system produces another review, which is not ideal.
 Using a distributed resource manager
 ------------------------------------
 
-A DRM like gridenine, SLURM, PBS, or Torque allows one to submit a job
+A DRM like gridengine, SLURM, PBS, or Torque allows one to submit a job
 and have it be run elsewhere. In such a configuration, you would
 configure SReview to submit jobs to the DRM system, and it would then be
 up to the DRM system to decide where to run it; e.g., it could be
