@@ -127,7 +127,7 @@ sub setup {
 	$config->define('inject_actions', 'A command that tells SReview what to do with a talk that needs to be injected', 'sreview-inject <%== $talkid %> <%== $output_dir %>/inject.<%== $talkid %>.out 2> <%== $output_dir %>/cut.<%== $talkid %>.err');
 
 	# Values for notification script
-	$config->define('notify_actions', 'An array of things to do when notifying the readyness of a preview video. Can contain one or more of: email, command.', []);
+	$config->define('notify_actions', 'An array of things to do when notifying the readiness of a preview video. Can contain one or more of: email, command.', []);
 	$config->define('announce_actions', 'An array of things to do when announcing the completion of a transcode. Can contain one or more of: email, command.', []);
 	$config->define('notify_final_actions', 'An array of things to do when notifying the readiness of a final review. Can contain one or more of: email, command', []);
 	$config->define('email_template', 'A filename of a Mojo::Template template to process, returning the email body used in notifications or announcements. Can be overridden by announce_email_template or notify_email_template.', undef);
