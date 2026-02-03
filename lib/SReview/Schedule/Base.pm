@@ -119,7 +119,7 @@ SReview::Schedule::Base
 Base class for all schedule parsers.
 
 The C<SReview::Schedule> API is used by L<sreview-import> in order to parse
-schedules. L<sreview-import> will will load the desired schedule parsing
+schedules. L<sreview-import> will load the desired schedule parsing
 class, and ask it for a list of events and talks within those events.
 
 SReview::Schedule is a pull-through API; that is, you get a toplevel
