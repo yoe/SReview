@@ -196,7 +196,7 @@ sub _load_speakers {
 		if(ref $speaker eq 'HASH') {
 			push @$rv, $self->event_object->root_object->speaker_type->new(%$speaker, talk_object => $self);
 		} else {
-			# Fall back on base implemetentation
+			# Fall back on base implementation
 			push @$rv, SReview::Schedule::Base::Speaker->new(name => $speaker, talk_object => $self);
 		}
 	}
