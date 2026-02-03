@@ -37,7 +37,7 @@ my $legend = [
 	{ name => "removing", expl => 'Waiting for removal to finalize' },
 	{ name => "broken", expl => 'Review found problems, administrator required' },
 	{ name => "needs_work", expl => 'Fixable problems exist, manual intervention required' },
-	{ name => "lost", expl => 'Nonfixable problems exist, talk lost' },
+	{ name => "lost", expl => 'Unfixable problems exist, talk lost' },
 	{ name => "ignored", expl => 'Talk disappeared from the schedule' },
 	{ name => "uninteresting", expl => 'Talk marked as not relevant' },
 ];
