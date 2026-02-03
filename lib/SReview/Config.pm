@@ -243,7 +243,7 @@ sub describe {
 
 Return a string describing the whole configuration.
 
-Each configuration item will produced in one of the following two
+Each configuration item will produce one of the following two
 formats:
 
 =over
