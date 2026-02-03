@@ -34,7 +34,7 @@ sreview-dispatch - Watch the database for talks that need work done, and schedul
 
 sreview-dispatch
 
-=head1 DESCRITPION
+=head1 DESCRIPTION
 
 B<sreview-dispatch> is the central script for SReview. It can be used in two ways:
 
