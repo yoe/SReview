@@ -319,7 +319,7 @@ https://www.matroska.org/technical/tagging.html and
 The following metadata values are set using the %sql2ffmpeg_map
 settings:
 
-matruska/webm			ffmpeg		debconf
+matroska/webm			ffmpeg		debconf
 -------------------------------------------------------
 				title		title
 				event		event
@@ -332,7 +332,7 @@ subtitle			-		subtitle
 
 The following values are per 2023-09-14 not available in the data set.
 
-matruska/webm			ffmpeg		debconf
+matroska/webm			ffmpeg		debconf
 -------------------------------------------------------
 subject				-		track?
 content_type			-		type?
