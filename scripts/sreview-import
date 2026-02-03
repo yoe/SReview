@@ -123,7 +123,7 @@ foreach my $event(@{$parser->events}) {
 	}
 	foreach my $talk(@{$event->talks}) {
                 eval {
-                        # This loop is required, otherwise we get a "Exiting eval via next" warning
+                        # This loop is required; otherwise, we get a "Exiting eval via next" warning
                         TALK:
                         for my $unused([1]) {
                                 next TALK if $talk->filtered;
