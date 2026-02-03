@@ -52,7 +52,7 @@ sub _probe_sftpobj {
                 croak('SFTP access method requires authentication configuration to be set in $sftp_access_config->{' . $url->host . "}!");
         }
         if(!$ssh->auth_ok) {
-                croak("Couild not manage files using SFTP: authentication failure");
+                croak("Could not manage files using SFTP: authentication failure");
         }
         return $ssh->sftp();
 }
