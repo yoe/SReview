@@ -1,28 +1,28 @@
 FROM debian:stable-backports
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install \
-  perl \
-  postgresql-client \
-  ffmpeg \
-  inkscape \
   bs1770gain \
-  libnet-amazon-s3-perl \
-  libmojolicious-perl \
+  ffmpeg \
+  fonts-font-awesome \
+  inkscape \
   libclass-type-enum-perl \
   libcryptx-perl \
   libdatetime-format-pg-perl \
   libdatetime-perl \
   libextutils-depends-perl \
   libfile-which-perl \
+  libjs-bootstrap4 \
+  libjs-vue \
   libmojo-pg-perl \
+  libmojolicious-perl \
+  libmojolicious-plugin-openapi-perl \
   libmoose-perl \
+  libnet-amazon-s3-perl \
   libtest-deep-perl \
   libtext-format-perl \
   libyaml-libyaml-perl \
-  fonts-font-awesome \
-  libjs-bootstrap4 \
-  libjs-vue \
-  libmojolicious-plugin-openapi-perl \
+  perl \
+  postgresql-client \
   pwgen \
   python3.11-venv \
   -y && \
