@@ -4,6 +4,7 @@ use Moose;
 use DateTime;
 use DateTime::Format::ISO8601;
 use DateTime::Duration;
+use SReview::Schedule::Base::Room;
 
 extends 'SReview::Schedule::Base::Talk';
 
