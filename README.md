@@ -76,7 +76,7 @@ The job states, then, mean:
 - `running`: the script is now active and running.
 - `done`: the script finished successfully
 - `failed`: the script did *not* finish successfully (note: when that
-  hapens, it doesn't always go into this state, currently).
+  happens, it doesn't always go into this state, currently).
 
 ## Components
 

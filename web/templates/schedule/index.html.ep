@@ -1,6 +1,6 @@
 %layout 'admin';
 <h1>Schedule management</h1>
-<p>Possitble actions:</p>
+<p>Possible actions:</p>
 <dl>
   <dt>GET /admin/schedule/talk/list</dt>
   <dd>Creates a JSON list of all talk IDs with their titles and upstream IDs in the current event</dd>

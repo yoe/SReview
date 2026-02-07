@@ -95,7 +95,7 @@ SReview::Schedule::Multi - system to duplicate event parsing into a main and a s
 =head1 DESCRIPTION
 
 SReview::Schedule::Multi is a schedule parser for L<sreview-import> that
-creates "shadow" events based on a base event. This can be used in case
+creates "shadow" events based on a base event. This can be used when
 multiple events are required in SReview for an upstream event (e.g., one
 for preprocessing, and one for postprocessing).
 

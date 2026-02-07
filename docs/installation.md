@@ -104,7 +104,7 @@ before the system produces another review, which is not ideal.
 Using a distributed resource manager
 ------------------------------------
 
-A DRM like gridenine, SLURM, PBS, or Torque allows one to submit a job
+A DRM like gridengine, SLURM, PBS, or Torque allows one to submit a job
 and have it be run elsewhere. In such a configuration, you would
 configure SReview to submit jobs to the DRM system, and it would then be
 up to the DRM system to decide where to run it; e.g., it could be
@@ -127,7 +127,7 @@ DRM systems are welcome.
   a VPN IP or something, but it must exist.
 - Make sure all hosts' FQDN resolves to that fixed IP address, not to
   something like `127.0.0.1` or (like is common on Debian) `127.0.1.1`.
-- Make sure that all hosts can resolve eachother by name. This may be
+- Make sure that all hosts can resolve each other by name. This may be
   through DNS or it may be through adding entries to `/etc/hosts`.
 - Pick one host as the master host. On this host, install the
   `gridengine-master`, `gridengine-exec`, and `gridengine-client`

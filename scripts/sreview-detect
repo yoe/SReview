@@ -52,7 +52,7 @@ off otherwise.
 Normally, C<sreview-detect> migrates talks to the next state from
 C<waiting_for_files> if there is enough content available to fill all
 the scheduled time for that talk (minus 5 seconds, to account for the
-fact that sometimes the video does not not I<exactly> add up to the
+fact that sometimes the video does not I<exactly> add up to the
 correct length). This is normally what you want, when cameras record
 continuously and content is uploaded in between breaks in talks.
 

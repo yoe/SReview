@@ -47,7 +47,7 @@ video (with adjustments as specified by the reviewer, if any, applied).
 
 =item *
 
-Extract the 20 minutes just before and the 20 minuts just after the main
+Extract the 20 minutes just before and the 20 minutes just after the main
 video into the pre and post videos.
 
 =item *
@@ -239,7 +239,7 @@ foreach my $row(@{$talk->avs_video_fragments}) {
 		$segments = \@segments_main;
 		$mainlen += $row->{raw_length_corrected};
 	}
-        say "Targetting $target video";
+        say "Targeting $target video";
 	my $input_file = $input_coll->get_file(relname => $row->{raw_filename});
 	my $input = Media::Convert::Asset->new(url => $input_file->filename, %duration_args);
 	my $output = Media::Convert::Asset->new(url => "$tempdir/$target" . $row->{rawid} . ".mkv", %duration_args);

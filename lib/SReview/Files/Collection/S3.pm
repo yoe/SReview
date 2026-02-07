@@ -37,7 +37,7 @@ sub _probe_s3obj {
 		$aconf = $aconf->{$bucket};
 	} else {
 		if(!exists($aconf->{default})) {
-			croak("S3 access configuration does not exist for $bucket, and nor does a default exist");
+			croak("S3 access configuration does not exist for $bucket, nor does a default exist");
 		}
 		$aconf = $aconf->{default};
 	}

@@ -358,15 +358,15 @@
 
     // set the page
     if ($("input[name=video_state]:checked").val() == "ok") {
-      $(".video_has_problems, .other_brokennes").hide();
+      $(".video_has_problems, .other_brokenness").hide();
     }
     if ($("input[name=video_state]:checked").val() == "not_ok") {
       $(".video_has_problems").show();
-      $(".other_brokennes").hide();
+      $(".other_brokenness").hide();
     }
     if ($("input[name=video_state]:checked").val() == "other") {
       $(".video_has_problems").hide();
-      $(".other_brokennes").show();
+      $(".other_brokenness").show();
     }
     if ($("input[name=av_sync]:checked").val() == "av_ok") {
       $("#av_delay").hide();
@@ -380,15 +380,15 @@
     // hide and show the problem reporting forms
     $("input[name=video_state]").click(function() {
       if ($("input[name=video_state]:checked").val() == "ok") {
-        $(".video_has_problems, .other_brokennes").slideUp();
+        $(".video_has_problems, .other_brokenness").slideUp();
       }
       if ($("input[name=video_state]:checked").val() == "not_ok") {
         $(".video_has_problems").slideDown();
-        $(".other_brokennes").hide();
+        $(".other_brokenness").hide();
       }
       if ($("input[name=video_state]:checked").val() == "other") {
         $(".video_has_problems").hide();
-        $(".other_brokennes").slideDown();
+        $(".other_brokenness").slideDown();
       }
     });
 

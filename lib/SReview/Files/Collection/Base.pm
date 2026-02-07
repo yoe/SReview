@@ -303,7 +303,7 @@ Use the C<files> argument to pass an arrayref of absolute filenames:
 
 Use the C<relnames> argument to pass an arrayref of relative filenames:
 
-  $coll->delete_files(relanems => ["bar", "baz"]);
+  $coll->delete_files(relnames => ["bar", "baz"]);
 
 =back
 

@@ -31,7 +31,7 @@ __DATA__
 @@ schedule/index.html.ep
 % layout 'admin'
 <h1>Schedule management</h1>
-<p>Possitble actions:</p>
+<p>Possible actions:</p>
 <dl><dt>GET /admin/schedule/list</dt>
 <dd>Creates a JSON list of all talks in the current event</dd>
 <dt>DELETE /admin/schedule/talk/:id</dt>
