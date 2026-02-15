@@ -169,6 +169,7 @@ sub setup {
 
 	# for sreview-transcode
 	$config->define("video_license", "the license of the output videos. If defined, will be set as a \"license\" tag on the media container, provided the container supports that.", undef);
+        $config->define("metadata_templates", 'A hash of SReview::Template templates to set metadata on output files. Sets the $talk and $config variables.', { title => '<%= $talk->title %>\\', event => '<%= $config->get("event") %>\\', speakers => '<%= $talk->speakers %>\\', track => '<%= $talk->track_name %>\\', 'date' => '<%= $talk->date %>\\', 'recording_location' => '<%= $talk->room %>\\', 'synopsis' => '<%= $talk->description %>\\', 'subtitle' => '<%= $talk->subtitle %>\\', 'license' => '<%= $config->get("video_license") %>\\', url => '<%= $talk->eventurl %>\\' });
 
 	# for tuning command stuff
 	$config->define('command_tune', 'Some commands change incompatibly from one version to the next. This option exists to deal with such incompatibilities', {});

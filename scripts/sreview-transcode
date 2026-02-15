@@ -316,67 +316,23 @@ http://wiki.webmproject.org/webm-metadata/global-metadata,
 https://www.matroska.org/technical/tagging.html and
 /usr/share/doc/libimage-exiftool-perl/html/TagNames/Matroska.html.
 
-The following metadata values are set using the %sql2ffmpeg_map
-settings:
-
-matroska/webm			ffmpeg		debconf
--------------------------------------------------------
-				title		title
-				event		event
-				speakers	speakers
-				track		track
-				date		starttime
-recording_location		-		room
-synopsis			-		description
-subtitle			-		subtitle
-
-The following values are per 2023-09-14 not available in the data set.
-
-matroska/webm			ffmpeg		debconf
--------------------------------------------------------
-subject				-		track?
-content_type			-		type?
-copyright			-		?
-license				-		?
-url				-		eventurl (to event page)
+The exact metadata is set using the C<metadata_templates> configuration
+value. See L<SReview::Config::Common> for details.
 
 =back
 
 =cut
 
-my $license = $config->get("video_license");
-
 my $multi_profiles = $config->get("video_multi_profiles");
+my $meta = $talk->get_metadata;
 
 foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $profile = Media::Convert::Asset::ProfileFactory->create($profile_str, $input, $config->get('extra_profiles'));
 	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
 	my $output = Media::Convert::Asset->new( url => $output_file->filename, reference => $profile);
 
-	my %sql2ffmpeg_map = (
-	    'title'=> 'title',
-	    'event'=> 'event',
-	    'speakers' => 'speakers',
-	    'track' => 'track',
-	    'starttime' => 'date',
-	    'room'=> 'recording_location',
-	    'description'=> 'synopsis',
-	    'subtitle'=> 'subtitle',
-	    #''=> 'subject',
-	    #''=> 'content_type',
-	    #''=> 'copyright',
-	    );
-	foreach my $field (keys %sql2ffmpeg_map) {
-		if(defined($drow->{$field}) && length($drow->{$field}) > 0) {
-			$output->add_metadata($sql2ffmpeg_map{$field}, $drow->{$field});
-		}
-	}
-	if(defined($license)) {
-	    $output->add_metadata("license", $license);
-	}
-	if(defined($talk->eventurl)) {
-		$output->add_metadata("url", $talk->eventurl);
-	}
+        $output->metadata($meta);
+
 	my $multipass = exists($multi_profiles->{$profile_str}) ? $multi_profiles->{$profile_str} : 1;
 	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => $multipass)->run();
 	# XXX: this should really be done by Media::Convert::Asset::Concat, not by us

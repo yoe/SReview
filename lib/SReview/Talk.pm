@@ -10,6 +10,7 @@ use Mojo::JSON qw/encode_json decode_json/;
 use SReview::Config::Common;
 use SReview::Talk::State;
 use SReview::Talk::Progress;
+use SReview::Template;
 use DateTime::Format::Pg;
 
 use feature "say";
@@ -93,7 +94,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.progress, talks.nonce, talks.apologynote, talks.upstreamid FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.progress, talks.nonce, talks.apologynote, talks.upstreamid, talks.description, tracks.name AS track_name FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room JOIN tracks ON tracks.id = talks.track WHERE talks.id = ?");
 	$eventdata->execute($self->talkid);
 	my $row = $eventdata->fetchrow_hashref();
 
@@ -874,6 +875,39 @@ sub _load_scheduled_length {
 	return $end->epoch - $start->epoch;
 }
 
+=head2 description
+
+The talk's description
+
+=cut
+
+has 'description' => (
+        is => 'ro',
+        lazy => 1,
+        builder => '_load_description',
+);
+
+sub _load_description {
+        my $self = shift;
+        return $self->_get_pathinfo->{raw}{description};
+}
+
+=head2 track_name
+
+The name of the track this talk is in, if any
+
+=cut
+
+has 'track_name' => (
+        is => 'ro',
+        lazy => 1,
+        builder => '_load_track_name',
+);
+
+sub _load_track_name {
+        return shift->_get_pathinfo->{raw}{track_name};
+}
+
 =head1 METHODS
 
 =head2 by_nonce
@@ -1022,6 +1056,34 @@ sub reset_corrections {
 
         $self->add_correction(serial => 1);
         $pg->db->dbh->prepare("DELETE FROM corrections WHERE talk = ? AND property NOT IN (SELECT id FROM properties WHERE name = 'serial')")->execute($self->talkid) or die $!;
+}
+
+=head2 get_metadata
+
+Returns a hash that can be passed to L<Media::Convert::Asset/metadata>. See the
+documentation on that property for more details.
+
+=cut
+
+sub get_metadata {
+        my $self = shift;
+        my $rv = {};
+
+        my $metadata_config = $config->get('metadata_templates');
+        my $templ = SReview::Template->new(talk => $self, vars => {config => $config});
+        foreach my $metadata(keys %$metadata_config) {
+                eval {
+                        $rv->{$metadata} = $templ->string($metadata_config->{$metadata});
+                };
+                if($@) {
+                        delete $rv->{$metadata};
+                }
+                if(length($rv->{$metadata}) == 0) {
+                        delete $rv->{$metadata};
+                }
+        }
+
+        return $rv;
 }
 
 no Moose;
