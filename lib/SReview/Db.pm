@@ -1403,6 +1403,10 @@ ALTER TABLE talks ALTER state TYPE talkstate_new USING(state::varchar)::talkstat
 ALTER TABLE talks ALTER state SET DEFAULT 'waiting_for_files';
 DROP TYPE talkstate;
 ALTER TYPE talkstate_new RENAME TO talkstate;
+-- 32 up
+ALTER TABLE talks ADD extra_data JSONB;
+-- 32 down
+ALTER TABLE talks DROP extra_data;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS

@@ -164,6 +164,17 @@ sub _load_filtered {
 	return 0;
 }
 
+has 'extra_data' => (
+	is => 'ro',
+	isa => 'Maybe[HashRef]',
+	lazy => 1,
+	builder => '_load_extra_data',
+);
+
+sub _load_extra_data {
+	return undef;
+}
+
 no Moose;
 
 1;
@@ -270,5 +281,10 @@ Boolean. If true, the talk will not be added to the schedule. If the
 talk is I<already> added to the schedule and it is still in the
 C<waiting_for_files> state, it will be moved to the C<ignored> state,
 instead.
+
+=item extra_data
+
+Any extra data that should be stored with the talk. Can be used later in credits
+slides or other templates, as required.
 
 =back
