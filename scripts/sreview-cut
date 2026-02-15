@@ -312,7 +312,7 @@ if(defined($pre)) {
 }
 say "Main fragments";
 Media::Convert::Pipe->new(inputs => [$main], output => $main_new, map => [Media::Convert::Map->new(input => $main, type => "allcopy")], vcopy => 1, acopy => 1)->run();
-push @videos, $main;
+push @videos, $main_new;
 if(defined($post)) {
         say "Post fragments";
 	$post_new = Media::Convert::Asset->new(url => "$tempdir/post.mkv", %duration_args);
