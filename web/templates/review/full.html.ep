@@ -111,6 +111,7 @@
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_early" class="changemsg alert alert-success" role="alert"></div>
+                <div id="err_start_early" class="errmsg alert alert-danger" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="start_time_early">Set new start time</button>
               </div>
             </div>
@@ -121,6 +122,7 @@
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_late" class="changemsg alert alert-success" role="alert"></div>
+                <div id="err_start_late" class="errmsg alert alert-danger" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="start_time_late">Set new start time</button>
                 <div class="alert alert-warning alert_with_control">
                   <div class="form-check">
@@ -160,6 +162,7 @@
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_early" class="changemsg alert alert-success" role="alert"></div>
+                <div id="err_end_early" class="errmsg alert alert-danger" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="end_time_early">Set new end time</button>
                 <div class="alert alert-warning alert_with_control">
                   <div class="form-check">
@@ -178,6 +181,7 @@
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_late" class="changemsg alert alert-success" role="alert"></div>
+                <div id="err_end_late" class="errmsg alert alert-danger" role="alert"></div>
                 <button type="button" class="btn btn-success btn-lg btn-block" id="end_time_late">Set new end time</button>
               </div>
             </div>
@@ -333,6 +337,7 @@
           <input type="hidden" name="end_time_corrval" id="end_time_corrval"></input>
           <input type="hidden" name="serial" id="serial" value="<%= $talk->corrections->{serial} // 0 =%>"></input>
           <input type="hidden" name="complete_reset" id="complete_reset"></input>
+          <div id="err_submit" class="errmsg alert alert-danger" role="alert"></div>
           <input type="submit" id="main_action" class="btn btn-primary btn-lg" value="Send your video review to <%= $talk->eventname %>"></input>
         </form>
       </div>
@@ -355,6 +360,7 @@
     $("#msg_start_late").fadeOut();
     $("#msg_end_early").fadeOut();
     $("#msg_end_late").fadeOut();
+    $(".errmsg").hide();
 
     // set the page
     if ($("input[name=video_state]:checked").val() == "ok") {
@@ -422,9 +428,19 @@
       }
     });
 
+    var MIN_DURATION_MS = 60 * 1000; // 1 minute
+
     function setText(obj, startstop, starttime, endtime) {
       $(".changemsg").fadeOut();
+      $(".errmsg").fadeOut();
       obj.html("<strong>New " + startstop + " time set</strong><p>If you are curious, the new video times are: " + starttime + " to " + endtime + "</p>");
+      obj.fadeIn();
+    };
+
+    function setError(obj, message) {
+      $(".changemsg").fadeOut();
+      $(".errmsg").fadeOut();
+      obj.html("<strong>Error:</strong> " + message);
       obj.fadeIn();
     };
 
@@ -448,15 +464,33 @@
       return new Intl.DateTimeFormat('en-GB', { timeZone: "UTC", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", }).format(d) + "." + zeroPad(3, d.getMilliseconds());
     }
 
-    function setStartTime(msgdiv, corrval) {
+    function setStartTime(msgdiv, errdiv, corrval) {
       var newtime = addDate(data.video_start, corrval);
+      var duration = data.new_end - newtime;
+      if (newtime >= data.new_end) {
+        setError(errdiv, "Start time cannot be at or after the end time.");
+        return;
+      }
+      if (duration < MIN_DURATION_MS) {
+        setError(errdiv, "Video length must be at least 1 minute. Current duration would be " + Math.round(duration / 1000) + " seconds.");
+        return;
+      }
       setText(msgdiv, "start", timeFromDate(newtime), timeFromDate(data.new_end));
       $("#start_time_corrval").val(corrval);
       data.new_start = newtime;
     }
 
-    function setEndTime(msgdiv, corrval) {
+    function setEndTime(msgdiv, errdiv, corrval) {
       var newtime = addDate(data.video_end, corrval);
+      var duration = newtime - data.new_start;
+      if (newtime <= data.new_start) {
+        setError(errdiv, "End time cannot be at or before the start time.");
+        return;
+      }
+      if (duration < MIN_DURATION_MS) {
+        setError(errdiv, "Video length must be at least 1 minute. Current duration would be " + Math.round(duration / 1000) + " seconds.");
+        return;
+      }
       setText(msgdiv, "end", timeFromDate(data.new_start), timeFromDate(newtime));
       $("#end_time_corrval").val(corrval);
       data.new_end = newtime;
@@ -464,7 +498,7 @@
 
     // handle time set button clicks. TODO: generalize this.
     $("#start_time_early").click(function() {
-      setStartTime($("#msg_start_early"), $("#video-start-early").get(0).currentTime);
+      setStartTime($("#msg_start_early"), $("#err_start_early"), $("#video-start-early").get(0).currentTime);
     });
 
     $("#start-missing, #end-missing").click(function() {
@@ -474,24 +508,24 @@
     $("#start_time_late").click(function() {
       var elem = $("#video-start-late").get(0);
       if($("#start-missing").is(":checked")) {
-        setStartTime($("#msg_start_late"), 0 - elem.duration);
+        setStartTime($("#msg_start_late"), $("#err_start_late"), 0 - elem.duration);
       } else {
-        setStartTime($("#msg_start_late"), 0 - (elem.duration - elem.currentTime));
+        setStartTime($("#msg_start_late"), $("#err_start_late"), 0 - (elem.duration - elem.currentTime));
       }
     });
 
     $("#end_time_early").click(function() {
       if($("#end-missing").is(":checked")) {
-        setEndTime($("#msg_end_early"), $("#video-end-early").get(0).duration);
+        setEndTime($("#msg_end_early"), $("#err_end_early"), $("#video-end-early").get(0).duration);
       } else {
-        setEndTime($("#msg_end_early"), $("#video-end-early").get(0).currentTime);
+        setEndTime($("#msg_end_early"), $("#err_end_early"), $("#video-end-early").get(0).currentTime);
       }
     });
 
     $("#end_time_late").click(function() {
       var elem = $("#video-end-late").get(0);
       vidend = Date.parse(data.video_start) + elem.duration * 1000;
-      setEndTime($("#msg_end_late"), 0 - (elem.duration - elem.currentTime) - (Date.parse(data.video_end) - vidend) / 1000);
+      setEndTime($("#msg_end_late"), $("#err_end_late"), 0 - (elem.duration - elem.currentTime) - (Date.parse(data.video_end) - vidend) / 1000);
     });
 
     // show / hide the no audio options
@@ -525,6 +559,28 @@
       else {
         $("#av_delay").slideDown();
       }
+    });
+
+    // Validate start/end times on form submission
+    $("#main_form").submit(function(e) {
+      // Only validate if time corrections are being applied
+      var startTimeRadio = $("input[name=start_time]:checked").val();
+      var endTimeRadio = $("input[name=end_time]:checked").val();
+
+      if (startTimeRadio !== "start_time_ok" || endTimeRadio !== "end_time_ok") {
+        var duration = data.new_end - data.new_start;
+        if (data.new_start >= data.new_end) {
+          setError($("#err_submit"), "The start time must be before the end time. Please adjust your selections.");
+          e.preventDefault();
+          return false;
+        }
+        if (duration < MIN_DURATION_MS) {
+          setError($("#err_submit"), "Video length must be at least 1 minute. Current duration would be " + Math.round(duration / 1000) + " seconds. Please adjust your selections.");
+          e.preventDefault();
+          return false;
+        }
+      }
+      return true;
     });
 
     $('[data-toggle="popover"]').popover();
