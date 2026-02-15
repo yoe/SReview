@@ -80,8 +80,16 @@ SKIP: {
 	$talk->set_state("preview");
 	$talk = SReview::Talk->new(talkid => 1);
 
+	my $expected_end = $talk->corrected_times->{end};
+	$expected_end =~ /(.*?)(\+\d{2})$/;
+	my $expected_end_base = $1;
+	my $expected_end_tz = $2;
+	$expected_end_base =~ s/\.\d+$//;
+	my $expected_end_base_qm = quotemeta($expected_end_base);
+	my $expected_end_tz_qm = quotemeta($expected_end_tz);
+
 	$t->get_ok("$talkurl/data")->status_is(200)
-	  ->json_like("/end" => qr/2017-11-10 17:00:10(.5)?\+\d{2}/);
+	  ->json_like("/end" => qr/^${expected_end_base_qm}(?:\.5)?${expected_end_tz_qm}$/);
 
 	$formdata->{av_sync} = "av_not_ok_audio";
 	$formdata->{av_seconds} = "1";

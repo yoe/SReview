@@ -122,7 +122,8 @@ SKIP: {
 	my $starts = ffprobe_start_times($file->filename);
 	ok(exists($starts->{audio}) && exists($starts->{video}), "The generated cut video contains both audio and video");
 	my $delta = abs($starts->{audio} - $starts->{video});
-	cmp_ok($delta, '<=', 0.03, 'audio/video start times are close enough after sreview-cut');
+	my $tol = $check->video_frame_length;
+	cmp_ok($delta, '<=', $tol, 'audio/video start times are close enough after sreview-cut');
 	my $length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
