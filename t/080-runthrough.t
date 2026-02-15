@@ -3,17 +3,44 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 use Cwd 'abs_path';
 
 $ENV{SREVIEW_WDIR} = abs_path('.');
 
 use DBI;
+use JSON::MaybeXS;
 use Media::Convert::Asset;
 use SReview::Config::Common;
 use File::Path qw/make_path remove_tree/;
 use_ok("SReview::Files::Factory");
+
+sub ffprobe_start_times {
+	my ($fn) = @_;
+	my @cmd = (
+		'ffprobe',
+		'-loglevel', 'quiet',
+		'-show_entries', 'stream=codec_type,start_time',
+		'-print_format', 'json',
+		$fn,
+	);
+	print "running: '", join("' '", @cmd), "'\n";
+	open my $jsonpipe, '-|:encoding(UTF-8)', @cmd;
+	my $json = '';
+	while (my $line = <$jsonpipe>) {
+		$json .= $line;
+	}
+	close $jsonpipe;
+	my $data = decode_json($json);
+	my %rv;
+	foreach my $stream (@{$data->{streams}}) {
+		next unless defined($stream->{codec_type});
+		next unless defined($stream->{start_time});
+		$rv{$stream->{codec_type}} = 0 + $stream->{start_time};
+	}
+	return \%rv;
+}
 
 sub run {
 	my @command = @_;
@@ -31,7 +58,7 @@ if(-f "/usr/bin/sreview-detect") {
 }
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 14) unless defined($ENV{SREVIEWTEST_DB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 16) unless defined($ENV{SREVIEWTEST_DB});
 
 	# Prepare an input directory
 	make_path('t/inputdir/room1/2017-11-10');
@@ -92,6 +119,10 @@ SKIP: {
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
 	my $file = $coll->get_file(relname => "$relname/0/main.mkv");
 	my $check = Media::Convert::Asset->new(url => $file->filename);
+	my $starts = ffprobe_start_times($file->filename);
+	ok(exists($starts->{audio}) && exists($starts->{video}), "The generated cut video contains both audio and video");
+	my $delta = abs($starts->{audio} - $starts->{video});
+	cmp_ok($delta, '<=', 0.03, 'audio/video start times are close enough after sreview-cut');
 	my $length = $check->duration;
 	ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
 	ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
