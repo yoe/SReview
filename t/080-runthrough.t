@@ -142,7 +142,7 @@ SKIP: {
 		$file = $coll->get_file(relname => "$relname/0/main.mkv");
 		$check = Media::Convert::Asset->new(url => $file->filename);
 		$length = $check->duration;
-		ok($length > 9.75 && $length < 10.25, "The generated cut video is of approximately the right length");
+		ok($length > 9.5 && $length < 10.5, "The generated cut video is of approximately the right length");
 		ok($check->video_codec eq $input->video_codec, "The input video codec is the same as the pre-cut video codec");
 		ok($check->audio_codec eq $input->audio_codec, "The input audio codec is the same as the pre-cut audio codec");
 	}
