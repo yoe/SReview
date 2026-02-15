@@ -68,13 +68,21 @@ following list explains what each of the main states means:
 
 The job states, then, mean:
 
-- `waiting`: it's waiting for the dispatch script to do something.
+- `waiting`: For states that are handled by the system, it's waiting for the
+  dispatch script to do something. For other states, it's waiting on
+  something external to happen (e.g., a human needs to review in the
+  `preview` state; the video must become visible in the `publishing`
+  state, etc).
 - `scheduled`: the script was picked up by the dispatch script, and has
   been put into the job scheduler's queue. If a slot is available, it
   will be started almost immediately; if not, it may need to wait until
   that's done.
 - `running`: the script is now active and running.
-- `done`: the script finished successfully
+- `done`: For states that are handled by the system, the script finished
+  successfully. For other states, the external condition that needed to
+  happen has happened (e.g., a human confirmed that the talk is OK to
+  release in the `preview` state; the video has become visible in the
+  `publishing` state).
 - `failed`: the script did *not* finish successfully (note: when that
   happens, it doesn't always go into this state, currently).
 
