@@ -220,7 +220,7 @@ has 'first_comment' => (
 sub _load_first_comment {
 	my $self = shift;
 
-	my $st = $pg->db->dbh->prepare("WITH orderedlog(talk, comment) AS (SELECT talk, comment FROM commentlog ORDER BY logdate DESC) SELECT talk, logdate FROM orderedlog WHERE talk = ? LIMIT 1");
+	my $st = $pg->db->dbh->prepare("WITH orderedlog(talk, comment) AS (SELECT talk, comment FROM commentlog ORDER BY logdate DESC) SELECT talk, comment FROM orderedlog WHERE talk = ? LIMIT 1");
 	$st->execute($self->talkid);
 	my $row = $st->fetchrow_hashref;
 	return $row->{comment};
