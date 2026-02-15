@@ -16,7 +16,7 @@ WriteMakefile(
 		'Wouter Verhelst <w@uter.be>',
 	],
 	PREREQ_PM => {
-		'Media::Convert' => "1.0.1",
+		'Media::Convert' => "1.5.1",
 		'Mojo::JSON' => 0,
 		'Mojo::Pg' => 0,
 		'Mojolicious::Plugin::OpenAPI' => '>= 4.03',
