@@ -331,7 +331,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
 	my $output_file = $output_coll->add_file(relname => join('/', $relprefix, $slug . "." . $profile->exten));
 	my $output = Media::Convert::Asset->new( url => $output_file->filename, reference => $profile);
 
-        $output->metadata($meta);
+        $output->add_metadata(%$meta);
 
 	my $multipass = exists($multi_profiles->{$profile_str}) ? $multi_profiles->{$profile_str} : 1;
 	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => $multipass)->run();
