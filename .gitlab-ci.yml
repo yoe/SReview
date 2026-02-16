@@ -314,6 +314,14 @@ validate:package: &validate
     SREVIEWTEST_S3_CONFIG: '{"default": {"aws_access_key_id": "minioadmin", "aws_secret_access_key":"minioadmin","secure":0,"host":"minio-minio:9000"}}'
     SREVIEWTEST_BUCKET: 'test'
   before_script:
+  - |
+    if [ -z "${NO_MC_BACKPORTS:-}" ]; then
+      cat > /etc/apt/preferences.d/99backports <<'EOF'
+      Package: *
+      Pin: release a=stable-backports
+      Pin-Priority: 990
+      EOF
+    fi
   - apt-get update; apt-get -y --no-install-recommends install libnet-amazon-s3-perl libmojolicious-perl ffmpeg
   - if [ -z "${NO_MC_BACKPORTS:-}" ]; then apt-get -y -t stable-backports install libmedia-convert-perl; fi
   - perl .ci/setup-minio.pl
@@ -324,14 +332,14 @@ validate:package: &validate
   - autopkgtest products/*ges -- null
 
 validate:unstable:
+  extends: validate:package
   image: debian:unstable
   dependencies:
     - debian:unstable
-  variables:
-    NO_MC_BACKPORTS: "1"
   needs:
     - debian:unstable
-  <<: *validate
+  variables:
+    NO_MC_BACKPORTS: "1"
 
 deploy:start:
   rules:
