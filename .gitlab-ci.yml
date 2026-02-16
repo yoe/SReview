@@ -300,6 +300,7 @@ validate:package: &validate
   services:
   - postgres:latest
   - name: minio/minio:latest
+    alias: minio-minio
     command:
     - server
     - /data
