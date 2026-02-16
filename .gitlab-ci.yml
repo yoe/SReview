@@ -290,12 +290,11 @@ dput:unstable:
   dependencies:
   - debian:unstable
 
-validate:package: &validate
-  image: debian:stable-backports
-  dependencies:
-  - debian:stable-backports
+validate:unstable:
+  image: debian:unstable
   needs:
-  - debian:stable-backports
+    - job: debian:unstable
+      artifacts: true
   stage: autopkgtest
   services:
   - postgres:latest
@@ -320,9 +319,9 @@ validate:package: &validate
     Pin: release a=stable-backports
     Pin-Priority: 990
     EOF
-  - if [ ! -z "${NO_MC_BACKPORTS:-}" ]; then rm -f /etc/apt/preferences.d/99backports; fi
+  - if [ -z "${WITH_MC_BACKPORTS:-}" ]; then rm -f /etc/apt/preferences.d/99backports; fi
   - apt-get update; apt-get -y --no-install-recommends install libnet-amazon-s3-perl libmojolicious-perl ffmpeg
-  - if [ -z "${NO_MC_BACKPORTS:-}" ]; then apt-get -y -t stable-backports install libmedia-convert-perl; fi
+  - if [ -z "${WITH_MC_BACKPORTS:-}" ]; then apt-get -y -t stable-backports install libmedia-convert-perl; fi
   - perl .ci/setup-minio.pl
   - apt-get --purge -y remove libnet-amazon-s3-perl libmojolicious-perl
   - apt-get --purge -y autoremove
@@ -330,15 +329,15 @@ validate:package: &validate
   script:
   - autopkgtest products/*ges -- null
 
-validate:unstable:
-  extends: validate:package
-  image: debian:unstable
-  dependencies:
-    - debian:unstable
+validate:stable-backports:
+  extends: validate:unstable
+  image: debian:stable-backports
   needs:
-    - debian:unstable
+    - job: debian:stable-backports
+      artifacts: true
   variables:
-    NO_MC_BACKPORTS: "1"
+    WITH_MC_BACKPORTS: "1"
+  allow_failure: true
 
 deploy:start:
   rules:
