@@ -315,13 +315,12 @@ validate:package: &validate
     SREVIEWTEST_BUCKET: 'test'
   before_script:
   - |
-    if [ -z "${NO_MC_BACKPORTS:-}" ]; then
-      cat > /etc/apt/preferences.d/99backports <<'EOF'
-      Package: *
-      Pin: release a=stable-backports
-      Pin-Priority: 990
-      EOF
-    fi
+    cat > /etc/apt/preferences.d/99backports <<'EOF'
+    Package: *
+    Pin: release a=stable-backports
+    Pin-Priority: 990
+    EOF
+  - if [ ! -z "${NO_MC_BACKPORTS:-}" ]; then rm -f /etc/apt/preferences.d/99backports; fi
   - apt-get update; apt-get -y --no-install-recommends install libnet-amazon-s3-perl libmojolicious-perl ffmpeg
   - if [ -z "${NO_MC_BACKPORTS:-}" ]; then apt-get -y -t stable-backports install libmedia-convert-perl; fi
   - perl .ci/setup-minio.pl
