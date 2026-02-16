@@ -157,6 +157,4 @@ SKIP: {
 	unlink("web/t");
 };
 
-unlink($cfgname);
-
-done_testing();
+	unlink($cfgname);
