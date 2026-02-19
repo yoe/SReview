@@ -104,6 +104,10 @@ t/100-mojo.t
 t/110-api.t
 t/120-types.t
 t/130-schedule.t
+t/js/credits.test.js
+t/js/mangler.test.js
+t/js/overview.test.js
+t/js/review_page.test.js
 t/test.cf
 t/testvids/animated.sif
 t/testvids/bbb.mp4

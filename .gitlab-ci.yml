@@ -19,7 +19,7 @@ js:test:
   - apt-get update
   - apt-get -y --no-install-recommends install nodejs node-nyc perl libmojolicious-perl node-jsdom node-jquery
   script:
-  - nyc --hook-run-in-this-context --all --include='web/public/*.js' --reporter=cobertura --report-dir=js_coverage node --test --test-reporter=junit --test-reporter-destination=junit_js.xml t/js/*.test.js
+  - nyc --hook-run-in-context --hook-run-in-this-context --all --include='web/public/*.js' --reporter=cobertura --report-dir=js_coverage node --test --test-reporter=junit --test-reporter-destination=junit_js.xml t/js/*.test.js
   - nyc report --reporter=text-summary
   artifacts:
     paths:
