@@ -94,7 +94,7 @@ sub _load_pathinfo {
 
 	my $pathinfo = {};
 
-	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.progress, talks.nonce, talks.apologynote, talks.upstreamid, talks.description, tracks.name AS track_name, talks.extra_data FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room LEFT JOIN tracks ON tracks.id = talks.track WHERE talks.id = ?");
+	my $eventdata = $pg->db->dbh->prepare("SELECT events.id AS eventid, events.name AS event, events.outputdir AS event_output, rooms.name AS room, rooms.outputname AS room_output, rooms.id AS room_id, talks.starttime, talks.starttime::date AS date, to_char(starttime, 'DD Month yyyy at HH24:MI') AS readable_date, to_char(talks.starttime, 'yyyy') AS year, talks.endtime, talks.slug, talks.title, talks.subtitle, talks.state, talks.progress, talks.nonce, talks.apologynote, talks.upstreamid, talks.description, tracks.name AS track_name, talks.extra_data FROM talks JOIN events ON talks.event = events.id JOIN rooms ON rooms.id = talks.room LEFT JOIN tracks ON tracks.id = talks.track WHERE talks.id = ?");
 	$eventdata->execute($self->talkid) or die $!;
 	my $row = $eventdata->fetchrow_hashref();
 
