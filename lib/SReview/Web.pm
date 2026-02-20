@@ -224,7 +224,7 @@ sub startup {
 
 	$r->get('/r/:nonce')->to(controller => 'review', action => 'view', layout => 'default');
 	$r->post('/r/:nonce/update')->to(controller => 'review', layout => 'default', action => 'update');
-        $r->get('/r/:nonce/data')->to(controller => 'review', action => 'data');
+	$r->get('/r/:nonce/data')->to(controller => 'review', action => 'data');
 	$r->get('/f/:nonce')->to(controller => 'finalreview', action => 'view', layout => 'default');
 	$r->post('/f/:nonce/update')->to(controller => 'finalreview', action => 'update', layout => 'default');
 
@@ -291,12 +291,12 @@ sub startup {
 			$video->{room} = $row->{room};
 			$video->{eventid} = $row->{upstreamid};
 			my @outputdirs;
-                        SUBDIR:
+			SUBDIR:
 			foreach my $subdir(@{$config->get('output_subdirs')}) {
-                                if(!defined($row->{$subdir})) {
-                                        $c->log->info("missing subdir $subdir");
-                                        next SUBDIR;
-                                }
+				if(!defined($row->{$subdir})) {
+					$c->log->info("missing subdir $subdir");
+					next SUBDIR;
+				}
 				push @outputdirs, $row->{$subdir};
 			}
 			my $outputdir = join('/', @outputdirs);
@@ -306,7 +306,7 @@ sub startup {
 					room => $row->{room},
 					date => $row->{date},
 					event => $row->{event},
-                                        event_output => $row->{event_output},
+					event_output => $row->{event_output},
 					upstreamid => $row->{upstreamid},
 					year => $row->{year} });
 				chomp $video->{details_url};
@@ -408,7 +408,7 @@ sub startup {
 		$c->stash(tottitrow => [ 'Room', 'Count' ]);
 		my $pgrows = $st->fetchall_arrayref;
 		foreach my $row(@{$pgrows}) {
-                        my $nonce = pop @$row;
+			my $nonce = pop @$row;
 			push @$row, "<a href='/r/$nonce'>review</a>";
 			push @$rows, $row;
 		}
