@@ -78,7 +78,7 @@ sub overview {
 			room,
 			talk_list.starttime";
         } elsif(exists($c->session->{admin}) && $c->session->{admin} > 0) {
-                $query = "SELECT CASE WHEN state IN ('preview', 'broken') THEN '/r/' || nonce WHEN state='finalreview' THEN '/f/' || nonce ELSE null END AS reviewurl, nonce, name, speakers, room, to_char(starttime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as starttime, to_char(endtime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as endtime, state, progress, track FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, talk_list.starttime";
+                $query = "SELECT id, CASE WHEN state IN ('preview', 'broken') THEN '/r/' || nonce WHEN state='finalreview' THEN '/f/' || nonce ELSE null END AS reviewurl, nonce, name, speakers, room, to_char(starttime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as starttime, to_char(endtime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as endtime, state, progress, track FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, talk_list.starttime";
 	} else {
 		$query = "SELECT name, speakers, room, to_char(starttime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as starttime, to_char(endtime, 'YYYY-MM-DD\"T\"HH24:MI:SSTZH:TZM') as endtime, state, progress, track FROM talk_list WHERE eventid = ? AND state IS NOT NULL ORDER BY state, progress, room, talk_list.starttime";
 	}

@@ -55,6 +55,7 @@
   </nav>
   <table class='table table-hover'>
     <tr>
+      <th v-if="admin_key">ID</th>
       <th>Talk</th>
       <th>Speakers</th>
       <th>Room</th>
@@ -66,6 +67,7 @@
       <th v-if="admin_key"></th>
     </tr>
     <tr v-for="row in rows">
+      <td v-if="admin_key">{{row.id}}</td>
       <td><a v-bind:href="row.reviewurl">{{row.name}}</a></td>
       <td>{{row.speakers}}</td>
       <td>{{row.room}}</td>
