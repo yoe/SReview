@@ -106,8 +106,33 @@
             </div>
             <div class="row" id="video_starts_too_early">
               <div class="col-sm-6">
-                <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-start-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/main.<%= $talk->preview_exten =%>"></video>
+                <div class="video-fs-container" data-video-id="video-start-early">
+                  <div class="embed-responsive embed-responsive-16by9">
+                    <video id="video-start-early" class="embed-responsive-item" controlsList="nofullscreen" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/main.<%= $talk->preview_exten =%>"></video>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <div class="video-controls-bar" data-video-id="video-start-early">
+                      <div class="video-controls-row video-controls-row-top d-flex align-items-center">
+                        <button type="button" class="btn btn-secondary video-playpause" data-action="playpause" data-video-id="video-start-early" title="Play / pause"><i class="fa fa-play"></i></button>
+                        <input type="range" class="video-seek-slider" data-video-id="video-start-early" min="0" max="1000" value="0" aria-label="Seek" />
+                        <span class="video-current-time" data-video-id="video-start-early">00:00.00</span>
+                        <button type="button" class="btn btn-secondary video-fullscreen" data-action="fullscreen" data-video-id="video-start-early" title="Full screen"><i class="fa fa-arrows-alt"></i></button>
+                      </div>
+                      <div class="video-controls-row video-controls-row-bottom d-flex justify-content-center">
+                        <div class="btn-group video-fine-controls" role="group" aria-label="Video fine controls" data-video-id="video-start-early" data-is-main="1">
+                    <button type="button" class="btn btn-secondary" data-action="reset" title="Reset to start"><i class="fa fa-fast-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-10" title="Rewind 10 seconds"><i class="fa fa-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-1" title="Rewind 1 second"><i class="fa fa-step-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-frame" title="Rewind 1 frame"><i class="fa fa-chevron-left"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="sync-main" title="Sync to main video time"><i class="fa fa-refresh"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-frame" title="Forward 1 frame"><i class="fa fa-chevron-right"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-1" title="Forward 1 second"><i class="fa fa-step-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-10" title="Forward 10 seconds"><i class="fa fa-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="last-frame" title="Go to last frame"><i class="fa fa-fast-forward"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_early" class="changemsg alert alert-success" role="alert"></div>
@@ -117,8 +142,33 @@
             </div>
             <div class="row" id="video_starts_too_late">
               <div class="col-sm-6">
-                <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-start-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/pre.<%= $talk->preview_exten =%>"></video>
+                <div class="video-fs-container" data-video-id="video-start-late">
+                  <div class="embed-responsive embed-responsive-16by9">
+                    <video id="video-start-late" class="embed-responsive-item" controlsList="nofullscreen" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/pre.<%= $talk->preview_exten =%>"></video>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <div class="video-controls-bar" data-video-id="video-start-late">
+                      <div class="video-controls-row video-controls-row-top d-flex align-items-center">
+                        <button type="button" class="btn btn-secondary video-playpause" data-action="playpause" data-video-id="video-start-late" title="Play / pause"><i class="fa fa-play"></i></button>
+                        <input type="range" class="video-seek-slider" data-video-id="video-start-late" min="0" max="1000" value="0" aria-label="Seek" />
+                        <span class="video-current-time" data-video-id="video-start-late">00:00.00</span>
+                        <button type="button" class="btn btn-secondary video-fullscreen" data-action="fullscreen" data-video-id="video-start-late" title="Full screen"><i class="fa fa-arrows-alt"></i></button>
+                      </div>
+                      <div class="video-controls-row video-controls-row-bottom d-flex justify-content-center">
+                        <div class="btn-group video-fine-controls" role="group" aria-label="Video fine controls" data-video-id="video-start-late" data-is-main="0">
+                    <button type="button" class="btn btn-secondary" data-action="reset" title="Reset to start"><i class="fa fa-fast-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-10" title="Rewind 10 seconds"><i class="fa fa-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-1" title="Rewind 1 second"><i class="fa fa-step-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-frame" title="Rewind 1 frame"><i class="fa fa-chevron-left"></i></button>
+                    <button type="button" class="btn btn-secondary" disabled style="visibility:hidden" title="Sync to main video time (not available)"></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-frame" title="Forward 1 frame"><i class="fa fa-chevron-right"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-1" title="Forward 1 second"><i class="fa fa-step-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-10" title="Forward 10 seconds"><i class="fa fa-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="last-frame" title="Go to last frame"><i class="fa fa-fast-forward"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p class="help-text">Find the correct start time, pause the video and click the big green button.</p>
                 <div id="msg_start_late" class="changemsg alert alert-success" role="alert"></div>
@@ -157,8 +207,33 @@
             </div>
             <div class="row" id="video_ends_too_early">
               <div class="col-sm-6">
-                <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-end-early" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/post.<%= $talk->preview_exten =%>"></video>
+                <div class="video-fs-container" data-video-id="video-end-early">
+                  <div class="embed-responsive embed-responsive-16by9">
+                    <video id="video-end-early" class="embed-responsive-item" controlsList="nofullscreen" src="<%= $vid_prefix =%>/<%= $talk->relative_name =%>/post.<%= $talk->preview_exten =%>"></video>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <div class="video-controls-bar" data-video-id="video-end-early">
+                      <div class="video-controls-row video-controls-row-top d-flex align-items-center">
+                        <button type="button" class="btn btn-secondary video-playpause" data-action="playpause" data-video-id="video-end-early" title="Play / pause"><i class="fa fa-play"></i></button>
+                        <input type="range" class="video-seek-slider" data-video-id="video-end-early" min="0" max="1000" value="0" aria-label="Seek" />
+                        <span class="video-current-time" data-video-id="video-end-early">00:00.00</span>
+                        <button type="button" class="btn btn-secondary video-fullscreen" data-action="fullscreen" data-video-id="video-end-early" title="Full screen"><i class="fa fa-arrows-alt"></i></button>
+                      </div>
+                      <div class="video-controls-row video-controls-row-bottom d-flex justify-content-center">
+                        <div class="btn-group video-fine-controls" role="group" aria-label="Video fine controls" data-video-id="video-end-early" data-is-main="0">
+                    <button type="button" class="btn btn-secondary" data-action="reset" title="Reset to start"><i class="fa fa-fast-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-10" title="Rewind 10 seconds"><i class="fa fa-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-1" title="Rewind 1 second"><i class="fa fa-step-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-frame" title="Rewind 1 frame"><i class="fa fa-chevron-left"></i></button>
+                    <button type="button" class="btn btn-secondary" disabled style="visibility:hidden" title="Sync to main video time (not available)"></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-frame" title="Forward 1 frame"><i class="fa fa-chevron-right"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-1" title="Forward 1 second"><i class="fa fa-step-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-10" title="Forward 10 seconds"><i class="fa fa-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="last-frame" title="Go to last frame"><i class="fa fa-fast-forward"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_early" class="changemsg alert alert-success" role="alert"></div>
@@ -176,8 +251,33 @@
             </div>
             <div class="row" id="video_ends_too_late">
               <div class="col-sm-6">
-                <div class="embed-responsive embed-responsive-16by9">
-                  <video id="video-end-late" class="embed-responsive-item" controls="controls" src="<%= $vid_prefix =%>/<%= $talk->relative_name=%>/main.<%= $talk->preview_exten =%>"></video>
+                <div class="video-fs-container" data-video-id="video-end-late">
+                  <div class="embed-responsive embed-responsive-16by9">
+                    <video id="video-end-late" class="embed-responsive-item" controlsList="nofullscreen" src="<%= $vid_prefix =%>/<%= $talk->relative_name=%>/main.<%= $talk->preview_exten =%>"></video>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <div class="video-controls-bar" data-video-id="video-end-late">
+                      <div class="video-controls-row video-controls-row-top d-flex align-items-center">
+                        <button type="button" class="btn btn-secondary video-playpause" data-action="playpause" data-video-id="video-end-late" title="Play / pause"><i class="fa fa-play"></i></button>
+                        <input type="range" class="video-seek-slider" data-video-id="video-end-late" min="0" max="1000" value="0" aria-label="Seek" />
+                        <span class="video-current-time" data-video-id="video-end-late">00:00.00</span>
+                        <button type="button" class="btn btn-secondary video-fullscreen" data-action="fullscreen" data-video-id="video-end-late" title="Full screen"><i class="fa fa-arrows-alt"></i></button>
+                      </div>
+                      <div class="video-controls-row video-controls-row-bottom d-flex justify-content-center">
+                        <div class="btn-group video-fine-controls" role="group" aria-label="Video fine controls" data-video-id="video-end-late" data-is-main="1">
+                    <button type="button" class="btn btn-secondary" data-action="reset" title="Reset to start"><i class="fa fa-fast-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-10" title="Rewind 10 seconds"><i class="fa fa-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-1" title="Rewind 1 second"><i class="fa fa-step-backward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="rewind-frame" title="Rewind 1 frame"><i class="fa fa-chevron-left"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="sync-main" title="Sync to main video time"><i class="fa fa-refresh"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-frame" title="Forward 1 frame"><i class="fa fa-chevron-right"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-1" title="Forward 1 second"><i class="fa fa-step-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="ff-10" title="Forward 10 seconds"><i class="fa fa-forward"></i></button>
+                    <button type="button" class="btn btn-secondary" data-action="last-frame" title="Go to last frame"><i class="fa fa-fast-forward"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p class="help-text">Find the correct end time, pause the video and click the big green button.</p>
                 <div id="msg_end_late" class="changemsg alert alert-success" role="alert"></div>
@@ -378,6 +478,7 @@
       $("#av_delay").hide();
     }
     $("#video_starts_too_early, #video_starts_too_late, #video_ends_too_early, #video_ends_too_late, .restore_original, #av_delay, #no_audio").hide();
+    $(".video-fine-controls").hide();
 
     $('[data-toggle="popover"]').popover({
       container: 'body'
@@ -398,18 +499,47 @@
       }
     });
 
+    $(document).on("click", ".video-fullscreen[data-action='fullscreen']", function() {
+      var videoId = $(this).data("video-id");
+      var videoEl = document.getElementById(videoId);
+      if (!videoEl) {
+        return;
+      }
+      var container = $(videoEl).closest(".video-fs-container").get(0);
+      if (!container) {
+        return;
+      }
+
+      if (document.fullscreenElement === container) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        return;
+      }
+
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      }
+    });
+
     // hide and show the videos for the starting time problems
     $("input[name=start_time]").click(function() {
       if ($("input[name=start_time]:checked").val() == "too_early") {
         $("#video_starts_too_early").slideDown();
         $("#video_starts_too_late").hide();
+        $(".video-fine-controls[data-video-id='video-start-early']").show();
+        $(".video-fine-controls[data-video-id='video-start-late']").hide();
       }
       if ($("input[name=start_time]:checked").val() == "too_late") {
         $("#video_starts_too_early").hide();
         $("#video_starts_too_late").slideDown();
+        $(".video-fine-controls[data-video-id='video-start-early']").hide();
+        $(".video-fine-controls[data-video-id='video-start-late']").show();
       }
       if ($("input[name=start_time]:checked").val() == "start_time_ok") {
         $("#video_starts_too_early, #video_starts_too_late").fadeOut();
+        $(".video-fine-controls[data-video-id='video-start-early']").hide();
+        $(".video-fine-controls[data-video-id='video-start-late']").hide();
       }
     });
 
@@ -418,13 +548,19 @@
       if ($("input[name=end_time]:checked").val() == "too_early") {
         $("#video_ends_too_early").slideDown();
         $("#video_ends_too_late").hide();
+        $(".video-fine-controls[data-video-id='video-end-early']").show();
+        $(".video-fine-controls[data-video-id='video-end-late']").hide();
       }
       if ($("input[name=end_time]:checked").val() == "too_late") {
         $("#video_ends_too_early").hide();
         $("#video_ends_too_late").slideDown();
+        $(".video-fine-controls[data-video-id='video-end-early']").hide();
+        $(".video-fine-controls[data-video-id='video-end-late']").show();
       }
       if ($("input[name=end_time]:checked").val() == "end_time_ok") {
         $("#video_ends_too_early, #video_ends_too_late").fadeOut();
+        $(".video-fine-controls[data-video-id='video-end-early']").hide();
+        $(".video-fine-controls[data-video-id='video-end-late']").hide();
       }
     });
 
@@ -495,6 +631,230 @@
       $("#end_time_corrval").val(corrval);
       data.new_end = newtime;
     }
+
+    function clamp(val, min, max) {
+      return Math.min(max, Math.max(min, val));
+    }
+
+    function getFrameStepSeconds(videoEl) {
+      var fps = parseFloat(videoEl.getAttribute("data-fps"));
+      if (!fps || !isFinite(fps) || fps <= 0) {
+        fps = 25;
+      }
+      return 1 / fps;
+    }
+
+    function seekVideo(videoEl, deltaSeconds) {
+      var duration = videoEl.duration;
+      if (!isFinite(duration) || duration <= 0) {
+        duration = Infinity;
+      }
+      var newTime = clamp(videoEl.currentTime + deltaSeconds, 0, duration);
+      videoEl.currentTime = newTime;
+    }
+
+    function seekVideoAbsolute(videoEl, timeSeconds) {
+      var duration = videoEl.duration;
+      if (!isFinite(duration) || duration <= 0) {
+        duration = Infinity;
+      }
+      videoEl.currentTime = clamp(timeSeconds, 0, duration);
+    }
+
+    function setPlayPauseIcon(videoId, isPlaying) {
+      var btn = $(".video-playpause[data-video-id='" + videoId + "']").get(0);
+      if (!btn) {
+        return;
+      }
+      var icon = btn.querySelector("i");
+      if (!icon) {
+        return;
+      }
+      icon.className = isPlaying ? "fa fa-pause" : "fa fa-play";
+    }
+
+    function updateSeekSlider(videoId) {
+      var videoEl = document.getElementById(videoId);
+      var slider = $(".video-seek-slider[data-video-id='" + videoId + "']").get(0);
+      if (!videoEl || !slider) {
+        return;
+      }
+      if (slider.getAttribute("data-dragging") === "1") {
+        return;
+      }
+      var d = videoEl.duration;
+      if (!isFinite(d) || d <= 0) {
+        return;
+      }
+      var v = Math.round((videoEl.currentTime / d) * 1000);
+      slider.value = String(clamp(v, 0, 1000));
+    }
+
+    function seekFromSlider(videoId) {
+      var videoEl = document.getElementById(videoId);
+      var slider = $(".video-seek-slider[data-video-id='" + videoId + "']").get(0);
+      if (!videoEl || !slider) {
+        return;
+      }
+      var d = videoEl.duration;
+      if (!isFinite(d) || d <= 0) {
+        return;
+      }
+      var target = (parseFloat(slider.value) / 1000) * d;
+      seekVideoAbsolute(videoEl, target);
+    }
+
+    function formatTime(seconds) {
+      if (!isFinite(seconds) || seconds < 0) {
+        seconds = 0;
+      }
+      var mins = Math.floor(seconds / 60);
+      var secs = Math.floor(seconds % 60);
+      var frac = Math.floor((seconds - Math.floor(seconds)) * 100);
+      var mm = String(mins).padStart(2, "0");
+      var ss = String(secs).padStart(2, "0");
+      var ff = String(frac).padStart(2, "0");
+      return mm + ":" + ss + "." + ff;
+    }
+
+    function setCurrentTimeText(videoId, force) {
+      var videoEl = document.getElementById(videoId);
+      var el = $(".video-current-time[data-video-id='" + videoId + "']").get(0);
+      if (!videoEl || !el) {
+        return;
+      }
+      var now = Date.now();
+      var last = parseInt(el.getAttribute("data-last-update") || "0", 10);
+      if (!force && now - last < 1000) {
+        return;
+      }
+      el.textContent = formatTime(videoEl.currentTime);
+      el.setAttribute("data-last-update", String(now));
+    }
+
+    $(document).on("click", ".video-playpause[data-action='playpause']", function() {
+      var videoId = $(this).data("video-id");
+      var videoEl = document.getElementById(videoId);
+      if (!videoEl) {
+        return;
+      }
+      if (videoEl.paused) {
+        if (videoEl.play) {
+          videoEl.play();
+        }
+      } else {
+        if (videoEl.pause) {
+          videoEl.pause();
+        }
+      }
+    });
+
+    $(document).on("mousedown touchstart", ".video-seek-slider", function() {
+      this.setAttribute("data-dragging", "1");
+    });
+    $(document).on("mouseup touchend", ".video-seek-slider", function() {
+      this.setAttribute("data-dragging", "0");
+    });
+    $(document).on("input change", ".video-seek-slider", function() {
+      var videoId = $(this).data("video-id");
+      seekFromSlider(videoId);
+      setCurrentTimeText(videoId, true);
+    });
+
+    ["video-start-early", "video-start-late", "video-end-early", "video-end-late"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) {
+        return;
+      }
+      el.addEventListener("timeupdate", function() {
+        updateSeekSlider(id);
+        setCurrentTimeText(id, false);
+      });
+      el.addEventListener("loadedmetadata", function() {
+        updateSeekSlider(id);
+        setCurrentTimeText(id, true);
+      });
+      el.addEventListener("play", function() {
+        setPlayPauseIcon(id, true);
+      });
+      el.addEventListener("pause", function() {
+        setPlayPauseIcon(id, false);
+      });
+      setPlayPauseIcon(id, !el.paused);
+      setCurrentTimeText(id, true);
+    });
+
+    $(document).on("click", ".video-fine-controls button[data-action]", function() {
+      var $btn = $(this);
+      var $group = $btn.closest(".video-fine-controls");
+      var vidId = $group.data("video-id");
+      var action = $btn.data("action");
+      var videoEl = document.getElementById(vidId);
+      if (!videoEl) {
+        return;
+      }
+
+      if (action === "reset") {
+        seekVideoAbsolute(videoEl, 0);
+        return;
+      }
+      if (action === "rewind-10") {
+        seekVideo(videoEl, -10);
+        return;
+      }
+      if (action === "rewind-1") {
+        seekVideo(videoEl, -1);
+        return;
+      }
+      if (action === "rewind-frame") {
+        seekVideo(videoEl, -getFrameStepSeconds(videoEl));
+        return;
+      }
+      if (action === "sync-main") {
+        var mainEl = document.getElementById("video-main");
+        if (mainEl) {
+          seekVideoAbsolute(videoEl, mainEl.currentTime);
+        }
+        return;
+      }
+      if (action === "ff-frame") {
+        seekVideo(videoEl, getFrameStepSeconds(videoEl));
+        return;
+      }
+      if (action === "ff-1") {
+        seekVideo(videoEl, 1);
+        return;
+      }
+      if (action === "ff-10") {
+        seekVideo(videoEl, 10);
+        return;
+      }
+      if (action === "last-frame") {
+        var d = videoEl.duration;
+        if (isFinite(d) && d > 0) {
+          seekVideoAbsolute(videoEl, Math.max(0, d - getFrameStepSeconds(videoEl)));
+        }
+        return;
+      }
+      if (action === "fullscreen") {
+        var container = $(videoEl).closest(".video-fs-container").get(0);
+        if (!container) {
+          return;
+        }
+
+        if (document.fullscreenElement === container) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+          return;
+        }
+
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        }
+        return;
+      }
+    });
 
     // handle time set button clicks. TODO: generalize this.
     $("#start_time_early").click(function() {

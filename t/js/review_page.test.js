@@ -168,6 +168,42 @@ function isVisible(window, el) {
   return window.getComputedStyle(el).display !== "none";
 }
 
+function getFineControls(window, videoId) {
+  return window.document.querySelector(
+    `.video-fine-controls[data-video-id="${videoId}"]`,
+  );
+}
+
+function actionsInOrder(groupEl) {
+  return [...groupEl.querySelectorAll("button[data-action]")].map((b) =>
+    b.getAttribute("data-action"),
+  );
+}
+
+function clickAction(window, groupEl, action) {
+  const btn = groupEl.querySelector(`button[data-action="${action}"]`);
+  assert.ok(btn, `expected button with data-action=${action}`);
+  btn.dispatchEvent(new window.Event("click", { bubbles: true }));
+}
+
+function getPlayPauseButton(window, videoId) {
+  return window.document.querySelector(
+    `.video-playpause[data-video-id="${videoId}"]`,
+  );
+}
+
+function getSeekSlider(window, videoId) {
+  return window.document.querySelector(
+    `.video-seek-slider[data-video-id="${videoId}"]`,
+  );
+}
+
+function getCurrentTimeEl(window, videoId) {
+  return window.document.querySelector(
+    `.video-current-time[data-video-id="${videoId}"]`,
+  );
+}
+
 test("review page: initial state + visibility toggles", async (t) => {
   const html = renderReviewTemplateOrSkip(t);
   if (!html) return;
@@ -254,6 +290,16 @@ test("review page: start/end time extra video elements shown/hidden", async (t) 
     /\/main\./,
   );
 
+  // controls should show/hide along with the row
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-early")),
+    true,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-late")),
+    false,
+  );
+
   // too late => show pre video in start section
   $(startTooLate).trigger("click");
   await tick(window);
@@ -264,11 +310,29 @@ test("review page: start/end time extra video elements shown/hidden", async (t) 
     /\/pre\./,
   );
 
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-early")),
+    false,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-late")),
+    true,
+  );
+
   // ok => hide again
   $(startOk).trigger("click");
   await tick(window);
   assert.equal(isVisible(window, rowStartEarly), false);
   assert.equal(isVisible(window, rowStartLate), false);
+
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-early")),
+    false,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-start-late")),
+    false,
+  );
 
   // End time
   const endTooEarly = window.document.querySelector(
@@ -293,6 +357,15 @@ test("review page: start/end time extra video elements shown/hidden", async (t) 
     /\/post\./,
   );
 
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-early")),
+    true,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-late")),
+    false,
+  );
+
   $(endTooLate).trigger("click");
   await tick(window);
   assert.equal(isVisible(window, rowEndEarly), false);
@@ -302,10 +375,217 @@ test("review page: start/end time extra video elements shown/hidden", async (t) 
     /\/main\./,
   );
 
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-early")),
+    false,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-late")),
+    true,
+  );
+
   $(endOk).trigger("click");
   await tick(window);
   assert.equal(isVisible(window, rowEndEarly), false);
   assert.equal(isVisible(window, rowEndLate), false);
+
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-early")),
+    false,
+  );
+  assert.equal(
+    isVisible(window, getFineControls(window, "video-end-late")),
+    false,
+  );
+});
+
+test("review page: fine video controls presence/order + seeking behavior", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html);
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  // Enable problems and show a section so handlers are active
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger(
+    "click",
+  );
+
+  // main video will be used as sync reference
+  const main = window.document.getElementById("video-main");
+  Object.defineProperty(main, "duration", { value: 200, configurable: true });
+  Object.defineProperty(main, "currentTime", { value: 42, writable: true, configurable: true });
+  main.currentTime = 42;
+
+  function setVideoTimes(id, { duration, currentTime, fps }) {
+    const el = window.document.getElementById(id);
+    Object.defineProperty(el, "duration", { value: duration, configurable: true });
+    Object.defineProperty(el, "currentTime", { value: currentTime, writable: true, configurable: true });
+    if (fps != null) el.setAttribute("data-fps", String(fps));
+    el.currentTime = currentTime;
+    return el;
+  }
+
+  function stubPlayPause(el) {
+    let paused = true;
+    Object.defineProperty(el, "paused", {
+      get() {
+        return paused;
+      },
+      configurable: true,
+    });
+    el.play = () => {
+      paused = false;
+      el.dispatchEvent(new window.Event("play"));
+    };
+    el.pause = () => {
+      paused = true;
+      el.dispatchEvent(new window.Event("pause"));
+    };
+  }
+
+  const groupStartEarly = getFineControls(window, "video-start-early");
+  const groupStartLate = getFineControls(window, "video-start-late");
+  const groupEndEarly = getFineControls(window, "video-end-early");
+  const groupEndLate = getFineControls(window, "video-end-late");
+
+  assert.ok(groupStartEarly);
+  assert.ok(groupStartLate);
+  assert.ok(groupEndEarly);
+  assert.ok(groupEndLate);
+
+  // Native controls should be disabled for the non-main videos
+  [
+    "video-start-early",
+    "video-start-late",
+    "video-end-early",
+    "video-end-late",
+  ].forEach((id) => {
+    const el = window.document.getElementById(id);
+    assert.equal(el.hasAttribute("controls"), false);
+    assert.ok(getPlayPauseButton(window, id));
+    assert.ok(getSeekSlider(window, id));
+    assert.ok(getCurrentTimeEl(window, id));
+  });
+
+  assert.deepEqual(actionsInOrder(groupStartLate), [
+    "reset",
+    "rewind-10",
+    "rewind-1",
+    "rewind-frame",
+    "ff-frame",
+    "ff-1",
+    "ff-10",
+    "last-frame",
+  ]);
+
+  assert.deepEqual(actionsInOrder(groupStartEarly), [
+    "reset",
+    "rewind-10",
+    "rewind-1",
+    "rewind-frame",
+    "sync-main",
+    "ff-frame",
+    "ff-1",
+    "ff-10",
+    "last-frame",
+  ]);
+
+  assert.deepEqual(actionsInOrder(groupEndEarly), [
+    "reset",
+    "rewind-10",
+    "rewind-1",
+    "rewind-frame",
+    "ff-frame",
+    "ff-1",
+    "ff-10",
+    "last-frame",
+  ]);
+
+  assert.deepEqual(actionsInOrder(groupEndLate), [
+    "reset",
+    "rewind-10",
+    "rewind-1",
+    "rewind-frame",
+    "sync-main",
+    "ff-frame",
+    "ff-1",
+    "ff-10",
+    "last-frame",
+  ]);
+
+  // Seeking behavior uses 25fps by default
+  const v = setVideoTimes("video-start-late", { duration: 100, currentTime: 50, fps: 25 });
+  stubPlayPause(v);
+
+  clickAction(window, groupStartLate, "rewind-10");
+  assert.equal(v.currentTime, 40);
+
+  clickAction(window, groupStartLate, "rewind-1");
+  assert.equal(v.currentTime, 39);
+
+  clickAction(window, groupStartLate, "rewind-frame");
+  assert.equal(v.currentTime, 39 - 1 / 25);
+
+  clickAction(window, groupStartLate, "ff-frame");
+  assert.equal(v.currentTime, 39);
+
+  clickAction(window, groupStartLate, "ff-1");
+  assert.equal(v.currentTime, 40);
+
+  clickAction(window, groupStartLate, "ff-10");
+  assert.equal(v.currentTime, 50);
+
+  // reset
+  clickAction(window, groupStartLate, "reset");
+  assert.equal(v.currentTime, 0);
+
+  // last frame = duration - frameStep
+  clickAction(window, groupStartLate, "last-frame");
+  assert.equal(v.currentTime, 100 - 1 / 25);
+
+  // sync-main
+  const v2 = setVideoTimes("video-start-early", { duration: 100, currentTime: 10, fps: 25 });
+  stubPlayPause(v2);
+  clickAction(window, groupStartEarly, "sync-main");
+  assert.equal(v2.currentTime, 42);
+
+  // play/pause button should toggle play/pause and icon
+  const pp = getPlayPauseButton(window, "video-start-late");
+  assert.ok(pp);
+  const icon = pp.querySelector("i");
+  assert.ok(icon);
+  assert.match(icon.className, /fa-play/);
+  pp.dispatchEvent(new window.Event("click", { bubbles: true }));
+  assert.match(icon.className, /fa-pause/);
+  pp.dispatchEvent(new window.Event("click", { bubbles: true }));
+  assert.match(icon.className, /fa-play/);
+
+  // seek slider should set currentTime approximately
+  const slider = getSeekSlider(window, "video-start-late");
+  assert.ok(slider);
+  slider.value = "500";
+  slider.dispatchEvent(new window.Event("input", { bubbles: true }));
+  assert.equal(v.currentTime, 50);
+
+  const timeEl = getCurrentTimeEl(window, "video-start-late");
+  assert.ok(timeEl);
+  assert.match(timeEl.textContent, /^00:50\./);
+
+  // fullscreen should call requestFullscreen on the wrapper
+  const fsContainer = v2.closest(".video-fs-container");
+  assert.ok(fsContainer);
+  let fsCalls = 0;
+  fsContainer.requestFullscreen = () => {
+    fsCalls += 1;
+  };
+  const fsBtn = window.document.querySelector(
+    '.video-fullscreen[data-video-id="video-start-early"]',
+  );
+  assert.ok(fsBtn);
+  fsBtn.dispatchEvent(new window.Event("click", { bubbles: true }));
+  assert.equal(fsCalls, 1);
 });
 
 test("review page: av sync seconds input appears when needed", async (t) => {
