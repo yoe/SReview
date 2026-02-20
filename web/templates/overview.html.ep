@@ -191,6 +191,11 @@
                         v-model="description" rows="5"></textarea>
             </div>
             <div class="form-group">
+              <label for="apologynote-field">Apology note</label>
+              <input class="form-control" id="apologynote-field"
+                     v-model="apologynote">
+            </div>
+            <div class="form-group">
               <label for="starttime-field">Start time</label>
               <input class="form-control" id="starttime-field"
                      v-model="starttime"

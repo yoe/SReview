@@ -119,8 +119,9 @@ SKIP: {
 	my $nonce = $t->post_ok("$b/event/1/talk" => json => {room => 1,slug => 'test', starttime => '2020-05-30T10:30:00',endtime => '2020-05-30T10:35:00',title=>'Test',event=>1,upstreamid=>''})->status_is(200)->json_is('/title' => 'Test')->json_is('/room' => 1)->json_is('/id' => 1)->tx->res->json->{nonce};
 	$t->get_ok("$b/event/1/talk/list")->status_is(200)->json_is('/0/title' => 'Test');
 	$t->patch_ok("$b/event/1/talk/1" => json => {subtitle => 'also test'})->status_is(200)->json_is('/title' => 'Test')->json_is('/subtitle' => 'also test');
+	$t->patch_ok("$b/event/1/talk/1" => json => {apologynote => 'sorry'})->status_is(200)->json_is('/apologynote' => 'sorry');
 	# Talks by nonce
-	$t->get_ok("$b/nonce/$nonce/talk")->status_is(200)->json_is("/id" => 1);
+	$t->get_ok("$b/nonce/$nonce/talk")->status_is(200)->json_is("/id" => 1)->json_is('/apologynote' => 'sorry');
 	
 	# Talk data
 	$t->get_ok("$b/nonce/$nonce/data")->status_is(200)->json_like("/start" => qr/^2020-05-30 10:30:00\+[0-9][0-9]/)->json_is("/start_iso" => "2020-05-30T10:30:00Z")->json_like("/end" => qr/^2020-05-30 10:35:00\+[0-9][0-9]/)->json_is("/end_iso" => "2020-05-30T10:35:00Z");
