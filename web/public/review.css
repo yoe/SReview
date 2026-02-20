@@ -119,3 +119,7 @@ h1 > small {
 a .fa-question-circle:hover {
   color: #000000;
 }
+
+.radio label.sreview-disabled-option {
+  color: #999999;
+}

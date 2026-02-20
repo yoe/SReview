@@ -49,7 +49,7 @@ use Mojo::Template;
       relative_name => 'relname',
       preview_exten => 'mp4',
       state => 'preview',
-      corrections => { serial => 0, audio_channel => 0 },
+      corrections => { serial => 1, audio_channel => 0 },
       comment => "",
     }, $class;
   }
@@ -186,6 +186,16 @@ function clickAction(window, groupEl, action) {
   btn.dispatchEvent(new window.Event("click", { bubbles: true }));
 }
 
+function getVideoStateOkRadio(window) {
+  return window.document.querySelector('input[name="video_state"][value="ok"]');
+}
+
+function getVideoStateNotOkRadio(window) {
+  return window.document.querySelector(
+    'input[name="video_state"][value="not_ok"]',
+  );
+}
+
 function getPlayPauseButton(window, videoId) {
   return window.document.querySelector(
     `.video-playpause[data-video-id="${videoId}"]`,
@@ -251,6 +261,54 @@ test("review page: initial state + visibility toggles", async (t) => {
   await tick(window);
   assert.equal(isVisible(window, problemsStart), false);
   assert.equal(isVisible(window, problemsEnd), false);
+});
+
+test("review page: serial==0 disables perfect option + shows help + forces not_ok", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html);
+
+  // Ensure serial is 0 (this is the default in the template stub, but keep explicit)
+  const serialEl = window.document.getElementById("serial");
+  assert.ok(serialEl);
+  serialEl.value = "0";
+
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  const okRadio = getVideoStateOkRadio(window);
+  const notOkRadio = getVideoStateNotOkRadio(window);
+  assert.ok(okRadio);
+  assert.ok(notOkRadio);
+
+  assert.equal(okRadio.disabled, true);
+  assert.equal(notOkRadio.checked, true);
+
+  const help = window.document.getElementById("video_state_ok_help");
+  assert.ok(help);
+  assert.equal(help.getAttribute("data-toggle"), "popover");
+});
+
+test("review page: serial>0 enables perfect option and hides help", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html);
+
+  const serialEl = window.document.getElementById("serial");
+  assert.ok(serialEl);
+  serialEl.value = "1";
+
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  const okRadio = getVideoStateOkRadio(window);
+  assert.ok(okRadio);
+  assert.equal(okRadio.disabled, false);
+
+  const help = window.document.getElementById("video_state_ok_help");
+  assert.equal(help, null);
 });
 
 test("review page: start/end time extra video elements shown/hidden", async (t) => {

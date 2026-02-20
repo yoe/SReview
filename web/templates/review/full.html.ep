@@ -462,6 +462,41 @@
     $("#msg_end_late").fadeOut();
     $(".errmsg").hide();
 
+    (function() {
+      var serialVal = parseInt($("#serial").val() || "0", 10);
+      var okRadio = $("input[name=video_state][value=ok]");
+      var notOkRadio = $("input[name=video_state][value=not_ok]");
+      var okLabel = okRadio.closest("label");
+
+      if (!isFinite(serialVal) || serialVal <= 0) {
+        okRadio.prop("disabled", true);
+        okLabel.addClass("sreview-disabled-option");
+
+        okLabel.append(
+          $("<a>")
+            .attr("id", "video_state_ok_help")
+            .attr("tabindex", "0")
+            .attr("data-toggle", "popover")
+            .attr("data-trigger", "hover")
+            .attr("data-html", "true")
+            .attr("title", "Release requires a review")
+            .attr(
+              "data-content",
+              "<p>No corrections have been applied to this talk yet.</p>"
+                + "<p>Before you can approve it for release, you must review it and apply at least the correct start and end times using this web interface.</p>"
+                + "<p>Once at least one correction round has been submitted, you can come back and mark the talk as perfect.</p>",
+            )
+            .append($("<i>").addClass("fa fa-question-circle")),
+        );
+
+        if (okRadio.is(":checked")) {
+          okRadio.prop("checked", false);
+          notOkRadio.prop("checked", true);
+          notOkRadio.trigger("click");
+        }
+      }
+    })();
+
     // set the page
     if ($("input[name=video_state]:checked").val() == "ok") {
       $(".video_has_problems, .other_brokenness").hide();
