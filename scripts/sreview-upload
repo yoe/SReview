@@ -39,7 +39,7 @@ sub run_command($file, $relative, $base, $talk) {
 	foreach my $command(@{$config->get("${configprefix}_actions")}) {
 		my @run;
 		foreach my $component(@$command) {
-			my $rendered = $mt->render($component, {file => $file, relative_file => $relative, base => $base });
+			my $rendered = $mt->render($component, {file => $file, relative_file => $relative, base => $base, talk => $talk });
 			chomp($rendered);
 			push @run, $rendered;
 		}
