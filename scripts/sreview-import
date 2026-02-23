@@ -81,7 +81,7 @@ my $add_room = $dbh->prepare("INSERT INTO rooms(name, altname, outputname) VALUE
 my $update_room = $dbh->prepare("UPDATE rooms SET altname = ?, outputname = ? WHERE name = ?");
 my $add_track = $dbh->prepare("INSERT INTO tracks(name, email, upstreamid) VALUES(?, ?, ?) RETURNING id");
 my $update_track = $dbh->prepare("UPDATE tracks SET name = ?, email = ? WHERE upstreamid = ?");
-my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description, extra_data) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?, ?, ?::jsonb) RETURNING id");
+my $add_talk = $dbh->prepare("INSERT INTO talks(room, slug, starttime, endtime, title, event, upstreamid, subtitle, track, description, extra_data) VALUES(?, ?, ?::timestamptz, ?::timestamptz, ?, ?, ?, ?, ?, ?, ?::jsonb) RETURNING id");
 my $set_flags = $dbh->prepare("UPDATE talks SET flags = COALESCE(flags::jsonb || ?::jsonb, ?::jsonb) WHERE id = ?");
 my $search_speaker = $dbh->prepare("SELECT id FROM speakers WHERE upstreamid = ? AND event = ?");
 my $update_speaker = $dbh->prepare("UPDATE speakers SET name = ?, email = ? WHERE upstreamid = ?");
