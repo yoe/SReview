@@ -922,7 +922,8 @@ has 'extra_data' => (
 );
 
 sub _load_extra_data {
-	return decode_json(shift->_get_pathinfo->{raw}{extra_data});
+	my $raw = shift->_get_pathinfo->{raw}{extra_data};
+	return defined($raw) ? decode_json($raw) : undef;
 }
 
 =head1 METHODS
