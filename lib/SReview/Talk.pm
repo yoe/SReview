@@ -1096,7 +1096,7 @@ sub get_metadata {
                 if($@) {
                         delete $rv->{$metadata};
                 }
-                if(length($rv->{$metadata}) == 0) {
+                elsif(length($rv->{$metadata}) == 0) {
                         delete $rv->{$metadata};
                 }
         }
