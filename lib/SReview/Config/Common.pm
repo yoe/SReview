@@ -122,6 +122,8 @@ sub setup {
 		injecting => 'sreview-inject -t <%== $talkid %>',
 		transcribing => 'sreview-transcribe <%== $talkid %>',
 	});
+	$config->define('dispatch_require_flags', 'An array of talk flags that must be set to true for a talk to be handled by this dispatcher instance.', []);
+	$config->define('dispatch_ignore_flags', 'An array of talk flags that, if set to true, will cause a talk to be ignored by this dispatcher instance.', []);
 	$config->define('query_limit', 'A maximum number of jobs that should be submitted in a single loop in sreview-dispatch. 0 means no limit.', 1);
 	$config->define('published_headers', 'The HTTP headers that indicate that the video is available now. Use _code for the HTTP status code.', undef);
 	$config->define('inject_actions', 'A command that tells SReview what to do with a talk that needs to be injected', 'sreview-inject <%== $talkid %> <%== $output_dir %>/inject.<%== $talkid %>.out 2> <%== $output_dir %>/cut.<%== $talkid %>.err');
