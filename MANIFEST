@@ -7,6 +7,7 @@ lib/SReview/CodecMap.pm
 lib/SReview/Config.pm
 lib/SReview/Config/Common.pm
 lib/SReview/Db.pm
+lib/SReview/Dispatch.pm
 lib/SReview/Files/Access/Base.pm
 lib/SReview/Files/Access/direct.pm
 lib/SReview/Files/Access/HTTP.pm
@@ -93,7 +94,12 @@ scripts/util/schedule_parsers/debconf
 scripts/util/schedule_parsers/fosdem
 scripts/util/sync-states
 t/010-config.t
+t/011-config-common.t
+t/012-talk-enums.t
+t/013-files-collection-base.t
+t/014-api-helpers.t
 t/040-db.t
+t/056-dispatch-flags.t
 t/080-runthrough.t
 t/085-schedule-export.t
 t/090-talk.t
@@ -104,6 +110,7 @@ t/100-mojo.t
 t/110-api.t
 t/120-types.t
 t/130-schedule.t
+t/js/confirm_page.test.js
 t/js/credits.test.js
 t/js/mangler.test.js
 t/js/overview.test.js
