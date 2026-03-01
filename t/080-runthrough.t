@@ -58,7 +58,7 @@ if(-f "/usr/bin/sreview-detect") {
 }
 
 SKIP: {
-	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 16) unless defined($ENV{SREVIEWTEST_DB});
+	skip("Can't test database work unless the SREVIEWTEST_DB environment variable points to a database which we may clobber and recreate", 18) unless defined($ENV{SREVIEWTEST_DB});
 
 	# Prepare an input directory
 	make_path('t/inputdir/room1/2017-11-10');
