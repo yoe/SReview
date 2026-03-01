@@ -13,6 +13,13 @@ test("credits.js: talk-preview component setForce updates force", () => {
   const fetchCalls = [];
   function fetchStub(url) {
     fetchCalls.push(url);
+    if (typeof url === "string" && url.startsWith("/api/v1/nonce/")) {
+      return Promise.resolve({
+        headers: {
+          get: (name) => (name && name.toLowerCase() === "content-type" ? "image/png" : null),
+        },
+      });
+    }
     if (url === "/api/v1/config") {
       return Promise.resolve({ json: () => Promise.resolve({ event: "E1" }) });
     }

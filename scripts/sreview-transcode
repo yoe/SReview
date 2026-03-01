@@ -36,29 +36,7 @@ use Media::Convert::Pipe;
 use SReview::Files::Factory;
 use Mojo::Util qw/xml_escape/;
 use Mojo::UserAgent;
-
-sub process_template {
-	my $template = shift;
-	my $output = shift;
-	my $talk = shift;
-	my $config = shift;
-
-	my $format = $config->get("template_format");
-
-	if($config->get("template_format") eq "svg") {
-		SReview::Template::SVG::process_template($template, $output, $talk, $config);
-		return $output, [], [duration => 5];
-	} elsif($config->get("template_format") eq "synfig") {
-		SReview::Template::Synfig::process_template($template, $output, $talk, $config);
-		my @output = split/\./, $output;
-		my $ext = pop @output;
-		push @output, "%04d", $ext;
-		$output = join(".", @output);
-		my $dur = Media::Convert::Asset::PNGGen->new(url => $output);
-		return $output, [loop => 0], [duration => undef, duration_frames => $dur->duration_frames];
-	};
-	die "Could not transform templates: template_format config value set to invalid value $format";
-}
+use SReview::Credits qw/process_template/;
 
 =head1 NAME
 

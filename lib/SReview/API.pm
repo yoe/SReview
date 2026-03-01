@@ -793,6 +793,7 @@ paths:
           description: successful operation
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
@@ -824,6 +825,7 @@ paths:
           description: successful operation
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
@@ -855,6 +857,7 @@ paths:
           description: successful operation
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
@@ -1036,6 +1039,7 @@ paths:
           description: OK
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
@@ -1061,6 +1065,7 @@ paths:
           description: OK
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png
@@ -1086,6 +1091,7 @@ paths:
           description: OK
           content:
             image/png: {}
+            video/webm: {}
       x-mojo-to:
         controller: CreditPreviews
         action: serve_png

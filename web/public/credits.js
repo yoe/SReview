@@ -1,19 +1,54 @@
 Vue.component("talk-preview", {
   template: `
     <div class="col-md-4 text-center">
-      <img class="img-fluid" v-bind:src="'/api/v1/nonce/' + talk.nonce + '/' + which + '?force=' + force">
+      <video v-if="isVideo" class="img-fluid" controls="controls" playsinline="playsinline">
+        <source v-bind:src="url" v-bind:type="contentType" />
+      </video>
+      <img v-if="!isVideo" class="img-fluid" v-bind:src="url">
       <button class="btn btn-primary" v-on:click="setForce"><i class="fa fa-regular fa-rotate-right"></i></button>
     </div>`,
   props: ["talk", "which"],
+  computed: {
+    url: function() {
+      return "/api/v1/nonce/" + this.talk.nonce + "/" + this.which + "?force=" + this.force;
+    },
+  },
   methods: {
     setForce: function() {
       this.force = Date.now();
+    },
+    refreshContentType: function() {
+      fetch(this.url, { method: "HEAD" })
+      .then((response) => {
+        const ct = response.headers.get("content-type");
+        if (ct) {
+          this.contentType = ct;
+          this.isVideo = ct.startsWith("video/");
+        } else {
+          this.contentType = null;
+          this.isVideo = false;
+        }
+      })
+      .catch(() => {
+        this.contentType = null;
+        this.isVideo = false;
+      });
     }
   },
   data: function() {
     return {
-      force: false
+      force: false,
+      contentType: null,
+      isVideo: false,
     }
+  },
+  watch: {
+    force: function() {
+      this.refreshContentType();
+    },
+  },
+  mounted: function() {
+    this.refreshContentType();
   },
 })
 

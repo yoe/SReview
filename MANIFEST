@@ -4,6 +4,7 @@ lib/SReview/Access.pm
 lib/SReview/API.pm
 lib/SReview/API/Helpers.pm
 lib/SReview/CodecMap.pm
+lib/SReview/Credits.pm
 lib/SReview/Config.pm
 lib/SReview/Config/Common.pm
 lib/SReview/Db.pm
@@ -108,6 +109,7 @@ t/095-files.t
 t/095-synfig.t
 t/100-mojo.t
 t/110-api.t
+t/115-credit-previews.t
 t/120-types.t
 t/130-schedule.t
 t/js/confirm_page.test.js
