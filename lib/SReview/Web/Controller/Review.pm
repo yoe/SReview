@@ -46,6 +46,7 @@ sub view {
 	my $vid_prefix = $c->srconfig->get('vid_prefix');
 	$vid_prefix = '' unless defined($vid_prefix);
 	$c->stash(vid_prefix => $vid_prefix);
+	$c->stash(template_format => ($c->srconfig->get('template_format') // 'svg'));
 
 	$c->stash(talk => $talk);
 	$c->stash(stylesheets => ['/review.css']);

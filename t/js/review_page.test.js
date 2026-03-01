@@ -64,6 +64,7 @@ use Mojo::Template;
   sub state { $_[0]->{state} }
   sub corrections { $_[0]->{corrections} }
   sub comment { $_[0]->{comment} }
+  sub apology { return '' }
 }
 
 sub flash { return undef; }
@@ -76,6 +77,7 @@ my $out = $mt->render_file($file, {
   talk => $talk,
   vid_prefix => '/vid',
   adminspecial => 0,
+  template_format => 'svg',
 });
 
 die $out if ref $out;

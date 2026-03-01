@@ -61,6 +61,7 @@ use Mojo::Template;
   sub preview_exten { $_[0]->{preview_exten} }
   sub state { $_[0]->{state} }
   sub corrections { $_[0]->{corrections} }
+  sub apology { return '' }
 }
 
 sub flash { return undef; }
@@ -74,6 +75,7 @@ my $out = $mt->render_file($file, {
   talk => $talk,
   vid_prefix => '/vid',
   adminspecial => 0,
+  template_format => 'svg',
 });
 
 die $out if ref $out;

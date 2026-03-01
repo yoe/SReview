@@ -59,6 +59,45 @@
         </div>
       </div>
     </div>
+    <div class="row" id="credit_slides">
+      <div class="col-sm-12">
+        <h2>Credits</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-4 text-center">
+        % if ($template_format eq 'synfig') {
+        <video class="img-fluid" controls="controls" playsinline="playsinline">
+          <source src="/api/v1/nonce/<%= $talk->nonce =%>/preroll" type="video/webm" />
+        </video>
+        % } else {
+        <img class="img-fluid" src="/api/v1/nonce/<%= $talk->nonce =%>/preroll" />
+        % }
+        <p>shown before the main video</p>
+      </div>
+      % if (defined($talk->apology) && length($talk->apology) > 0) {
+      <div class="col-sm-4 text-center">
+        % if ($template_format eq 'synfig') {
+        <video class="img-fluid" controls="controls" playsinline="playsinline">
+          <source src="/api/v1/nonce/<%= $talk->nonce =%>/sorry" type="video/webm" />
+        </video>
+        % } else {
+        <img class="img-fluid" src="/api/v1/nonce/<%= $talk->nonce =%>/sorry" />
+        % }
+        <p>shown between the opening slide and the main video</p>
+      </div>
+      % }
+      <div class="col-sm-4 text-center">
+        % if ($template_format eq 'synfig') {
+        <video class="img-fluid" controls="controls" playsinline="playsinline">
+          <source src="/api/v1/nonce/<%= $talk->nonce =%>/postroll" type="video/webm" />
+        </video>
+        % } else {
+        <img class="img-fluid" src="/api/v1/nonce/<%= $talk->nonce =%>/postroll" />
+        % }
+        <p>shown after the main video</p>
+      </div>
+    </div>
     <div class="row" id="main_video">
       <div class="col-sm-8">
         <div class="embed-responsive embed-responsive-16by9">

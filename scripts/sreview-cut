@@ -19,6 +19,7 @@ use Media::Convert::Pipe;;
 use SReview::Config::Common;
 use SReview::Files::Factory;
 use SReview::Talk;
+use SReview::Credits qw/ensure_credit_preview/;
 use JSON::MaybeXS;
 
 =head1 NAME
@@ -428,6 +429,10 @@ if(defined($fixups) && ref($fixups) eq 'ARRAY') {
 }
 
 $final->store_file;
+
+ensure_credit_preview('pre', $talk, $config, $output_coll, 1);
+ensure_credit_preview('post', $talk, $config, $output_coll, 1);
+ensure_credit_preview('sorry', $talk, $config, $output_coll, 1);
 
 $dbh->begin_work;
 
