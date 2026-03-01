@@ -111,6 +111,7 @@ t/110-api.t
 t/120-types.t
 t/130-schedule.t
 t/js/confirm_page.test.js
+t/js/newreview_page.test.js
 t/js/credits.test.js
 t/js/mangler.test.js
 t/js/overview.test.js

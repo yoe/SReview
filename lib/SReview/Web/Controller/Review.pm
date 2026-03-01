@@ -82,6 +82,7 @@ sub update {
 		$c->res->code(403);
                 return;
         }
+        my $old_audio_channel = $talk->corrections->{audio_channel};
         $talk->add_correction(serial => 0);
         if($c->param('serial') != $talk->corrections->{serial}) {
                 $c->stash(error => 'This talk was updated (probably by someone else) since you last loaded it. Please reload the page, and try again.');
@@ -126,8 +127,10 @@ sub update {
 		return;
 	}
         if($c->param("audio_channel") ne "3") {
-                $talk->set_correction("audio_channel", $c->param("audio_channel"));
-                $corrections->{audio_channel} = $c->param("audio_channel");
+                if($c->param("audio_channel") ne $old_audio_channel) {
+                        $talk->set_correction("audio_channel", $c->param("audio_channel"));
+                        $corrections->{audio_channel} = $c->param("audio_channel");
+                }
         } else {
                 if($c->param("no_audio_options") eq "no_publish") {
                         $talk->set_state("broken");
