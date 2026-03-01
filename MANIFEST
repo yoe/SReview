@@ -4,9 +4,9 @@ lib/SReview/Access.pm
 lib/SReview/API.pm
 lib/SReview/API/Helpers.pm
 lib/SReview/CodecMap.pm
-lib/SReview/Credits.pm
 lib/SReview/Config.pm
 lib/SReview/Config/Common.pm
+lib/SReview/Credits.pm
 lib/SReview/Db.pm
 lib/SReview/Dispatch.pm
 lib/SReview/Files/Access/Base.pm
@@ -113,9 +113,9 @@ t/115-credit-previews.t
 t/120-types.t
 t/130-schedule.t
 t/js/confirm_page.test.js
-t/js/newreview_page.test.js
 t/js/credits.test.js
 t/js/mangler.test.js
+t/js/newreview_page.test.js
 t/js/overview.test.js
 t/js/review_page.test.js
 t/test.cf
