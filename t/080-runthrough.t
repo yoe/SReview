@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 use Cwd 'abs_path';
 
@@ -93,6 +93,16 @@ SKIP: {
 	my $row = $st->fetchrow_arrayref;
 	my $nonce = $row->[0];
 	my $relname = join("/", substr($nonce, 0, 1), substr($nonce, 1, 2), substr($nonce, 3));
+
+	$ENV{SREVIEWTEST_FIXUP_MARKER} = abs_path('t/fixup_marker');
+	unlink($ENV{SREVIEWTEST_FIXUP_MARKER});
+	$ENV{SREVIEW_CUT_FIXUPS} = encode_json([
+		[
+			$^X,
+			'-e',
+			'open my $fh, ">", $ENV{SREVIEWTEST_FIXUP_MARKER} or die $!; print $fh $ARGV[0]; close $fh;'
+		],
+	]);
 	$st = $dbh->prepare("INSERT INTO speakers(name) VALUES(?)");
 	$st->execute('Speaker 1');
 	$st->execute('Speaker 3');
@@ -114,6 +124,11 @@ SKIP: {
 	my $input = Media::Convert::Asset->new(url => abs_path("t/testvids/bbb.mp4"));
 	# perform cut with default normalizer
 	run($^X, "-I", $INC[0], "$scriptpath/sreview-cut", $row->{talkid});
+	ok(-f $ENV{SREVIEWTEST_FIXUP_MARKER}, "cut fixup ran and created marker file");
+	open(my $mfh, "<", $ENV{SREVIEWTEST_FIXUP_MARKER}) or die $!;
+	my $marker = do { local $/; <$mfh> };
+	close($mfh);
+	like($marker, qr/main\.mkv\z/, "cut fixup marker contains the filename passed to the fixup");
 
 	my $coll = SReview::Files::Factory->create("intermediate", $config->get("pubdir"));
 	ok($coll->has_file("$relname/0/main.mkv"), "The file is created and added to the collection");
@@ -162,4 +177,5 @@ SKIP: {
 }
 
 unlink("config.pm");
+unlink("t/fixup_marker");
 remove_tree("t/inputdir", "t/outputdir", "t/pubdir");

@@ -417,6 +417,16 @@ my $final = $output_coll->add_file(relname => $talk->relative_name . "/main.mkv"
 
 move($main->url, $final->filename);
 
+my $fixups = $config->get('cut_fixups');
+if(defined($fixups) && ref($fixups) eq 'ARRAY') {
+	foreach my $cmd(@$fixups) {
+		next unless defined($cmd);
+		next unless ref($cmd) eq 'ARRAY';
+		system(@$cmd, $final->filename) == 0 or die "fixup command failed: $?";
+		$final->store_file;
+	}
+}
+
 $final->store_file;
 
 $dbh->begin_work;
