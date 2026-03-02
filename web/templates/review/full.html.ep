@@ -641,17 +641,23 @@
     var MIN_DURATION_MS = 60 * 1000; // 1 minute
 
     function setText(obj, startstop, starttime, endtime) {
-      $(".changemsg").fadeOut();
-      $(".errmsg").fadeOut();
-      obj.html("<strong>New " + startstop + " time set</strong><p>If you are curious, the new video times are: " + starttime + " to " + endtime + "</p>");
-      obj.fadeIn();
+      $(".changemsg").stop(true, true);
+      $(".errmsg").stop(true, true);
+      obj.stop(true, true);
+      $(".changemsg, .errmsg").fadeOut().promise().done(function() {
+        obj.html("<strong>New " + startstop + " time set</strong><p>If you are curious, the new video times are: " + starttime + " to " + endtime + "</p>");
+        obj.fadeIn();
+      });
     };
 
     function setError(obj, message) {
-      $(".changemsg").fadeOut();
-      $(".errmsg").fadeOut();
-      obj.html("<strong>Error:</strong> " + message);
-      obj.fadeIn();
+      $(".changemsg").stop(true, true);
+      $(".errmsg").stop(true, true);
+      obj.stop(true, true);
+      $(".changemsg, .errmsg").fadeOut().promise().done(function() {
+        obj.html("<strong>Error:</strong> " + message);
+        obj.fadeIn();
+      });
     };
 
     function addDate(d, offset) {
