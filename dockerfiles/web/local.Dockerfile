@@ -1,6 +1,15 @@
-FROM debian:stable-backports
+FROM debian:latest AS mcbuild
+ARG MC_REPO=https://salsa.debian.org/wouter/media-convert
+WORKDIR /tmp
+RUN apt-get update && apt-get install -y --no-install-recommends git build-essential devscripts equivs
+RUN git clone $MC_REPO media-convert
+RUN cd media-convert && mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
+RUN cd media-convert && dpkg-buildpackage --build=binary -rfakeroot -uc -us -i -I.git
+
+FROM debian:latest
+COPY --from=mcbuild /tmp/libmedia-convert-perl*deb /root/
 RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install \
+  DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install /root/libmedia-convert-perl*deb \
   bs1770gain \
   ffmpeg \
   fonts-font-awesome \
@@ -24,13 +33,8 @@ RUN apt-get update && \
   perl \
   postgresql-client \
   pwgen \
-  python3.11-venv \
-  -y && \
-  apt-get install --no-install-recommends \
-  -t bookworm-backports \
-  libmedia-convert-perl \
+  python3-venv \
   -y
-
 # torch without CUDA
 RUN python3 -m venv /venv && /venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu && /venv/bin/pip install openai-whisper
 
