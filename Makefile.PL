@@ -21,6 +21,7 @@ WriteMakefile(
 		'Mojo::Pg' => 0,
 		'Mojolicious::Plugin::OpenAPI' => '>= 4.03',
 		'Moose' => 0,
+		'MooseX::ClassAttribute' => 0,
 		'Class::Type::Enum' => 0,
 		'Crypt::PRNG' => 0,
 		'DateTime' => 0,
