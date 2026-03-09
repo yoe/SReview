@@ -32,6 +32,7 @@ Architecture: all
 Depends: sreview-common,
          ${misc:Depends},
          ${perl:Depends},
+         adduser,
 Recommends: postgresql,
             postgresql-contrib,
             rsync,
