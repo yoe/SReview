@@ -176,7 +176,7 @@ $dbh->commit;
 my $talk = SReview::Talk->new(talkid => $talkid);
 
 if($talk->get_flag("is_injected")) {
-	$dbh->prepare("UPDATE talks SET progress='broken', comments='tried to re-cut an injected talk' WHERE id = ?")->execute($talkid);
+	$dbh->prepare("UPDATE talks SET progress='failed', comments='tried to re-cut an injected talk' WHERE id = ?")->execute($talkid);
 	exit;
 }
 
