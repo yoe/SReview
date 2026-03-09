@@ -1,4 +1,4 @@
-FROM debian:latest AS mcbuild
+FROM debian:unstable AS mcbuild
 ARG MC_REPO=https://salsa.debian.org/wouter/media-convert
 WORKDIR /tmp
 RUN apt-get update && apt-get install -y --no-install-recommends git build-essential devscripts equivs
@@ -6,7 +6,7 @@ RUN git clone $MC_REPO media-convert
 RUN cd media-convert && mk-build-deps -r -i -t "apt-get -y -o Debug::pkgProblemResolver=yes --no-install-recommends"
 RUN cd media-convert && dpkg-buildpackage --build=binary -rfakeroot -uc -us -i -I.git
 
-FROM debian:latest
+FROM debian:unstable
 COPY --from=mcbuild /tmp/libmedia-convert-perl*deb /root/
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install /root/libmedia-convert-perl*deb \
@@ -17,6 +17,7 @@ RUN apt-get update && \
   libclass-type-enum-perl \
   libcryptx-perl \
   libdatetime-format-pg-perl \
+  libdatetime-format-iso8601-perl \
   libdatetime-perl \
   libextutils-depends-perl \
   libfile-which-perl \
