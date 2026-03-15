@@ -254,23 +254,49 @@ if(defined($config->get("input_profile"))) {
 	$png_profile = $main_input;
 }
 
+my $total_count = 2 + scalar(@{$config->get('output_profiles')});
+my $current_step = 0;
+
+sub progress {
+	my $perc = shift;
+	if(!$dbh->ping) {
+		$dbh = DBI->connect($config->get('dbistring'), '', '') or return;
+	}
+	$dbh->prepare("UPDATE talks SET perc = ?, current_step = ?, total_steps = ? WHERE id = ?")->execute($perc, $current_step, $total_count, $talkid);
+}
+
+sub run_pipe($pipe) {
+	$pipe->progress(\&progress);
+	eval {
+		$pipe->run();
+	};
+	if($@) {
+		$dbh->prepare("UPDATE talks SET state=failed, comment=? WHERE id=?")->execute($@, $talkid);
+		die $@;
+	}
+	$current_step++;
+}
+
+$dbh->prepare("UPDATE talks SET perc=0,current_step=0,total_steps=? WHERE id=?")->execute($total_count, $talkid);
+
 my ($sorry, $sorryopts_in, $sorryopts_out);
 if(defined($drow->{apologynote}) && length($drow->{apologynote}) > 0) {
+	$total_count++;
 	my $apology = "$tmpdir/sorry/sorry.png";
 	mkdir "$tmpdir/sorry";
 
 	die unless defined($config->get('apology_template'));
 	($apology, $sorryopts_in, $sorryopts_out) = process_template($config->get('apology_template'), $apology, $talk, $config);
 	$sorry = Media::Convert::Asset->new(url => "$tmpdir/$slug-sorry.mkv", reference => $png_profile, @$sorryopts_out);
-	Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology, @$sorryopts_in)], output => $sorry)->run();
+	run_pipe(Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $apology, @$sorryopts_in)], output => $sorry));
 }
 
 # concatenate preroll, main video, postroll
 my $pre_in = Media::Convert::Asset::PNGGen->new(url => $preroll, reference => $png_profile, @$preopts_in);
 my $pre_out = Media::Convert::Asset->new(url => "$tmpdir/$slug-preroll.mkv", reference => $png_profile, @$preopts_out);
-Media::Convert::Pipe->new(inputs => [$pre_in], output => $pre_out, vcopy => 0, acopy => 0)->run();
+run_pipe(Media::Convert::Pipe->new(inputs => [$pre_in], output => $pre_out, vcopy => 0, acopy => 0));
 my $post = Media::Convert::Asset->new(url => "$tmpdir/$slug-postroll.mkv", reference => $png_profile, @$postopts_out);
-Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, @$postopts_in)], output => $post, vcopy => 0, acopy => 0)->run();
+run_pipe(Media::Convert::Pipe->new(inputs => [Media::Convert::Asset::PNGGen->new(url => $postroll, @$postopts_in)], output => $post, vcopy => 0, acopy => 0));
 my $inputs = [ $pre_out ];
 if( -f "$tmpdir/$slug-sorry.mkv") {
 	push @$inputs, $sorry;
@@ -312,7 +338,7 @@ foreach my $profile_str(@{$config->get('output_profiles')}) {
         $output->add_metadata(%$meta);
 
 	my $multipass = exists($multi_profiles->{$profile_str}) ? $multi_profiles->{$profile_str} : 1;
-	Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => $multipass)->run();
+	run_pipe(Media::Convert::Pipe->new(inputs => [$input], output => $output, vcopy => 0, acopy => 0, multipass => $multipass));
 	# XXX: this should really be done by Media::Convert::Asset::Concat, not by us
 	unlink($input->url);
 	$output_file->store_file;
