@@ -209,7 +209,8 @@ credits). Either this option or C<postroll_template> is required.
 
 Whether the preroll, postroll, and apology templates are in SVG or
 Synfig format. Currently, either all templates are SVG, or all templates
-are synfig; the two cannot be combined.
+are synfig; the two cannot be combined. However, if the postroll is not a
+template, then that should be a single PNG.
 
 Valid values are "svg" (for SVG) or "synfig" (for synfig). Defaults to
 "svg".
