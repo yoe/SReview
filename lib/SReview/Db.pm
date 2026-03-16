@@ -1407,6 +1407,12 @@ ALTER TYPE talkstate_new RENAME TO talkstate;
 ALTER TABLE talks ADD extra_data JSONB;
 -- 32 down
 ALTER TABLE talks DROP extra_data;
+-- 33 up
+ALTER TABLE talks ADD current_step INTEGER;
+ALTER TABLE talks ADD total_steps INTEGER;
+-- 33 down
+ALTER TABLE talks DROP current_step;
+ALTER TABLE talks DROP total_steps;
 @@ code
 -- 1 up
 CREATE VIEW last_room_files AS
