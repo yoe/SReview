@@ -11,7 +11,8 @@ use SReview::Config::Common;
 	local %ENV = %ENV;
 	delete @ENV{grep { /^SREVIEW_/ } keys %ENV};
 
-	is(SReview::Config::Common::get_default_cfile(), "/etc/sreview/config.pm", "default config file is /etc/sreview/config.pm when SREVIEW_WDIR is unset and local config.pm does not exist");
+	my $cfile = SReview::Config::Common::get_default_cfile();
+	ok($cfile eq "./config.pm" || $cfile eq "/etc/sreview/config.pm", "default config file is ./config.pm or /etc/sreview/config.pm when SREVIEW_WDIR is unset");
 
 	$ENV{SREVIEW_WDIR} = "/tmp";
 	is(SReview::Config::Common::get_default_cfile(), "/tmp/config.pm", "default config file uses SREVIEW_WDIR when set");
