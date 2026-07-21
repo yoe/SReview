@@ -47,6 +47,7 @@ has 'speaker_type' => (
 );
 
 sub _load_speaker_type {
+	require SReview::Schedule::Base::Speaker;
 	return 'SReview::Schedule::Base::Speaker';
 }
 
@@ -58,6 +59,7 @@ has 'room_type' => (
 );
 
 sub _load_room_type {
+	require SReview::Schedule::Base::Track;
 	return 'SReview::Schedule::Base::Room';
 }
 
@@ -69,6 +71,7 @@ has 'track_type' => (
 );
 
 sub _load_track_type {
+	require SReview::Schedule::Base::Track;
 	return 'SReview::Schedule::Base::Track';
 }
 
@@ -80,6 +83,7 @@ has 'talk_type' => (
 );
 
 sub _load_talk_type {
+	require SReview::Schedule::Base::Talk;
 	return 'SReview::Schedule::Base::Talk';
 }
 
@@ -91,6 +95,7 @@ has 'event_type' => (
 );
 
 sub _load_event_type {
+	require SReview::Schedule::Base::Event;
 	return 'SReview::Schedule::Base::Event';
 }
 
