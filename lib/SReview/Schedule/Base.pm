@@ -3,6 +3,11 @@ package SReview::Schedule::Base;
 use Moose;
 use Mojo::UserAgent;
 use Mojo::URL;
+use SReview::Schedule::Base::Speaker;
+use SReview::Schedule::Base::Room;
+use SReview::Schedule::Base::Track;
+use SReview::Schedule::Base::Talk;
+use SReview::Schedule::Base::Event;
 
 has 'url' => (
 	required => 1,
