@@ -58,7 +58,7 @@ js:test:
       cat /etc/apt/sources.list
     fi
   - apt-get update; apt-get -y --no-install-recommends install inkscape ffmpeg bs1770gain libssh2-1-dev
-  - cpanm --notest ExtUtils::Depends Devel::Cover TAP::Harness::JUnit Devel::Cover::Report::Cobertura https://salsa.debian.org/wouter/media-convert.git
+  - cpanm --notest ExtUtils::Depends https://cpan.metacpan.org/authors/id/E/ET/ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz Devel::Cover TAP::Harness::JUnit Devel::Cover::Report::Cobertura https://salsa.debian.org/wouter/media-convert.git
   - cpanm --notest --installdeps .
   - perl Makefile.PL
   - perl .ci/setup-minio.pl
@@ -90,7 +90,7 @@ test:committed:
   image: perl:latest
   before_script:
   - apt-get update; apt-get -y --no-install-recommends install git ffmpeg libssh2-1-dev
-  - cpanm ExtUtils::Depends
+  - cpanm ExtUtils::Depends https://cpan.metacpan.org/authors/id/E/ET/ETHER/Net-IDN-Encode-2.501-TRIAL.tar.gz
   - cpanm --notest --installdeps .
   - perl Makefile.PL
   script:
