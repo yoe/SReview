@@ -193,6 +193,8 @@ sub data {
 	$c->app->log->debug($talk->video_fragments);
         $data->{filename} = $talk->relative_name . "/main" . $c->srconfig->get("preview_exten");
         $data->{room} = $talk->room;
+        $data->{video_gaps} = $talk->video_gaps;
+        $data->{pre_window_length} = $talk->pre_window_length;
 
         $c->render(json => $data);
 }
