@@ -96,6 +96,17 @@ SKIP: {
 		cmp_ok(sum_len($rows, -1), '==', $twenty, 'pre total is 20 minutes when available in one file');
 		cmp_ok(sum_len($rows, 1), '==', $main_expected, 'main total is full talk length when available');
 		cmp_ok(sum_len($rows, -2), '==', $twenty, 'post total is 20 minutes when available in one file');
+
+		my $gaps = $talk->video_gaps;
+		cmp_deeply($gaps->{pre}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps pre has no gaps (single file)');
+		cmp_deeply($gaps->{main}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps main has no gaps (single file)');
+		cmp_deeply($gaps->{post}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps post has no gaps (single file)');
 	}
 
 	# Scenario 2: Pre spans multiple raw files but totals >= 20 minutes
@@ -174,7 +185,47 @@ SKIP: {
 		cmp_ok(sum_len($rows, -2), '==', $twenty, 'post total equals 20 minutes');
 	}
 
-	# Scenario 8: Gap inside main (missing middle) => main shorter
+	# Scenario 8: A raw file lying entirely inside the talk (bounded by
+	# gaps on both sides) must not leak into the pre gap table.
+	# adjusted_raw_talks emits such a file as a pre row with a negative
+	# raw_length_corrected, which video_gaps must not turn into a bogus
+	# pre entry.
+	{
+		my $dbh = setup_db();
+		insert_talk($dbh);
+		insert_raw($dbh, id => 1, start => '2017-11-10 16:40:00+00', end => '2017-11-10 17:00:02+00');
+		insert_raw($dbh, id => 2, start => '2017-11-10 17:00:04+00', end => '2017-11-10 17:00:06+00');
+		insert_raw($dbh, id => 3, start => '2017-11-10 17:00:08+00', end => '2017-11-10 17:20:10+00');
+		my $talk = SReview::Talk->new(talkid => 1);
+		my $gaps = $talk->video_gaps;
+		cmp_deeply($gaps->{pre}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps pre is not corrupted by a raw file lying inside the talk');
+		cmp_deeply($gaps->{main}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+			{ video_offset => num(2, 0.01), cumulative_gap => num(2, 0.01) },
+			{ video_offset => num(4, 0.01), cumulative_gap => num(4, 0.01) },
+		], 'video_gaps main describes both mid-talk gaps');
+	}
+
+	# Scenario 9: A recording gap spanning the talk start: pre footage
+	# ends 60 seconds before the talk begins. The pre gap table only
+	# describes the footage; the review UI measures pre corrections from
+	# the end of the pre window, whose length is reported separately.
+	{
+		my $dbh = setup_db();
+		insert_talk($dbh);
+		insert_raw($dbh, id => 1, start => '2017-11-10 16:50:00+00', end => '2017-11-10 16:59:00+00');
+		insert_raw($dbh, id => 2, start => '2017-11-10 17:00:03+00', end => '2017-11-10 17:20:10+00');
+		my $talk = SReview::Talk->new(talkid => 1);
+		my $gaps = $talk->video_gaps;
+		cmp_deeply($gaps->{pre}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(600, 0.01) },
+		], 'video_gaps pre has one entry with the leading gap and no trailing entry');
+		cmp_ok($talk->pre_window_length, '==', $twenty, 'pre_window_length is the length of the pre window');
+	}
+
+	# Scenario 10: Gap inside main (missing middle) => main shorter
 	{
 		my $dbh = setup_db();
 		insert_talk($dbh);
@@ -185,6 +236,18 @@ SKIP: {
 		cmp_ok(sum_len($rows, 1), '==', 7, 'main total is reduced if there is a gap inside main');
 		cmp_ok(sum_len($rows, -1), '==', $twenty, 'pre total equals 20 minutes');
 		cmp_ok(sum_len($rows, -2), '==', $twenty, 'post total equals 20 minutes');
+
+		my $gaps = $talk->video_gaps;
+		cmp_deeply($gaps->{main}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+			{ video_offset => num(5, 0.01), cumulative_gap => num(3, 0.01) },
+		], 'video_gaps main has 2 entries with correct offsets and gaps');
+		cmp_deeply($gaps->{pre}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps pre has 1 entry with gap 0');
+		cmp_deeply($gaps->{post}, [
+			{ video_offset => num(0, 0.01), cumulative_gap => num(0, 0.01) },
+		], 'video_gaps post has 1 entry with gap 0');
 	}
 }
 
