@@ -102,7 +102,7 @@ function extractInlineScript(html) {
   return matches[matches.length - 1][1];
 }
 
-function createDom(html) {
+function createDom(html, stubData) {
   const { JSDOM } = require("jsdom");
 
   const dom = new JSDOM(html, {
@@ -130,10 +130,11 @@ function createDom(html) {
 
   // Avoid async/network.
   $.getJSON = function getJSONStub(_url, cb) {
-    cb({
+    cb(Object.assign({
       start_iso: "2020-01-01T00:00:00.000Z",
       end_iso: "2020-01-01T00:02:00.000Z",
-    });
+      video_gaps: { pre: [], main: [], post: [] },
+    }, stubData));
   };
 
   return { dom, window, $ };
@@ -764,4 +765,279 @@ test("review page: start/end offset calculations + overwrite + validation + subm
 
   assert.equal(window.document.getElementById("start_time_corrval").value, "10");
   assert.equal(window.document.getElementById("end_time_corrval").value, "8");
+});
+
+test("review page: start_time_early with main gaps", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [],
+      main: [
+        { video_offset: 0, cumulative_gap: 0 },
+        { video_offset: 5, cumulative_gap: 3 },
+      ],
+      post: [],
+    },
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_early"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-early");
+  Object.defineProperty(video, "duration", { value: 120, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 7, writable: true, configurable: true });
+  video.currentTime = 7;
+
+  $(window.document.getElementById("start_time_early")).trigger("click");
+
+  // corrval = 7 + 3 (gap) = 10
+  assert.equal(window.document.getElementById("start_time_corrval").value, "10");
+});
+
+test("review page: start_time_late with pre gaps", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [
+        { video_offset: 0, cumulative_gap: 0 },
+        { video_offset: 600, cumulative_gap: 120 },
+      ],
+      main: [],
+      post: [],
+    },
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_late"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-late");
+  Object.defineProperty(video, "duration", { value: 900, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 500, writable: true, configurable: true });
+  video.currentTime = 500;
+
+  $(window.document.getElementById("start_time_late")).trigger("click");
+
+  // remainingRealWorld = (900+120) - (500+0) = 520
+  // corrval = -520
+  assert.equal(window.document.getElementById("start_time_corrval").value, "-520");
+});
+
+test("review page: end_time_early with post gaps", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [],
+      main: [],
+      post: [
+        { video_offset: 0, cumulative_gap: 0 },
+        { video_offset: 300, cumulative_gap: 60 },
+      ],
+    },
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="end_time"][value="too_early"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-end-early");
+  Object.defineProperty(video, "duration", { value: 600, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 400, writable: true, configurable: true });
+  video.currentTime = 400;
+
+  $(window.document.getElementById("end_time_early")).trigger("click");
+
+  // corrval = 400 + 60 (gap) = 460
+  assert.equal(window.document.getElementById("end_time_corrval").value, "460");
+});
+
+test("review page: end_time_late with main gaps", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [],
+      main: [
+        { video_offset: 0, cumulative_gap: 0 },
+        { video_offset: 50, cumulative_gap: 10 },
+      ],
+      post: [],
+    },
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="end_time"][value="too_late"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-end-late");
+  Object.defineProperty(video, "duration", { value: 200, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 100, writable: true, configurable: true });
+  video.currentTime = 100;
+
+  $(window.document.getElementById("end_time_late")).trigger("click");
+
+  // realWorldOffset = 100 + 10 = 110, scheduledLength = 120
+  // corrval = 110 - 120 = -10
+  assert.equal(window.document.getElementById("end_time_corrval").value, "-10");
+});
+
+test("review page: empty gaps give same result as raw currentTime", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html);
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_early"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-early");
+  Object.defineProperty(video, "duration", { value: 120, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 5, writable: true, configurable: true });
+  video.currentTime = 5;
+
+  $(window.document.getElementById("start_time_early")).trigger("click");
+
+  // With empty gaps, corrval = raw currentTime = 5
+  assert.equal(window.document.getElementById("start_time_corrval").value, "5");
+});
+
+test("review page: start_time_late 'start missing' when recording started less than 20 minutes before the talk", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  // Recording began 5 minutes before the talk: the first 900s of the
+  // 20-minute pre window have no footage at all, which video_gaps
+  // reports as a leading cumulative_gap on the first pre fragment.
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [{ video_offset: 0, cumulative_gap: 900 }],
+      main: [],
+      post: [],
+    },
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_late"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-late");
+  Object.defineProperty(video, "duration", { value: 300, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 0, writable: true, configurable: true });
+
+  window.document.getElementById("start-missing").checked = true;
+
+  $(window.document.getElementById("start_time_late")).trigger("click");
+
+  // The start of the talk is not in the pre video, so the new start time
+  // must be pushed back to where footage actually begins: 300 seconds
+  // before the talk start. The leading 900 seconds of the pre window
+  // contain no footage and must not become part of the correction.
+  assert.equal(window.document.getElementById("start_time_corrval").value, "-300");
+});
+
+// The pre window ends at the talk start, so a "too late" correction is
+// the distance between the chosen frame and the end of the window, not
+// the end of the pre video: when the pre footage ends before the talk
+// start, those two differ. The encoded pre video is also never exactly
+// as long as the sum of its fragments in the database, so the mapping
+// must not depend on the player's reported duration.
+test("review page: start_time_late when the pre footage ends before the talk start", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  // Footage from 16:50:00 to 16:59:00 for a talk starting at 17:00:00:
+  // 600s of no footage, 540s of video, 60s of no footage.
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [{ video_offset: 0, cumulative_gap: 600 }],
+      main: [],
+      post: [],
+    },
+    pre_window_length: 1200,
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_late"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-late");
+  // A frame shorter than the 540s the database adds up to.
+  Object.defineProperty(video, "duration", { value: 539.96, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 100, writable: true, configurable: true });
+
+  $(window.document.getElementById("start_time_late")).trigger("click");
+
+  // Position 100 in the video is 16:51:40, which is 500s before the
+  // talk start.
+  assert.equal(window.document.getElementById("start_time_corrval").value, "-500");
+});
+
+test("review page: start_time_late 'start missing' when the pre footage ends before the talk start", async (t) => {
+  const html = renderReviewTemplateOrSkip(t);
+  if (!html) return;
+
+  const script = extractInlineScript(html);
+  const { window, $ } = createDom(html, {
+    video_gaps: {
+      pre: [{ video_offset: 0, cumulative_gap: 600 }],
+      main: [],
+      post: [],
+    },
+    pre_window_length: 1200,
+  });
+  await runReviewPageInlineScript({ window, $ }, script);
+
+  $(window.document.querySelector('input[name="video_state"][value="not_ok"]')).trigger("click");
+  await tick(window);
+
+  $(window.document.querySelector('input[name="start_time"][value="too_late"]')).trigger("click");
+  await tick(window);
+
+  const video = window.document.getElementById("video-start-late");
+  Object.defineProperty(video, "duration", { value: 539.96, configurable: true });
+  Object.defineProperty(video, "currentTime", { value: 0, writable: true, configurable: true });
+
+  window.document.getElementById("start-missing").checked = true;
+
+  $(window.document.getElementById("start_time_late")).trigger("click");
+
+  // The first recorded frame is at 16:50:00, 600s before the talk start.
+  assert.equal(window.document.getElementById("start_time_corrval").value, "-600");
 });

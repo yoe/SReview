@@ -16,9 +16,12 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 51;
+use Test::More tests => 63;
 use Test::Mojo;
 use Mojo::File qw/path/;
+use DBI;
+use SReview::Config::Common;
+use SReview::Db;
 use SReview::Talk;
 use Media::Convert::Asset;
 use SReview::Web;
@@ -26,7 +29,25 @@ use SReview::Web;
 my $cfgname = path()->to_abs->child('config.pm');
 
 SKIP: {
-	skip("Need a database to play with", 51) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
+	skip("Need a database to play with", 63) unless (exists($ENV{SREVIEWTEST_DB}) or exists($ENV{SREVIEWTEST_INSTALLED}) or exists($ENV{AUTOPKGTEST_TMP}));
+
+	# Set up a talk with gaps in its recording, so that the /data
+	# endpoint is tested with a real gap table:
+	#
+	#   pre window  16:40:00 - 17:00:00, footage from 16:50:00
+	#   talk        17:00:00 - 17:00:10, footage missing 17:00:03 - 17:00:05
+	my $config = SReview::Config::Common::setup;
+	ok(SReview::Db::init($config), "Initializing the database was successful");
+	ok(SReview::Db::selfdestruct(code => 0, init => 0), "Clobbering the database works");
+	ok(SReview::Db::init($config), "Re-initializing the database after clobbering it was successful");
+	my $dbh = DBI->connect($config->get('dbistring'), '', '', { RaiseError => 1, AutoCommit => 1 });
+	$dbh->do("INSERT INTO rooms(id, name, altname, outputname) VALUES (1, 'room1', 'Room1', 'room1')");
+	$dbh->do("INSERT INTO events(id, name, outputdir) VALUES(1, 'Test event', NULL)");
+	$dbh->do("INSERT INTO tracks(id, name) VALUES(1, 'Track 1')");
+	$dbh->do(q{INSERT INTO talks(id, room, slug, starttime, endtime, title, subtitle, description, event, upstreamid, track, state, progress, apologynote, active_stream, extra_data, flags) VALUES(1, 1, 'test-talk', '2017-11-10 17:00:00+00', '2017-11-10 17:00:10+00', 'Test talk', 'Sub', 'Test talk description', 1, 'up1', 1, 'waiting_for_files', 'waiting', NULL, '', '{"foo":"bar"}', '{"a":true}')});
+	$dbh->do("INSERT INTO raw_files(id, filename, room, starttime, endtime, stream) VALUES(1, 'room1/raw1.mkv', 1, '2017-11-10 16:50:00+00', '2017-11-10 17:00:03+00', '')");
+	$dbh->do("INSERT INTO raw_files(id, filename, room, starttime, endtime, stream) VALUES(2, 'room1/raw2.mkv', 1, '2017-11-10 17:00:05+00', '2017-11-10 17:20:10+00', '')");
+	$dbh->disconnect;
 
 	my $script = path(__FILE__);
 	$script = $script->dirname->child('..')->child('web')->child('sreview-web')->to_abs;
@@ -53,7 +74,16 @@ SKIP: {
 	  ->json_is("/end" => $talk->corrected_times->{end})
 	  ->json_is("/start" => $talk->corrected_times->{start})
 	  ->json_is("/end_iso" => $talk->corrected_times->{end_iso})
-	  ->json_is("/start_iso" => $talk->corrected_times->{start_iso});
+	  ->json_is("/start_iso" => $talk->corrected_times->{start_iso})
+	  ->json_has("/video_gaps")
+	  ->json_has("/video_gaps/pre")
+	  ->json_has("/video_gaps/main")
+	  ->json_has("/video_gaps/post")
+	  ->json_is("/video_gaps/pre/0/cumulative_gap" => 600)
+	  ->json_is("/video_gaps/main/0/cumulative_gap" => 0)
+	  ->json_is("/video_gaps/main/1/video_offset" => 3)
+	  ->json_is("/video_gaps/main/1/cumulative_gap" => 2)
+	  ->json_is("/pre_window_length" => 1200);
 
 	my $video = Media::Convert::Asset->new(url => $talk->outname . ".mkv");
 
