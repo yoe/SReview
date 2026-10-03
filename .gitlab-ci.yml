@@ -35,7 +35,7 @@ js:test:
   stage: test
   services:
   - postgres:11
-  - name: minio/minio:latest
+  - name: alpine/minio:latest
     command:
     - server
     - /data
@@ -317,7 +317,7 @@ validate:unstable:
   stage: autopkgtest
   services:
   - postgres:latest
-  - name: minio/minio:latest
+  - name: alpine/minio:latest
     alias: minio-minio
     command:
     - server
