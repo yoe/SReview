@@ -103,6 +103,7 @@ t/040-db.t
 t/056-dispatch-flags.t
 t/080-runthrough.t
 t/085-schedule-export.t
+t/086-cut-with-gaps.t
 t/090-talk.t
 t/091-fragments.t
 t/095-files.t
