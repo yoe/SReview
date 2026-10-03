@@ -86,7 +86,7 @@ js:test:
 perl:latest:
   extends: .build
 
-perl:5.32:
+perl:5.36:
   extends: .build
 
 test:committed:
