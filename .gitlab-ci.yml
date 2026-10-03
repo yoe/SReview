@@ -35,17 +35,21 @@ js:test:
   stage: test
   services:
   - postgres:11
-  - name: alpine/minio:latest
+  - name: chrislusf/seaweedfs:latest
+    alias: seaweedfs
     command:
-    - server
-    - /data
+    - mini
+    - -dir=/data
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
     POSTGRES_PASSWORD: ""
     POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEWTEST_DB: sreview;host=postgres;user=sreview
-    SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"minioadmin","aws_secret_access_key":"minioadmin","secure":0,"host":"minio-minio:9000"}}'
+    SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"sreviewtest","aws_secret_access_key":"sreviewtest","secure":0,"host":"seaweedfs:8333"}}'
+    AWS_ACCESS_KEY_ID: sreviewtest
+    AWS_SECRET_ACCESS_KEY: srevietest
+    S3_BUCKET: 'test'
     SREVIEWTEST_BUCKET: 'test'
     SREVIEW_COMMAND_TUNE: '{"bs1770gain":"0.5","inkscape":"0.9"}'
     JUNIT_OUTPUT_FILE: junit_output.xml 
@@ -317,11 +321,11 @@ validate:unstable:
   stage: autopkgtest
   services:
   - postgres:latest
-  - name: alpine/minio:latest
-    alias: minio-minio
+  - name: chrislsf/seaweedfs:latest
+    alias: seaweedfs
     command:
-    - server
-    - /data
+    - mini
+    - -dir=/data
   variables:
     POSTGRES_DB: sreview
     POSTGRES_USER: sreview
@@ -329,7 +333,10 @@ validate:unstable:
     POSTGRES_HOST_AUTH_METHOD: trust
     SREVIEWTEST_DB: 'sreview;host=postgres;user=sreview'
     SREVIEWTEST_INSTALLED: 1
-    SREVIEWTEST_S3_CONFIG: '{"default": {"aws_access_key_id": "minioadmin", "aws_secret_access_key":"minioadmin","secure":0,"host":"minio-minio:9000"}}'
+    SREVIEWTEST_S3_CONFIG: '{"default": {"aws_access_key_id": "sreviewtest", "aws_secret_access_key":"sreviewtest","secure":0,"host":"seaweedfs:8333"}}'
+    AWS_ACCESS_KEY_ID: sreviewtest
+    AWS_SECRET_ACCESS_KEY: sreviewtest
+    S3_BUCKET: test
     SREVIEWTEST_BUCKET: 'test'
   before_script:
   - |
