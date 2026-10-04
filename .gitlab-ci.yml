@@ -48,7 +48,7 @@ js:test:
     SREVIEWTEST_DB: sreview;host=postgres;user=sreview
     SREVIEWTEST_S3_CONFIG: '{"default":{"aws_access_key_id":"sreviewtest","aws_secret_access_key":"sreviewtest","secure":0,"host":"seaweedfs:8333"}}'
     AWS_ACCESS_KEY_ID: sreviewtest
-    AWS_SECRET_ACCESS_KEY: srevietest
+    AWS_SECRET_ACCESS_KEY: sreviewtest
     S3_BUCKET: 'test'
     SREVIEWTEST_BUCKET: 'test'
     SREVIEW_COMMAND_TUNE: '{"bs1770gain":"0.5","inkscape":"0.9"}'
@@ -321,7 +321,7 @@ validate:unstable:
   stage: autopkgtest
   services:
   - postgres:latest
-  - name: chrislsf/seaweedfs:latest
+  - name: chrislusf/seaweedfs:latest
     alias: seaweedfs
     command:
     - mini
