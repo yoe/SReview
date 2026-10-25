@@ -130,9 +130,6 @@ sub talksByState {
 	$st = $c->dbh->prepare("SELECT talks.id, title, subtitle, description, starttime, starttime::date AS date, to_char(starttime, 'yyyy') AS year, endtime, rooms.name as room, rooms.outputname as rooms_output, upstreamid, events.name as event, slug FROM talks JOIN rooms on talks.room = rooms.id JOIN events on talks.event = events.id WHERE state=? AND event=?");
 	$st->execute($state, $eventId);
 	my $speakers = $c->dbh->prepare("SELECT name FROM speakers JOIN speakers_talks ON speakers.id = speakers_talks.speaker WHERE speakers_talks.talk = ?");
-	if($st->rows < 1) {
-		$c->render(openapi => $rv);
-	}
 	my $mt = Mojo::Template->new;
 	$mt->vars(1);
 	while(my $row = $st->fetchrow_hashref()) {
