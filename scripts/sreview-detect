@@ -137,11 +137,6 @@ foreach my $file(@{$collection->children}) {
 	my $stream = $+{stream};
 	$stream = '' unless defined $stream;
 
-	my %parsed = ( %+ );
-	delete $parsed{room};
-	delete $parsed{stream};
-
-	my $start = DateTime->new(%parsed, time_zone => $tz);
 	$exists->execute($file->relname);
 	my $row = $exists->fetchrow_hashref;
         my %args;
@@ -162,6 +157,19 @@ foreach my $file(@{$collection->children}) {
                         next FILE;
                 }
                 next unless defined($length);
+		my $start;
+		my $src = $config->get("starttime_source");
+		if($src eq "parse_re") {
+			my %parsed = ( %+ );
+			delete $parsed{room};
+			delete $parsed{stream};
+
+			$start = DateTime->new(%parsed, time_zone => $tz);
+		} elsif($src eq "attribute") {
+			$start = $video->creation_time;
+		} else {
+			die "Unknown value for starttime_source: $src";
+		}
 		$start = DateTime::Format::Pg->format_datetime($start);
 		$add->execute($file->relname, $room, $room, $start, $start, $length, $stream, $file->mtime->epoch);
 		$file = undef;

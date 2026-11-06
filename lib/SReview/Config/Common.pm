@@ -111,6 +111,7 @@ sub setup {
 	$config->define('parse_re', 'A regular expression to parse a filename into year, month, day, hour, minute, second, room, and stream', '.*\/(?<room>[^\/]+)(?<stream>(-[^\/-]+)?)\/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\/(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})');
 	$config->define('file_timezone', 'The timezone that dates and times as parsed from filenames by parse_re are expected to be in. Can be any valid value for the "name" parameter to the DateTime::TimeZone constructor.', 'local');
 	$config->define('url_re', 'If set, used with parse_re in an s///g command to produce an input URL', undef);
+	$config->define('starttime_source' => 'Where the start time of a video should be taken from. One of "parse_re" for the values as parsed from parse_re and put into a DateTime constructor or "attribute" to read the creation_time attribute of a Media::Convert::Asset object for that file', 'parse_re');
 
 	# Values for dispatch script
 	$config->define('state_actions', 'A hash that tells SReview what to do with a talk when it is in a given state. Mojo::Template is used to transform these.', {
