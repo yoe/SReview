@@ -1,5 +1,6 @@
 ---
 variables:
+  BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
   SCAN_KUBERNETES_MANIFESTS: "true"
 include:
   template: Security/SAST.gitlab-ci.yml
