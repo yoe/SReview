@@ -8,96 +8,97 @@ SReview has been used in production for the following conferences:
   since.
 * OSW.za: 2019 edition
 
-What follows below is a short description of how SReview was installed
-and configured for some of those conferences. Note, however, that it is
-possible to run all components of SReview on a single host; for small
-conferences, doing so is recommended.
+These are all very different conferences; some are massive multi-room
+events where it is impossible for one person or one team to review
+everything; others are much smaller events where doing so is definitely
+possible.
 
-## FOSDEM
+What follows are a few descriptions of potential hosting scenarios for
+all of the possible events. You can use these, or not; SReview is very
+flexible, so it's not required to follow the potential scenarios.
 
-### 2017
+## Small conferences (one room)
 
-At FOSDEM 2017, SReview was installed on the following machines:
+e.g., mini-debconf.
 
-- review.video.fosdem.org: web interface, postgresql, gridengine master,
-  gridengine exec, dispatch script
-- encoder0.video.fosdem.org, encoder1.video.fosdem.org, ...: gridengine
-  exec, encoder nodes
-- backend0.video.fosdem.org, backend1.video.fosdem.org, ...:
-  `detect_files`, storage for raw recordings (access over HTTP only)
-- storage0.video.fosdem.org, storage1.video.fosdem.org, ...: NFS,
-  storage for `cut_talk`, `previews`, and `transcode` output.
+Host everything on a single node.
 
-All machines were "bare metal" machines at a cloud hoster. Data access
-to the database and the raw files was LAN-based and therefore quick.
+If there is no formal schedule website, create the event in the
+database, create an admin user, and then log in to the system using that
+admin user. You can manually add all talks to the database.
 
-FOSDEM 2017 was the first ever conference where SReview was used. The
-code was *extremely* rough around the edges; in fact, much of the
-functionality wasn't there yet, and much of what was there has since
-been rewritten.
+If there is a formal schedule website, configure sreview-import and let
+it run from cron.
 
-### 2018
+As long as the formal schedule has a unique ID for every talk that does
+not change if any other metadata of the talk (such as the title, time,
+or list of speakers) changes, this is safe to do and won't interfere
+with the rest of the system.
 
-The setup for FOSDEM 2018 was very similar, but there were a few
-differences:
+Set the `$anonreviews` configuration parameter to a trueish value and
+open the `/overview` page on the SReview webinterface. Follow the links
+to do review.
 
-- Everything ran from Debian packages, and we used the generic scripts
-  (`sreview-transcode` rather than a custom `transcode` script, etc).
-- review.video.fosdem.org was renamed to review-master.video.fosdem.org,
-  and a CNAME was created for the former, for more flexibility (which we
-  turned out not to need in the end, sigh).
-- The NGinX-mp4 module was not used this time around to access the
-  backend machines, instead we used NFS to access them.
+Optionally set up a notification system through `sreview-notify` (e.g.,
+email or an IRC bot) to be notified when a talk is waiting for you (or
+just refresh the overview page every once in a while).
 
-## DebConf
+Optionally configure a batch scheduling system (such as gridengine) to
+schedule jobs. Alternatively, just have `sreview-dispatch` run the
+per-state scripts directly. Note though that the `sreview-transcode`
+jobs take a *lot* of time to finish, so either accept that some reviews
+will have to wait, or don't enable `sreview-transcode` until everything
+has been reviewed.
 
-### 2017 (Montéal, Canada)
+## Medium conferences (a handful of rooms)
 
-At DebConf17, SReview was installed on the following machines:
+e.g., DebConf, OSW.za
 
-- vittoria.debian.org: web interface, postgresql, gridengine master,
-  gridengine exec, dispatch script with configuration for upload and
-  notification *only* (upload script would pull from noc1st0 first and
-  then publish).
-- noc1st0.debconf17.debconf.org: raw recordings, all intermediate files,
-  nginx (for serving preview files to reviewers), gridengine master,
-  `detect_files`, NFS server for raw and intermediate files, gridengine
-  exec (for `cut_talks` scripts *only*).
-- encoder0.debconf17.debconf.org, encoder1.debconf17.debconf.org, ...:
-  gridengine exec, encoder nodes.
+Host the database server and the webserver on a single node.
 
-vittoria is a VM that runs on Debian infrastructure at GRNET (Greece).
-It is available to the DebConf video team all year.
+Configure a batch scheduling system (such as gridengine)
 
-The other machines were local hardware, borrowed for the duration of
-DebConf17. They were configured to be granted access to *only* the
-postgresql on vittoria.
+Configure a few worker nodes that are connected to your batch scheduling
+system and can execute jobs. Make sure they are able to read from and
+write to the `SReview::Files` collections configured in `$inputglob`
+(read-only), `$workdir` (read/write), and `$outputdir` (read/write).
 
-During the conference, while the talks were in the `waiting_for_files`
-through `transcoding` states, no files were copied to vittoria. Only
-when the transcodes had finished were they copied (by the `uploads`
-script that ran on vittoria) to vittoria, and then pushed from vittoria
-to the DebConf [video archive](https://video.debian.net).
+Make sure that all assets required by all jobs (e.g., `config.pm`,
+credits templates, etc) are available on all worker nodes (either
+through NFS or by syncing them through a config management system)
 
-After the conference, all raw recordings were rsync'd to vittoria.
+If you have a team that is large enough to do reviews, set the
+`$anonreviews` configuration parameter to a trueish value and set up a
+notification system through `sreview-notify` to be informed when talks
+are available for review (e.g., through an IRC bot or some such).
 
-### 2018 (Hsinchu, Taiwan)
+## Large conferences (many rooms)
 
-For DebConf18, the setup was very similar, but there was a major
-difference: rather than having multiple machines on-site, the DebConf18
-setup only had one 24-core VM with 10 TiB of storage on-site,
-`storage.dc18.debconf.org`. All cutting and transcoding was done on this
-machine; vittoria served the webinterface and the database, etc.
+e.g., FOSDEM
 
-## Mini debconfs
+Host the database server on a single node.
 
-Everything was installed and run on vittoria.debian.org
+Configure a batch scheduling system (such as gridengine)
 
-## OSW.co.za
+Ensure that you have the email addresses of all speakers and room or
+track managers, and make sure that they are configured in the database.
 
-The Open Source Week in Johannesburg, South Africa, used SReview for the
-review and transcode cycle. Everything was installed on a single
-machine (from Debian packages) that was only available from the NOC;
-review was done by a single user. After the first day of this
-conference, when less rooms were required, we also reused some of the
-machines that were originally used for recording as transcoding workers.
+Set up `sreview-notify` to send out email notifications. Notifications
+will be sent to speakers, with room/track managers in Cc.
+
+Set the `$anonreviews` configuration parameter to a falsy value. This
+makes the `/overview` page no longer link through to the reviews; you
+will need the review URL (which is sent to reviewers through the
+notification email)
+
+Set up a batch scheduling system (such as gridengine).
+
+Configure a config management system so you are able to add and remove
+worker nodes to the system when load increases/decreases
+
+When review by speakers is dying down (which will eventually happen),
+search for volunteers amongst your attendees or team members and hand
+out non-admin accounts. These users will be given 5 talks to review
+each.
+
+Eventually you will need to finish the last handful of talks yourself.
